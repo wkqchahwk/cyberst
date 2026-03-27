@@ -20,10 +20,18 @@ final class MarkdownRenderer {
         StringBuilder out = new StringBuilder(4096);
         out.append("<html><head><meta charset='utf-8'>")
                 .append("<style>")
-                .append("body{font-family:-apple-system,BlinkMacSystemFont,Segoe UI,Roboto,Arial,sans-serif;font-size:12px;line-height:1.4;margin:10px;}")
+                // Swing's HTML renderer does not reliably apply default heading sizes,
+                // so we explicitly define font sizes to keep a clear hierarchy.
+                .append("body{font-family:-apple-system,BlinkMacSystemFont,Segoe UI,Roboto,Arial,sans-serif;font-size:13px;line-height:1.45;margin:10px;color:#111;}")
                 .append("code,pre{font-family:ui-monospace,SFMono-Regular,Menlo,Monaco,Consolas,monospace;}")
                 .append("pre{background:#f6f8fa;border:1px solid #e5e7eb;border-radius:6px;padding:10px;overflow:auto;}")
-                .append("h1,h2,h3{margin:0.8em 0 0.4em 0;}")
+                .append("p{margin:0.55em 0;}")
+                .append("h1{font-size:20px;margin:0.85em 0 0.45em 0;}")
+                .append("h2{font-size:18px;margin:0.85em 0 0.45em 0;}")
+                .append("h3{font-size:16px;margin:0.8em 0 0.4em 0;}")
+                .append("h4{font-size:14px;margin:0.8em 0 0.4em 0;}")
+                .append("h5{font-size:13px;margin:0.75em 0 0.35em 0;}")
+                .append("h6{font-size:13px;margin:0.75em 0 0.35em 0;}")
                 .append("ul{margin:0.4em 0 0.6em 1.2em;padding:0;}")
                 .append("</style></head><body>");
 

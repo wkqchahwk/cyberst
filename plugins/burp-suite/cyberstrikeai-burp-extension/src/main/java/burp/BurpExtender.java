@@ -81,13 +81,21 @@ public class BurpExtender implements IBurpExtender, IContextMenuFactory {
                             tab.setRunStatus(runId, "error");
                             break;
                         case "thinking_stream_start":
+                            if (tab.isShowDebugEvents()) {
+                                tab.resetThinkingStream(runId);
+                            }
+                            break;
                         case "thinking_stream_delta":
                         case "tool_call":
                         case "tool_result":
                         case "tool_result_delta":
                             // debug; hide by default
                             if (tab.isShowDebugEvents() && message != null && !message.isEmpty()) {
-                                tab.appendProgressToRun(runId, "\n[" + type + "] " + message + "\n");
+                                if ("thinking_stream_delta".equals(type)) {
+                                    tab.appendThinkingDelta(runId, message);
+                                } else {
+                                    tab.appendProgressToRun(runId, "\n[" + type + "] " + message + "\n");
+                                }
                             }
                             break;
                         case "conversation":

@@ -57,6 +57,7 @@ final class CyberStrikeAITab implements ITab {
         final StringBuilder buffer = new StringBuilder();
         final StringBuilder progressBuffer = new StringBuilder();
         final StringBuilder finalBuffer = new StringBuilder();
+        final StringBuilder thinkingPending = new StringBuilder();
         String status;
         String conversationId;
         String requestRaw;
@@ -565,6 +566,43 @@ final class CyberStrikeAITab implements ITab {
                 progressArea.append(s);
                 progressArea.setCaretPosition(progressArea.getDocument().getLength());
             });
+        }
+    }
+
+    void resetThinkingStream(String runId) {
+        if (runId == null) return;
+        TestRun run = runs.get(runId);
+        if (run == null) return;
+        synchronized (run) {
+            run.thinkingPending.setLength(0);
+        }
+        appendProgressToRun(runId, "\n[thinking]\n");
+    }
+
+    void appendThinkingDelta(String runId, String delta) {
+        if (runId == null || delta == null) return;
+        TestRun run = runs.get(runId);
+        if (run == null) return;
+
+        StringBuilder toAppend = new StringBuilder();
+        synchronized (run) {
+            for (int i = 0; i < delta.length(); i++) {
+                char c = delta.charAt(i);
+                if (c == '\n') {
+                    if (run.thinkingPending.length() > 0) {
+                        toAppend.append("  ").append(run.thinkingPending).append("\n");
+                        run.thinkingPending.setLength(0);
+                    } else {
+                        toAppend.append("\n");
+                    }
+                } else if (c != '\r') {
+                    run.thinkingPending.append(c);
+                }
+            }
+        }
+
+        if (toAppend.length() > 0) {
+            appendProgressToRun(runId, toAppend.toString());
         }
     }
 
