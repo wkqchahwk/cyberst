@@ -1695,6 +1695,20 @@ function renderProcessDetails(messageId, processDetails) {
         detailsContainer.appendChild(contentDiv);
     }
     
+    // processDetails === null 表示“尚未加载（懒加载）”
+    const isLazyNotLoaded = (processDetails === null);
+    if (isLazyNotLoaded) {
+        detailsContainer.dataset.lazyNotLoaded = '1';
+        detailsContainer.dataset.loaded = '0';
+        timeline.innerHTML = '<div class="progress-timeline-empty">' +
+            (typeof window.t === 'function' ? window.t('chat.expandDetail') : '展开详情') +
+            '（点击后加载）</div>';
+        // 默认折叠
+        timeline.classList.remove('expanded');
+        return;
+    }
+    detailsContainer.dataset.lazyNotLoaded = '0';
+    detailsContainer.dataset.loaded = '1';
     // 如果没有processDetails或为空，显示空状态
     if (!processDetails || processDetails.length === 0) {
         // 显示空状态提示
@@ -2327,7 +2341,8 @@ function getConversationGroup(dateObj, todayStart, startOfWeek, yesterdayStart) 
 // 加载对话
 async function loadConversation(conversationId) {
     try {
-        const response = await apiFetch(`/api/conversations/${conversationId}`);
+        // 轻量加载：不带 processDetails，避免历史会话切换卡顿；展开详情时再按需拉取
+        const response = await apiFetch(`/api/conversations/${conversationId}?include_process_details=0`);
         const conversation = await response.json();
         
         if (!response.ok) {
@@ -2426,11 +2441,18 @@ async function loadConversation(conversationId) {
                 
                 // 传递消息的创建时间
                 const messageId = addMessage(msg.role, displayContent, msg.mcpExecutionIds || [], null, msg.createdAt);
+                // 绑定后端 messageId，供按需加载过程详情使用
+                const messageEl = document.getElementById(messageId);
+                if (messageEl && msg && msg.id) {
+                    messageEl.dataset.backendMessageId = String(msg.id);
+                }
                 // 对于助手消息，总是渲染过程详情（即使没有processDetails也要显示展开详情按钮）
                 if (msg.role === 'assistant') {
                     // 延迟一下，确保消息已经渲染
                     setTimeout(() => {
-                        renderProcessDetails(messageId, msg.processDetails || []);
+                        // 如果后端未返回 processDetails 字段，传 null 表示“尚未加载，点击展开时再请求”
+                        const hasField = msg && Object.prototype.hasOwnProperty.call(msg, 'processDetails');
+                        renderProcessDetails(messageId, hasField ? (msg.processDetails || []) : null);
                         // 如果有过程详情，检查是否有错误或取消事件，如果有，确保详情默认折叠
                         if (msg.processDetails && msg.processDetails.length > 0) {
                             const hasErrorOrCancelled = msg.processDetails.some(d => 

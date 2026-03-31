@@ -506,6 +506,46 @@ function toggleProcessDetails(progressId, assistantMessageId) {
     const detailsId = 'process-details-' + assistantMessageId;
     const detailsContainer = document.getElementById(detailsId);
     if (!detailsContainer) return;
+
+    // 懒加载：首次展开时才从后端拉取该条消息的过程详情
+    const maybeLazy = detailsContainer.dataset && detailsContainer.dataset.lazyNotLoaded === '1' && detailsContainer.dataset.loaded !== '1';
+    if (maybeLazy) {
+        const messageEl = document.getElementById(assistantMessageId);
+        const backendMessageId = messageEl && messageEl.dataset ? messageEl.dataset.backendMessageId : '';
+        if (backendMessageId && typeof apiFetch === 'function' && typeof renderProcessDetails === 'function') {
+            if (detailsContainer.dataset.loading === '1') {
+                // 正在加载中，避免重复请求
+            } else {
+                detailsContainer.dataset.loading = '1';
+                // 先展开容器，显示加载态
+                const timeline = detailsContainer.querySelector('.progress-timeline');
+                if (timeline) {
+                    timeline.innerHTML = '<div class="progress-timeline-empty">' + ((typeof window.t === 'function') ? window.t('common.loading') : '加载中…') + '</div>';
+                }
+                apiFetch(`/api/messages/${encodeURIComponent(String(backendMessageId))}/process-details`)
+                    .then(async (res) => {
+                        const j = await res.json().catch(() => ({}));
+                        if (!res.ok) throw new Error((j && j.error) ? j.error : res.status);
+                        const details = (j && Array.isArray(j.processDetails)) ? j.processDetails : [];
+                        // 重新渲染详情（renderProcessDetails 会清掉 lazy 标记并写入 loaded）
+                        renderProcessDetails(assistantMessageId, details);
+                    })
+                    .catch((e) => {
+                        console.error('加载过程详情失败:', e);
+                        const tl = detailsContainer.querySelector('.progress-timeline');
+                        if (tl) {
+                            tl.innerHTML = '<div class="progress-timeline-empty">' + ((typeof window.t === 'function') ? window.t('chat.noProcessDetail') : '暂无过程详情（加载失败）') + '</div>';
+                        }
+                        // 失败时保留 lazy 状态，允许用户重试
+                        detailsContainer.dataset.lazyNotLoaded = '1';
+                        detailsContainer.dataset.loaded = '0';
+                    })
+                    .finally(() => {
+                        detailsContainer.dataset.loading = '0';
+                    });
+            }
+        }
+    }
     
     const content = detailsContainer.querySelector('.process-details-content');
     const timeline = detailsContainer.querySelector('.progress-timeline');
