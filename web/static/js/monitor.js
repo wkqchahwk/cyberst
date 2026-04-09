@@ -460,13 +460,16 @@ function integrateProgressToMCPSection(progressId, assistantMessageId, mcpExecut
         mcpIds.forEach((execId, index) => {
             const detailBtn = document.createElement('button');
             detailBtn.className = 'mcp-detail-btn';
+            detailBtn.dataset.execId = execId;
+            detailBtn.dataset.execIndex = String(index + 1);
             detailBtn.innerHTML = '<span>' + (typeof window.t === 'function' ? window.t('chat.callNumber', { n: index + 1 }) : '调用 #' + (index + 1)) + '</span>';
             detailBtn.onclick = () => showMCPDetail(execId);
             buttonsContainer.appendChild(detailBtn);
-            if (typeof updateButtonWithToolName === 'function') {
-                updateButtonWithToolName(detailBtn, execId, index + 1);
-            }
         });
+        // 使用批量 API 一次性获取所有工具名称（消除 N 次单独请求）
+        if (typeof batchUpdateButtonToolNames === 'function') {
+            batchUpdateButtonToolNames(buttonsContainer, mcpIds);
+        }
     }
     if (!buttonsContainer.querySelector('.process-detail-btn')) {
         const progressDetailBtn = document.createElement('button');

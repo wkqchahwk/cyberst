@@ -1494,11 +1494,14 @@ function addMessage(role, content, mcpExecutionIds = null, progressId = null, cr
         mcpExecutionIds.forEach((execId, index) => {
             const detailBtn = document.createElement('button');
             detailBtn.className = 'mcp-detail-btn';
+            detailBtn.dataset.execId = execId;
+            detailBtn.dataset.execIndex = String(index + 1);
             detailBtn.innerHTML = '<span>' + (typeof window.t === 'function' ? window.t('chat.callNumber', { n: index + 1 }) : '调用 #' + (index + 1)) + '</span>';
             detailBtn.onclick = () => showMCPDetail(execId);
             buttonsContainer.appendChild(detailBtn);
-            updateButtonWithToolName(detailBtn, execId, index + 1);
         });
+        // 使用批量 API 一次性获取所有工具名称（消除 N 次单独请求）
+        batchUpdateButtonToolNames(buttonsContainer, mcpExecutionIds);
         
         mcpSection.appendChild(buttonsContainer);
         contentWrapper.appendChild(mcpSection);
@@ -1858,6 +1861,34 @@ async function updateButtonWithToolName(button, executionId, index) {
     } catch (error) {
         // 如果获取失败，保持原有文本不变
         console.error('获取工具名称失败:', error);
+    }
+}
+
+// 批量获取工具名称并更新按钮（消除 N 次单独 API 请求，合并为 1 次）
+async function batchUpdateButtonToolNames(buttonsContainer, executionIds) {
+    if (!executionIds || executionIds.length === 0) return;
+    try {
+        const response = await apiFetch('/api/monitor/executions/names', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ ids: executionIds }),
+        });
+        if (!response.ok) return;
+        const nameMap = await response.json(); // { execId: toolName }
+        // 更新对应按钮的文本
+        const buttons = buttonsContainer.querySelectorAll('.mcp-detail-btn[data-exec-id]');
+        buttons.forEach(btn => {
+            const execId = btn.dataset.execId;
+            const index = btn.dataset.execIndex;
+            const toolName = nameMap[execId];
+            if (toolName) {
+                const displayToolName = toolName.includes('::') ? toolName.split('::')[1] : toolName;
+                const span = btn.querySelector('span');
+                if (span) span.textContent = `${displayToolName} #${index}`;
+            }
+        });
+    } catch (error) {
+        console.error('批量获取工具名称失败:', error);
     }
 }
 
@@ -2380,15 +2411,14 @@ async function loadConversation(conversationId) {
         }
         
         // 获取当前对话所属的分组ID（用于高亮显示）
-        // 确保分组映射已加载
+        // 确保分组映射已加载（使用缓存避免重复请求）
         if (Object.keys(conversationGroupMappingCache).length === 0) {
             await loadConversationGroupMapping();
         }
         currentConversationGroupId = conversationGroupMappingCache[conversationId] || null;
-        
-        // 无论是否在分组详情页面，都刷新分组列表，确保高亮状态正确
-        // 这样可以清除之前分组的高亮状态，确保UI状态一致
-        await loadGroups();
+
+        // 异步刷新分组列表高亮状态（不阻塞消息渲染）
+        loadGroups();
         
         // 更新当前对话ID
         currentConversationId = conversationId;
@@ -2430,13 +2460,15 @@ async function loadConversation(conversationId) {
             }
         }
         
-        // 加载消息
+        // 加载消息 — 分批渲染避免长时间阻塞主线程
         if (conversation.messages && conversation.messages.length > 0) {
-            conversation.messages.forEach(msg => {
-                // 检查消息内容是否为"处理中..."，如果是，检查processDetails中是否有错误或取消事件
+            const FIRST_BATCH = 20;  // 首批同步渲染（用户可见区域）
+            const BATCH_SIZE = 10;   // 后续每批条数
+
+            // 渲染单条消息的辅助函数
+            const renderOneMessage = (msg) => {
                 let displayContent = msg.content;
                 if (msg.role === 'assistant' && msg.content === '处理中...' && msg.processDetails && msg.processDetails.length > 0) {
-                    // 查找最后一个error或cancelled事件
                     for (let i = msg.processDetails.length - 1; i >= 0; i--) {
                         const detail = msg.processDetails[i];
                         if (detail.eventType === 'error' || detail.eventType === 'cancelled') {
@@ -2445,47 +2477,63 @@ async function loadConversation(conversationId) {
                         }
                     }
                 }
-                
-                // 传递消息的创建时间
+
                 const messageId = addMessage(msg.role, displayContent, msg.mcpExecutionIds || [], null, msg.createdAt);
-                // 绑定后端 messageId，供按需加载过程详情使用
                 const messageEl = document.getElementById(messageId);
                 if (messageEl && msg && msg.id) {
                     messageEl.dataset.backendMessageId = String(msg.id);
                     attachDeleteTurnButton(messageEl);
                 }
-                // 对于助手消息，总是渲染过程详情（即使没有processDetails也要显示展开详情按钮）
                 if (msg.role === 'assistant') {
-                    // 延迟一下，确保消息已经渲染
-                    setTimeout(() => {
-                        // 如果后端未返回 processDetails 字段，传 null 表示“尚未加载，点击展开时再请求”
-                        const hasField = msg && Object.prototype.hasOwnProperty.call(msg, 'processDetails');
-                        renderProcessDetails(messageId, hasField ? (msg.processDetails || []) : null);
-                        // 如果有过程详情，检查是否有错误或取消事件，如果有，确保详情默认折叠
-                        if (msg.processDetails && msg.processDetails.length > 0) {
-                            const hasErrorOrCancelled = msg.processDetails.some(d => 
-                                d.eventType === 'error' || d.eventType === 'cancelled'
-                            );
-                            if (hasErrorOrCancelled) {
-                                collapseAllProgressDetails(messageId, null);
-                            }
+                    const hasField = msg && Object.prototype.hasOwnProperty.call(msg, 'processDetails');
+                    renderProcessDetails(messageId, hasField ? (msg.processDetails || []) : null);
+                    if (msg.processDetails && msg.processDetails.length > 0) {
+                        const hasErrorOrCancelled = msg.processDetails.some(d =>
+                            d.eventType === 'error' || d.eventType === 'cancelled'
+                        );
+                        if (hasErrorOrCancelled) {
+                            collapseAllProgressDetails(messageId, null);
                         }
-                    }, 100);
+                    }
                 }
-            });
+            };
+
+            const msgs = conversation.messages;
+            const firstBatch = msgs.slice(0, FIRST_BATCH);
+            const rest = msgs.slice(FIRST_BATCH);
+
+            // 首批同步渲染
+            firstBatch.forEach(renderOneMessage);
+
+            // 剩余消息通过 requestAnimationFrame 分批渲染，避免阻塞 UI
+            if (rest.length > 0) {
+                const savedConvId = conversationId;
+                let offset = 0;
+                const renderNextBatch = () => {
+                    // 如果用户已经切换到其他对话，停止渲染
+                    if (currentConversationId !== savedConvId) return;
+                    const batch = rest.slice(offset, offset + BATCH_SIZE);
+                    batch.forEach(renderOneMessage);
+                    offset += BATCH_SIZE;
+                    if (offset < rest.length) {
+                        requestAnimationFrame(renderNextBatch);
+                    } else {
+                        // 所有消息渲染完毕，滚动到底部
+                        messagesDiv.scrollTop = messagesDiv.scrollHeight;
+                    }
+                };
+                requestAnimationFrame(renderNextBatch);
+            }
         } else {
             const readyMsgEmpty = typeof window.t === 'function' ? window.t('chat.systemReadyMessage') : '系统已就绪。请输入您的测试需求，系统将自动执行相应的安全测试。';
             addMessage('assistant', readyMsgEmpty, null, null, null, { systemReadyMessage: true });
         }
-        
-        // 滚动到底部
+
+        // 滚动到底部（首批渲染后立即滚动，剩余批次渲染后会再次滚动）
         messagesDiv.scrollTop = messagesDiv.scrollHeight;
-        
+
         // 添加攻击链按钮
         addAttackChainButton(conversationId);
-        
-        // 刷新对话列表
-        loadConversations();
     } catch (error) {
         console.error('加载对话失败:', error);
         alert('加载对话失败: ' + error.message);
@@ -4421,20 +4469,17 @@ async function loadGroups() {
 async function loadConversationsWithGroups(searchQuery = '') {
     const loadSeq = ++conversationsListLoadSeq;
     try {
-        // 总是重新加载分组列表和分组映射，确保缓存是最新的
-        // 这样可以正确处理分组被删除后的情况
-        await loadGroups();
-        if (loadSeq !== conversationsListLoadSeq) return;
-        await loadConversationGroupMapping();
-        if (loadSeq !== conversationsListLoadSeq) return;
-
-        // 如果有搜索关键词，使用更大的limit以获取所有匹配结果
-        const limit = (searchQuery && searchQuery.trim()) ? 1000 : 100;
+        // 并行加载分组列表、分组映射和对话列表（消除串行等待）
+        const limit = (searchQuery && searchQuery.trim()) ? 100 : 100;
         let url = `/api/conversations?limit=${limit}`;
         if (searchQuery && searchQuery.trim()) {
             url += '&search=' + encodeURIComponent(searchQuery.trim());
         }
-        const response = await apiFetch(url);
+        const [,, response] = await Promise.all([
+            loadGroups(),
+            loadConversationGroupMapping(),
+            apiFetch(url),
+        ]);
         if (loadSeq !== conversationsListLoadSeq) return;
 
         const listContainer = document.getElementById('conversations-list');
@@ -5432,48 +5477,27 @@ async function removeConversationFromGroup(convId, groupId) {
 // 加载对话分组映射
 async function loadConversationGroupMapping() {
     try {
-        // 获取所有分组，然后获取每个分组的对话
-        let groups;
-        if (Array.isArray(groupsCache) && groupsCache.length > 0) {
-            groups = groupsCache;
-        } else {
-            const response = await apiFetch('/api/groups');
-            if (!response.ok) {
-                // 如果API请求失败，使用空数组，不打印警告（这是正常错误处理）
-                groups = [];
-            } else {
-                groups = await response.json();
-                // 确保groups是有效数组，只在真正异常时才打印警告
-                if (!Array.isArray(groups)) {
-                    // 只在返回的不是数组且不是null/undefined时才打印警告（可能是后端返回了错误格式）
-                    if (groups !== null && groups !== undefined) {
-                        console.warn('loadConversationGroupMapping: groups不是有效数组，使用空数组', groups);
-                    }
-                    groups = [];
-                }
-            }
-        }
-        
+        // 使用批量 API 一次性获取所有映射（消除 N+1 串行请求）
+        const response = await apiFetch('/api/groups/mappings');
+
         // 保存待保留的映射
         const preservedMappings = { ...pendingGroupMappings };
-        
+
         conversationGroupMappingCache = {};
 
-        for (const group of groups) {
-            const response = await apiFetch(`/api/groups/${group.id}/conversations`);
-            const conversations = await response.json();
-            // 确保conversations是有效数组
-            if (Array.isArray(conversations)) {
-                conversations.forEach(conv => {
-                    conversationGroupMappingCache[conv.id] = group.id;
+        if (response.ok) {
+            const mappings = await response.json();
+            if (Array.isArray(mappings)) {
+                mappings.forEach(m => {
+                    conversationGroupMappingCache[m.conversationId] = m.groupId;
                     // 如果这个对话在待保留映射中，从待保留映射中移除（因为已经从后端加载了）
-                    if (preservedMappings[conv.id] === group.id) {
-                        delete pendingGroupMappings[conv.id];
+                    if (preservedMappings[m.conversationId] === m.groupId) {
+                        delete pendingGroupMappings[m.conversationId];
                     }
                 });
             }
         }
-        
+
         // 恢复待保留的映射（这些是后端API尚未同步的映射）
         Object.assign(conversationGroupMappingCache, preservedMappings);
     } catch (error) {
