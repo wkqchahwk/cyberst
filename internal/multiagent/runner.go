@@ -798,3 +798,50 @@ func paragraphLineFingerprint(t string) string {
 	sort.Strings(norm)
 	return strings.Join(norm, "\x1e")
 }
+
+// resolveMainOrchestratorInstruction selects the orchestrator instruction and
+// optional markdown metadata based on orchestration mode, config and loaded
+// markdown files. If a markdown orchestrator exists for the chosen mode it
+// returns its instruction and the metadata pointer; otherwise it returns the
+// configured instruction (may be empty) and nil metadata.
+func resolveMainOrchestratorInstruction(orchMode string, ma *config.MultiAgentConfig, markdownLoad *agents.MarkdownDirLoad) (string, *agents.OrchestratorMarkdown) {
+	if ma == nil {
+		if markdownLoad == nil {
+			return "", nil
+		}
+		// Fallback to any available markdown orchestrator when config is nil.
+		switch orchMode {
+		case "plan_execute":
+			if markdownLoad.OrchestratorPlanExecute != nil {
+				return markdownLoad.OrchestratorPlanExecute.Instruction, markdownLoad.OrchestratorPlanExecute
+			}
+		case "supervisor":
+			if markdownLoad.OrchestratorSupervisor != nil {
+				return markdownLoad.OrchestratorSupervisor.Instruction, markdownLoad.OrchestratorSupervisor
+			}
+		default:
+			if markdownLoad.Orchestrator != nil {
+				return markdownLoad.Orchestrator.Instruction, markdownLoad.Orchestrator
+			}
+		}
+		return "", nil
+	}
+
+	switch orchMode {
+	case "plan_execute":
+		if markdownLoad != nil && markdownLoad.OrchestratorPlanExecute != nil {
+			return markdownLoad.OrchestratorPlanExecute.Instruction, markdownLoad.OrchestratorPlanExecute
+		}
+		return ma.OrchestratorInstructionPlanExecute, nil
+	case "supervisor":
+		if markdownLoad != nil && markdownLoad.OrchestratorSupervisor != nil {
+			return markdownLoad.OrchestratorSupervisor.Instruction, markdownLoad.OrchestratorSupervisor
+		}
+		return ma.OrchestratorInstructionSupervisor, nil
+	default:
+		if markdownLoad != nil && markdownLoad.Orchestrator != nil {
+			return markdownLoad.Orchestrator.Instruction, markdownLoad.Orchestrator
+		}
+		return ma.OrchestratorInstruction, nil
+	}
+}

@@ -2,11 +2,6 @@
 
 This document summarizes the changes requested in this thread and the current verified status of the repository.
 
-## 1. Repository setup
-
-- The repository was cloned into a separate workspace folder:
-  - `C:\Users\danie\OneDrive\Documents\CyberStrikeAI`
-
 ## 2. Language and naming changes
 
 ### 2.1 English filename normalization for role files
