@@ -501,14 +501,14 @@ func PrintGeneratedPasswordWarning(password string, persisted bool, persistErr s
 	}
 
 	if persisted {
-		fmt.Println("[CyberStrikeAI] ??藥꿜맏?②눎?①뵟?먨뭉?쇿뀯 Web ?삣퐬野녺쟻??)
+		fmt.Println("[CyberStrikeAI] A web password was generated and saved to config.yaml.")
 	} else {
 		if persistErr != "" {
-			fmt.Printf("[CyberStrikeAI] ?좑툘 ?졿퀡?ゅ뒯?쇿뀯?띸쉰?뉏뻑訝?쉪野녺쟻: %s\n", persistErr)
+			fmt.Printf("[CyberStrikeAI] A web password was generated, but saving it to config.yaml failed: %s\n", persistErr)
 		} else {
-			fmt.Println("[CyberStrikeAI] ?좑툘 ?졿퀡?ゅ뒯?쇿뀯?띸쉰?뉏뻑訝?쉪野녺쟻??)
+			fmt.Println("[CyberStrikeAI] A web password was generated, but saving it to config.yaml failed.")
 		}
-		fmt.Println("瑥룡뎸?ⓨ컛餓δ툔?뤸쑛野녺쟻?쇿뀯 config.yaml ??auth.password竊?)
+		fmt.Println("Please update auth.password in config.yaml manually.")
 	}
 
 	fmt.Println("----------------------------------------------------------------")
@@ -516,8 +516,8 @@ func PrintGeneratedPasswordWarning(password string, persisted bool, persistErr s
 	fmt.Printf("Password: %s\n", password)
 	fmt.Println("WARNING: Anyone with this password can fully control CyberStrikeAI.")
 	fmt.Println("Please store it securely and change it in config.yaml as soon as possible.")
-	fmt.Println("鈺?몜竊싨똻?됪?野녺쟻?꾡볶弱녷떏?됧? CyberStrikeAI ?꾢츑?ⓩ렒?뜻쓢?먦?)
-	fmt.Println("瑥룟┘?꾡퓷嶸∽펽亮뜹갹恙ュ쑉 config.yaml 訝?엶??auth.password竊?)
+	fmt.Println("Keep this password private and rotate it after the first login.")
+	fmt.Println("You can change it later by editing auth.password in config.yaml.")
 	fmt.Println("----------------------------------------------------------------")
 }
 
