@@ -1,4 +1,4 @@
-package config
+﻿package config
 
 import (
 	"crypto/rand"
@@ -15,7 +15,7 @@ import (
 )
 
 type Config struct {
-	Version     string                `yaml:"version,omitempty" json:"version,omitempty"` // 前端显示的版本号，如 v1.3.3
+	Version     string                `yaml:"version,omitempty" json:"version,omitempty"` // ?띸ク?양ㅊ?꾤뎵?у뤇竊뚦쫩 v1.3.3
 	Server      ServerConfig          `yaml:"server"`
 	Log         LogConfig             `yaml:"log"`
 	MCP         MCPConfig             `yaml:"mcp"`
@@ -27,32 +27,32 @@ type Config struct {
 	Auth        AuthConfig            `yaml:"auth"`
 	ExternalMCP ExternalMCPConfig     `yaml:"external_mcp,omitempty"`
 	Knowledge   KnowledgeConfig       `yaml:"knowledge,omitempty"`
-	Robots      RobotsConfig          `yaml:"robots,omitempty" json:"robots,omitempty"`         // 企业微信/钉钉/飞书等机器人配置
-	RolesDir    string                `yaml:"roles_dir,omitempty" json:"roles_dir,omitempty"`   // 角色配置文件目录（新方式）
-	Roles       map[string]RoleConfig `yaml:"roles,omitempty" json:"roles,omitempty"`           // 向后兼容：支持在主配置文件中定义角色
-	SkillsDir   string                `yaml:"skills_dir,omitempty" json:"skills_dir,omitempty"` // Skills配置文件目录
-	AgentsDir   string                `yaml:"agents_dir,omitempty" json:"agents_dir,omitempty"` // 多代理子 Agent Markdown 定义目录（*.md，YAML front matter）
+	Robots      RobotsConfig          `yaml:"robots,omitempty" json:"robots,omitempty"`         // 鴉곦툣孃?에/?됮뭺/繇욂묘嶺됪쑛?ⓧ볶?띸쉰
+	RolesDir    string                `yaml:"roles_dir,omitempty" json:"roles_dir,omitempty"`   // 鰲믦돯?띸쉰?뉏뻑??퐬竊덃뼭?밧폀竊?
+	Roles       map[string]RoleConfig `yaml:"roles,omitempty" json:"roles,omitempty"`           // ?묈릮?쇔?竊싨뵱?곩쑉訝삯뀓營?뻼餓뜸릎若싦퉱鰲믦돯
+	SkillsDir   string                `yaml:"skills_dir,omitempty" json:"skills_dir,omitempty"` // Skills?띸쉰?뉏뻑??퐬
+	AgentsDir   string                `yaml:"agents_dir,omitempty" json:"agents_dir,omitempty"` // 鸚싦빰?녶춴 Agent Markdown 若싦퉱??퐬竊?.md竊똜AML front matter竊?
 	MultiAgent  MultiAgentConfig      `yaml:"multi_agent,omitempty" json:"multi_agent,omitempty"`
 }
 
-// MultiAgentConfig 基于 CloudWeGo Eino adk/prebuilt 的多代理编排（deep | plan_execute | supervisor，与单 Agent /agent-loop 并存）。
+// English note.
 type MultiAgentConfig struct {
 	Enabled            bool   `yaml:"enabled" json:"enabled"`
-	DefaultMode        string `yaml:"default_mode" json:"default_mode"`                   // single | multi，供前端默认展示
-	RobotUseMultiAgent bool   `yaml:"robot_use_multi_agent" json:"robot_use_multi_agent"` // 为 true 时钉钉/飞书/企微机器人走 Eino 多代理
-	BatchUseMultiAgent bool   `yaml:"batch_use_multi_agent" json:"batch_use_multi_agent"` // 为 true 时批量任务队列中每子任务走 Eino 多代理
-	// Orchestration 已弃用：保留仅兼容旧版 config.yaml；编排由聊天/WebShell 请求体 orchestration 决定，未传时按 deep。
+	DefaultMode        string `yaml:"default_mode" json:"default_mode"`                   // single | multi竊뚥풘?띸ク容섋?掠뺟ㅊ
+	RobotUseMultiAgent bool   `yaml:"robot_use_multi_agent" json:"robot_use_multi_agent"` // 訝?true ?띌뭺??繇욂묘/鴉곩쒜?뷴솳雅븃뎔 Eino 鸚싦빰??
+	BatchUseMultiAgent bool   `yaml:"batch_use_multi_agent" json:"batch_use_multi_agent"` // 訝?true ?뜻돶?뤶뻣?↓삜?쀤릎驪뤷춴餓삣뒦壅?Eino 鸚싦빰??
+	// English note.
 	Orchestration string `yaml:"orchestration,omitempty" json:"orchestration,omitempty"`
-	MaxIteration  int    `yaml:"max_iteration" json:"max_iteration"` // 主代理 / 执行器最大推理轮次（Deep、Supervisor、plan_execute 的 Executor）
-	// PlanExecuteLoopMaxIterations plan_execute 模式下 execute↔replan 外层循环上限；0 表示用 Eino 默认 10。
+	MaxIteration  int    `yaml:"max_iteration" json:"max_iteration"` // 訝삡빰??/ ?㎬죱?ⓩ?鸚㎪렓?녻쉰轝∽펷Deep?갨upervisor?걈lan_execute ??Executor竊?
+	// English note.
 	PlanExecuteLoopMaxIterations int                   `yaml:"plan_execute_loop_max_iterations,omitempty" json:"plan_execute_loop_max_iterations,omitempty"`
 	SubAgentMaxIterations        int                   `yaml:"sub_agent_max_iterations" json:"sub_agent_max_iterations"`
 	WithoutGeneralSubAgent       bool                  `yaml:"without_general_sub_agent" json:"without_general_sub_agent"`
 	WithoutWriteTodos            bool                  `yaml:"without_write_todos" json:"without_write_todos"`
 	OrchestratorInstruction      string                `yaml:"orchestrator_instruction" json:"orchestrator_instruction"`
-	// OrchestratorInstructionPlanExecute plan_execute 主代理（规划侧）系统提示；非空且 agents/orchestrator-plan-execute.md 正文为空或未存在时生效。不与 Deep 的 orchestrator_instruction 混用。
+	// English note.
 	OrchestratorInstructionPlanExecute string `yaml:"orchestrator_instruction_plan_execute,omitempty" json:"orchestrator_instruction_plan_execute,omitempty"`
-	// OrchestratorInstructionSupervisor supervisor 主代理系统提示（transfer/exit 说明仍由运行追加）；非空且 agents/orchestrator-supervisor.md 正文为空或未存在时生效。
+	// English note.
 	OrchestratorInstructionSupervisor string `yaml:"orchestrator_instruction_supervisor,omitempty" json:"orchestrator_instruction_supervisor,omitempty"`
 	SubAgents                    []MultiAgentSubConfig `yaml:"sub_agents" json:"sub_agents"`
 	// EinoSkills configures CloudWeGo Eino ADK skill middleware + optional local filesystem/execute on DeepAgent.
@@ -114,19 +114,19 @@ func (c MultiAgentEinoMiddlewareConfig) PatchToolCallsEffective() bool {
 	return true
 }
 
-// MultiAgentSubConfig 子代理（Eino ChatModelAgent）：deep 下由 task 调度；supervisor 下由 transfer 委派；plan_execute 不使用子代理列表。
+// English note.
 type MultiAgentSubConfig struct {
 	ID            string   `yaml:"id" json:"id"`
 	Name          string   `yaml:"name" json:"name"`
 	Description   string   `yaml:"description" json:"description"`
 	Instruction   string   `yaml:"instruction" json:"instruction"`
-	BindRole      string   `yaml:"bind_role,omitempty" json:"bind_role,omitempty"` // 可选：关联主配置 roles 中的角色名；未配 role_tools 时沿用该角色的 tools，并把 skills 写入指令提示
-	RoleTools     []string `yaml:"role_tools" json:"role_tools"`                   // 与单 Agent 角色工具相同 key；空表示全部工具（bind_role 可补全 tools）
+	BindRole      string   `yaml:"bind_role,omitempty" json:"bind_role,omitempty"` // ??됵폏?녘걫訝삯뀓營?roles 訝?쉪鰲믦돯?랃폑?ら뀓 role_tools ?뜻꼬?②?鰲믦돯??tools竊뚦뭉??skills ?쇿뀯?뉏빱?먪ㅊ
+	RoleTools     []string `yaml:"role_tools" json:"role_tools"`                   // 訝롥뜒 Agent 鰲믦돯藥ε끁?멨릪 key竊쏁㈉烏①ㅊ?③깿藥ε끁竊늒ind_role ??‥??tools竊?
 	MaxIterations int      `yaml:"max_iterations" json:"max_iterations"`
-	Kind          string   `yaml:"kind,omitempty" json:"kind,omitempty"` // 仅 Markdown：kind=orchestrator 表示 Deep 主代理（与 orchestrator.md 二选一约定）
+	Kind          string   `yaml:"kind,omitempty" json:"kind,omitempty"` // 餓?Markdown竊쉓ind=orchestrator 烏①ㅊ Deep 訝삡빰?놅펷訝?orchestrator.md 雅뚪됦?瀛?츣竊?
 }
 
-// MultiAgentPublic 返回给前端的精简信息（不含子代理指令全文）。
+// English note.
 type MultiAgentPublic struct {
 	Enabled                      bool   `json:"enabled"`
 	DefaultMode                  string `json:"default_mode"`
@@ -137,7 +137,7 @@ type MultiAgentPublic struct {
 	PlanExecuteLoopMaxIterations int    `json:"plan_execute_loop_max_iterations"`
 }
 
-// NormalizeMultiAgentOrchestration 返回 deep、plan_execute 或 supervisor。
+// English note.
 func NormalizeMultiAgentOrchestration(s string) string {
 	v := strings.TrimSpace(strings.ToLower(s))
 	switch v {
@@ -150,7 +150,7 @@ func NormalizeMultiAgentOrchestration(s string) string {
 	}
 }
 
-// MultiAgentAPIUpdate 设置页/API 仅更新多代理标量字段；写入 YAML 时不覆盖 sub_agents 等块。
+// English note.
 type MultiAgentAPIUpdate struct {
 	Enabled                      bool   `json:"enabled"`
 	DefaultMode                  string `json:"default_mode"`
@@ -159,36 +159,36 @@ type MultiAgentAPIUpdate struct {
 	PlanExecuteLoopMaxIterations *int   `json:"plan_execute_loop_max_iterations,omitempty"`
 }
 
-// RobotsConfig 机器人配置（企业微信、钉钉、飞书等）
+// English note.
 type RobotsConfig struct {
-	Wecom    RobotWecomConfig    `yaml:"wecom,omitempty" json:"wecom,omitempty"`       // 企业微信
-	Dingtalk RobotDingtalkConfig `yaml:"dingtalk,omitempty" json:"dingtalk,omitempty"` // 钉钉
-	Lark     RobotLarkConfig     `yaml:"lark,omitempty" json:"lark,omitempty"`         // 飞书
+	Wecom    RobotWecomConfig    `yaml:"wecom,omitempty" json:"wecom,omitempty"`       // 鴉곦툣孃?에
+	Dingtalk RobotDingtalkConfig `yaml:"dingtalk,omitempty" json:"dingtalk,omitempty"` // ?됮뭺
+	Lark     RobotLarkConfig     `yaml:"lark,omitempty" json:"lark,omitempty"`         // 繇욂묘
 }
 
-// RobotWecomConfig 企业微信机器人配置
+// English note.
 type RobotWecomConfig struct {
 	Enabled        bool   `yaml:"enabled" json:"enabled"`
-	Token          string `yaml:"token" json:"token"`                       // 回调 URL 校验 Token
+	Token          string `yaml:"token" json:"token"`                       // ?욆컘 URL ?↓챿 Token
 	EncodingAESKey string `yaml:"encoding_aes_key" json:"encoding_aes_key"` // EncodingAESKey
-	CorpID         string `yaml:"corp_id" json:"corp_id"`                   // 企业 ID
-	Secret         string `yaml:"secret" json:"secret"`                     // 应用 Secret
-	AgentID        int64  `yaml:"agent_id" json:"agent_id"`                 // 应用 AgentId
+	CorpID         string `yaml:"corp_id" json:"corp_id"`                   // 鴉곦툣 ID
+	Secret         string `yaml:"secret" json:"secret"`                     // 佯붺뵪 Secret
+	AgentID        int64  `yaml:"agent_id" json:"agent_id"`                 // 佯붺뵪 AgentId
 }
 
-// RobotDingtalkConfig 钉钉机器人配置
+// English note.
 type RobotDingtalkConfig struct {
 	Enabled      bool   `yaml:"enabled" json:"enabled"`
-	ClientID     string `yaml:"client_id" json:"client_id"`         // 应用 Key (AppKey)
-	ClientSecret string `yaml:"client_secret" json:"client_secret"` // 应用 Secret
+	ClientID     string `yaml:"client_id" json:"client_id"`         // 佯붺뵪 Key (AppKey)
+	ClientSecret string `yaml:"client_secret" json:"client_secret"` // 佯붺뵪 Secret
 }
 
-// RobotLarkConfig 飞书机器人配置
+// English note.
 type RobotLarkConfig struct {
 	Enabled     bool   `yaml:"enabled" json:"enabled"`
-	AppID       string `yaml:"app_id" json:"app_id"`             // 应用 App ID
-	AppSecret   string `yaml:"app_secret" json:"app_secret"`     // 应用 App Secret
-	VerifyToken string `yaml:"verify_token" json:"verify_token"` // 事件订阅 Verification Token（可选）
+	AppID       string `yaml:"app_id" json:"app_id"`             // 佯붺뵪 App ID
+	AppSecret   string `yaml:"app_secret" json:"app_secret"`     // 佯붺뵪 App Secret
+	VerifyToken string `yaml:"verify_token" json:"verify_token"` // 雅뗤뻑溫?쁾 Verification Token竊덂룾?됵펹
 }
 
 type ServerConfig struct {
@@ -205,12 +205,12 @@ type MCPConfig struct {
 	Enabled         bool   `yaml:"enabled"`
 	Host            string `yaml:"host"`
 	Port            int    `yaml:"port"`
-	AuthHeader      string `yaml:"auth_header,omitempty"`       // 鉴权 header 名，留空表示不鉴权
-	AuthHeaderValue string `yaml:"auth_header_value,omitempty"` // 鉴权 header 值，需与请求中该 header 一致
+	AuthHeader      string `yaml:"auth_header,omitempty"`       // ?닸쓢 header ?랃펽?숂㈉烏①ㅊ訝띺돱??
+	AuthHeaderValue string `yaml:"auth_header_value,omitempty"` // ?닸쓢 header ?쇽펽?訝롨?黎귚릎瑥?header 訝??
 }
 
 type OpenAIConfig struct {
-	Provider       string `yaml:"provider,omitempty" json:"provider,omitempty"` // API 提供商: "openai"(默认) 或 "claude"，claude 时自动桥接为 Anthropic Messages API
+	Provider       string `yaml:"provider,omitempty" json:"provider,omitempty"` // API ?먧풘?? "openai"(容섋?) ??"claude"竊똠laude ?띈눎?ⓩ‥?δ맏 Anthropic Messages API
 	APIKey         string `yaml:"api_key" json:"api_key"`
 	BaseURL        string `yaml:"base_url" json:"base_url"`
 	Model          string `yaml:"model" json:"model"`
@@ -218,29 +218,30 @@ type OpenAIConfig struct {
 }
 
 type FofaConfig struct {
-	// Email 为 FOFA 账号邮箱；APIKey 为 FOFA API Key（建议使用只读权限的 Key）
+	// English note.
 	Email   string `yaml:"email,omitempty" json:"email,omitempty"`
 	APIKey  string `yaml:"api_key,omitempty" json:"api_key,omitempty"`
-	BaseURL string `yaml:"base_url,omitempty" json:"base_url,omitempty"` // 默认 https://fofa.info/api/v1/search/all
+	BaseURL string `yaml:"base_url,omitempty" json:"base_url,omitempty"` // 容섋? https://fofa.info/api/v1/search/all
 }
 
 type SecurityConfig struct {
-	Tools               []ToolConfig `yaml:"tools,omitempty"`                 // 向后兼容：支持在主配置文件中定义工具
-	ToolsDir            string       `yaml:"tools_dir,omitempty"`             // 工具配置文件目录（新方式）
-	ToolDescriptionMode string       `yaml:"tool_description_mode,omitempty"` // 工具描述模式: "short" | "full"，默认 short
+	Tools               []ToolConfig `yaml:"tools,omitempty"`                 // ?묈릮?쇔?竊싨뵱?곩쑉訝삯뀓營?뻼餓뜸릎若싦퉱藥ε끁
+	ToolsDir            string       `yaml:"tools_dir,omitempty"`             // 藥ε끁?띸쉰?뉏뻑??퐬竊덃뼭?밧폀竊?
+	ToolDescriptionMode string       `yaml:"tool_description_mode,omitempty"` // 藥ε끁?뤺염與▼폀: "short" | "full"竊뚪퍡溫?short
+	ActionEnabled       bool         `yaml:"action_enabled,omitempty" json:"action_enabled,omitempty"`
 }
 
 type DatabaseConfig struct {
-	Path            string `yaml:"path"`                        // 会话数据库路径
-	KnowledgeDBPath string `yaml:"knowledge_db_path,omitempty"` // 知识库数据库路径（可选，为空则使用会话数据库）
+	Path            string `yaml:"path"`                        // 鴉싪캕?경뜮佯볢러孃?
+	KnowledgeDBPath string `yaml:"knowledge_db_path,omitempty"` // ?θ칳佯볠빊??틩瓮?푶竊덂룾?됵펽訝븀㈉?쇾슴?ⓧ폏瑥앮빊??틩竊?
 }
 
 type AgentConfig struct {
 	MaxIterations        int    `yaml:"max_iterations" json:"max_iterations"`
-	LargeResultThreshold int    `yaml:"large_result_threshold" json:"large_result_threshold"` // 大结果阈值（字节），默认50KB
-	ResultStorageDir     string `yaml:"result_storage_dir" json:"result_storage_dir"`         // 结果存储目录，默认tmp
-	ToolTimeoutMinutes   int    `yaml:"tool_timeout_minutes" json:"tool_timeout_minutes"`     // 单次工具执行最大时长（分钟），超时自动终止，防止长时间挂起；0 表示不限制（不推荐）
-	// SystemPromptPath 单代理系统提示 Markdown/文本文件路径（相对 config.yaml 所在目录，或可写绝对路径）。非空且可读时替换内置单代理提示；留空用内置。
+	LargeResultThreshold int    `yaml:"large_result_threshold" json:"large_result_threshold"` // 鸚㎫퍜?쒒삁?쇽펷耶쀨뒄竊됵펽容섋?50KB
+	ResultStorageDir     string `yaml:"result_storage_dir" json:"result_storage_dir"`         // 瀯볠옖耶섇궓??퐬竊뚪퍡溫쨟mp
+	ToolTimeoutMinutes   int    `yaml:"tool_timeout_minutes" json:"tool_timeout_minutes"`     // ?뺞А藥ε끁?㎬죱?鸚㎪뿶?울펷?녽뮓竊됵펽擁끾뿶?ゅ뒯瀯덃?竊뚪삻閭?빣?띌뿴?귟돈竊? 烏①ㅊ訝띺솏?띰펷訝띷렓?먲펹
+	// English note.
 	SystemPromptPath string `yaml:"system_prompt_path,omitempty" json:"system_prompt_path,omitempty"`
 }
 
@@ -252,69 +253,70 @@ type AuthConfig struct {
 	GeneratedPasswordPersistErr string `yaml:"-" json:"-"`
 }
 
-// ExternalMCPConfig 外部MCP配置
+// English note.
 type ExternalMCPConfig struct {
 	Servers map[string]ExternalMCPServerConfig `yaml:"servers,omitempty" json:"servers,omitempty"`
 }
 
-// ExternalMCPServerConfig 外部MCP服务器配置
+// English note.
 type ExternalMCPServerConfig struct {
-	// stdio模式配置
+	// English note.
 	Command string            `yaml:"command,omitempty" json:"command,omitempty"`
 	Args    []string          `yaml:"args,omitempty" json:"args,omitempty"`
-	Env     map[string]string `yaml:"env,omitempty" json:"env,omitempty"` // 环境变量（用于stdio模式）
+	Env     map[string]string `yaml:"env,omitempty" json:"env,omitempty"` // ??쥊?섌뇧竊덄뵪雅럖tdio與▼폀竊?
 
-	// HTTP模式配置
-	Transport string            `yaml:"transport,omitempty" json:"transport,omitempty"` // "stdio" | "sse" | "http"(Streamable) | "simple_http"(自建/简单POST端点，如本机 http://127.0.0.1:8081/mcp)
+	// English note.
+	Transport string            `yaml:"transport,omitempty" json:"transport,omitempty"` // "stdio" | "sse" | "http"(Streamable) | "simple_http"(?ゅ뻠/嶸?뷥OST塋?궧竊뚦쫩?ф쑛 http://127.0.0.1:8081/mcp)
 	URL       string            `yaml:"url,omitempty" json:"url,omitempty"`
-	Headers   map[string]string `yaml:"headers,omitempty" json:"headers,omitempty"` // HTTP/SSE 请求头（如 x-api-key）
+	Headers   map[string]string `yaml:"headers,omitempty" json:"headers,omitempty"` // HTTP/SSE 瑥룡콆鸚댐펷倻?x-api-key竊?
 
-	// 通用配置
+	// English note.
 	Description       string          `yaml:"description,omitempty" json:"description,omitempty"`
-	Timeout           int             `yaml:"timeout,omitempty" json:"timeout,omitempty"`                         // 超时时间（秒）
-	ExternalMCPEnable bool            `yaml:"external_mcp_enable,omitempty" json:"external_mcp_enable,omitempty"` // 是否启用外部MCP
-	ToolEnabled       map[string]bool `yaml:"tool_enabled,omitempty" json:"tool_enabled,omitempty"`               // 每个工具的启用状态（工具名称 -> 是否启用）
+	Timeout           int             `yaml:"timeout,omitempty" json:"timeout,omitempty"`                         // 擁끾뿶?띌뿴竊덄쭜竊?
+	ExternalMCPEnable bool            `yaml:"external_mcp_enable,omitempty" json:"external_mcp_enable,omitempty"` // ??맔??뵪鸚뽭깿MCP
+	ToolEnabled       map[string]bool `yaml:"tool_enabled,omitempty" json:"tool_enabled,omitempty"`               // 驪뤶릉藥ε끁?꾢맦?①듁?곻펷藥ε끁?띸㎞ -> ??맔??뵪竊?
 
-	// 向后兼容字段（已废弃，保留用于读取旧配置）
-	Enabled  bool `yaml:"enabled,omitempty" json:"enabled,omitempty"`   // 已废弃，使用 external_mcp_enable
-	Disabled bool `yaml:"disabled,omitempty" json:"disabled,omitempty"` // 已废弃，使用 external_mcp_enable
+	// English note.
+	Enabled  bool `yaml:"enabled,omitempty" json:"enabled,omitempty"`   // 藥꿨틹凉껓펽鵝욜뵪 external_mcp_enable
+	Disabled bool `yaml:"disabled,omitempty" json:"disabled,omitempty"` // 藥꿨틹凉껓펽鵝욜뵪 external_mcp_enable
 }
 type ToolConfig struct {
 	Name             string            `yaml:"name"`
 	Command          string            `yaml:"command"`
-	Args             []string          `yaml:"args,omitempty"`              // 固定参数（可选）
-	ShortDescription string            `yaml:"short_description,omitempty"` // 简短描述（用于工具列表，减少token消耗）
-	Description      string            `yaml:"description"`                 // 详细描述（用于工具文档）
+	Args             []string          `yaml:"args,omitempty"`              // ?뷴츣?귝빊竊덂룾?됵펹
+	ShortDescription string            `yaml:"short_description,omitempty"` // 嶸??룒瓦곤펷?ⓧ틢藥ε끁?쀨〃竊뚦뇧弱몋oken易덅쀯펹
+	Description      string            `yaml:"description"`                 // 瑥?퍏?뤺염竊덄뵪雅롥램?룡뻼旅ｏ펹
 	Enabled          bool              `yaml:"enabled"`
-	Parameters       []ParameterConfig `yaml:"parameters,omitempty"`         // 参数定义（可选）
-	ArgMapping       string            `yaml:"arg_mapping,omitempty"`        // 参数映射方式: "auto", "manual", "template"（可选）
-	AllowedExitCodes []int             `yaml:"allowed_exit_codes,omitempty"` // 允许的退出码列表（某些工具在成功时也返回非零退出码）
+	RequiresActionEnabled bool         `yaml:"requires_action_enabled,omitempty" json:"requires_action_enabled,omitempty"`
+	Parameters       []ParameterConfig `yaml:"parameters,omitempty"`         // ?귝빊若싦퉱竊덂룾?됵펹
+	ArgMapping       string            `yaml:"arg_mapping,omitempty"`        // ?귝빊?졾컙?밧폀: "auto", "manual", "template"竊덂룾?됵펹
+	AllowedExitCodes []int             `yaml:"allowed_exit_codes,omitempty"` // ?곮??꾦?븀쟻?쀨〃竊덃윇雅쎾램?룟쑉?먨뒣?뜸튋瓦붷썮?욇쎏??븀쟻竊?
 }
 
-// ParameterConfig 参数配置
+// English note.
 type ParameterConfig struct {
-	Name        string      `yaml:"name"`                // 参数名称
-	Type        string      `yaml:"type"`                // 参数类型: string, int, bool, array
-	Description string      `yaml:"description"`         // 参数描述
-	Required    bool        `yaml:"required,omitempty"`  // 是否必需
-	Default     interface{} `yaml:"default,omitempty"`   // 默认值
-	ItemType    string      `yaml:"item_type,omitempty"` // 当 type 为 array 时，数组元素类型，如 string, number, object
-	Flag        string      `yaml:"flag,omitempty"`      // 命令行标志，如 "-u", "--url", "-p"
-	Position    *int        `yaml:"position,omitempty"`  // 位置参数的位置（从0开始）
-	Format      string      `yaml:"format,omitempty"`    // 参数格式: "flag", "positional", "combined" (flag=value), "template"
-	Template    string      `yaml:"template,omitempty"`  // 模板字符串，如 "{flag} {value}" 或 "{value}"
-	Options     []string    `yaml:"options,omitempty"`   // 可选值列表（用于枚举）
+	Name        string      `yaml:"name"`                // ?귝빊?띸㎞
+	Type        string      `yaml:"type"`                // ?귝빊映삣엹: string, int, bool, array
+	Description string      `yaml:"description"`         // ?귝빊?뤺염
+	Required    bool        `yaml:"required,omitempty"`  // ??맔恙낂?
+	Default     interface{} `yaml:"default,omitempty"`   // 容섋???
+	ItemType    string      `yaml:"item_type,omitempty"` // 壤?type 訝?array ?띰펽?곁퍍?껆킔映삣엹竊뚦쫩 string, number, object
+	Flag        string      `yaml:"flag,omitempty"`      // ?썰빱烏뚧젃恙쀯펽倻?"-u", "--url", "-p"
+	Position    *int        `yaml:"position,omitempty"`  // 鵝띸쉰?귝빊?꾡퐤營?펷餓?凉冶뗰펹
+	Format      string      `yaml:"format,omitempty"`    // ?귝빊?쇔폀: "flag", "positional", "combined" (flag=value), "template"
+	Template    string      `yaml:"template,omitempty"`  // 與→씮耶쀧Е訝뀐펽倻?"{flag} {value}" ??"{value}"
+	Options     []string    `yaml:"options,omitempty"`   // ??됧쇔닓烏⑨펷?ⓧ틢?싦맘竊?
 }
 
 func Load(path string) (*Config, error) {
 	data, err := os.ReadFile(path)
 	if err != nil {
-		return nil, fmt.Errorf("读取配置文件失败: %w", err)
+		return nil, fmt.Errorf("瑥삣룚?띸쉰?뉏뻑鸚김뇰: %w", err)
 	}
 
 	var cfg Config
 	if err := yaml.Unmarshal(data, &cfg); err != nil {
-		return nil, fmt.Errorf("解析配置文件失败: %w", err)
+		return nil, fmt.Errorf("鰲ｆ옄?띸쉰?뉏뻑鸚김뇰: %w", err)
 	}
 
 	if cfg.Auth.SessionDurationHours <= 0 {
@@ -324,7 +326,7 @@ func Load(path string) (*Config, error) {
 	if strings.TrimSpace(cfg.Auth.Password) == "" {
 		password, err := generateStrongPassword(24)
 		if err != nil {
-			return nil, fmt.Errorf("生成默认密码失败: %w", err)
+			return nil, fmt.Errorf("?잍닇容섋?野녺쟻鸚김뇰: %w", err)
 		}
 
 		cfg.Auth.Password = password
@@ -338,28 +340,28 @@ func Load(path string) (*Config, error) {
 		}
 	}
 
-	// 如果配置了工具目录，从目录加载工具配置
+	// English note.
 	if cfg.Security.ToolsDir != "" {
 		configDir := filepath.Dir(path)
 		toolsDir := cfg.Security.ToolsDir
 
-		// 如果是相对路径，相对于配置文件所在目录
+		// English note.
 		if !filepath.IsAbs(toolsDir) {
 			toolsDir = filepath.Join(configDir, toolsDir)
 		}
 
 		tools, err := LoadToolsFromDir(toolsDir)
 		if err != nil {
-			return nil, fmt.Errorf("从工具目录加载工具配置失败: %w", err)
+			return nil, fmt.Errorf("餓롥램?루쎅壤뺝뒥饔썲램?룬뀓營?ㅁ兀? %w", err)
 		}
 
-		// 合并工具配置：目录中的工具优先，主配置中的工具作为补充
+		// English note.
 		existingTools := make(map[string]bool)
 		for _, tool := range tools {
 			existingTools[tool.Name] = true
 		}
 
-		// 添加主配置中不存在于目录中的工具（向后兼容）
+		// English note.
 		for _, tool := range cfg.Security.Tools {
 			if !existingTools[tool.Name] {
 				tools = append(tools, tool)
@@ -369,45 +371,45 @@ func Load(path string) (*Config, error) {
 		cfg.Security.Tools = tools
 	}
 
-	// 迁移外部MCP配置：将旧的 enabled/disabled 字段迁移到 external_mcp_enable
+	// English note.
 	if cfg.ExternalMCP.Servers != nil {
 		for name, serverCfg := range cfg.ExternalMCP.Servers {
-			// 如果已经设置了 external_mcp_enable，跳过迁移
-			// 否则从 enabled/disabled 字段迁移
-			// 注意：由于 ExternalMCPEnable 是 bool 类型，零值为 false，所以需要检查是否真的设置了
-			// 这里我们通过检查旧的 enabled/disabled 字段来判断是否需要迁移
+			// English note.
+			// English note.
+			// English note.
+			// English note.
 			if serverCfg.Disabled {
-				// 旧配置使用 disabled，迁移到 external_mcp_enable
+				// English note.
 				serverCfg.ExternalMCPEnable = false
 			} else if serverCfg.Enabled {
-				// 旧配置使用 enabled，迁移到 external_mcp_enable
+				// English note.
 				serverCfg.ExternalMCPEnable = true
 			} else {
-				// 都没有设置，默认为启用
+				// English note.
 				serverCfg.ExternalMCPEnable = true
 			}
 			cfg.ExternalMCP.Servers[name] = serverCfg
 		}
 	}
 
-	// 从角色目录加载角色配置
+	// English note.
 	if cfg.RolesDir != "" {
 		configDir := filepath.Dir(path)
 		rolesDir := cfg.RolesDir
 
-		// 如果是相对路径，相对于配置文件所在目录
+		// English note.
 		if !filepath.IsAbs(rolesDir) {
 			rolesDir = filepath.Join(configDir, rolesDir)
 		}
 
 		roles, err := LoadRolesFromDir(rolesDir)
 		if err != nil {
-			return nil, fmt.Errorf("从角色目录加载角色配置失败: %w", err)
+			return nil, fmt.Errorf("餓롨쭜?꿰쎅壤뺝뒥饔썼쭜?꿴뀓營?ㅁ兀? %w", err)
 		}
 
 		cfg.Roles = roles
 	} else {
-		// 如果未配置 roles_dir，初始化为空 map
+		// English note.
 		if cfg.Roles == nil {
 			cfg.Roles = make(map[string]RoleConfig)
 		}
@@ -460,10 +462,10 @@ func PersistAuthPassword(path, password string) error {
 
 		leadingSpaces := len(line) - len(strings.TrimLeft(line, " "))
 		if leadingSpaces <= authIndent {
-			// 离开 auth 块
+			// English note.
 			inAuthBlock = false
 			authIndent = -1
-			// 继续寻找其它 auth 块（理论上没有）
+			// English note.
 			if strings.HasPrefix(trimmed, "auth:") {
 				inAuthBlock = true
 				authIndent = leadingSpaces
@@ -499,14 +501,14 @@ func PrintGeneratedPasswordWarning(password string, persisted bool, persistErr s
 	}
 
 	if persisted {
-		fmt.Println("[CyberStrikeAI] ✅ 已为您自动生成并写入 Web 登录密码。")
+		fmt.Println("[CyberStrikeAI] ??藥꿜맏?②눎?①뵟?먨뭉?쇿뀯 Web ?삣퐬野녺쟻??)
 	} else {
 		if persistErr != "" {
-			fmt.Printf("[CyberStrikeAI] ⚠️ 无法自动写入配置文件中的密码: %s\n", persistErr)
+			fmt.Printf("[CyberStrikeAI] ?좑툘 ?졿퀡?ゅ뒯?쇿뀯?띸쉰?뉏뻑訝?쉪野녺쟻: %s\n", persistErr)
 		} else {
-			fmt.Println("[CyberStrikeAI] ⚠️ 无法自动写入配置文件中的密码。")
+			fmt.Println("[CyberStrikeAI] ?좑툘 ?졿퀡?ゅ뒯?쇿뀯?띸쉰?뉏뻑訝?쉪野녺쟻??)
 		}
-		fmt.Println("请手动将以下随机密码写入 config.yaml 的 auth.password：")
+		fmt.Println("瑥룡뎸?ⓨ컛餓δ툔?뤸쑛野녺쟻?쇿뀯 config.yaml ??auth.password竊?)
 	}
 
 	fmt.Println("----------------------------------------------------------------")
@@ -514,12 +516,12 @@ func PrintGeneratedPasswordWarning(password string, persisted bool, persistErr s
 	fmt.Printf("Password: %s\n", password)
 	fmt.Println("WARNING: Anyone with this password can fully control CyberStrikeAI.")
 	fmt.Println("Please store it securely and change it in config.yaml as soon as possible.")
-	fmt.Println("警告：持有此密码的人将拥有对 CyberStrikeAI 的完全控制权限。")
-	fmt.Println("请妥善保管，并尽快在 config.yaml 中修改 auth.password！")
+	fmt.Println("鈺?몜竊싨똻?됪?野녺쟻?꾡볶弱녷떏?됧? CyberStrikeAI ?꾢츑?ⓩ렒?뜻쓢?먦?)
+	fmt.Println("瑥룟┘?꾡퓷嶸∽펽亮뜹갹恙ュ쑉 config.yaml 訝?엶??auth.password竊?)
 	fmt.Println("----------------------------------------------------------------")
 }
 
-// generateRandomToken 生成用于 MCP 鉴权的随机字符串（64 位十六进制）
+// English note.
 func generateRandomToken() (string, error) {
 	b := make([]byte, 32)
 	if _, err := rand.Read(b); err != nil {
@@ -528,7 +530,7 @@ func generateRandomToken() (string, error) {
 	return hex.EncodeToString(b), nil
 }
 
-// persistMCPAuth 将 MCP 的 auth_header / auth_header_value 写回配置文件
+// English note.
 func persistMCPAuth(path string, mcp *MCPConfig) error {
 	data, err := os.ReadFile(path)
 	if err != nil {
@@ -585,14 +587,14 @@ func persistMCPAuth(path string, mcp *MCPConfig) error {
 	return os.WriteFile(path, []byte(strings.Join(lines, "\n")), 0644)
 }
 
-// EnsureMCPAuth 在 MCP 启用且 auth_header_value 为空时，自动生成随机密钥并写回配置
+// English note.
 func EnsureMCPAuth(path string, cfg *Config) error {
 	if !cfg.MCP.Enabled || strings.TrimSpace(cfg.MCP.AuthHeaderValue) != "" {
 		return nil
 	}
 	token, err := generateRandomToken()
 	if err != nil {
-		return fmt.Errorf("生成 MCP 鉴权密钥失败: %w", err)
+		return fmt.Errorf("?잍닇 MCP ?닸쓢野녽뮙鸚김뇰: %w", err)
 	}
 	cfg.MCP.AuthHeaderValue = token
 	if strings.TrimSpace(cfg.MCP.AuthHeader) == "" {
@@ -601,7 +603,7 @@ func EnsureMCPAuth(path string, cfg *Config) error {
 	return persistMCPAuth(path, &cfg.MCP)
 }
 
-// PrintMCPConfigJSON 向终端输出 MCP 配置的 JSON，可直接复制到 Cursor / Claude Code 的 mcp 配置中使用
+// English note.
 func PrintMCPConfigJSON(mcp MCPConfig) {
 	if !mcp.Enabled {
 		return
@@ -621,7 +623,7 @@ func PrintMCPConfigJSON(mcp MCPConfig) {
 	if len(headers) > 0 {
 		serverEntry["headers"] = headers
 	}
-	// Claude Code 需要 type: "http"
+	// English note.
 	serverEntry["type"] = "http"
 	out := map[string]interface{}{
 		"mcpServers": map[string]interface{}{
@@ -629,27 +631,27 @@ func PrintMCPConfigJSON(mcp MCPConfig) {
 		},
 	}
 	b, _ := json.MarshalIndent(out, "", "  ")
-	fmt.Println("[CyberStrikeAI] MCP 配置（可复制到 Cursor / Claude Code 使用）：")
-	fmt.Println("  Cursor: 放入 ~/.cursor/mcp.json 的 mcpServers，或项目 .cursor/mcp.json")
-	fmt.Println("  Claude Code: 放入 .mcp.json 或 ~/.claude.json 的 mcpServers")
+	fmt.Println("[CyberStrikeAI] MCP ?띸쉰竊덂룾鸚띶댍??Cursor / Claude Code 鵝욜뵪竊됵폏")
+	fmt.Println("  Cursor: ?얍뀯 ~/.cursor/mcp.json ??mcpServers竊뚧닑窈밭쎅 .cursor/mcp.json")
+	fmt.Println("  Claude Code: ?얍뀯 .mcp.json ??~/.claude.json ??mcpServers")
 	fmt.Println("----------------------------------------------------------------")
 	fmt.Println(string(b))
 	fmt.Println("----------------------------------------------------------------")
 }
 
-// LoadToolsFromDir 从目录加载所有工具配置文件
+// English note.
 func LoadToolsFromDir(dir string) ([]ToolConfig, error) {
 	var tools []ToolConfig
 
-	// 检查目录是否存在
+	// English note.
 	if _, err := os.Stat(dir); os.IsNotExist(err) {
-		return tools, nil // 目录不存在时返回空列表，不报错
+		return tools, nil // ??퐬訝띶춼?ⓩ뿶瓦붷썮令뷴닓烏⑨펽訝띷뒫??
 	}
 
-	// 读取目录中的所有 .yaml 和 .yml 文件
+	// English note.
 	entries, err := os.ReadDir(dir)
 	if err != nil {
-		return nil, fmt.Errorf("读取工具目录失败: %w", err)
+		return nil, fmt.Errorf("瑥삣룚藥ε끁??퐬鸚김뇰: %w", err)
 	}
 
 	for _, entry := range entries {
@@ -665,8 +667,8 @@ func LoadToolsFromDir(dir string) ([]ToolConfig, error) {
 		filePath := filepath.Join(dir, name)
 		tool, err := LoadToolFromFile(filePath)
 		if err != nil {
-			// 记录错误但继续加载其他文件
-			fmt.Printf("警告: 加载工具配置文件 %s 失败: %v\n", filePath, err)
+			// English note.
+			fmt.Printf("鈺?몜: ?좄슬藥ε끁?띸쉰?뉏뻑 %s 鸚김뇰: %v\n", filePath, err)
 			continue
 		}
 
@@ -676,42 +678,42 @@ func LoadToolsFromDir(dir string) ([]ToolConfig, error) {
 	return tools, nil
 }
 
-// LoadToolFromFile 从单个文件加载工具配置
+// English note.
 func LoadToolFromFile(path string) (*ToolConfig, error) {
 	data, err := os.ReadFile(path)
 	if err != nil {
-		return nil, fmt.Errorf("读取文件失败: %w", err)
+		return nil, fmt.Errorf("瑥삣룚?뉏뻑鸚김뇰: %w", err)
 	}
 
 	var tool ToolConfig
 	if err := yaml.Unmarshal(data, &tool); err != nil {
-		return nil, fmt.Errorf("解析工具配置失败: %w", err)
+		return nil, fmt.Errorf("鰲ｆ옄藥ε끁?띸쉰鸚김뇰: %w", err)
 	}
 
-	// 验证必需字段
+	// English note.
 	if tool.Name == "" {
-		return nil, fmt.Errorf("工具名称不能为空")
+		return nil, fmt.Errorf("藥ε끁?띸㎞訝띹꺗訝븀㈉")
 	}
 	if tool.Command == "" {
-		return nil, fmt.Errorf("工具命令不能为空")
+		return nil, fmt.Errorf("藥ε끁?썰빱訝띹꺗訝븀㈉")
 	}
 
 	return &tool, nil
 }
 
-// LoadRolesFromDir 从目录加载所有角色配置文件
+// English note.
 func LoadRolesFromDir(dir string) (map[string]RoleConfig, error) {
 	roles := make(map[string]RoleConfig)
 
-	// 检查目录是否存在
+	// English note.
 	if _, err := os.Stat(dir); os.IsNotExist(err) {
-		return roles, nil // 目录不存在时返回空map，不报错
+		return roles, nil // ??퐬訝띶춼?ⓩ뿶瓦붷썮令튾ap竊뚥툖?ι뵗
 	}
 
-	// 读取目录中的所有 .yaml 和 .yml 文件
+	// English note.
 	entries, err := os.ReadDir(dir)
 	if err != nil {
-		return nil, fmt.Errorf("读取角色目录失败: %w", err)
+		return nil, fmt.Errorf("瑥삣룚鰲믦돯??퐬鸚김뇰: %w", err)
 	}
 
 	for _, entry := range entries {
@@ -727,15 +729,15 @@ func LoadRolesFromDir(dir string) (map[string]RoleConfig, error) {
 		filePath := filepath.Join(dir, name)
 		role, err := LoadRoleFromFile(filePath)
 		if err != nil {
-			// 记录错误但继续加载其他文件
-			fmt.Printf("警告: 加载角色配置文件 %s 失败: %v\n", filePath, err)
+			// English note.
+			fmt.Printf("鈺?몜: ?좄슬鰲믦돯?띸쉰?뉏뻑 %s 鸚김뇰: %v\n", filePath, err)
 			continue
 		}
 
-		// 使用角色名称作为key
+		// English note.
 		roleName := role.Name
 		if roleName == "" {
-			// 如果角色名称为空，使用文件名（去掉扩展名）作为名称
+			// English note.
 			roleName = strings.TrimSuffix(strings.TrimSuffix(name, ".yaml"), ".yml")
 			role.Name = roleName
 		}
@@ -746,34 +748,34 @@ func LoadRolesFromDir(dir string) (map[string]RoleConfig, error) {
 	return roles, nil
 }
 
-// LoadRoleFromFile 从单个文件加载角色配置
+// English note.
 func LoadRoleFromFile(path string) (*RoleConfig, error) {
 	data, err := os.ReadFile(path)
 	if err != nil {
-		return nil, fmt.Errorf("读取文件失败: %w", err)
+		return nil, fmt.Errorf("瑥삣룚?뉏뻑鸚김뇰: %w", err)
 	}
 
 	var role RoleConfig
 	if err := yaml.Unmarshal(data, &role); err != nil {
-		return nil, fmt.Errorf("解析角色配置失败: %w", err)
+		return nil, fmt.Errorf("鰲ｆ옄鰲믦돯?띸쉰鸚김뇰: %w", err)
 	}
 
-	// 处理 icon 字段：如果包含 Unicode 转义格式（\U0001F3C6），转换为实际的 Unicode 字符
-	// Go 的 yaml 库可能不会自动解析 \U 转义序列，需要手动转换
+	// English note.
+	// English note.
 	if role.Icon != "" {
 		icon := role.Icon
-		// 去除可能的引号
+		// English note.
 		icon = strings.Trim(icon, `"`)
 
-		// 检查是否是 Unicode 转义格式 \U0001F3C6（8位十六进制）或 \uXXXX（4位十六进制）
+		// English note.
 		if len(icon) >= 3 && icon[0] == '\\' {
 			if icon[1] == 'U' && len(icon) >= 10 {
-				// \U0001F3C6 格式（8位十六进制）
+				// English note.
 				if codePoint, err := strconv.ParseInt(icon[2:10], 16, 32); err == nil {
 					role.Icon = string(rune(codePoint))
 				}
 			} else if icon[1] == 'u' && len(icon) >= 6 {
-				// \uXXXX 格式（4位十六进制）
+				// English note.
 				if codePoint, err := strconv.ParseInt(icon[2:6], 16, 32); err == nil {
 					role.Icon = string(rune(codePoint))
 				}
@@ -781,9 +783,9 @@ func LoadRoleFromFile(path string) (*RoleConfig, error) {
 		}
 	}
 
-	// 验证必需字段
+	// English note.
 	if role.Name == "" {
-		// 如果名称为空，尝试从文件名获取
+		// English note.
 		baseName := filepath.Base(path)
 		role.Name = strings.TrimSuffix(strings.TrimSuffix(baseName, ".yaml"), ".yml")
 	}
@@ -812,16 +814,16 @@ func Default() *Config {
 			MaxTotalTokens: 120000,
 		},
 		Agent: AgentConfig{
-			MaxIterations:      30, // 默认最大迭代次数
-			ToolTimeoutMinutes: 10, // 单次工具执行默认最多 10 分钟，避免异常长时间占用
+			MaxIterations:      30, // 容섋??鸚㎬열餓ｆА??
+			ToolTimeoutMinutes: 10, // ?뺞А藥ε끁?㎬죱容섋??鸚?10 ?녽뮓竊뚪겳?띶펰躍면빣?띌뿴?좂뵪
 		},
 		Security: SecurityConfig{
-			Tools:    []ToolConfig{}, // 工具配置应该从 config.yaml 或 tools/ 目录加载
-			ToolsDir: "tools",        // 默认工具目录
+			Tools:    []ToolConfig{}, // 藥ε끁?띸쉰佯붻?餓?config.yaml ??tools/ ??퐬?좄슬
+			ToolsDir: "tools",        // 容섋?藥ε끁??퐬
 		},
 		Database: DatabaseConfig{
 			Path:            "data/conversations.db",
-			KnowledgeDBPath: "data/knowledge.db", // 默认知识库数据库路径
+			KnowledgeDBPath: "data/knowledge.db", // 容섋??θ칳佯볠빊??틩瓮?푶
 		},
 		Auth: AuthConfig{
 			SessionDurationHours: 12,
@@ -836,18 +838,18 @@ func Default() *Config {
 			},
 			Retrieval: RetrievalConfig{
 				TopK:                5,
-				SimilarityThreshold: 0.65, // 降低阈值到 0.65，减少漏检
+				SimilarityThreshold: 0.65, // ?띴퐥?덂쇔댆 0.65竊뚦뇧弱묉폀汝
 			},
 			Indexing: IndexingConfig{
 				ChunkStrategy:         "markdown_then_recursive",
 				RequestTimeoutSeconds: 120,
-				ChunkSize:             768, // 增加到 768，更好的上下文保持
+				ChunkSize:             768, // 罌욃뒥??768竊뚧쎍也썹쉪訝듾툔?뉏퓷??
 				ChunkOverlap:          50,
-				MaxChunksPerItem:      20, // 限制单个知识项最多 20 个块，避免消耗过多配额
+				MaxChunksPerItem:      20, // ?먨댍?뺜릉?θ칳窈방?鸚?20 訝ゅ쓼竊뚪겳?띷텋?쀨퓝鸚싮뀓窯?
 				BatchSize:             64,
 				PreferSourceFile:      false,
-				MaxRPM:                100, // 默认 100 RPM，避免 429 错误
-				RateLimitDelayMs:      600, // 600ms 间隔，对应 100 RPM
+				MaxRPM:                100, // 容섋? 100 RPM竊뚪겳??429 ?숃?
+				RateLimitDelayMs:      600, // 600ms ?닻슂竊뚦?佯?100 RPM
 				MaxRetries:            3,
 				RetryDelayMs:          1000,
 				SubIndexes:            nil,
@@ -856,85 +858,86 @@ func Default() *Config {
 	}
 }
 
-// KnowledgeConfig 知识库配置
+// English note.
 type KnowledgeConfig struct {
-	Enabled   bool            `yaml:"enabled" json:"enabled"`     // 是否启用知识检索
-	BasePath  string          `yaml:"base_path" json:"base_path"` // 知识库路径
+	Enabled   bool            `yaml:"enabled" json:"enabled"`     // ??맔??뵪?θ칳汝榮?
+	BasePath  string          `yaml:"base_path" json:"base_path"` // ?θ칳佯볢러孃?
 	Embedding EmbeddingConfig `yaml:"embedding" json:"embedding"`
 	Retrieval RetrievalConfig `yaml:"retrieval" json:"retrieval"`
-	Indexing  IndexingConfig  `yaml:"indexing,omitempty" json:"indexing,omitempty"` // 索引构建配置
+	Indexing  IndexingConfig  `yaml:"indexing,omitempty" json:"indexing,omitempty"` // 榮℡폊?꾢뻠?띸쉰
 }
 
-// IndexingConfig 索引构建配置（用于控制知识库索引构建时的行为）
+// English note.
 type IndexingConfig struct {
-	// ChunkStrategy: "markdown_then_recursive"（默认，Eino Markdown 标题切分后再递归切）或 "recursive"（仅递归切分）
+	// English note.
 	ChunkStrategy string `yaml:"chunk_strategy,omitempty" json:"chunk_strategy,omitempty"`
-	// RequestTimeoutSeconds 嵌入 HTTP 客户端超时（秒），0 表示使用默认 120
+	// English note.
 	RequestTimeoutSeconds int `yaml:"request_timeout_seconds,omitempty" json:"request_timeout_seconds,omitempty"`
-	// 分块配置
-	ChunkSize        int `yaml:"chunk_size,omitempty" json:"chunk_size,omitempty"`                   // 每个块的最大 token 数（估算），默认 512
-	ChunkOverlap     int `yaml:"chunk_overlap,omitempty" json:"chunk_overlap,omitempty"`             // 块之间的重叠 token 数，默认 50
-	MaxChunksPerItem int `yaml:"max_chunks_per_item,omitempty" json:"max_chunks_per_item,omitempty"` // 单个知识项的最大块数量，0 表示不限制
+	// English note.
+	ChunkSize        int `yaml:"chunk_size,omitempty" json:"chunk_size,omitempty"`                   // 驪뤶릉?쀧쉪?鸚?token ?곤펷鴉곁츞竊됵펽容섋? 512
+	ChunkOverlap     int `yaml:"chunk_overlap,omitempty" json:"chunk_overlap,omitempty"`             // ?쀤퉳?당쉪?띶룧 token ?곤펽容섋? 50
+	MaxChunksPerItem int `yaml:"max_chunks_per_item,omitempty" json:"max_chunks_per_item,omitempty"` // ?뺜릉?θ칳窈밭쉪?鸚㎩쓼?곈뇧竊? 烏①ㅊ訝띺솏??
 
-	// PreferSourceFile 为 true 时优先用 Eino FileLoader 从 file_path 读原文再索引（与库内 content 不一致时以磁盘为准）
+	// English note.
 	PreferSourceFile bool `yaml:"prefer_source_file,omitempty" json:"prefer_source_file,omitempty"`
 
-	// 速率限制配置（用于避免 API 速率限制）
-	RateLimitDelayMs int `yaml:"rate_limit_delay_ms,omitempty" json:"rate_limit_delay_ms,omitempty"` // 请求间隔时间（毫秒），0 表示不使用固定延迟
-	MaxRPM           int `yaml:"max_rpm,omitempty" json:"max_rpm,omitempty"`                         // 每分钟最大请求数，0 表示不限制
+	// English note.
+	RateLimitDelayMs int `yaml:"rate_limit_delay_ms,omitempty" json:"rate_limit_delay_ms,omitempty"` // 瑥룡콆?닻슂?띌뿴竊덃?燁믭펹竊? 烏①ㅊ訝띴슴?ⓨ쎓若싧뻑瓦?
+	MaxRPM           int `yaml:"max_rpm,omitempty" json:"max_rpm,omitempty"`                         // 驪뤷늽?잍?鸚㎬?黎귝빊竊? 烏①ㅊ訝띺솏??
 
-	// 重试配置（用于处理临时错误）
-	MaxRetries   int `yaml:"max_retries,omitempty" json:"max_retries,omitempty"`       // 最大重试次数，默认 3
-	RetryDelayMs int `yaml:"retry_delay_ms,omitempty" json:"retry_delay_ms,omitempty"` // 重试间隔（毫秒），默认 1000
+	// English note.
+	MaxRetries   int `yaml:"max_retries,omitempty" json:"max_retries,omitempty"`       // ?鸚㏝뇥瑥뺞А?곤펽容섋? 3
+	RetryDelayMs int `yaml:"retry_delay_ms,omitempty" json:"retry_delay_ms,omitempty"` // ?띹캊?닻슂竊덃?燁믭펹竊뚪퍡溫?1000
 
-	// BatchSize 嵌入批大小（SQLite 索引写入），0 表示默认 64
+	// English note.
 	BatchSize int `yaml:"batch_size,omitempty" json:"batch_size,omitempty"`
-	// SubIndexes 传入 Eino indexer.WithSubIndexes（逻辑分区标记，随 Document 元数据传递）
+	// English note.
 	SubIndexes []string `yaml:"sub_indexes,omitempty" json:"sub_indexes,omitempty"`
 }
 
-// EmbeddingConfig 嵌入配置
+// English note.
 type EmbeddingConfig struct {
-	Provider string `yaml:"provider" json:"provider"` // 嵌入模型提供商
-	Model    string `yaml:"model" json:"model"`       // 模型名称
+	Provider string `yaml:"provider" json:"provider"` // 葯뚦뀯與▼엹?먧풘??
+	Model    string `yaml:"model" json:"model"`       // 與▼엹?띸㎞
 	BaseURL  string `yaml:"base_url" json:"base_url"` // API Base URL
-	APIKey   string `yaml:"api_key" json:"api_key"`   // API Key（从OpenAI配置继承）
+	APIKey   string `yaml:"api_key" json:"api_key"`   // API Key竊덁퍗OpenAI?띸쉰瀯㎪돽竊?
 }
 
-// PostRetrieveConfig 检索后处理：固定对正文做规范化去重（最佳实践）、上下文预算截断；PrefetchTopK 用于多取候选再收敛到 top_k。
+// English note.
 type PostRetrieveConfig struct {
-	// PrefetchTopK 向量检索阶段最多保留的候选数（余弦序），应 ≥ top_k，0 表示与 top_k 相同；上限见知识库包内常量。
+	// English note.
 	PrefetchTopK int `yaml:"prefetch_top_k,omitempty" json:"prefetch_top_k,omitempty"`
-	// MaxContextChars 返回文档内容总 Unicode 字符数上限（整段 chunk，不截断半段）；0 表示不限制。
+	// English note.
 	MaxContextChars int `yaml:"max_context_chars,omitempty" json:"max_context_chars,omitempty"`
-	// MaxContextTokens 返回文档内容总 token 上限（tiktoken，按嵌入模型名映射，失败则 cl100k_base）；0 表示不限制。
+	// English note.
 	MaxContextTokens int `yaml:"max_context_tokens,omitempty" json:"max_context_tokens,omitempty"`
 }
 
-// RetrievalConfig 检索配置
+// English note.
 type RetrievalConfig struct {
-	TopK                int     `yaml:"top_k" json:"top_k"`                               // 检索Top-K
-	SimilarityThreshold float64 `yaml:"similarity_threshold" json:"similarity_threshold"` // 余弦相似度阈值
-	// SubIndexFilter 非空时仅保留 sub_indexes 含该标签（逗号分隔之一）的行；sub_indexes 为空的旧行仍返回。
+	TopK                int     `yaml:"top_k" json:"top_k"`                               // 汝榮줥op-K
+	SimilarityThreshold float64 `yaml:"similarity_threshold" json:"similarity_threshold"` // 鵝쇿샷?멧세佯?삁??
+	// English note.
 	SubIndexFilter string `yaml:"sub_index_filter,omitempty" json:"sub_index_filter,omitempty"`
-	// PostRetrieve 检索后处理（去重、预算截断）；重排通过代码注入 [knowledge.DocumentReranker]。
+	// English note.
 	PostRetrieve PostRetrieveConfig `yaml:"post_retrieve,omitempty" json:"post_retrieve,omitempty"`
 }
 
-// RolesConfig 角色配置（已废弃，使用 map[string]RoleConfig 替代）
-// 保留此类型以兼容旧代码，但建议直接使用 map[string]RoleConfig
+// English note.
+// English note.
 type RolesConfig struct {
 	Roles map[string]RoleConfig `yaml:"roles,omitempty" json:"roles,omitempty"`
 }
 
-// RoleConfig 单个角色配置
+// English note.
 type RoleConfig struct {
-	Name        string   `yaml:"name" json:"name"`                         // 角色名称
-	Description string   `yaml:"description" json:"description"`           // 角色描述
-	UserPrompt  string   `yaml:"user_prompt" json:"user_prompt"`           // 用户提示词(追加到用户消息前)
-	Icon        string   `yaml:"icon,omitempty" json:"icon,omitempty"`     // 角色图标（可选）
-	Tools       []string `yaml:"tools,omitempty" json:"tools,omitempty"`   // 关联的工具列表（toolKey格式，如 "toolName" 或 "mcpName::toolName"）
-	MCPs        []string `yaml:"mcps,omitempty" json:"mcps,omitempty"`     // 向后兼容：关联的MCP服务器列表（已废弃，使用tools替代）
-	Skills      []string `yaml:"skills,omitempty" json:"skills,omitempty"` // 关联的skills列表（skill名称列表，在执行任务前会读取这些skills的内容）
-	Enabled     bool     `yaml:"enabled" json:"enabled"`                   // 是否启用
+	Name        string   `yaml:"name" json:"name"`                         // 鰲믦돯?띸㎞
+	Description string   `yaml:"description" json:"description"`           // 鰲믦돯?뤺염
+	UserPrompt  string   `yaml:"user_prompt" json:"user_prompt"`           // ?ⓩ댎?먪ㅊ瑥?瓦썲뒥?곁뵪?룡텋??뎺)
+	Icon        string   `yaml:"icon,omitempty" json:"icon,omitempty"`     // 鰲믦돯?얏젃竊덂룾?됵펹
+	Tools       []string `yaml:"tools,omitempty" json:"tools,omitempty"`   // ?녘걫?꾢램?룟닓烏⑨펷toolKey?쇔폀竊뚦쫩 "toolName" ??"mcpName::toolName"竊?
+	MCPs        []string `yaml:"mcps,omitempty" json:"mcps,omitempty"`     // ?묈릮?쇔?竊싧뀽?붺쉪MCP?띶뒦?ⓨ닓烏⑨펷藥꿨틹凉껓펽鵝욜뵪tools?요빰竊?
+	Skills      []string `yaml:"skills,omitempty" json:"skills,omitempty"` // ?녘걫?꼜kills?쀨〃竊늮kill?띸㎞?쀨〃竊뚦쑉?㎬죱餓삣뒦?띴폏瑥삣룚瓦쇾틳skills?꾢냵若뱄펹
+	Enabled     bool     `yaml:"enabled" json:"enabled"`                   // ??맔??뵪
 }
+

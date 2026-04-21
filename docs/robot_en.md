@@ -112,7 +112,7 @@ In **Permission management** (权限管理), enable the following (names and ide
 | 读取用户发给机器人的单聊消息 (Read direct messages from users to bot) | `im:message.p2p_msg:readonly` | **Required** for 1:1 chat; otherwise no response in private chat. |
 | 获取单聊、群组消息 (Get direct & group messages) | `im:message:readonly` | **Required** to read message content. |
 
-**Event subscription** (configured separately): In **Event subscription** (事件订阅), add **Receive message** (**im.message.receive_v1**). Without it, the long-lived connection will not receive message events.
+* English note.
 
 - **1:1 chat**: Open the bot’s private chat in Lark and send e.g. “帮助” or “help”; no @ needed.  
 - **Group chat**: Only messages that **@ the bot** are received and replied to.

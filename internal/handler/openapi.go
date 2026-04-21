@@ -11,7 +11,7 @@ import (
 	"go.uber.org/zap"
 )
 
-// OpenAPIHandler OpenAPI处理器
+// English note.
 type OpenAPIHandler struct {
 	db               *database.DB
 	logger           *zap.Logger
@@ -20,7 +20,7 @@ type OpenAPIHandler struct {
 	agentHdlr        *AgentHandler
 }
 
-// NewOpenAPIHandler 创建新的OpenAPI处理器
+// English note.
 func NewOpenAPIHandler(db *database.DB, logger *zap.Logger, resultStorage storage.ResultStorage, conversationHdlr *ConversationHandler, agentHdlr *AgentHandler) *OpenAPIHandler {
 	return &OpenAPIHandler{
 		db:               db,
@@ -31,7 +31,7 @@ func NewOpenAPIHandler(db *database.DB, logger *zap.Logger, resultStorage storag
 	}
 }
 
-// GetOpenAPISpec 获取OpenAPI规范
+// English note.
 func (h *OpenAPIHandler) GetOpenAPISpec(c *gin.Context) {
 	host := c.Request.Host
 	scheme := "http"
@@ -4463,7 +4463,7 @@ func (h *OpenAPIHandler) GetOpenAPISpec(c *gin.Context) {
 					},
 				},
 			},
-			// ==================== 对话交互 - 缺失端点 ====================
+			// English note.
 			"/api/conversations/{id}/delete-turn": map[string]interface{}{
 				"post": map[string]interface{}{
 					"tags":        []string{"对话交互"},
@@ -4573,7 +4573,7 @@ func (h *OpenAPIHandler) GetOpenAPISpec(c *gin.Context) {
 				},
 			},
 
-			// ==================== 批量任务 - 缺失端点 ====================
+			// English note.
 			"/api/batch-tasks/{queueId}/rerun": map[string]interface{}{
 				"post": map[string]interface{}{
 					"tags":        []string{"批量任务"},
@@ -4757,7 +4757,7 @@ func (h *OpenAPIHandler) GetOpenAPISpec(c *gin.Context) {
 				},
 			},
 
-			// ==================== 对话分组 - 缺失端点 ====================
+			// English note.
 			"/api/groups/mappings": map[string]interface{}{
 				"get": map[string]interface{}{
 					"tags":        []string{"对话分组"},
@@ -4788,7 +4788,7 @@ func (h *OpenAPIHandler) GetOpenAPISpec(c *gin.Context) {
 				},
 			},
 
-			// ==================== FOFA信息收集 ====================
+			// English note.
 			"/api/fofa/search": map[string]interface{}{
 				"post": map[string]interface{}{
 					"tags":        []string{"FOFA信息收集"},
@@ -4880,7 +4880,7 @@ func (h *OpenAPIHandler) GetOpenAPISpec(c *gin.Context) {
 				},
 			},
 
-			// ==================== 配置管理 - 缺失端点 ====================
+			// English note.
 			"/api/config/test-openai": map[string]interface{}{
 				"post": map[string]interface{}{
 					"tags":        []string{"配置管理"},
@@ -4893,7 +4893,7 @@ func (h *OpenAPIHandler) GetOpenAPISpec(c *gin.Context) {
 							"application/json": map[string]interface{}{
 								"schema": map[string]interface{}{
 									"type": "object",
-									"required": []string{"api_key", "model"},
+									"required": []string{"model"},
 									"properties": map[string]interface{}{
 										"provider": map[string]interface{}{"type": "string", "description": "LLM提供商（openai/claude）", "example": "openai"},
 										"base_url": map[string]interface{}{"type": "string", "description": "API基地址（可选，默认根据provider自动选择）"},
@@ -4927,7 +4927,7 @@ func (h *OpenAPIHandler) GetOpenAPISpec(c *gin.Context) {
 				},
 			},
 
-			// ==================== 终端 ====================
+			// English note.
 			"/api/terminal/run": map[string]interface{}{
 				"post": map[string]interface{}{
 					"tags":        []string{"终端"},
@@ -5022,7 +5022,7 @@ func (h *OpenAPIHandler) GetOpenAPISpec(c *gin.Context) {
 				},
 			},
 
-			// ==================== WebShell管理 ====================
+			// English note.
 			"/api/webshell/connections": map[string]interface{}{
 				"get": map[string]interface{}{
 					"tags":        []string{"WebShell管理"},
@@ -5355,7 +5355,7 @@ func (h *OpenAPIHandler) GetOpenAPISpec(c *gin.Context) {
 				},
 			},
 
-			// ==================== 对话附件 ====================
+			// English note.
 			"/api/chat-uploads": map[string]interface{}{
 				"get": map[string]interface{}{
 					"tags":        []string{"对话附件"},
@@ -5621,7 +5621,7 @@ func (h *OpenAPIHandler) GetOpenAPISpec(c *gin.Context) {
 				},
 			},
 
-			// ==================== 机器人集成 ====================
+			// English note.
 			"/api/robot/wecom": map[string]interface{}{
 				"get": map[string]interface{}{
 					"tags":        []string{"机器人集成"},
@@ -5703,7 +5703,7 @@ func (h *OpenAPIHandler) GetOpenAPISpec(c *gin.Context) {
 				},
 			},
 
-			// ==================== 多代理Markdown ====================
+			// English note.
 			"/api/multi-agent/markdown-agents": map[string]interface{}{
 				"get": map[string]interface{}{
 					"tags":        []string{"多代理Markdown"},
@@ -5900,7 +5900,7 @@ func (h *OpenAPIHandler) GetOpenAPISpec(c *gin.Context) {
 				},
 			},
 
-			// ==================== Skills管理 - 缺失端点 ====================
+			// English note.
 			"/api/skills/{name}/files": map[string]interface{}{
 				"get": map[string]interface{}{
 					"tags":        []string{"Skills管理"},
@@ -6001,7 +6001,7 @@ func (h *OpenAPIHandler) GetOpenAPISpec(c *gin.Context) {
 				},
 			},
 
-			// ==================== 监控 - 缺失端点 ====================
+			// English note.
 			"/api/monitor/executions/names": map[string]interface{}{
 				"post": map[string]interface{}{
 					"tags":        []string{"监控"},
@@ -6046,7 +6046,7 @@ func (h *OpenAPIHandler) GetOpenAPISpec(c *gin.Context) {
 				},
 			},
 
-			// ==================== 知识库 - 缺失端点 ====================
+			// English note.
 			"/api/knowledge/stats": map[string]interface{}{
 				"get": map[string]interface{}{
 					"tags":        []string{"知识库"},
@@ -6213,13 +6213,13 @@ func (h *OpenAPIHandler) GetOpenAPISpec(c *gin.Context) {
 	c.JSON(http.StatusOK, spec)
 }
 
-// GetConversationResults 获取对话结果（OpenAPI端点）
-// 注意：创建对话和获取对话详情直接使用标准的 /api/conversations 端点
-// 这个端点只是为了提供结果聚合功能
+// English note.
+// English note.
+// English note.
 func (h *OpenAPIHandler) GetConversationResults(c *gin.Context) {
 	conversationID := c.Param("id")
 
-	// 验证对话是否存在
+	// English note.
 	conv, err := h.db.GetConversation(conversationID)
 	if err != nil {
 		h.logger.Error("获取对话失败", zap.Error(err))
@@ -6227,7 +6227,7 @@ func (h *OpenAPIHandler) GetConversationResults(c *gin.Context) {
 		return
 	}
 
-	// 获取消息列表
+	// English note.
 	messages, err := h.db.GetMessages(conversationID)
 	if err != nil {
 		h.logger.Error("获取消息失败", zap.Error(err))
@@ -6235,7 +6235,7 @@ func (h *OpenAPIHandler) GetConversationResults(c *gin.Context) {
 		return
 	}
 
-	// 获取漏洞列表
+	// English note.
 	vulnList, err := h.db.ListVulnerabilities(1000, 0, "", conversationID, "", "")
 	if err != nil {
 		h.logger.Warn("获取漏洞列表失败", zap.Error(err))
@@ -6246,16 +6246,16 @@ func (h *OpenAPIHandler) GetConversationResults(c *gin.Context) {
 		vulnerabilities[i] = *v
 	}
 
-	// 获取执行结果（从MCP执行记录中获取）
+	// English note.
 	executionResults := []map[string]interface{}{}
 	for _, msg := range messages {
 		if len(msg.MCPExecutionIDs) > 0 {
 			for _, execID := range msg.MCPExecutionIDs {
-				// 尝试从结果存储中获取执行结果
+				// English note.
 				if h.resultStorage != nil {
 					result, err := h.resultStorage.GetResult(execID)
 					if err == nil && result != "" {
-						// 获取元数据以获取工具名称和创建时间
+						// English note.
 						metadata, err := h.resultStorage.GetResultMetadata(execID)
 						toolName := "unknown"
 						createdAt := time.Now()

@@ -23,7 +23,7 @@ import (
 	"go.uber.org/zap"
 )
 
-// Agent AI代理
+// English note.
 type Agent struct {
 	openAIClient          *openai.Client
 	config                *config.OpenAIConfig
@@ -41,7 +41,7 @@ type Agent struct {
 	promptBaseDir         string            // 解析 system_prompt_path 时相对路径的基准目录（通常为 config.yaml 所在目录）
 }
 
-// ResultStorage 结果存储接口（直接使用 storage 包的类型）
+// English note.
 type ResultStorage interface {
 	SaveResult(executionID string, toolName string, result string) error
 	GetResult(executionID string) (string, error)
@@ -53,34 +53,34 @@ type ResultStorage interface {
 	DeleteResult(executionID string) error
 }
 
-// NewAgent 创建新的Agent
+// English note.
 func NewAgent(cfg *config.OpenAIConfig, agentCfg *config.AgentConfig, mcpServer *mcp.Server, externalMCPMgr *mcp.ExternalMCPManager, logger *zap.Logger, maxIterations int) *Agent {
-	// 如果 maxIterations 为 0 或负数，使用默认值 30
+	// English note.
 	if maxIterations <= 0 {
 		maxIterations = 30
 	}
 
-	// 设置大结果阈值，默认50KB
+	// English note.
 	largeResultThreshold := 50 * 1024
 	if agentCfg != nil && agentCfg.LargeResultThreshold > 0 {
 		largeResultThreshold = agentCfg.LargeResultThreshold
 	}
 
-	// 设置结果存储目录，默认tmp
+	// English note.
 	resultStorageDir := "tmp"
 	if agentCfg != nil && agentCfg.ResultStorageDir != "" {
 		resultStorageDir = agentCfg.ResultStorageDir
 	}
 
-	// 初始化结果存储
+	// English note.
 	var resultStorage ResultStorage
 	if resultStorageDir != "" {
-		// 导入storage包（避免循环依赖，使用接口）
-		// 这里需要在实际使用时初始化
-		// 暂时设为nil，在需要时初始化
+		// English note.
+		// English note.
+		// English note.
 	}
 
-	// 配置HTTP Transport，优化连接管理和超时设置
+	// English note.
 	transport := &http.Transport{
 		DialContext: (&net.Dialer{
 			Timeout:   300 * time.Second,
@@ -94,8 +94,8 @@ func NewAgent(cfg *config.OpenAIConfig, agentCfg *config.AgentConfig, mcpServer 
 		DisableKeepAlives:     false,            // 启用连接复用
 	}
 
-	// 增加超时时间到30分钟，以支持长时间运行的AI推理
-	// 特别是当使用流式响应或处理复杂任务时
+	// English note.
+	// English note.
 	httpClient := &http.Client{
 		Timeout:   30 * time.Minute, // 从5分钟增加到30分钟
 		Transport: transport,
@@ -134,21 +134,21 @@ func NewAgent(cfg *config.OpenAIConfig, agentCfg *config.AgentConfig, mcpServer 
 	}
 }
 
-// SetResultStorage 设置结果存储（用于避免循环依赖）
+// English note.
 func (a *Agent) SetResultStorage(storage ResultStorage) {
 	a.mu.Lock()
 	defer a.mu.Unlock()
 	a.resultStorage = storage
 }
 
-// SetPromptBaseDir 设置单代理 system_prompt_path 相对路径的基准目录（一般为 config.yaml 所在目录）。
+// English note.
 func (a *Agent) SetPromptBaseDir(dir string) {
 	a.mu.Lock()
 	defer a.mu.Unlock()
 	a.promptBaseDir = strings.TrimSpace(dir)
 }
 
-// ChatMessage 聊天消息
+// English note.
 type ChatMessage struct {
 	Role       string     `json:"role"`
 	Content    string     `json:"content,omitempty"`
@@ -156,28 +156,28 @@ type ChatMessage struct {
 	ToolCallID string     `json:"tool_call_id,omitempty"`
 }
 
-// MarshalJSON 自定义JSON序列化，将tool_calls中的arguments转换为JSON字符串
+// English note.
 func (cm ChatMessage) MarshalJSON() ([]byte, error) {
-	// 构建序列化结构
+	// English note.
 	aux := map[string]interface{}{
 		"role": cm.Role,
 	}
 
-	// 添加content（如果存在）
+	// English note.
 	if cm.Content != "" {
 		aux["content"] = cm.Content
 	}
 
-	// 添加tool_call_id（如果存在）
+	// English note.
 	if cm.ToolCallID != "" {
 		aux["tool_call_id"] = cm.ToolCallID
 	}
 
-	// 转换tool_calls，将arguments转换为JSON字符串
+	// English note.
 	if len(cm.ToolCalls) > 0 {
 		toolCallsJSON := make([]map[string]interface{}, len(cm.ToolCalls))
 		for i, tc := range cm.ToolCalls {
-			// 将arguments转换为JSON字符串
+			// English note.
 			argsJSON := ""
 			if tc.Function.Arguments != nil {
 				argsBytes, err := json.Marshal(tc.Function.Arguments)
@@ -202,7 +202,7 @@ func (cm ChatMessage) MarshalJSON() ([]byte, error) {
 	return json.Marshal(aux)
 }
 
-// OpenAIRequest OpenAI API请求
+// English note.
 type OpenAIRequest struct {
 	Model    string        `json:"model"`
 	Messages []ChatMessage `json:"messages"`
@@ -210,59 +210,59 @@ type OpenAIRequest struct {
 	Stream   bool          `json:"stream,omitempty"`
 }
 
-// OpenAIResponse OpenAI API响应
+// English note.
 type OpenAIResponse struct {
 	ID      string   `json:"id"`
 	Choices []Choice `json:"choices"`
 	Error   *Error   `json:"error,omitempty"`
 }
 
-// Choice 选择
+// English note.
 type Choice struct {
 	Message      MessageWithTools `json:"message"`
 	FinishReason string           `json:"finish_reason"`
 }
 
-// MessageWithTools 带工具调用的消息
+// English note.
 type MessageWithTools struct {
 	Role      string     `json:"role"`
 	Content   string     `json:"content"`
 	ToolCalls []ToolCall `json:"tool_calls,omitempty"`
 }
 
-// Tool OpenAI工具定义
+// English note.
 type Tool struct {
 	Type     string             `json:"type"`
 	Function FunctionDefinition `json:"function"`
 }
 
-// FunctionDefinition 函数定义
+// English note.
 type FunctionDefinition struct {
 	Name        string                 `json:"name"`
 	Description string                 `json:"description"`
 	Parameters  map[string]interface{} `json:"parameters"`
 }
 
-// Error OpenAI错误
+// English note.
 type Error struct {
 	Message string `json:"message"`
 	Type    string `json:"type"`
 }
 
-// ToolCall 工具调用
+// English note.
 type ToolCall struct {
 	ID       string       `json:"id"`
 	Type     string       `json:"type"`
 	Function FunctionCall `json:"function"`
 }
 
-// FunctionCall 函数调用
+// English note.
 type FunctionCall struct {
 	Name      string                 `json:"name"`
 	Arguments map[string]interface{} `json:"arguments"`
 }
 
-// UnmarshalJSON 自定义JSON解析，处理arguments可能是字符串或对象的情况
+// English note.
 func (fc *FunctionCall) UnmarshalJSON(data []byte) error {
 	type Alias FunctionCall
 	aux := &struct {
@@ -279,14 +279,14 @@ func (fc *FunctionCall) UnmarshalJSON(data []byte) error {
 
 	fc.Name = aux.Name
 
-	// 处理arguments可能是字符串或对象的情况
+	// English note.
 	switch v := aux.Arguments.(type) {
 	case map[string]interface{}:
 		fc.Arguments = v
 	case string:
-		// 如果是字符串，尝试解析为JSON
+		// English note.
 		if err := json.Unmarshal([]byte(v), &fc.Arguments); err != nil {
-			// 如果解析失败，创建一个包含原始字符串的map
+			// English note.
 			fc.Arguments = map[string]interface{}{
 				"raw": v,
 			}
@@ -294,7 +294,7 @@ func (fc *FunctionCall) UnmarshalJSON(data []byte) error {
 	case nil:
 		fc.Arguments = make(map[string]interface{})
 	default:
-		// 其他类型，尝试转换为map
+		// English note.
 		fc.Arguments = map[string]interface{}{
 			"value": v,
 		}
@@ -303,7 +303,7 @@ func (fc *FunctionCall) UnmarshalJSON(data []byte) error {
 	return nil
 }
 
-// AgentLoopResult Agent Loop执行结果
+// English note.
 type AgentLoopResult struct {
 	Response        string
 	MCPExecutionIDs []string
@@ -311,20 +311,20 @@ type AgentLoopResult struct {
 	LastReActOutput string // 最终大模型的输出
 }
 
-// ProgressCallback 进度回调函数类型
+// English note.
 type ProgressCallback func(eventType, message string, data interface{})
 
-// AgentLoop 执行Agent循环
+// English note.
 func (a *Agent) AgentLoop(ctx context.Context, userInput string, historyMessages []ChatMessage) (*AgentLoopResult, error) {
 	return a.AgentLoopWithProgress(ctx, userInput, historyMessages, "", nil, nil, nil)
 }
 
-// AgentLoopWithConversationID 执行Agent循环（带对话ID）
+// English note.
 func (a *Agent) AgentLoopWithConversationID(ctx context.Context, userInput string, historyMessages []ChatMessage, conversationID string) (*AgentLoopResult, error) {
 	return a.AgentLoopWithProgress(ctx, userInput, historyMessages, conversationID, nil, nil, nil)
 }
 
-// EinoSingleAgentSystemInstruction 供 Eino adk.ChatModelAgent.Instruction 使用，与 AgentLoopWithProgress 首条 system 对齐（含 system_prompt_path 与 Skills 提示）。
+// English note.
 func (a *Agent) EinoSingleAgentSystemInstruction(roleSkills []string) string {
 	systemPrompt := DefaultSingleAgentSystemPrompt()
 	if a.agentConfig != nil {
@@ -364,14 +364,14 @@ func (a *Agent) EinoSingleAgentSystemInstruction(roleSkills []string) string {
 	return systemPrompt
 }
 
-// AgentLoopWithProgress 执行Agent循环（带进度回调和对话ID）
-// roleSkills: 角色配置的skills列表（用于在系统提示词中提示AI，但不硬编码内容）
+// English note.
+// English note.
 func (a *Agent) AgentLoopWithProgress(ctx context.Context, userInput string, historyMessages []ChatMessage, conversationID string, callback ProgressCallback, roleTools []string, roleSkills []string) (*AgentLoopResult, error) {
-	// 设置当前对话ID
+	// English note.
 	a.mu.Lock()
 	a.currentConversationID = conversationID
 	a.mu.Unlock()
-	// 发送进度更新
+	// English note.
 	sendProgress := func(eventType, message string, data interface{}) {
 		if callback != nil {
 			callback(eventType, message, data)
@@ -396,7 +396,7 @@ func (a *Agent) AgentLoopWithProgress(ctx context.Context, userInput string, his
 		}
 	}
 
-	// 如果角色配置了skills，在系统提示词中提示AI（但不硬编码内容）
+	// English note.
 	if len(roleSkills) > 0 {
 		var skillsHint strings.Builder
 		skillsHint.WriteString("\n\n本角色推荐使用的Skills：\n")
@@ -423,14 +423,14 @@ func (a *Agent) AgentLoopWithProgress(ctx context.Context, userInput string, his
 		},
 	}
 
-	// 添加历史消息（保留所有字段，包括ToolCalls和ToolCallID）
+	// English note.
 	a.logger.Info("处理历史消息",
 		zap.Int("count", len(historyMessages)),
 	)
 	addedCount := 0
 	for i, msg := range historyMessages {
-		// 对于tool消息，即使content为空也要添加（因为tool消息可能只有ToolCallID）
-		// 对于其他消息，只添加有内容的消息
+		// English note.
+		// English note.
 		if msg.Role == "tool" || msg.Content != "" {
 			messages = append(messages, ChatMessage{
 				Role:       msg.Role,
@@ -459,15 +459,15 @@ func (a *Agent) AgentLoopWithProgress(ctx context.Context, userInput string, his
 		zap.Int("totalMessages", len(messages)),
 	)
 
-	// 在添加当前用户消息之前，先修复可能存在的失配tool消息
-	// 这可以防止在继续对话时出现"messages with role 'tool' must be a response to a preceeding message with 'tool_calls'"错误
+	// English note.
+	// English note.
 	if len(messages) > 0 {
 		if fixed := a.repairOrphanToolMessages(&messages); fixed {
 			a.logger.Info("修复了历史消息中的失配tool消息")
 		}
 	}
 
-	// 添加当前用户消息
+	// English note.
 	messages = append(messages, ChatMessage{
 		Role:    "user",
 		Content: userInput,
@@ -477,35 +477,35 @@ func (a *Agent) AgentLoopWithProgress(ctx context.Context, userInput string, his
 		MCPExecutionIDs: make([]string, 0),
 	}
 
-	// 用于保存当前的messages，以便在异常情况下也能保存ReAct输入
+	// English note.
 	var currentReActInput string
 
 	maxIterations := a.maxIterations
 	thinkingStreamSeq := 0
 	for i := 0; i < maxIterations; i++ {
-		// 先获取本轮可用工具并统计 tools token，再压缩，以便压缩时预留 tools 占用的空间
+		// English note.
 		tools := a.getAvailableTools(roleTools)
 		toolsTokens := a.countToolsTokens(tools)
 		messages = a.applyMemoryCompression(ctx, messages, toolsTokens)
 
-		// 检查是否是最后一次迭代
+		// English note.
 		isLastIteration := (i == maxIterations-1)
 
-		// 每次迭代都保存压缩后的messages，以便在异常中断（取消、错误等）时也能保存最新的ReAct输入
-		// 保存压缩后的数据，这样后续使用时就不需要再考虑压缩了
+		// English note.
+		// English note.
 		messagesJSON, err := json.Marshal(messages)
 		if err != nil {
 			a.logger.Warn("序列化ReAct输入失败", zap.Error(err))
 		} else {
 			currentReActInput = string(messagesJSON)
-			// 更新result中的值，确保始终保存最新的ReAct输入（压缩后的）
+			// English note.
 			result.LastReActInput = currentReActInput
 		}
 
-		// 检查上下文是否已取消
+		// English note.
 		select {
 		case <-ctx.Done():
-			// 上下文被取消（可能是用户主动暂停或其他原因）
+			// English note.
 			a.logger.Info("检测到上下文取消，保存当前ReAct数据", zap.Error(ctx.Err()))
 			result.LastReActInput = currentReActInput
 			if ctx.Err() == context.Canceled {
@@ -518,7 +518,7 @@ func (a *Agent) AgentLoopWithProgress(ctx context.Context, userInput string, his
 		default:
 		}
 
-		// 记录当前上下文的 Token 用量（messages + tools），展示压缩器运行状态
+		// English note.
 		if a.memoryCompressor != nil {
 			messagesTokens, systemCount, regularCount := a.memoryCompressor.totalTokensFor(messages)
 			totalTokens := messagesTokens + toolsTokens
@@ -534,7 +534,7 @@ func (a *Agent) AgentLoopWithProgress(ctx context.Context, userInput string, his
 			)
 		}
 
-		// 发送迭代开始事件
+		// English note.
 		if i == 0 {
 			sendProgress("iteration", "开始分析请求并制定测试策略", map[string]interface{}{
 				"iteration": i + 1,
@@ -553,13 +553,13 @@ func (a *Agent) AgentLoopWithProgress(ctx context.Context, userInput string, his
 			})
 		}
 
-		// 记录每次调用OpenAI
+		// English note.
 		if i == 0 {
 			a.logger.Info("调用OpenAI",
 				zap.Int("iteration", i+1),
 				zap.Int("messagesCount", len(messages)),
 			)
-			// 记录前几条消息的内容（用于调试）
+			// English note.
 			for j, msg := range messages {
 				if j >= 5 { // 只记录前5条
 					break
@@ -581,7 +581,7 @@ func (a *Agent) AgentLoopWithProgress(ctx context.Context, userInput string, his
 			)
 		}
 
-		// 调用OpenAI
+		// English note.
 		sendProgress("progress", "正在调用AI模型...", nil)
 		thinkingStreamSeq++
 		thinkingStreamId := fmt.Sprintf("thinking-stream-%s-%d-%d", conversationID, i+1, thinkingStreamSeq)
@@ -606,7 +606,7 @@ func (a *Agent) AgentLoopWithProgress(ctx context.Context, userInput string, his
 			return nil
 		})
 		if err != nil {
-			// API调用失败，保存当前的ReAct输入和错误信息作为输出
+			// English note.
 			result.LastReActInput = currentReActInput
 			errorMsg := fmt.Sprintf("调用OpenAI失败: %v", err)
 			result.Response = errorMsg
@@ -635,7 +635,7 @@ func (a *Agent) AgentLoopWithProgress(ctx context.Context, userInput string, his
 				)
 				continue
 			}
-			// OpenAI返回错误，保存当前的ReAct输入和错误信息作为输出
+			// English note.
 			result.LastReActInput = currentReActInput
 			errorMsg := fmt.Sprintf("OpenAI错误: %s", response.Error.Message)
 			result.Response = errorMsg
@@ -644,7 +644,7 @@ func (a *Agent) AgentLoopWithProgress(ctx context.Context, userInput string, his
 		}
 
 		if len(response.Choices) == 0 {
-			// 没有收到响应，保存当前的ReAct输入和错误信息作为输出
+			// English note.
 			result.LastReActInput = currentReActInput
 			errorMsg := "没有收到响应"
 			result.Response = errorMsg
@@ -654,10 +654,10 @@ func (a *Agent) AgentLoopWithProgress(ctx context.Context, userInput string, his
 
 		choice := response.Choices[0]
 
-		// 检查是否有工具调用
+		// English note.
 		if len(choice.Message.ToolCalls) > 0 {
-			// 思考内容：如果本轮启用了思考流式增量（thinking_stream_*），前端会去重；
-			// 同时也需要在该“思考阶段结束”时补一条可落库的 thinking（用于刷新后持久化展示）。
+			// English note.
+			// English note.
 			if choice.Message.Content != "" {
 				sendProgress("thinking", choice.Message.Content, map[string]interface{}{
 					"iteration": i + 1,
@@ -665,22 +665,22 @@ func (a *Agent) AgentLoopWithProgress(ctx context.Context, userInput string, his
 				})
 			}
 
-			// 添加assistant消息（包含工具调用）
+			// English note.
 			messages = append(messages, ChatMessage{
 				Role:      "assistant",
 				Content:   choice.Message.Content,
 				ToolCalls: choice.Message.ToolCalls,
 			})
 
-			// 发送工具调用进度
+			// English note.
 			sendProgress("tool_calls_detected", fmt.Sprintf("检测到 %d 个工具调用", len(choice.Message.ToolCalls)), map[string]interface{}{
 				"count":     len(choice.Message.ToolCalls),
 				"iteration": i + 1,
 			})
 
-			// 执行所有工具调用
+			// English note.
 			for idx, toolCall := range choice.Message.ToolCalls {
-				// 发送工具调用开始事件
+				// English note.
 				toolArgsJSON, _ := json.Marshal(toolCall.Function.Arguments)
 				sendProgress("tool_call", fmt.Sprintf("正在调用工具: %s", toolCall.Function.Name), map[string]interface{}{
 					"toolName":     toolCall.Function.Name,
@@ -692,7 +692,7 @@ func (a *Agent) AgentLoopWithProgress(ctx context.Context, userInput string, his
 					"iteration":    i + 1,
 				})
 
-				// 执行工具
+				// English note.
 				toolCtx := context.WithValue(ctx, security.ToolOutputCallbackCtxKey, security.ToolOutputCallback(func(chunk string) {
 					if strings.TrimSpace(chunk) == "" {
 						return
@@ -703,13 +703,13 @@ func (a *Agent) AgentLoopWithProgress(ctx context.Context, userInput string, his
 						"index":       idx + 1,
 						"total":       len(choice.Message.ToolCalls),
 						"iteration":   i + 1,
-						// success 在最终 tool_result 事件里会以 success/isError 标记为准
+						// English note.
 					})
 				}))
 
 				execResult, err := a.executeToolViaMCP(toolCtx, toolCall.Function.Name, toolCall.Function.Arguments)
 				if err != nil {
-					// 构建详细的错误信息，帮助AI理解问题并做出决策
+					// English note.
 					errorMsg := a.formatToolError(toolCall.Function.Name, toolCall.Function.Arguments, err)
 					messages = append(messages, ChatMessage{
 						Role:       "tool",
@@ -717,7 +717,7 @@ func (a *Agent) AgentLoopWithProgress(ctx context.Context, userInput string, his
 						Content:    errorMsg,
 					})
 
-					// 发送工具执行失败事件
+					// English note.
 					sendProgress("tool_result", fmt.Sprintf("工具 %s 执行失败", toolCall.Function.Name), map[string]interface{}{
 						"toolName":   toolCall.Function.Name,
 						"success":    false,
@@ -734,18 +734,18 @@ func (a *Agent) AgentLoopWithProgress(ctx context.Context, userInput string, his
 						zap.Error(err),
 					)
 				} else {
-					// 即使工具返回了错误结果（IsError=true），也继续处理，让AI决定下一步
+					// English note.
 					messages = append(messages, ChatMessage{
 						Role:       "tool",
 						ToolCallID: toolCall.ID,
 						Content:    execResult.Result,
 					})
-					// 收集执行ID
+					// English note.
 					if execResult.ExecutionID != "" {
 						result.MCPExecutionIDs = append(result.MCPExecutionIDs, execResult.ExecutionID)
 					}
 
-					// 发送工具执行成功事件
+					// English note.
 					resultPreview := execResult.Result
 					if len(resultPreview) > 200 {
 						resultPreview = resultPreview[:200] + "..."
@@ -763,7 +763,7 @@ func (a *Agent) AgentLoopWithProgress(ctx context.Context, userInput string, his
 						"iteration":     i + 1,
 					})
 
-					// 如果工具返回了错误，记录日志但不中断流程
+					// English note.
 					if execResult.IsError {
 						a.logger.Warn("工具返回错误结果，但继续处理",
 							zap.String("tool", toolCall.Function.Name),
@@ -773,16 +773,16 @@ func (a *Agent) AgentLoopWithProgress(ctx context.Context, userInput string, his
 				}
 			}
 
-			// 如果是最后一次迭代，执行完工具后要求AI进行总结
+			// English note.
 			if isLastIteration {
 				sendProgress("progress", "最后一次迭代：正在生成总结和下一步计划...", nil)
-				// 添加用户消息，要求AI进行总结
+				// English note.
 				messages = append(messages, ChatMessage{
 					Role:    "user",
 					Content: "这是最后一次迭代。请总结到目前为止的所有测试结果、发现的问题和已完成的工作。如果需要继续测试，请提供详细的下一步执行计划。请直接回复，不要调用工具。",
 				})
 				messages = a.applyMemoryCompression(ctx, messages, 0) // 总结时不带 tools，不预留
-				// 流式调用OpenAI获取总结（不提供工具，强制AI直接回复）
+				// English note.
 				sendProgress("response_start", "", map[string]interface{}{
 					"conversationId":     conversationID,
 					"mcpExecutionIds":   result.MCPExecutionIDs,
@@ -800,36 +800,36 @@ func (a *Agent) AgentLoopWithProgress(ctx context.Context, userInput string, his
 					sendProgress("progress", "总结生成完成", nil)
 					return result, nil
 				}
-				// 如果获取总结失败，跳出循环，让后续逻辑处理
+				// English note.
 				break
 			}
 
 			continue
 		}
 
-		// 添加assistant响应
+		// English note.
 		messages = append(messages, ChatMessage{
 			Role:    "assistant",
 			Content: choice.Message.Content,
 		})
 
-		// 发送AI思考内容（如果没有工具调用）
+		// English note.
 		if choice.Message.Content != "" && !thinkingStreamStarted {
 			sendProgress("thinking", choice.Message.Content, map[string]interface{}{
 				"iteration": i + 1,
 			})
 		}
 
-		// 如果是最后一次迭代，无论finish_reason是什么，都要求AI进行总结
+		// English note.
 		if isLastIteration {
 			sendProgress("progress", "最后一次迭代：正在生成总结和下一步计划...", nil)
-			// 添加用户消息，要求AI进行总结
+			// English note.
 			messages = append(messages, ChatMessage{
 				Role:    "user",
 				Content: "这是最后一次迭代。请总结到目前为止的所有测试结果、发现的问题和已完成的工作。如果需要继续测试，请提供详细的下一步执行计划。请直接回复，不要调用工具。",
 			})
 			messages = a.applyMemoryCompression(ctx, messages, 0) // 总结时不带 tools，不预留
-			// 流式调用OpenAI获取总结（不提供工具，强制AI直接回复）
+			// English note.
 			sendProgress("response_start", "", map[string]interface{}{
 				"conversationId":     conversationID,
 				"mcpExecutionIds":   result.MCPExecutionIDs,
@@ -847,17 +847,17 @@ func (a *Agent) AgentLoopWithProgress(ctx context.Context, userInput string, his
 				sendProgress("progress", "总结生成完成", nil)
 				return result, nil
 			}
-			// 如果获取总结失败，使用当前回复作为结果
+			// English note.
 			if choice.Message.Content != "" {
 				result.Response = choice.Message.Content
 				result.LastReActOutput = result.Response
 				return result, nil
 			}
-			// 如果都没有内容，跳出循环，让后续逻辑处理
+			// English note.
 			break
 		}
 
-		// 如果完成，返回结果
+		// English note.
 		if choice.FinishReason == "stop" {
 			sendProgress("progress", "正在生成最终回复...", nil)
 			result.Response = choice.Message.Content
@@ -866,8 +866,8 @@ func (a *Agent) AgentLoopWithProgress(ctx context.Context, userInput string, his
 		}
 	}
 
-	// 如果循环结束仍未返回，说明达到了最大迭代次数
-	// 尝试最后一次调用AI获取总结
+	// English note.
+	// English note.
 	sendProgress("progress", "达到最大迭代次数，正在生成总结...", nil)
 	finalSummaryPrompt := ChatMessage{
 		Role:    "user",
@@ -876,7 +876,7 @@ func (a *Agent) AgentLoopWithProgress(ctx context.Context, userInput string, his
 	messages = append(messages, finalSummaryPrompt)
 	messages = a.applyMemoryCompression(ctx, messages, 0) // 总结时不带 tools，不预留
 
-	// 流式调用OpenAI获取总结（不提供工具，强制AI直接回复）
+	// English note.
 	sendProgress("response_start", "", map[string]interface{}{
 		"conversationId":     conversationID,
 		"mcpExecutionIds":   result.MCPExecutionIDs,
@@ -895,17 +895,17 @@ func (a *Agent) AgentLoopWithProgress(ctx context.Context, userInput string, his
 		return result, nil
 	}
 
-	// 如果无法生成总结，返回友好的提示
+	// English note.
 	result.Response = fmt.Sprintf("已达到最大迭代次数（%d轮）。系统已执行了多轮测试，但由于达到迭代上限，无法继续自动执行。建议您查看已执行的工具结果，或提出新的测试请求以继续测试。", a.maxIterations)
 	result.LastReActOutput = result.Response
 	return result, nil
 }
 
-// getAvailableTools 获取可用工具
-// 从MCP服务器动态获取工具列表，使用简短描述以减少token消耗
-// roleTools: 角色配置的工具列表（toolKey格式），如果为空或nil，则使用所有工具（默认角色）
+// English note.
+// English note.
+// English note.
 func (a *Agent) getAvailableTools(roleTools []string) []Tool {
-	// 构建角色工具集合（用于快速查找）
+	// English note.
 	roleToolSet := make(map[string]bool)
 	if len(roleTools) > 0 {
 		for _, toolKey := range roleTools {
@@ -913,26 +913,26 @@ func (a *Agent) getAvailableTools(roleTools []string) []Tool {
 		}
 	}
 
-	// 从MCP服务器获取所有已注册的内部工具
+	// English note.
 	mcpTools := a.mcpServer.GetAllTools()
 
-	// 转换为OpenAI格式的工具定义
+	// English note.
 	tools := make([]Tool, 0, len(mcpTools))
 	for _, mcpTool := range mcpTools {
-		// 如果指定了角色工具列表，只添加在列表中的工具
+		// English note.
 		if len(roleToolSet) > 0 {
 			toolKey := mcpTool.Name // 内置工具使用工具名称作为key
 			if !roleToolSet[toolKey] {
 				continue // 不在角色工具列表中，跳过
 			}
 		}
-		// 使用简短描述（如果存在），否则使用详细描述
+		// English note.
 		description := mcpTool.ShortDescription
 		if description == "" {
 			description = mcpTool.Description
 		}
 
-		// 转换schema中的类型为OpenAI标准类型
+		// English note.
 		convertedSchema := a.convertSchemaTypes(mcpTool.InputSchema)
 
 		tools = append(tools, Tool{
@@ -945,9 +945,9 @@ func (a *Agent) getAvailableTools(roleTools []string) []Tool {
 		})
 	}
 
-	// 获取外部MCP工具
+	// English note.
 	if a.externalMCPMgr != nil {
-		// 增加超时时间到30秒，因为通过代理连接远程服务器可能需要更长时间
+		// English note.
 		ctx, cancel := context.WithTimeout(context.Background(), 30*time.Second)
 		defer cancel()
 
@@ -955,27 +955,27 @@ func (a *Agent) getAvailableTools(roleTools []string) []Tool {
 		if err != nil {
 			a.logger.Warn("获取外部MCP工具失败", zap.Error(err))
 		} else {
-			// 获取外部MCP配置，用于检查工具启用状态
+			// English note.
 			externalMCPConfigs := a.externalMCPMgr.GetConfigs()
 
-			// 清空并重建工具名称映射
+			// English note.
 			a.mu.Lock()
 			a.toolNameMapping = make(map[string]string)
 			a.mu.Unlock()
 
-			// 将外部MCP工具添加到工具列表（只添加启用的工具）
+			// English note.
 			for _, externalTool := range externalTools {
-				// 外部工具使用 "mcpName::toolName" 作为toolKey
+				// English note.
 				externalToolKey := externalTool.Name
 
-				// 如果指定了角色工具列表，只添加在列表中的工具
+				// English note.
 				if len(roleToolSet) > 0 {
 					if !roleToolSet[externalToolKey] {
 						continue // 不在角色工具列表中，跳过
 					}
 				}
 
-				// 解析工具名称：mcpName::toolName
+				// English note.
 				var mcpName, actualToolName string
 				if idx := strings.Index(externalTool.Name, "::"); idx > 0 {
 					mcpName = externalTool.Name[:idx]
@@ -984,15 +984,15 @@ func (a *Agent) getAvailableTools(roleTools []string) []Tool {
 					continue // 跳过格式不正确的工具
 				}
 
-				// 检查工具是否启用
+				// English note.
 				enabled := false
 				if cfg, exists := externalMCPConfigs[mcpName]; exists {
-					// 首先检查外部MCP是否启用
+					// English note.
 					if !cfg.ExternalMCPEnable && !(cfg.Enabled && !cfg.Disabled) {
 						enabled = false // MCP未启用，所有工具都禁用
 					} else {
-						// MCP已启用，检查单个工具的启用状态
-						// 如果ToolEnabled为空或未设置该工具，默认为启用（向后兼容）
+						// English note.
+						// English note.
 						if cfg.ToolEnabled == nil {
 							enabled = true // 未设置工具状态，默认为启用
 						} else if toolEnabled, exists := cfg.ToolEnabled[actualToolName]; exists {
@@ -1003,25 +1003,25 @@ func (a *Agent) getAvailableTools(roleTools []string) []Tool {
 					}
 				}
 
-				// 只添加启用的工具
+				// English note.
 				if !enabled {
 					continue
 				}
 
-				// 使用简短描述（如果存在），否则使用详细描述
+				// English note.
 				description := externalTool.ShortDescription
 				if description == "" {
 					description = externalTool.Description
 				}
 
-				// 转换schema中的类型为OpenAI标准类型
+				// English note.
 				convertedSchema := a.convertSchemaTypes(externalTool.InputSchema)
 
-				// 将工具名称中的 "::" 替换为 "__" 以符合OpenAI命名规范
-				// OpenAI要求工具名称只能包含 [a-zA-Z0-9_-]
+				// English note.
+				// English note.
 				openAIName := strings.ReplaceAll(externalTool.Name, "::", "__")
 
-				// 保存名称映射关系（OpenAI格式 -> 原始格式）
+				// English note.
 				a.mu.Lock()
 				a.toolNameMapping[openAIName] = externalTool.Name
 				a.mu.Unlock()
@@ -1046,19 +1046,19 @@ func (a *Agent) getAvailableTools(roleTools []string) []Tool {
 	return tools
 }
 
-// convertSchemaTypes 递归转换schema中的类型为OpenAI标准类型
+// English note.
 func (a *Agent) convertSchemaTypes(schema map[string]interface{}) map[string]interface{} {
 	if schema == nil {
 		return schema
 	}
 
-	// 创建新的schema副本
+	// English note.
 	converted := make(map[string]interface{})
 	for k, v := range schema {
 		converted[k] = v
 	}
 
-	// 转换properties中的类型
+	// English note.
 	if properties, ok := converted["properties"].(map[string]interface{}); ok {
 		convertedProperties := make(map[string]interface{})
 		for propName, propValue := range properties {
@@ -1066,7 +1066,7 @@ func (a *Agent) convertSchemaTypes(schema map[string]interface{}) map[string]int
 				convertedProp := make(map[string]interface{})
 				for pk, pv := range prop {
 					if pk == "type" {
-						// 转换类型
+						// English note.
 						if typeStr, ok := pv.(string); ok {
 							convertedProp[pk] = a.convertToOpenAIType(typeStr)
 						} else {
@@ -1087,7 +1087,7 @@ func (a *Agent) convertSchemaTypes(schema map[string]interface{}) map[string]int
 	return converted
 }
 
-// convertToOpenAIType 将配置中的类型转换为OpenAI/JSON Schema标准类型
+// English note.
 func (a *Agent) convertToOpenAIType(configType string) string {
 	switch configType {
 	case "bool":
@@ -1099,18 +1099,18 @@ func (a *Agent) convertToOpenAIType(configType string) string {
 	case "string", "array", "object":
 		return configType
 	default:
-		// 默认返回原类型
+		// English note.
 		return configType
 	}
 }
 
-// isRetryableError 判断错误是否可重试
+// English note.
 func (a *Agent) isRetryableError(err error) bool {
 	if err == nil {
 		return false
 	}
 	errStr := err.Error()
-	// 网络相关错误，可以重试
+	// English note.
 	retryableErrors := []string{
 		"connection reset",
 		"connection reset by peer",
@@ -1134,7 +1134,7 @@ func (a *Agent) isRetryableError(err error) bool {
 	return false
 }
 
-// callOpenAI 调用OpenAI API（带重试机制）
+// English note.
 func (a *Agent) callOpenAI(ctx context.Context, messages []ChatMessage, tools []Tool) (*OpenAIResponse, error) {
 	maxRetries := 3
 	var lastErr error
@@ -1153,14 +1153,14 @@ func (a *Agent) callOpenAI(ctx context.Context, messages []ChatMessage, tools []
 
 		lastErr = err
 
-		// 如果不是可重试的错误，直接返回
+		// English note.
 		if !a.isRetryableError(err) {
 			return nil, err
 		}
 
-		// 如果不是最后一次重试，等待后重试
+		// English note.
 		if attempt < maxRetries-1 {
-			// 指数退避：2s, 4s, 8s...
+			// English note.
 			backoff := time.Duration(1<<uint(attempt+1)) * time.Second
 			if backoff > 30*time.Second {
 				backoff = 30 * time.Second // 最大30秒
@@ -1172,12 +1172,12 @@ func (a *Agent) callOpenAI(ctx context.Context, messages []ChatMessage, tools []
 				zap.Duration("backoff", backoff),
 			)
 
-			// 检查上下文是否已取消
+			// English note.
 			select {
 			case <-ctx.Done():
 				return nil, fmt.Errorf("上下文已取消: %w", ctx.Err())
 			case <-time.After(backoff):
-				// 继续重试
+				// English note.
 			}
 		}
 	}
@@ -1185,7 +1185,7 @@ func (a *Agent) callOpenAI(ctx context.Context, messages []ChatMessage, tools []
 	return nil, fmt.Errorf("重试%d次后仍然失败: %w", maxRetries, lastErr)
 }
 
-// callOpenAISingle 单次调用OpenAI API（不包含重试逻辑）
+// English note.
 func (a *Agent) callOpenAISingle(ctx context.Context, messages []ChatMessage, tools []Tool) (*OpenAIResponse, error) {
 	reqBody := OpenAIRequest{
 		Model:    a.config.Model,
@@ -1212,8 +1212,8 @@ func (a *Agent) callOpenAISingle(ctx context.Context, messages []ChatMessage, to
 	return &response, nil
 }
 
-// callOpenAISingleStreamText 单次调用OpenAI的流式模式，只用于“不会调用工具”的纯文本输出（tools 为空时最佳）。
-// onDelta 每收到一段 content delta，就回调一次；如果 callback 返回错误，会终止读取并返回错误。
+// English note.
+// English note.
 func (a *Agent) callOpenAISingleStreamText(ctx context.Context, messages []ChatMessage, tools []Tool, onDelta func(delta string) error) (string, error) {
 	reqBody := OpenAIRequest{
 		Model:    a.config.Model,
@@ -1231,7 +1231,7 @@ func (a *Agent) callOpenAISingleStreamText(ctx context.Context, messages []ChatM
 	return a.openAIClient.ChatCompletionStream(ctx, reqBody, onDelta)
 }
 
-// callOpenAIStreamText 调用OpenAI流式模式（带重试），仅在“未输出任何 delta”时才允许重试，避免重复发送已下发的内容。
+// English note.
 func (a *Agent) callOpenAIStreamText(ctx context.Context, messages []ChatMessage, tools []Tool, onDelta func(delta string) error) (string, error) {
 	maxRetries := 3
 	var lastErr error
@@ -1253,7 +1253,7 @@ func (a *Agent) callOpenAIStreamText(ctx context.Context, messages []ChatMessage
 		}
 
 		lastErr = err
-		// 已经开始输出了 delta，避免重复内容：直接失败让上层处理。
+		// English note.
 		if deltasSent {
 			return "", err
 		}
@@ -1285,7 +1285,7 @@ func (a *Agent) callOpenAIStreamText(ctx context.Context, messages []ChatMessage
 	return "", fmt.Errorf("重试%d次后仍然失败: %w", maxRetries, lastErr)
 }
 
-// callOpenAISingleStreamWithToolCalls 单次调用OpenAI流式模式（带工具调用解析），不包含重试逻辑。
+// English note.
 func (a *Agent) callOpenAISingleStreamWithToolCalls(
 	ctx context.Context,
 	messages []ChatMessage,
@@ -1315,7 +1315,7 @@ func (a *Agent) callOpenAISingleStreamWithToolCalls(
 		args := make(map[string]interface{})
 		if strings.TrimSpace(fnArgsStr) != "" {
 			if err := json.Unmarshal([]byte(fnArgsStr), &args); err != nil {
-				// 兼容：arguments 不一定是严格 JSON
+				// English note.
 				args = map[string]interface{}{"raw": fnArgsStr}
 			}
 		}
@@ -1351,7 +1351,7 @@ func (a *Agent) callOpenAISingleStreamWithToolCalls(
 	return response, nil
 }
 
-// callOpenAIStreamWithToolCalls 调用OpenAI流式模式（带重试），仅当还没有输出任何 content delta 时才允许重试。
+// English note.
 func (a *Agent) callOpenAIStreamWithToolCalls(
 	ctx context.Context,
 	messages []ChatMessage,
@@ -1382,7 +1382,7 @@ func (a *Agent) callOpenAIStreamWithToolCalls(
 
 		lastErr = err
 		if deltasSent {
-			// 已经开始输出了 delta：避免重复发送
+			// English note.
 			return nil, err
 		}
 
@@ -1412,22 +1412,22 @@ func (a *Agent) callOpenAIStreamWithToolCalls(
 	return nil, fmt.Errorf("重试%d次后仍然失败: %w", maxRetries, lastErr)
 }
 
-// ToolExecutionResult 工具执行结果
+// English note.
 type ToolExecutionResult struct {
 	Result      string
 	ExecutionID string
 	IsError     bool // 标记是否为错误结果
 }
 
-// executeToolViaMCP 通过MCP执行工具
-// 即使工具执行失败，也返回结果而不是错误，让AI能够处理错误情况
+// English note.
+// English note.
 func (a *Agent) executeToolViaMCP(ctx context.Context, toolName string, args map[string]interface{}) (*ToolExecutionResult, error) {
 	a.logger.Info("通过MCP执行工具",
 		zap.String("tool", toolName),
 		zap.Any("args", args),
 	)
 
-	// 如果是record_vulnerability工具，自动添加conversation_id
+	// English note.
 	if toolName == builtin.ToolRecordVulnerability {
 		a.mu.RLock()
 		conversationID := a.currentConversationID
@@ -1447,7 +1447,7 @@ func (a *Agent) executeToolViaMCP(ctx context.Context, toolName string, args map
 	var executionID string
 	var err error
 
-	// 单次工具执行超时：防止单个工具长时间挂起（如 30 分钟仍显示执行中）
+	// English note.
 	toolCtx := ctx
 	var toolCancel context.CancelFunc
 	if a.agentConfig != nil && a.agentConfig.ToolTimeoutMinutes > 0 {
@@ -1459,24 +1459,24 @@ func (a *Agent) executeToolViaMCP(ctx context.Context, toolName string, args map
 		}()
 	}
 
-	// 检查是否是外部MCP工具（通过工具名称映射）
+	// English note.
 	a.mu.RLock()
 	originalToolName, isExternalTool := a.toolNameMapping[toolName]
 	a.mu.RUnlock()
 
 	if isExternalTool && a.externalMCPMgr != nil {
-		// 使用原始工具名称调用外部MCP工具
+		// English note.
 		a.logger.Debug("调用外部MCP工具",
 			zap.String("openAIName", toolName),
 			zap.String("originalName", originalToolName),
 		)
 		result, executionID, err = a.externalMCPMgr.CallTool(toolCtx, originalToolName, args)
 	} else {
-		// 调用内部MCP工具
+		// English note.
 		result, executionID, err = a.mcpServer.CallTool(toolCtx, toolName, args)
 	}
 
-	// 如果调用失败（如工具不存在、超时），返回友好的错误信息而不是抛出异常
+	// English note.
 	if err != nil {
 		detail := err.Error()
 		if errors.Is(err, context.DeadlineExceeded) {
@@ -1511,7 +1511,7 @@ func (a *Agent) executeToolViaMCP(ctx context.Context, toolName string, args map
 		}, nil // 返回 nil 错误，让调用者处理结果
 	}
 
-	// 格式化结果
+	// English note.
 	var resultText strings.Builder
 	for _, content := range result.Content {
 		resultText.WriteString(content.Text)
@@ -1521,14 +1521,14 @@ func (a *Agent) executeToolViaMCP(ctx context.Context, toolName string, args map
 	resultStr := resultText.String()
 	resultSize := len(resultStr)
 
-	// 检测大结果并保存
+	// English note.
 	a.mu.RLock()
 	threshold := a.largeResultThreshold
 	storage := a.resultStorage
 	a.mu.RUnlock()
 
 	if resultSize > threshold && storage != nil {
-		// 异步保存大结果
+		// English note.
 		go func() {
 			if err := storage.SaveResult(executionID, toolName, resultStr); err != nil {
 				a.logger.Warn("保存大结果失败",
@@ -1545,7 +1545,7 @@ func (a *Agent) executeToolViaMCP(ctx context.Context, toolName string, args map
 			}
 		}()
 
-		// 返回最小化通知
+		// English note.
 		lines := strings.Split(resultStr, "\n")
 		filePath := ""
 		if storage != nil {
@@ -1567,7 +1567,7 @@ func (a *Agent) executeToolViaMCP(ctx context.Context, toolName string, args map
 	}, nil
 }
 
-// formatMinimalNotification 格式化最小化通知
+// English note.
 func (a *Agent) formatMinimalNotification(executionID string, toolName string, size int, lineCount int, filePath string) string {
 	var sb strings.Builder
 
@@ -1618,13 +1618,13 @@ func (a *Agent) formatMinimalNotification(executionID string, toolName string, s
 	return sb.String()
 }
 
-// UpdateConfig 更新OpenAI配置
+// English note.
 func (a *Agent) UpdateConfig(cfg *config.OpenAIConfig) {
 	a.mu.Lock()
 	defer a.mu.Unlock()
 	a.config = cfg
 
-	// 同时更新MemoryCompressor的配置（如果存在）
+	// English note.
 	if a.memoryCompressor != nil {
 		a.memoryCompressor.UpdateConfig(cfg)
 	}
@@ -1635,7 +1635,7 @@ func (a *Agent) UpdateConfig(cfg *config.OpenAIConfig) {
 	)
 }
 
-// UpdateMaxIterations 更新最大迭代次数
+// English note.
 func (a *Agent) UpdateMaxIterations(maxIterations int) {
 	a.mu.Lock()
 	defer a.mu.Unlock()
@@ -1645,7 +1645,7 @@ func (a *Agent) UpdateMaxIterations(maxIterations int) {
 	}
 }
 
-// formatToolError 格式化工具错误信息，提供更友好的错误描述
+// English note.
 func (a *Agent) formatToolError(toolName string, args map[string]interface{}, err error) string {
 	errorMsg := fmt.Sprintf(`工具执行失败
 
@@ -1662,7 +1662,7 @@ func (a *Agent) formatToolError(toolName string, args map[string]interface{}, er
 	return errorMsg
 }
 
-// applyMemoryCompression 在调用LLM前对消息进行压缩，避免超过 token 限制。reservedTokens 为预留给 tools 的 token 数，传 0 表示不预留。
+// English note.
 func (a *Agent) applyMemoryCompression(ctx context.Context, messages []ChatMessage, reservedTokens int) []ChatMessage {
 	if a.memoryCompressor == nil {
 		return messages
@@ -1684,7 +1684,7 @@ func (a *Agent) applyMemoryCompression(ctx context.Context, messages []ChatMessa
 	return messages
 }
 
-// countToolsTokens 统计 tools 序列化后的 token 数，用于日志与压缩时预留空间。mc 为 nil 时返回 0。
+// English note.
 func (a *Agent) countToolsTokens(tools []Tool) int {
 	if len(tools) == 0 || a.memoryCompressor == nil {
 		return 0
@@ -1696,7 +1696,7 @@ func (a *Agent) countToolsTokens(tools []Tool) int {
 	return a.memoryCompressor.CountTextTokens(string(data))
 }
 
-// handleMissingToolError 当LLM调用不存在的工具时，向其追加提示消息并允许继续迭代
+// English note.
 func (a *Agent) handleMissingToolError(errMsg string, messages *[]ChatMessage) (bool, string) {
 	lowerMsg := strings.ToLower(errMsg)
 	if !(strings.Contains(lowerMsg, "non-exist tool") || strings.Contains(lowerMsg, "non exist tool")) {
@@ -1717,7 +1717,7 @@ func (a *Agent) handleMissingToolError(errMsg string, messages *[]ChatMessage) (
 	return true, toolName
 }
 
-// handleToolRoleError 自动修复因缺失tool_calls导致的OpenAI错误
+// English note.
 func (a *Agent) handleToolRoleError(errMsg string, messages *[]ChatMessage) bool {
 	if messages == nil {
 		return false
@@ -1742,15 +1742,15 @@ func (a *Agent) handleToolRoleError(errMsg string, messages *[]ChatMessage) bool
 	return true
 }
 
-// RepairOrphanToolMessages 清理失去配对的tool消息和未完成的tool_calls，避免OpenAI报错
-// 同时确保历史消息中的tool_calls只作为上下文记忆，不会触发重新执行
-// 这是一个公开方法，可以在恢复历史消息时调用
+// English note.
+// English note.
+// English note.
 func (a *Agent) RepairOrphanToolMessages(messages *[]ChatMessage) bool {
 	return a.repairOrphanToolMessages(messages)
 }
 
-// repairOrphanToolMessages 清理失去配对的tool消息和未完成的tool_calls，避免OpenAI报错
-// 同时确保历史消息中的tool_calls只作为上下文记忆，不会触发重新执行
+// English note.
+// English note.
 func (a *Agent) repairOrphanToolMessages(messages *[]ChatMessage) bool {
 	if messages == nil {
 		return false
@@ -1769,7 +1769,7 @@ func (a *Agent) repairOrphanToolMessages(messages *[]ChatMessage) bool {
 		switch strings.ToLower(msg.Role) {
 		case "assistant":
 			if len(msg.ToolCalls) > 0 {
-				// 记录所有tool_call IDs
+				// English note.
 				for _, tc := range msg.ToolCalls {
 					if tc.ID != "" {
 						pending[tc.ID]++
@@ -1799,25 +1799,25 @@ func (a *Agent) repairOrphanToolMessages(messages *[]ChatMessage) bool {
 		}
 	}
 
-	// 如果还有未匹配的tool_calls（即assistant消息有tool_calls但没有对应的tool响应）
-	// 需要从最后的assistant消息中移除这些tool_calls，避免AI重新执行它们
+	// English note.
+	// English note.
 	if len(pending) > 0 {
-		// 从后往前查找最后一个assistant消息
+		// English note.
 		for i := len(cleaned) - 1; i >= 0; i-- {
 			if strings.ToLower(cleaned[i].Role) == "assistant" && len(cleaned[i].ToolCalls) > 0 {
-				// 移除未匹配的tool_calls
+				// English note.
 				originalCount := len(cleaned[i].ToolCalls)
 				validToolCalls := make([]ToolCall, 0)
 				for _, tc := range cleaned[i].ToolCalls {
 					if tc.ID != "" && pending[tc.ID] > 0 {
-						// 这个tool_call没有对应的tool响应，移除它
+						// English note.
 						removed = true
 						delete(pending, tc.ID)
 					} else {
 						validToolCalls = append(validToolCalls, tc)
 					}
 				}
-				// 更新消息的ToolCalls
+				// English note.
 				if len(validToolCalls) != originalCount {
 					cleaned[i].ToolCalls = validToolCalls
 					a.logger.Info("移除了未完成的tool_calls，避免重新执行",
@@ -1840,12 +1840,12 @@ func (a *Agent) repairOrphanToolMessages(messages *[]ChatMessage) bool {
 	return removed
 }
 
-// ToolsForRole 返回与单 Agent 循环一致的工具定义（OpenAI function 格式），供 Eino DeepAgent 等编排层绑定 MCP 工具。
+// English note.
 func (a *Agent) ToolsForRole(roleTools []string) []Tool {
 	return a.getAvailableTools(roleTools)
 }
 
-// ExecuteMCPToolForConversation 在指定会话上下文中执行 MCP 工具（行为与主 Agent 循环中的工具调用一致，如自动注入 conversation_id）。
+// English note.
 func (a *Agent) ExecuteMCPToolForConversation(ctx context.Context, conversationID, toolName string, args map[string]interface{}) (*ToolExecutionResult, error) {
 	a.mu.Lock()
 	prev := a.currentConversationID
@@ -1859,7 +1859,7 @@ func (a *Agent) ExecuteMCPToolForConversation(ctx context.Context, conversationI
 	return a.executeToolViaMCP(ctx, toolName, args)
 }
 
-// extractQuotedToolName 尝试从错误信息中提取被引用的工具名称
+// English note.
 func extractQuotedToolName(errMsg string) string {
 	start := strings.Index(errMsg, "\"")
 	if start == -1 {

@@ -14,7 +14,7 @@ import (
 	"go.uber.org/zap"
 )
 
-// setupTestAgent 创建测试用的Agent
+// English note.
 func setupTestAgent(t *testing.T) (*Agent, *storage.FileResultStorage) {
 	logger := zap.NewNop()
 	mcpServer := mcp.NewServer(logger)
@@ -33,7 +33,7 @@ func setupTestAgent(t *testing.T) (*Agent, *storage.FileResultStorage) {
 	
 	agent := NewAgent(openAICfg, agentCfg, mcpServer, nil, logger, 10)
 	
-	// 创建测试存储
+	// English note.
 	tmpDir := filepath.Join(os.TempDir(), "test_agent_storage_"+time.Now().Format("20060102_150405"))
 	testStorage, err := storage.NewFileResultStorage(tmpDir, logger)
 	if err != nil {
@@ -57,7 +57,7 @@ func TestAgent_FormatMinimalNotification(t *testing.T) {
 	
 	notification := agent.formatMinimalNotification(executionID, toolName, size, lineCount, filePath)
 	
-	// 验证通知包含必要信息
+	// English note.
 	if !strings.Contains(notification, executionID) {
 		t.Errorf("通知中应该包含执行ID: %s", executionID)
 	}
@@ -82,7 +82,7 @@ func TestAgent_FormatMinimalNotification(t *testing.T) {
 func TestAgent_ExecuteToolViaMCP_LargeResult(t *testing.T) {
 	agent, _ := setupTestAgent(t)
 	
-	// 创建模拟的MCP工具结果（大结果）
+	// English note.
 	largeResult := &mcp.ToolResult{
 		Content: []mcp.Content{
 			{
@@ -93,20 +93,20 @@ func TestAgent_ExecuteToolViaMCP_LargeResult(t *testing.T) {
 		IsError: false,
 	}
 	
-	// 模拟MCP服务器返回大结果
-	// 由于我们需要模拟CallTool的行为，这里需要创建一个mock或者使用实际的MCP服务器
-	// 为了简化测试，我们直接测试结果处理逻辑
+	// English note.
+	// English note.
+	// English note.
 	
-	// 设置阈值
+	// English note.
 	agent.mu.Lock()
 	agent.largeResultThreshold = 1000 // 设置较小的阈值
 	agent.mu.Unlock()
 	
-	// 创建执行ID
+	// English note.
 	executionID := "test_exec_large_001"
 	toolName := "test_tool"
 	
-	// 格式化结果
+	// English note.
 	var resultText strings.Builder
 	for _, content := range largeResult.Content {
 		resultText.WriteString(content.Text)
@@ -116,30 +116,30 @@ func TestAgent_ExecuteToolViaMCP_LargeResult(t *testing.T) {
 	resultStr := resultText.String()
 	resultSize := len(resultStr)
 	
-	// 检测大结果并保存
+	// English note.
 	agent.mu.RLock()
 	threshold := agent.largeResultThreshold
 	storage := agent.resultStorage
 	agent.mu.RUnlock()
 	
 	if resultSize > threshold && storage != nil {
-		// 保存大结果
+		// English note.
 		err := storage.SaveResult(executionID, toolName, resultStr)
 		if err != nil {
 			t.Fatalf("保存大结果失败: %v", err)
 		}
 		
-		// 生成通知
+		// English note.
 		lines := strings.Split(resultStr, "\n")
 		filePath := storage.GetResultPath(executionID)
 		notification := agent.formatMinimalNotification(executionID, toolName, resultSize, len(lines), filePath)
 		
-		// 验证通知格式
+		// English note.
 		if !strings.Contains(notification, executionID) {
 			t.Errorf("通知中应该包含执行ID")
 		}
 		
-		// 验证结果已保存
+		// English note.
 		savedResult, err := storage.GetResult(executionID)
 		if err != nil {
 			t.Fatalf("获取保存的结果失败: %v", err)
@@ -156,7 +156,7 @@ func TestAgent_ExecuteToolViaMCP_LargeResult(t *testing.T) {
 func TestAgent_ExecuteToolViaMCP_SmallResult(t *testing.T) {
 	agent, _ := setupTestAgent(t)
 	
-	// 创建小结果
+	// English note.
 	smallResult := &mcp.ToolResult{
 		Content: []mcp.Content{
 			{
@@ -167,12 +167,12 @@ func TestAgent_ExecuteToolViaMCP_SmallResult(t *testing.T) {
 		IsError: false,
 	}
 	
-	// 设置较大的阈值
+	// English note.
 	agent.mu.Lock()
 	agent.largeResultThreshold = 100000 // 100KB
 	agent.mu.Unlock()
 	
-	// 格式化结果
+	// English note.
 	var resultText strings.Builder
 	for _, content := range smallResult.Content {
 		resultText.WriteString(content.Text)
@@ -182,7 +182,7 @@ func TestAgent_ExecuteToolViaMCP_SmallResult(t *testing.T) {
 	resultStr := resultText.String()
 	resultSize := len(resultStr)
 	
-	// 检测大结果
+	// English note.
 	agent.mu.RLock()
 	threshold := agent.largeResultThreshold
 	storage := agent.resultStorage
@@ -192,9 +192,9 @@ func TestAgent_ExecuteToolViaMCP_SmallResult(t *testing.T) {
 		t.Fatal("小结果不应该被保存")
 	}
 	
-	// 小结果应该直接返回
+	// English note.
 	if resultSize <= threshold {
-		// 这是预期的行为
+		// English note.
 		if resultStr == "" {
 			t.Fatal("小结果应该直接返回，不应该为空")
 		}
@@ -204,17 +204,17 @@ func TestAgent_ExecuteToolViaMCP_SmallResult(t *testing.T) {
 func TestAgent_SetResultStorage(t *testing.T) {
 	agent, _ := setupTestAgent(t)
 	
-	// 创建新的存储
+	// English note.
 	tmpDir := filepath.Join(os.TempDir(), "test_new_storage_"+time.Now().Format("20060102_150405"))
 	newStorage, err := storage.NewFileResultStorage(tmpDir, zap.NewNop())
 	if err != nil {
 		t.Fatalf("创建新存储失败: %v", err)
 	}
 	
-	// 设置新存储
+	// English note.
 	agent.SetResultStorage(newStorage)
 	
-	// 验证存储已更新
+	// English note.
 	agent.mu.RLock()
 	currentStorage := agent.resultStorage
 	agent.mu.RUnlock()
@@ -223,7 +223,7 @@ func TestAgent_SetResultStorage(t *testing.T) {
 		t.Fatal("存储未正确更新")
 	}
 	
-	// 清理
+	// English note.
 	os.RemoveAll(tmpDir)
 }
 
@@ -237,7 +237,7 @@ func TestAgent_NewAgent_DefaultValues(t *testing.T) {
 		Model:   "test-model",
 	}
 	
-	// 测试默认配置
+	// English note.
 	agent := NewAgent(openAICfg, nil, mcpServer, nil, logger, 0)
 	
 	if agent.maxIterations != 30 {

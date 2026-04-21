@@ -17,7 +17,7 @@ import (
 	"gopkg.in/yaml.v3"
 )
 
-// SkillsHandler Skills处理器（磁盘 + Eino 规范；运行时由 Eino ADK skill 中间件加载）
+// English note.
 type SkillsHandler struct {
 	config     *config.Config
 	configPath string
@@ -25,7 +25,7 @@ type SkillsHandler struct {
 	db         *database.DB // 数据库连接（遗留统计；MCP list/read 已移除）
 }
 
-// NewSkillsHandler 创建新的Skills处理器
+// English note.
 func NewSkillsHandler(cfg *config.Config, configPath string, logger *zap.Logger) *SkillsHandler {
 	return &SkillsHandler{
 		config:     cfg,
@@ -46,12 +46,12 @@ func (h *SkillsHandler) skillsRootAbs() string {
 	return skillsDir
 }
 
-// SetDB 设置数据库连接（用于获取调用统计）
+// English note.
 func (h *SkillsHandler) SetDB(db *database.DB) {
 	h.db = db
 }
 
-// GetSkills 获取所有skills列表（支持分页和搜索）
+// English note.
 func (h *SkillsHandler) GetSkills(c *gin.Context) {
 	allSummaries, err := skillpackage.ListSkillSummaries(h.skillsRootAbs())
 	if err != nil {
@@ -112,12 +112,12 @@ func (h *SkillsHandler) GetSkills(c *gin.Context) {
 		}
 	}
 
-	// 分页参数
+	// English note.
 	limit := 20 // 默认每页20条
 	offset := 0
 	if limitStr := c.Query("limit"); limitStr != "" {
 		if parsed, err := parseInt(limitStr); err == nil && parsed > 0 {
-			// 允许更大的limit用于搜索场景，但设置一个合理的上限（10000）
+			// English note.
 			if parsed <= 10000 {
 				limit = parsed
 			} else {
@@ -131,7 +131,7 @@ func (h *SkillsHandler) GetSkills(c *gin.Context) {
 		}
 	}
 
-	// 计算分页范围
+	// English note.
 	total := len(filteredSkillsInfo)
 	start := offset
 	end := offset + limit
@@ -142,7 +142,7 @@ func (h *SkillsHandler) GetSkills(c *gin.Context) {
 		end = total
 	}
 
-	// 获取当前页的skill列表
+	// English note.
 	var paginatedSkillsInfo []map[string]interface{}
 	if start < end {
 		paginatedSkillsInfo = filteredSkillsInfo[start:end]
@@ -158,7 +158,7 @@ func (h *SkillsHandler) GetSkills(c *gin.Context) {
 	})
 }
 
-// GetSkill 获取单个skill的详细信息
+// English note.
 func (h *SkillsHandler) GetSkill(c *gin.Context) {
 	skillName := c.Param("name")
 	if skillName == "" {
@@ -292,7 +292,7 @@ func (h *SkillsHandler) PutSkillPackageFile(c *gin.Context) {
 	c.JSON(http.StatusOK, gin.H{"message": "saved", "path": req.Path})
 }
 
-// GetSkillBoundRoles 获取绑定指定skill的角色列表
+// English note.
 func (h *SkillsHandler) GetSkillBoundRoles(c *gin.Context) {
 	skillName := c.Param("name")
 	if skillName == "" {
@@ -308,7 +308,7 @@ func (h *SkillsHandler) GetSkillBoundRoles(c *gin.Context) {
 	})
 }
 
-// getRolesBoundToSkill 获取绑定指定skill的角色列表（不修改配置）
+// English note.
 func (h *SkillsHandler) getRolesBoundToSkill(skillName string) []string {
 	if h.config.Roles == nil {
 		return []string{}
@@ -316,12 +316,12 @@ func (h *SkillsHandler) getRolesBoundToSkill(skillName string) []string {
 
 	boundRoles := make([]string, 0)
 	for roleName, role := range h.config.Roles {
-		// 确保角色名称正确设置
+		// English note.
 		if role.Name == "" {
 			role.Name = roleName
 		}
 
-		// 检查角色的Skills列表中是否包含该skill
+		// English note.
 		if len(role.Skills) > 0 {
 			for _, skill := range role.Skills {
 				if skill == skillName {
@@ -335,7 +335,7 @@ func (h *SkillsHandler) getRolesBoundToSkill(skillName string) []string {
 	return boundRoles
 }
 
-// CreateSkill 创建新 skill（标准 Agent Skills：生成 SKILL.md + YAML front matter）
+// English note.
 func (h *SkillsHandler) CreateSkill(c *gin.Context) {
 	var req struct {
 		Name        string `json:"name" binding:"required"`
@@ -395,7 +395,7 @@ func (h *SkillsHandler) CreateSkill(c *gin.Context) {
 	})
 }
 
-// UpdateSkill 更新 SKILL.md（保留 front matter 中除 description 外的字段；可选覆盖 description）
+// English note.
 func (h *SkillsHandler) UpdateSkill(c *gin.Context) {
 	skillName := c.Param("name")
 	if skillName == "" {
@@ -451,7 +451,7 @@ func (h *SkillsHandler) UpdateSkill(c *gin.Context) {
 	})
 }
 
-// DeleteSkill 删除skill
+// English note.
 func (h *SkillsHandler) DeleteSkill(c *gin.Context) {
 	skillName := c.Param("name")
 	if skillName == "" {
@@ -459,7 +459,7 @@ func (h *SkillsHandler) DeleteSkill(c *gin.Context) {
 		return
 	}
 
-	// 检查是否有角色绑定了该skill，如果有则自动移除绑定
+	// English note.
 	affectedRoles := h.removeSkillFromRoles(skillName)
 	if len(affectedRoles) > 0 {
 		h.logger.Info("从角色中移除skill绑定",
@@ -486,7 +486,7 @@ func (h *SkillsHandler) DeleteSkill(c *gin.Context) {
 	})
 }
 
-// GetSkillStats 获取skills调用统计信息
+// English note.
 func (h *SkillsHandler) GetSkillStats(c *gin.Context) {
 	skillList, err := skillpackage.ListSkillDirNames(h.skillsRootAbs())
 	if err != nil {
@@ -497,7 +497,7 @@ func (h *SkillsHandler) GetSkillStats(c *gin.Context) {
 
 	skillsDir := h.skillsRootAbs()
 
-	// 从数据库加载调用统计
+	// English note.
 	var skillStatsMap map[string]*database.SkillStats
 	if h.db != nil {
 		dbStats, err := h.db.LoadSkillStats()
@@ -511,7 +511,7 @@ func (h *SkillsHandler) GetSkillStats(c *gin.Context) {
 		skillStatsMap = make(map[string]*database.SkillStats)
 	}
 
-	// 构建统计信息（包含所有skills，即使没有调用记录）
+	// English note.
 	statsList := make([]map[string]interface{}, 0, len(skillList))
 	totalCalls := 0
 	totalSuccess := 0
@@ -556,7 +556,7 @@ func (h *SkillsHandler) GetSkillStats(c *gin.Context) {
 	})
 }
 
-// ClearSkillStats 清空所有Skills统计信息
+// English note.
 func (h *SkillsHandler) ClearSkillStats(c *gin.Context) {
 	if h.db == nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "数据库连接未配置"})
@@ -575,7 +575,7 @@ func (h *SkillsHandler) ClearSkillStats(c *gin.Context) {
 	})
 }
 
-// ClearSkillStatsByName 清空指定skill的统计信息
+// English note.
 func (h *SkillsHandler) ClearSkillStatsByName(c *gin.Context) {
 	skillName := c.Param("name")
 	if skillName == "" {
@@ -600,8 +600,8 @@ func (h *SkillsHandler) ClearSkillStatsByName(c *gin.Context) {
 	})
 }
 
-// removeSkillFromRoles 从所有角色中移除指定的skill绑定
-// 返回受影响角色名称列表
+// English note.
+// English note.
 func (h *SkillsHandler) removeSkillFromRoles(skillName string) []string {
 	if h.config.Roles == nil {
 		return []string{}
@@ -610,14 +610,14 @@ func (h *SkillsHandler) removeSkillFromRoles(skillName string) []string {
 	affectedRoles := make([]string, 0)
 	rolesToUpdate := make(map[string]config.RoleConfig)
 
-	// 遍历所有角色，查找并移除skill绑定
+	// English note.
 	for roleName, role := range h.config.Roles {
-		// 确保角色名称正确设置
+		// English note.
 		if role.Name == "" {
 			role.Name = roleName
 		}
 
-		// 检查角色的Skills列表中是否包含要删除的skill
+		// English note.
 		if len(role.Skills) > 0 {
 			updated := false
 			newSkills := make([]string, 0, len(role.Skills))
@@ -636,13 +636,13 @@ func (h *SkillsHandler) removeSkillFromRoles(skillName string) []string {
 		}
 	}
 
-	// 如果有角色需要更新，保存到文件
+	// English note.
 	if len(rolesToUpdate) > 0 {
-		// 更新内存中的配置
+		// English note.
 		for roleName, role := range rolesToUpdate {
 			h.config.Roles[roleName] = role
 		}
-		// 保存更新后的角色配置到文件
+		// English note.
 		if err := h.saveRolesConfig(); err != nil {
 			h.logger.Error("保存角色配置失败", zap.Error(err))
 		}
@@ -651,7 +651,7 @@ func (h *SkillsHandler) removeSkillFromRoles(skillName string) []string {
 	return affectedRoles
 }
 
-// saveRolesConfig 保存角色配置到文件（从SkillsHandler调用）
+// English note.
 func (h *SkillsHandler) saveRolesConfig() error {
 	configDir := filepath.Dir(h.configPath)
 	rolesDir := h.config.RolesDir
@@ -659,45 +659,45 @@ func (h *SkillsHandler) saveRolesConfig() error {
 		rolesDir = "roles" // 默认目录
 	}
 
-	// 如果是相对路径，相对于配置文件所在目录
+	// English note.
 	if !filepath.IsAbs(rolesDir) {
 		rolesDir = filepath.Join(configDir, rolesDir)
 	}
 
-	// 确保目录存在
+	// English note.
 	if err := os.MkdirAll(rolesDir, 0755); err != nil {
 		return fmt.Errorf("创建角色目录失败: %w", err)
 	}
 
-	// 保存每个角色到独立的文件
+	// English note.
 	if h.config.Roles != nil {
 		for roleName, role := range h.config.Roles {
-			// 确保角色名称正确设置
+			// English note.
 			if role.Name == "" {
 				role.Name = roleName
 			}
 
-			// 使用角色名称作为文件名（安全化文件名，避免特殊字符）
+			// English note.
 			safeFileName := sanitizeRoleFileName(role.Name)
 			roleFile := filepath.Join(rolesDir, safeFileName+".yaml")
 
-			// 将角色配置序列化为YAML
+			// English note.
 			roleData, err := yaml.Marshal(&role)
 			if err != nil {
 				h.logger.Error("序列化角色配置失败", zap.String("role", roleName), zap.Error(err))
 				continue
 			}
 
-			// 处理icon字段：确保包含\U的icon值被引号包围（YAML需要引号才能正确解析Unicode转义）
+			// English note.
 			roleDataStr := string(roleData)
 			if role.Icon != "" && strings.HasPrefix(role.Icon, "\\U") {
-				// 匹配 icon: \UXXXXXXXX 格式（没有引号），排除已经有引号的情况
+				// English note.
 				re := regexp.MustCompile(`(?m)^(icon:\s+)(\\U[0-9A-F]{8})(\s*)$`)
 				roleDataStr = re.ReplaceAllString(roleDataStr, `${1}"${2}"${3}`)
 				roleData = []byte(roleDataStr)
 			}
 
-			// 写入文件
+			// English note.
 			if err := os.WriteFile(roleFile, roleData, 0644); err != nil {
 				h.logger.Error("保存角色配置文件失败", zap.String("role", roleName), zap.String("file", roleFile), zap.Error(err))
 				continue
@@ -710,9 +710,9 @@ func (h *SkillsHandler) saveRolesConfig() error {
 	return nil
 }
 
-// sanitizeRoleFileName 将角色名称转换为安全的文件名
+// English note.
 func sanitizeRoleFileName(name string) string {
-	// 替换可能不安全的字符
+	// English note.
 	replacer := map[rune]string{
 		'/':  "_",
 		'\\': "_",
@@ -736,7 +736,7 @@ func sanitizeRoleFileName(name string) string {
 	}
 
 	fileName := string(result)
-	// 如果文件名为空，使用默认名称
+	// English note.
 	if fileName == "" {
 		fileName = "role"
 	}
@@ -744,7 +744,7 @@ func sanitizeRoleFileName(name string) string {
 	return fileName
 }
 
-// isValidSkillName 验证 skill 目录名（与 Agent Skills 的 name 字段一致：小写、数字、连字符）
+// English note.
 func isValidSkillName(name string) bool {
 	if name == "" || len(name) > 100 {
 		return false

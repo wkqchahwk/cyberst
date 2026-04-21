@@ -15,14 +15,14 @@ import (
 	"github.com/eino-contrib/jsonschema"
 )
 
-// ExecutionRecorder 可选，在 MCP 工具成功返回且带有 execution id 时回调（用于汇总 mcpExecutionIds）。
+// English note.
 type ExecutionRecorder func(executionID string)
 
-// ToolErrorPrefix 用于把内部 MCP 执行结果中的 IsError 标记传递到多代理上层。
-// Eino 工具通道目前只支持返回字符串，因此通过前缀标识，随后在多代理 runner 中解析为 success/isError。
+// English note.
+// English note.
 const ToolErrorPrefix = "__CYBERSTRIKE_AI_TOOL_ERROR__\n"
 
-// ToolsFromDefinitions 将单 Agent 使用的 OpenAI 风格工具定义转为 Eino InvokableTool，执行时走 Agent 的 MCP 路径。
+// English note.
 func ToolsFromDefinitions(
 	ag *agent.Agent,
 	holder *ConversationHolder,
@@ -67,7 +67,7 @@ func toolInfoFromDefinition(d agent.Tool) (*schema.ToolInfo, error) {
 		js.Type = string(schema.Object)
 	}
 	if js.Properties == nil && js.Type == string(schema.Object) {
-		// 空参数对象
+		// English note.
 	}
 	return &schema.ToolInfo{
 		Name:        fn.Name,
@@ -95,7 +95,7 @@ func (m *mcpBridgeTool) InvokableRun(ctx context.Context, argumentsInJSON string
 	return runMCPToolInvocation(ctx, m.agent, m.holder, m.name, argumentsInJSON, m.record, m.chunk)
 }
 
-// runMCPToolInvocation 与 mcpBridgeTool.InvokableRun 共用。
+// English note.
 func runMCPToolInvocation(
 	ctx context.Context,
 	ag *agent.Agent,
@@ -159,10 +159,10 @@ func runMCPToolInvocation(
 	return res.Result, nil
 }
 
-// UnknownToolReminderHandler 供 compose.ToolsNodeConfig.UnknownToolsHandler 使用：
-// 模型请求了未注册的工具名时，返回一个「可恢复」的错误，让上层 runner 触发重试与纠错提示，
-// 同时避免 UI 永远停留在“执行中”（runner 会在 recoverable 分支 flush 掉 pending 的 tool_call）。
-// 不进行名称猜测或映射，避免误执行。
+// English note.
+// English note.
+// English note.
+// English note.
 func UnknownToolReminderHandler() func(ctx context.Context, name, input string) (string, error) {
 	return func(ctx context.Context, name, input string) (string, error) {
 		_ = ctx

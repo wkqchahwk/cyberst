@@ -1,157 +1,53 @@
-name: "http-intruder"
-command: "python3"
+name: http-intruder
+command: python3
 args:
-  - "-c"
-  - |
-    import json
-    import sys
-    import time
-    from urllib.parse import urlencode, urlparse, parse_qs, urlunparse
-
-    import requests
-
-    if len(sys.argv) < 3:
-        sys.stderr.write("需要至少URL和载荷\n")
-        sys.exit(1)
-
-    url = sys.argv[1]
-    method = (sys.argv[2] or "GET").upper()
-    location = (sys.argv[3] or "query").lower()
-    params_input = sys.argv[4] if len(sys.argv) > 4 else "{}"
-    payloads_json = sys.argv[5] if len(sys.argv) > 5 else "[]"
-    max_requests = int(sys.argv[6]) if len(sys.argv) > 6 and sys.argv[6] else 0
-
-    try:
-        # 框架会将 object 类型序列化为 JSON 字符串传递
-        # sys.argv 中的参数都是字符串，需要解析 JSON
-        if params_input and params_input.strip():
-            params_template = json.loads(params_input)
-            if not isinstance(params_template, dict):
-                sys.stderr.write("参数模板必须是字典格式\n")
-                sys.exit(1)
-        else:
-            params_template = {}
-    except json.JSONDecodeError as exc:
-        sys.stderr.write(f"参数模板解析失败（需要 JSON 字典格式）: {exc}\n")
-        sys.exit(1)
-
-    try:
-        # 框架会将 array 类型转换为逗号分隔的字符串（见 formatParamValue）
-        # 但为了兼容性，也支持 JSON 数组格式
-        if payloads_json and payloads_json.strip():
-            payloads_str = payloads_json.strip()
-            # 优先尝试解析为 JSON 数组
-            if payloads_str.startswith("["):
-                try:
-                    payloads = json.loads(payloads_str)
-                except json.JSONDecodeError:
-                    # JSON 解析失败，尝试逗号分隔格式
-                    payloads = [item.strip() for item in payloads_str.split(",") if item.strip()]
-            else:
-                # 逗号分隔的字符串（框架的 array 类型默认格式）
-                payloads = [item.strip() for item in payloads_str.split(",") if item.strip()]
-            if not isinstance(payloads, list):
-                sys.stderr.write("载荷必须是数组格式\n")
-                sys.exit(1)
-        else:
-            payloads = []
-    except (json.JSONDecodeError, ValueError) as exc:
-        sys.stderr.write(f"载荷解析失败（需要 JSON 数组或逗号分隔格式）: {exc}\n")
-        sys.exit(1)
-
-    if not isinstance(payloads, list) or not payloads:
-        sys.stderr.write("载荷列表不能为空\n")
-        sys.exit(1)
-
-    param_names = list(params_template.keys())
-    if not param_names:
-        sys.stderr.write("参数模板不能为空\n")
-        sys.exit(1)
-
-    session = requests.Session()
-    sent = 0
-
-    def build_query(original_url, data):
-        parsed = urlparse(original_url)
-        existing = {k: v[0] for k, v in parse_qs(parsed.query, keep_blank_values=True).items()}
-        existing.update(data)
-        new_query = urlencode(existing, doseq=True)
-        return urlunparse(parsed._replace(query=new_query))
-
-    for param in param_names:
-        for payload in payloads:
-            if max_requests and sent >= max_requests:
-                break
-            payload_str = str(payload)
-            if location == "query":
-                new_url = build_query(url, {param: payload_str})
-                response = session.request(method, new_url)
-            elif location == "body":
-                body = params_template.copy()
-                body[param] = payload_str
-                response = session.request(method, url, data=body)
-            elif location == "headers":
-                headers = params_template.copy()
-                headers[param] = payload_str
-                response = session.request(method, url, headers=headers)
-            elif location == "cookie":
-                cookies = params_template.copy()
-                cookies[param] = payload_str
-                response = session.request(method, url, cookies=cookies)
-            else:
-                sys.stderr.write(f"不支持的位置: {location}\n")
-                sys.exit(1)
-
-            sent += 1
-            length = len(response.content)
-            print(f"[{sent}] {param} = {payload_str} -> {response.status_code} ({length} bytes)")
-        if max_requests and sent >= max_requests:
-            break
-
-    if sent == 0:
-        sys.stderr.write("未发送任何请求，请检查参数配置。\n")
+- -c
+- "import json\nimport sys\nimport time\nfrom urllib.parse import urlencode, urlparse, parse_qs, urlunparse\n\nimport requests\n\nif len(sys.argv) < 3:\n    sys.stderr.write(\"\u9700\u8981\u81F3\u5C11URL\u548C\u8F7D\u8377\\n\")\n    sys.exit(1)\n\nurl = sys.argv[1]\nmethod = (sys.argv[2] or \"GET\").upper()\nlocation = (sys.argv[3] or \"query\").lower()\nparams_input = sys.argv[4] if len(sys.argv) > 4 else \"{}\"\npayloads_json = sys.argv[5] if len(sys.argv) > 5 else \"[]\"\nmax_requests = int(sys.argv[6]) if len(sys.argv) > 6 and sys.argv[6] else 0\n\ntry:\n    # \u6846\u67B6\u4F1A\u5C06 object \u7C7B\u578B\u5E8F\u5217\u5316\u4E3A JSON \u5B57\u7B26\u4E32\u4F20\u9012\n    # sys.argv \u4E2D\u7684\u53C2\u6570\u90FD\u662F\u5B57\u7B26\u4E32\uFF0C\u9700\u8981\u89E3\u6790 JSON\n    if params_input and params_input.strip():\n        params_template = json.loads(params_input)\n        if not isinstance(params_template, dict):\n            sys.stderr.write(\"\u53C2\u6570\u6A21\u677F\u5FC5\u987B\u662F\
+  \u5B57\u5178\u683C\u5F0F\\n\")\n            sys.exit(1)\n    else:\n        params_template = {}\nexcept json.JSONDecodeError as exc:\n    sys.stderr.write(f\"\u53C2\u6570\u6A21\u677F\u89E3\u6790\u5931\u8D25\uFF08\u9700\u8981 JSON \u5B57\u5178\u683C\u5F0F\uFF09: {exc}\\n\")\n    sys.exit(1)\n\ntry:\n    # \u6846\u67B6\u4F1A\u5C06 array \u7C7B\u578B\u8F6C\u6362\u4E3A\u9017\u53F7\u5206\u9694\u7684\u5B57\u7B26\u4E32\uFF08\u89C1 formatParamValue\uFF09\n    # \u4F46\u4E3A\u4E86\u517C\u5BB9\u6027\uFF0C\u4E5F\u652F\u6301 JSON \u6570\u7EC4\u683C\u5F0F\n    if payloads_json and payloads_json.strip():\n        payloads_str = payloads_json.strip()\n        # \u4F18\u5148\u5C1D\u8BD5\u89E3\u6790\u4E3A JSON \u6570\u7EC4\n        if payloads_str.startswith(\"[\"):\n            try:\n                payloads = json.loads(payloads_str)\n            except json.JSONDecodeError:\n                # JSON \u89E3\u6790\u5931\u8D25\uFF0C\u5C1D\u8BD5\u9017\u53F7\u5206\u9694\u683C\u5F0F\n                payloads\
+  \ = [item.strip() for item in payloads_str.split(\",\") if item.strip()]\n        else:\n            # \u9017\u53F7\u5206\u9694\u7684\u5B57\u7B26\u4E32\uFF08\u6846\u67B6\u7684 array \u7C7B\u578B\u9ED8\u8BA4\u683C\u5F0F\uFF09\n            payloads = [item.strip() for item in payloads_str.split(\",\") if item.strip()]\n        if not isinstance(payloads, list):\n            sys.stderr.write(\"\u8F7D\u8377\u5FC5\u987B\u662F\u6570\u7EC4\u683C\u5F0F\\n\")\n            sys.exit(1)\n    else:\n        payloads = []\nexcept (json.JSONDecodeError, ValueError) as exc:\n    sys.stderr.write(f\"\u8F7D\u8377\u89E3\u6790\u5931\u8D25\uFF08\u9700\u8981 JSON \u6570\u7EC4\u6216\u9017\u53F7\u5206\u9694\u683C\u5F0F\uFF09: {exc}\\n\")\n    sys.exit(1)\n\nif not isinstance(payloads, list) or not payloads:\n    sys.stderr.write(\"\u8F7D\u8377\u5217\u8868\u4E0D\u80FD\u4E3A\u7A7A\\n\")\n    sys.exit(1)\n\nparam_names = list(params_template.keys())\nif not param_names:\n    sys.stderr.write(\"\u53C2\u6570\u6A21\
+  \u677F\u4E0D\u80FD\u4E3A\u7A7A\\n\")\n    sys.exit(1)\n\nsession = requests.Session()\nsent = 0\n\ndef build_query(original_url, data):\n    parsed = urlparse(original_url)\n    existing = {k: v[0] for k, v in parse_qs(parsed.query, keep_blank_values=True).items()}\n    existing.update(data)\n    new_query = urlencode(existing, doseq=True)\n    return urlunparse(parsed._replace(query=new_query))\n\nfor param in param_names:\n    for payload in payloads:\n        if max_requests and sent >= max_requests:\n            break\n        payload_str = str(payload)\n        if location == \"query\":\n            new_url = build_query(url, {param: payload_str})\n            response = session.request(method, new_url)\n        elif location == \"body\":\n            body = params_template.copy()\n            body[param] = payload_str\n            response = session.request(method, url, data=body)\n        elif location == \"headers\":\n            headers = params_template.copy()\n            headers[param]\
+  \ = payload_str\n            response = session.request(method, url, headers=headers)\n        elif location == \"cookie\":\n            cookies = params_template.copy()\n            cookies[param] = payload_str\n            response = session.request(method, url, cookies=cookies)\n        else:\n            sys.stderr.write(f\"\u4E0D\u652F\u6301\u7684\u4F4D\u7F6E: {location}\\n\")\n            sys.exit(1)\n\n        sent += 1\n        length = len(response.content)\n        print(f\"[{sent}] {param} = {payload_str} -> {response.status_code} ({length} bytes)\")\n    if max_requests and sent >= max_requests:\n        break\n\nif sent == 0:\n    sys.stderr.write(\"\u672A\u53D1\u9001\u4EFB\u4F55\u8BF7\u6C42\uFF0C\u8BF7\u68C0\u67E5\u53C2\u6570\u914D\u7F6E\u3002\\n\")\n"
 enabled: true
-short_description: "简单的Intruder（sniper）模糊测试工具"
-description: |
-  轻量级HTTP“狙击手”模式模糊器，对每个参数逐一替换载荷并记录响应。
+short_description: Run the http-intruder security tool.
+description: 'CyberStrikeAI wrapper for `http-intruder`. Command: `python3`. Review scope and arguments before execution.'
 parameters:
-  - name: "url"
-    type: "string"
-    description: "目标URL"
-    required: true
-    position: 0
-    format: "positional"
-  - name: "method"
-    type: "string"
-    description: "HTTP方法（默认GET）"
-    required: false
-    default: "GET"
-    position: 1
-    format: "positional"
-  - name: "location"
-    type: "string"
-    description: "载荷位置（query, body, headers, cookie）"
-    required: false
-    default: "query"
-    position: 2
-    format: "positional"
-  - name: "params"
-    type: "object"
-    description: "参数模板（字典格式），指定要模糊的键及默认值，如 {\"id\": \"1\", \"name\": \"test\"}"
-    required: true
-    position: 3
-    format: "positional"
-  - name: "payloads"
-    type: "array"
-    item_type: "string"
-    description: "载荷列表（数组格式），如 [\"test1\", \"test2\", \"test3\"]"
-    required: true
-    position: 4
-    format: "positional"
-  - name: "max_requests"
-    type: "int"
-    description: "最大请求数（0表示全部）"
-    required: false
-    default: 0
-    position: 5
-    format: "positional"
+- name: url
+  type: string
+  description: Value for `url`.
+  required: true
+  position: 0
+  format: positional
+- name: method
+  type: string
+  description: Value for `method`.
+  required: false
+  default: GET
+  position: 1
+  format: positional
+- name: location
+  type: string
+  description: Value for `location`.
+  required: false
+  default: query
+  position: 2
+  format: positional
+- name: params
+  type: object
+  description: Value for `params`.
+  required: true
+  position: 3
+  format: positional
+- name: payloads
+  type: array
+  item_type: string
+  description: Value for `payloads`.
+  required: true
+  position: 4
+  format: positional
+- name: max_requests
+  type: int
+  description: Value for `max_requests`.
+  required: false
+  default: 0
+  position: 5
+  format: positional

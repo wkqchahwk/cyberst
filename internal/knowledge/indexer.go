@@ -18,7 +18,7 @@ import (
 	"go.uber.org/zap"
 )
 
-// Indexer 使用 Eino Compose 索引链（Markdown/递归分块、Lambda  enrich、SQLite 索引）与嵌入写入。
+// English note.
 type Indexer struct {
 	db          *sql.DB
 	embedder    *Embedder
@@ -45,7 +45,7 @@ type Indexer struct {
 	rebuildLastChunks  int
 }
 
-// NewIndexer 创建索引器并编译 Eino 索引链；kcfg 为完整知识库配置（含 indexing 与路径相关行为）。
+// English note.
 func NewIndexer(ctx context.Context, db *sql.DB, embedder *Embedder, logger *zap.Logger, kcfg *config.KnowledgeConfig) (*Indexer, error) {
 	if db == nil {
 		return nil, fmt.Errorf("db is nil")
@@ -103,7 +103,7 @@ func NewIndexer(ctx context.Context, db *sql.DB, embedder *Embedder, logger *zap
 	}, nil
 }
 
-// RecompileIndexChain 在配置或嵌入模型变更后重建 Eino 索引链（无需重启进程）。
+// English note.
 func (idx *Indexer) RecompileIndexChain(ctx context.Context) error {
 	if idx == nil || idx.db == nil || idx.embedder == nil {
 		return fmt.Errorf("indexer 未初始化")
@@ -124,7 +124,7 @@ func (idx *Indexer) RecompileIndexChain(ctx context.Context) error {
 	return nil
 }
 
-// IndexItem 索引单个知识项：先清空旧向量，再走 Compose 链（分块、嵌入、写入）。
+// English note.
 func (idx *Indexer) IndexItem(ctx context.Context, itemID string) error {
 	if idx.indexChain == nil {
 		return fmt.Errorf("索引链未初始化")
@@ -203,7 +203,7 @@ func (idx *Indexer) IndexItem(ctx context.Context, itemID string) error {
 	return nil
 }
 
-// HasIndex 检查是否存在索引
+// English note.
 func (idx *Indexer) HasIndex() (bool, error) {
 	var count int
 	err := idx.db.QueryRow("SELECT COUNT(*) FROM knowledge_embeddings").Scan(&count)
@@ -213,7 +213,7 @@ func (idx *Indexer) HasIndex() (bool, error) {
 	return count > 0, nil
 }
 
-// RebuildIndex 重建所有索引
+// English note.
 func (idx *Indexer) RebuildIndex(ctx context.Context) error {
 	idx.rebuildMu.Lock()
 	idx.isRebuilding = true
@@ -337,14 +337,14 @@ func (idx *Indexer) RebuildIndex(ctx context.Context) error {
 	return nil
 }
 
-// GetLastError 获取最近一次错误信息
+// English note.
 func (idx *Indexer) GetLastError() (string, time.Time) {
 	idx.mu.RLock()
 	defer idx.mu.RUnlock()
 	return idx.lastError, idx.lastErrorTime
 }
 
-// GetRebuildStatus 获取重建索引状态
+// English note.
 func (idx *Indexer) GetRebuildStatus() (isRebuilding bool, totalItems int, current int, failed int, lastItemID string, lastChunks int, startTime time.Time) {
 	idx.rebuildMu.RLock()
 	defer idx.rebuildMu.RUnlock()

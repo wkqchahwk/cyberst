@@ -16,7 +16,7 @@ import (
 	"golang.org/x/time/rate"
 )
 
-// Embedder 使用 CloudWeGo Eino 的 OpenAI Embedding 组件，并保留速率限制与重试。
+// English note.
 type Embedder struct {
 	eino   embedding.Embedder
 	config *config.KnowledgeConfig
@@ -29,7 +29,7 @@ type Embedder struct {
 	mu             sync.Mutex
 }
 
-// NewEmbedder 基于 Eino eino-ext OpenAI Embedder；openAIConfig 用于在知识库未单独配置 key 时回退 API Key。
+// English note.
 func NewEmbedder(ctx context.Context, cfg *config.KnowledgeConfig, openAIConfig *config.OpenAIConfig, logger *zap.Logger) (*Embedder, error) {
 	if cfg == nil {
 		return nil, fmt.Errorf("knowledge config is nil")
@@ -106,7 +106,7 @@ func NewEmbedder(ctx context.Context, cfg *config.KnowledgeConfig, openAIConfig 
 	}, nil
 }
 
-// EmbeddingModelName 返回配置的嵌入模型名（用于 tiktoken 分块与向量行元数据）。
+// English note.
 func (e *Embedder) EmbeddingModelName() string {
 	if e == nil || e.config == nil {
 		return ""
@@ -133,7 +133,7 @@ func (e *Embedder) waitRateLimiter() {
 	}
 }
 
-// EmbedText 单条嵌入（float32，与历史存储格式一致）。
+// English note.
 func (e *Embedder) EmbedText(ctx context.Context, text string) ([]float32, error) {
 	vecs, err := e.EmbedStrings(ctx, []string{text})
 	if err != nil {
@@ -145,7 +145,7 @@ func (e *Embedder) EmbedText(ctx context.Context, text string) ([]float32, error
 	return vecs[0], nil
 }
 
-// EmbedStrings 批量嵌入，带重试；实现 [embedding.Embedder]，可供 Eino Indexer 使用。
+// English note.
 func (e *Embedder) EmbedStrings(ctx context.Context, texts []string, opts ...embedding.Option) ([][]float32, error) {
 	if e == nil || e.eino == nil {
 		return nil, fmt.Errorf("embedder not initialized")
@@ -192,7 +192,7 @@ func (e *Embedder) EmbedStrings(ctx context.Context, texts []string, opts ...emb
 	return nil, fmt.Errorf("达到最大重试次数 (%d): %v", e.maxRetries, lastErr)
 }
 
-// EmbedTexts 批量 float32 嵌入（兼容旧调用；单次请求批量以减小延迟）。
+// English note.
 func (e *Embedder) EmbedTexts(ctx context.Context, texts []string) ([][]float32, error) {
 	return e.EmbedStrings(ctx, texts)
 }

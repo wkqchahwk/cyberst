@@ -14,17 +14,17 @@ import (
 	"go.uber.org/zap"
 )
 
-// AttackChainHandler 攻击链处理器
+// English note.
 type AttackChainHandler struct {
 	db           *database.DB
 	logger       *zap.Logger
 	openAIConfig *config.OpenAIConfig
 	mu           sync.RWMutex // 保护 openAIConfig 的并发访问
-	// 用于防止同一对话的并发生成
+	// English note.
 	generatingLocks sync.Map // map[string]*sync.Mutex
 }
 
-// NewAttackChainHandler 创建新的攻击链处理器
+// English note.
 func NewAttackChainHandler(db *database.DB, openAIConfig *config.OpenAIConfig, logger *zap.Logger) *AttackChainHandler {
 	return &AttackChainHandler{
 		db:           db,
@@ -33,7 +33,7 @@ func NewAttackChainHandler(db *database.DB, openAIConfig *config.OpenAIConfig, l
 	}
 }
 
-// UpdateConfig 更新OpenAI配置
+// English note.
 func (h *AttackChainHandler) UpdateConfig(cfg *config.OpenAIConfig) {
 	h.mu.Lock()
 	defer h.mu.Unlock()
@@ -44,14 +44,14 @@ func (h *AttackChainHandler) UpdateConfig(cfg *config.OpenAIConfig) {
 	)
 }
 
-// getOpenAIConfig 获取OpenAI配置（线程安全）
+// English note.
 func (h *AttackChainHandler) getOpenAIConfig() *config.OpenAIConfig {
 	h.mu.RLock()
 	defer h.mu.RUnlock()
 	return h.openAIConfig
 }
 
-// GetAttackChain 获取攻击链（按需生成）
+// English note.
 // GET /api/attack-chain/:conversationId
 func (h *AttackChainHandler) GetAttackChain(c *gin.Context) {
 	conversationID := c.Param("conversationId")
@@ -60,7 +60,7 @@ func (h *AttackChainHandler) GetAttackChain(c *gin.Context) {
 		return
 	}
 
-	// 检查对话是否存在
+	// English note.
 	_, err := h.db.GetConversation(conversationID)
 	if err != nil {
 		h.logger.Warn("对话不存在", zap.String("conversationId", conversationID), zap.Error(err))
@@ -68,23 +68,23 @@ func (h *AttackChainHandler) GetAttackChain(c *gin.Context) {
 		return
 	}
 
-	// 先尝试从数据库加载（如果已生成过）
+	// English note.
 	openAIConfig := h.getOpenAIConfig()
 	builder := attackchain.NewBuilder(h.db, openAIConfig, h.logger)
 	chain, err := builder.LoadChainFromDatabase(conversationID)
 	if err == nil && len(chain.Nodes) > 0 {
-		// 如果已存在，直接返回
+		// English note.
 		h.logger.Info("返回已存在的攻击链", zap.String("conversationId", conversationID))
 		c.JSON(http.StatusOK, chain)
 		return
 	}
 
-	// 如果不存在，则生成新的攻击链（按需生成）
-	// 使用锁机制防止同一对话的并发生成
+	// English note.
+	// English note.
 	lockInterface, _ := h.generatingLocks.LoadOrStore(conversationID, &sync.Mutex{})
 	lock := lockInterface.(*sync.Mutex)
 	
-	// 尝试获取锁，如果正在生成则返回错误
+	// English note.
 	acquired := lock.TryLock()
 	if !acquired {
 		h.logger.Info("攻击链正在生成中，请稍后再试", zap.String("conversationId", conversationID))
@@ -93,7 +93,7 @@ func (h *AttackChainHandler) GetAttackChain(c *gin.Context) {
 	}
 	defer lock.Unlock()
 
-	// 再次检查是否已生成（可能在等待锁的过程中已经生成完成）
+	// English note.
 	chain, err = builder.LoadChainFromDatabase(conversationID)
 	if err == nil && len(chain.Nodes) > 0 {
 		h.logger.Info("返回已存在的攻击链（在锁等待期间已生成）", zap.String("conversationId", conversationID))
@@ -113,13 +113,13 @@ func (h *AttackChainHandler) GetAttackChain(c *gin.Context) {
 		return
 	}
 
-	// 生成完成后，从锁映射中删除（可选，保留也可以用于防止短时间内重复生成）
+	// English note.
 	// h.generatingLocks.Delete(conversationID)
 
 	c.JSON(http.StatusOK, chain)
 }
 
-// RegenerateAttackChain 重新生成攻击链
+// English note.
 // POST /api/attack-chain/:conversationId/regenerate
 func (h *AttackChainHandler) RegenerateAttackChain(c *gin.Context) {
 	conversationID := c.Param("conversationId")
@@ -128,7 +128,7 @@ func (h *AttackChainHandler) RegenerateAttackChain(c *gin.Context) {
 		return
 	}
 
-	// 检查对话是否存在
+	// English note.
 	_, err := h.db.GetConversation(conversationID)
 	if err != nil {
 		h.logger.Warn("对话不存在", zap.String("conversationId", conversationID), zap.Error(err))
@@ -136,12 +136,12 @@ func (h *AttackChainHandler) RegenerateAttackChain(c *gin.Context) {
 		return
 	}
 
-	// 删除旧的攻击链
+	// English note.
 	if err := h.db.DeleteAttackChain(conversationID); err != nil {
 		h.logger.Warn("删除旧攻击链失败", zap.Error(err))
 	}
 
-	// 使用锁机制防止并发生成
+	// English note.
 	lockInterface, _ := h.generatingLocks.LoadOrStore(conversationID, &sync.Mutex{})
 	lock := lockInterface.(*sync.Mutex)
 	
@@ -153,7 +153,7 @@ func (h *AttackChainHandler) RegenerateAttackChain(c *gin.Context) {
 	}
 	defer lock.Unlock()
 
-	// 生成新的攻击链
+	// English note.
 	h.logger.Info("重新生成攻击链", zap.String("conversationId", conversationID))
 
 	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Minute)

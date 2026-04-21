@@ -1,115 +1,51 @@
-name: "rpcclient"
-command: "python3"
+name: rpcclient
+command: python3
 args:
-  - "-c"
-  - |
-    import shlex
-    import subprocess
-    import sys
-
-    if len(sys.argv) < 2:
-        sys.stderr.write("缺少目标地址\n")
-        sys.exit(1)
-
-    target = sys.argv[1]
-    username = sys.argv[2] if len(sys.argv) > 2 else ""
-    password = sys.argv[3] if len(sys.argv) > 3 else ""
-    domain = sys.argv[4] if len(sys.argv) > 4 else ""
-    commands = sys.argv[5] if len(sys.argv) > 5 else ""
-    extra = sys.argv[6] if len(sys.argv) > 6 else ""
-
-    cmd = ["rpcclient"]
-
-    if username:
-        cred = username
-        if password:
-            cred = f"{username}%{password}"
-        cmd.extend(["-U", cred])
-    elif password:
-        # 如果只提供了密码，仍然尝试以空用户名连接
-        cmd.extend(["-U", f"%{password}"])
-
-    if domain:
-        cmd.extend(["-W", domain])
-
-    if commands:
-        cmd.extend(["-c", commands])
-
-    if extra:
-        cmd.extend(shlex.split(extra))
-
-    cmd.append(target)
-
-    proc = subprocess.run(cmd, capture_output=True, text=True)
-    if proc.stdout:
-        sys.stdout.write(proc.stdout)
-    if proc.stderr:
-        sys.stderr.write(proc.stderr)
-    sys.exit(proc.returncode)
+- -c
+- "import shlex\nimport subprocess\nimport sys\n\nif len(sys.argv) < 2:\n    sys.stderr.write(\"\u7F3A\u5C11\u76EE\u6807\u5730\u5740\\n\")\n    sys.exit(1)\n\ntarget = sys.argv[1]\nusername = sys.argv[2] if len(sys.argv) > 2 else \"\"\npassword = sys.argv[3] if len(sys.argv) > 3 else \"\"\ndomain = sys.argv[4] if len(sys.argv) > 4 else \"\"\ncommands = sys.argv[5] if len(sys.argv) > 5 else \"\"\nextra = sys.argv[6] if len(sys.argv) > 6 else \"\"\n\ncmd = [\"rpcclient\"]\n\nif username:\n    cred = username\n    if password:\n        cred = f\"{username}%{password}\"\n    cmd.extend([\"-U\", cred])\nelif password:\n    # \u5982\u679C\u53EA\u63D0\u4F9B\u4E86\u5BC6\u7801\uFF0C\u4ECD\u7136\u5C1D\u8BD5\u4EE5\u7A7A\u7528\u6237\u540D\u8FDE\u63A5\n    cmd.extend([\"-U\", f\"%{password}\"])\n\nif domain:\n    cmd.extend([\"-W\", domain])\n\nif commands:\n    cmd.extend([\"-c\", commands])\n\nif extra:\n    cmd.extend(shlex.split(extra))\n\ncmd.append(target)\n\nproc = subprocess.run(cmd, capture_output=True,\
+  \ text=True)\nif proc.stdout:\n    sys.stdout.write(proc.stdout)\nif proc.stderr:\n    sys.stderr.write(proc.stderr)\nsys.exit(proc.returncode)\n"
 enabled: true
-short_description: "RPC枚举工具"
-description: |
-  Rpcclient是一个RPC客户端工具，用于枚举Windows/Samba系统信息。
-
-  **主要功能：**
-  - RPC枚举
-  - 用户和组枚举
-  - 域信息查询
-  - 系统信息收集
-
-  **使用场景：**
-  - Windows系统渗透测试
-  - Samba枚举
-  - 域环境侦察
-  - 安全测试
+short_description: Run the rpcclient security tool.
+description: 'CyberStrikeAI wrapper for `rpcclient`. Command: `python3`. Review scope and arguments before execution.'
 parameters:
-  - name: "target"
-    type: "string"
-    description: "目标IP地址"
-    required: true
-    position: 0
-    format: "positional"
-  - name: "username"
-    type: "string"
-    description: "用户名"
-    required: false
-    default: ""
-    position: 1
-    format: "positional"
-  - name: "password"
-    type: "string"
-    description: "密码"
-    required: false
-    default: ""
-    position: 2
-    format: "positional"
-  - name: "domain"
-    type: "string"
-    description: "域名"
-    required: false
-    default: ""
-    position: 3
-    format: "positional"
-  - name: "commands"
-    type: "string"
-    description: "RPC命令（分号分隔）"
-    required: false
-    default: "enumdomusers;enumdomgroups;querydominfo"
-    position: 4
-    format: "positional"
-  - name: "additional_args"
-    type: "string"
-    description: |
-      额外的rpcclient参数。用于传递未在参数列表中定义的rpcclient选项。
-
-      **示例值：**
-      - 根据工具特性添加常用参数示例
-
-      **注意事项：**
-      - 多个参数用空格分隔
-      - 确保参数格式正确，避免命令注入
-      - 此参数会直接追加到命令末尾
-    required: false
-    default: ""
-    position: 5
-    format: "positional"
+- name: target
+  type: string
+  description: Value for `target`.
+  required: true
+  position: 0
+  format: positional
+- name: username
+  type: string
+  description: Value for `username`.
+  required: false
+  default: ''
+  position: 1
+  format: positional
+- name: password
+  type: string
+  description: Value for `password`.
+  required: false
+  default: ''
+  position: 2
+  format: positional
+- name: domain
+  type: string
+  description: Value for `domain`.
+  required: false
+  default: ''
+  position: 3
+  format: positional
+- name: commands
+  type: string
+  description: Value for `commands`.
+  required: false
+  default: enumdomusers;enumdomgroups;querydominfo
+  position: 4
+  format: positional
+- name: additional_args
+  type: string
+  description: Value for `additional_args`.
+  required: false
+  default: ''
+  position: 5
+  format: positional

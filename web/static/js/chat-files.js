@@ -1,7 +1,7 @@
-// 对话附件（chat_uploads）文件管理
+// English note.
 
 let chatFilesCache = [];
-/** 后端 GET /api/chat-uploads 返回的目录相对路径（含空文件夹），与 files 合并成树 */
+/* English note. */
 let chatFilesFoldersCache = [];
 let chatFilesDisplayed = [];
 let chatFilesEditRelativePath = '';
@@ -10,11 +10,11 @@ let chatFilesRenameRelativePath = '';
 const CHAT_FILES_GROUP_STORAGE_KEY = 'csai_chat_files_group_by';
 const CHAT_FILES_BROWSE_PATH_KEY = 'csai_chat_files_browse_path';
 
-/** 按文件夹浏览模式下的当前路径（相对 chat_uploads 的段数组），如 ['2024-03-21','uuid'] */
+/* English note. */
 let chatFilesBrowsePath = [];
-/** 非空时，下一次上传文件落到此相对路径（chat_uploads 下目录），如 2026-03-21/uuid/sub */
+/* English note. */
 let chatFilesPendingUploadDir = '';
-/** 文件管理页面向服务器上传进行中，避免重复选择并禁用顶栏按钮 */
+/* English note. */
 let chatFilesXHRUploadBusy = false;
 
 function chatFilesLoadBrowsePathFromStorage() {
@@ -101,7 +101,7 @@ function chatFilesCloseAllMenus() {
 }
 
 /**
- * 「更多」菜单使用 fixed 定位，避免表格外层 overflow 把菜单裁成一条细线。
+ * English note.
  */
 function chatFilesToggleMoreMenu(ev, idx) {
     if (ev) ev.stopPropagation();
@@ -216,7 +216,7 @@ function chatFilesNameFilter(files) {
     });
 }
 
-/** 仅前端按文件名筛选，不重新请求 */
+/* English note. */
 function chatFilesFilterNameOnInput() {
     if (!chatFilesCache.length && !chatFilesFoldersCache.length && chatFilesGetGroupByMode() !== 'folder') return;
     renderChatFilesTable();
@@ -282,7 +282,7 @@ async function copyChatFilePathIdx(idx) {
     }
 }
 
-/** 常见二进制扩展名：此类文件无法在纯文本编辑器中打开 */
+/* English note. */
 const CHAT_FILES_BINARY_EXT = new Set([
     'png', 'jpg', 'jpeg', 'gif', 'webp', 'bmp', 'ico', 'tif', 'tiff', 'heic', 'heif', 'svgz',
     'pdf', 'zip', 'rar', '7z', 'tar', 'gz', 'bz2', 'xz', 'zst',
@@ -349,7 +349,7 @@ function chatFilesCompareDateKeysDesc(a, b) {
     return bs.localeCompare(as);
 }
 
-/** 目录树节点：dirs[段名] -> 子节点；files: { idx, name }[] */
+/* English note. */
 function chatFilesTreeMakeNode() {
     return { dirs: {}, files: [] };
 }
@@ -378,7 +378,7 @@ function chatFilesBuildTree(files) {
     return root;
 }
 
-/** 将后端返回的目录相对路径（如 a/b/c）并入树，便于展示空文件夹 */
+/* English note. */
 function chatFilesTreeInsertFolderPath(root, relSlash) {
     const rp = String(relSlash || '').replace(/\\/g, '/').replace(/^\/+/, '');
     if (!rp) return;
@@ -471,7 +471,7 @@ function chatFilesBuildGroups(files, mode) {
     return groups;
 }
 
-/** 分组标题：会话 ID 过长时缩短展示，完整值放在 title */
+/* English note. */
 function chatFilesGroupHeadingConversation(key) {
     const c = key == null ? '' : String(key);
     if (c === '' || c === '—') {
@@ -498,7 +498,7 @@ function renderChatFilesTable() {
     chatFilesDisplayed = chatFilesNameFilter(chatFilesCache);
     const groupMode = chatFilesGetGroupByMode();
     const emptyMsg = (typeof window.t === 'function') ? window.t('chatFilesPage.empty') : '暂无文件';
-    // 「按文件夹」模式下即使尚无文件，也要显示 chat_uploads 路径栏与「新建文件夹」，否则无法先建目录
+    // English note.
     if (!chatFilesDisplayed.length && groupMode !== 'folder') {
         wrap.classList.remove('chat-files-table-wrap--grouped');
         wrap.classList.remove('chat-files-table-wrap--tree');
@@ -1262,7 +1262,7 @@ async function onChatFilesUploadPick(ev) {
     }
 }
 
-// 语言切换后重新渲染列表：表头与「更多」菜单由 JS 拼接，无 data-i18n，需用当前语言的 t() 再生成一遍
+// English note.
 document.addEventListener('languagechange', function () {
     if (typeof window.currentPage !== 'function') return;
     if (window.currentPage() !== 'chat-files') return;

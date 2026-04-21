@@ -8,8 +8,8 @@ import (
 	"github.com/cloudwego/eino/adk/prebuilt/planexecute"
 )
 
-// plan_execute 的 Replanner / Executor prompt 会线性拼接每步 Result；无界时易撑爆上下文。
-// 此处仅约束「写入模型 prompt 的视图」，不修改 Eino session 中的原始 ExecutedSteps。
+// English note.
+// English note.
 
 const (
 	planExecuteMaxStepResultRunes = 12000
@@ -27,7 +27,7 @@ func truncateRunesWithSuffix(s string, maxRunes int, suffix string) string {
 	return string(rs[:maxRunes]) + suffix
 }
 
-// capPlanExecuteExecutedSteps 折叠较早步骤、截断单步过长结果，供 prompt 使用。
+// English note.
 func capPlanExecuteExecutedSteps(steps []planexecute.ExecutedStep) []planexecute.ExecutedStep {
 	if len(steps) == 0 {
 		return steps

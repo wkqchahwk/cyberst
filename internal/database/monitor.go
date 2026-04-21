@@ -11,7 +11,7 @@ import (
 	"go.uber.org/zap"
 )
 
-// SaveToolExecution 保存工具执行记录
+// English note.
 func (db *DB) SaveToolExecution(exec *mcp.ToolExecution) error {
 	argsJSON, err := json.Marshal(exec.Arguments)
 	if err != nil {
@@ -71,7 +71,7 @@ func (db *DB) SaveToolExecution(exec *mcp.ToolExecution) error {
 	return nil
 }
 
-// CountToolExecutions 统计工具执行记录总数
+// English note.
 func (db *DB) CountToolExecutions(status, toolName string) (int, error) {
 	query := `SELECT COUNT(*) FROM tool_executions`
 	args := []interface{}{}
@@ -81,7 +81,7 @@ func (db *DB) CountToolExecutions(status, toolName string) (int, error) {
 		args = append(args, status)
 	}
 	if toolName != "" {
-		// 支持部分匹配（模糊搜索），不区分大小写
+		// English note.
 		conditions = append(conditions, "LOWER(tool_name) LIKE ?")
 		args = append(args, "%"+strings.ToLower(toolName)+"%")
 	}
@@ -99,16 +99,16 @@ func (db *DB) CountToolExecutions(status, toolName string) (int, error) {
 	return count, nil
 }
 
-// LoadToolExecutions 加载所有工具执行记录（支持分页）
+// English note.
 func (db *DB) LoadToolExecutions() ([]*mcp.ToolExecution, error) {
 	return db.LoadToolExecutionsWithPagination(0, 1000, "", "")
 }
 
-// LoadToolExecutionsWithPagination 分页加载工具执行记录
-// limit: 最大返回记录数，0 表示使用默认值 1000
-// offset: 跳过的记录数，用于分页
-// status: 状态筛选，空字符串表示不过滤
-// toolName: 工具名称筛选，空字符串表示不过滤
+// English note.
+// English note.
+// English note.
+// English note.
+// English note.
 func (db *DB) LoadToolExecutionsWithPagination(offset, limit int, status, toolName string) ([]*mcp.ToolExecution, error) {
 	if limit <= 0 {
 		limit = 1000 // 默认限制
@@ -128,7 +128,7 @@ func (db *DB) LoadToolExecutionsWithPagination(offset, limit int, status, toolNa
 		args = append(args, status)
 	}
 	if toolName != "" {
-		// 支持部分匹配（模糊搜索），不区分大小写
+		// English note.
 		conditions = append(conditions, "LOWER(tool_name) LIKE ?")
 		args = append(args, "%"+strings.ToLower(toolName)+"%")
 	}
@@ -172,13 +172,13 @@ func (db *DB) LoadToolExecutionsWithPagination(offset, limit int, status, toolNa
 			continue
 		}
 
-		// 解析参数
+		// English note.
 		if err := json.Unmarshal([]byte(argsJSON), &exec.Arguments); err != nil {
 			db.logger.Warn("解析执行参数失败", zap.Error(err))
 			exec.Arguments = make(map[string]interface{})
 		}
 
-		// 解析结果
+		// English note.
 		if resultJSON.Valid && resultJSON.String != "" {
 			var result mcp.ToolResult
 			if err := json.Unmarshal([]byte(resultJSON.String), &result); err != nil {
@@ -188,17 +188,17 @@ func (db *DB) LoadToolExecutionsWithPagination(offset, limit int, status, toolNa
 			}
 		}
 
-		// 设置错误
+		// English note.
 		if errorText.Valid {
 			exec.Error = errorText.String
 		}
 
-		// 设置结束时间
+		// English note.
 		if endTime.Valid {
 			exec.EndTime = &endTime.Time
 		}
 
-		// 设置持续时间
+		// English note.
 		if durationMs.Valid {
 			exec.Duration = time.Duration(durationMs.Int64) * time.Millisecond
 		}
@@ -209,7 +209,7 @@ func (db *DB) LoadToolExecutionsWithPagination(offset, limit int, status, toolNa
 	return executions, nil
 }
 
-// GetToolExecution 根据ID获取单条工具执行记录
+// English note.
 func (db *DB) GetToolExecution(id string) (*mcp.ToolExecution, error) {
 	query := `
 		SELECT id, tool_name, arguments, status, result, error, start_time, end_time, duration_ms
@@ -270,7 +270,7 @@ func (db *DB) GetToolExecution(id string) (*mcp.ToolExecution, error) {
 	return &exec, nil
 }
 
-// DeleteToolExecution 删除工具执行记录
+// English note.
 func (db *DB) DeleteToolExecution(id string) error {
 	query := `DELETE FROM tool_executions WHERE id = ?`
 	_, err := db.Exec(query, id)
@@ -281,13 +281,13 @@ func (db *DB) DeleteToolExecution(id string) error {
 	return nil
 }
 
-// DeleteToolExecutions 批量删除工具执行记录
+// English note.
 func (db *DB) DeleteToolExecutions(ids []string) error {
 	if len(ids) == 0 {
 		return nil
 	}
 
-	// 构建 IN 查询的占位符
+	// English note.
 	placeholders := make([]string, len(ids))
 	args := make([]interface{}, len(ids))
 	for i, id := range ids {
@@ -304,13 +304,13 @@ func (db *DB) DeleteToolExecutions(ids []string) error {
 	return nil
 }
 
-// GetToolExecutionsByIds 根据ID列表获取工具执行记录（用于批量删除前获取统计信息）
+// English note.
 func (db *DB) GetToolExecutionsByIds(ids []string) ([]*mcp.ToolExecution, error) {
 	if len(ids) == 0 {
 		return []*mcp.ToolExecution{}, nil
 	}
 
-	// 构建 IN 查询的占位符
+	// English note.
 	placeholders := make([]string, len(ids))
 	args := make([]interface{}, len(ids))
 	for i, id := range ids {
@@ -355,13 +355,13 @@ func (db *DB) GetToolExecutionsByIds(ids []string) ([]*mcp.ToolExecution, error)
 			continue
 		}
 
-		// 解析参数
+		// English note.
 		if err := json.Unmarshal([]byte(argsJSON), &exec.Arguments); err != nil {
 			db.logger.Warn("解析执行参数失败", zap.Error(err))
 			exec.Arguments = make(map[string]interface{})
 		}
 
-		// 解析结果
+		// English note.
 		if resultJSON.Valid && resultJSON.String != "" {
 			var result mcp.ToolResult
 			if err := json.Unmarshal([]byte(resultJSON.String), &result); err != nil {
@@ -371,17 +371,17 @@ func (db *DB) GetToolExecutionsByIds(ids []string) ([]*mcp.ToolExecution, error)
 			}
 		}
 
-		// 设置错误
+		// English note.
 		if errorText.Valid {
 			exec.Error = errorText.String
 		}
 
-		// 设置结束时间
+		// English note.
 		if endTime.Valid {
 			exec.EndTime = &endTime.Time
 		}
 
-		// 设置持续时间
+		// English note.
 		if durationMs.Valid {
 			exec.Duration = time.Duration(durationMs.Int64) * time.Millisecond
 		}
@@ -392,7 +392,7 @@ func (db *DB) GetToolExecutionsByIds(ids []string) ([]*mcp.ToolExecution, error)
 	return executions, nil
 }
 
-// SaveToolStats 保存工具统计信息
+// English note.
 func (db *DB) SaveToolStats(toolName string, stats *mcp.ToolStats) error {
 	var lastCallTime sql.NullTime
 	if stats.LastCallTime != nil {
@@ -422,7 +422,7 @@ func (db *DB) SaveToolStats(toolName string, stats *mcp.ToolStats) error {
 	return nil
 }
 
-// LoadToolStats 加载所有工具统计信息
+// English note.
 func (db *DB) LoadToolStats() (map[string]*mcp.ToolStats, error) {
 	query := `
 		SELECT tool_name, total_calls, success_calls, failed_calls, last_call_time
@@ -462,7 +462,7 @@ func (db *DB) LoadToolStats() (map[string]*mcp.ToolStats, error) {
 	return stats, nil
 }
 
-// UpdateToolStats 更新工具统计信息（累加模式）
+// English note.
 func (db *DB) UpdateToolStats(toolName string, totalCalls, successCalls, failedCalls int, lastCallTime *time.Time) error {
 	var lastCallTimeSQL sql.NullTime
 	if lastCallTime != nil {
@@ -493,10 +493,10 @@ func (db *DB) UpdateToolStats(toolName string, totalCalls, successCalls, failedC
 	return nil
 }
 
-// DecreaseToolStats 减少工具统计信息（用于删除执行记录时）
-// 如果统计信息变为0，则删除该统计记录
+// English note.
+// English note.
 func (db *DB) DecreaseToolStats(toolName string, totalCalls, successCalls, failedCalls int) error {
-	// 先更新统计信息
+	// English note.
 	query := `
 		UPDATE tool_stats SET
 			total_calls = CASE WHEN total_calls - ? < 0 THEN 0 ELSE total_calls - ? END,
@@ -512,22 +512,22 @@ func (db *DB) DecreaseToolStats(toolName string, totalCalls, successCalls, faile
 		return err
 	}
 
-	// 检查更新后的 total_calls 是否为 0，如果是则删除该统计记录
+	// English note.
 	checkQuery := `SELECT total_calls FROM tool_stats WHERE tool_name = ?`
 	var newTotalCalls int
 	err = db.QueryRow(checkQuery, toolName).Scan(&newTotalCalls)
 	if err != nil {
-		// 如果查询失败（记录不存在），直接返回
+		// English note.
 		return nil
 	}
 
-	// 如果 total_calls 为 0，删除该统计记录
+	// English note.
 	if newTotalCalls == 0 {
 		deleteQuery := `DELETE FROM tool_stats WHERE tool_name = ?`
 		_, err = db.Exec(deleteQuery, toolName)
 		if err != nil {
 			db.logger.Warn("删除零统计记录失败", zap.Error(err), zap.String("toolName", toolName))
-			// 不返回错误，因为主要操作（更新统计）已成功
+			// English note.
 		} else {
 			db.logger.Info("已删除零统计记录", zap.String("toolName", toolName))
 		}

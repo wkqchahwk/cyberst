@@ -7,7 +7,7 @@ import (
 	"go.uber.org/zap"
 )
 
-// SkillStats Skills统计信息
+// English note.
 type SkillStats struct {
 	SkillName    string
 	TotalCalls   int
@@ -16,7 +16,7 @@ type SkillStats struct {
 	LastCallTime *time.Time
 }
 
-// SaveSkillStats 保存Skills统计信息
+// English note.
 func (db *DB) SaveSkillStats(skillName string, stats *SkillStats) error {
 	var lastCallTime sql.NullTime
 	if stats.LastCallTime != nil {
@@ -46,7 +46,7 @@ func (db *DB) SaveSkillStats(skillName string, stats *SkillStats) error {
 	return nil
 }
 
-// LoadSkillStats 加载所有Skills统计信息
+// English note.
 func (db *DB) LoadSkillStats() (map[string]*SkillStats, error) {
 	query := `
 		SELECT skill_name, total_calls, success_calls, failed_calls, last_call_time
@@ -86,7 +86,7 @@ func (db *DB) LoadSkillStats() (map[string]*SkillStats, error) {
 	return stats, nil
 }
 
-// UpdateSkillStats 更新Skills统计信息（累加模式）
+// English note.
 func (db *DB) UpdateSkillStats(skillName string, totalCalls, successCalls, failedCalls int, lastCallTime *time.Time) error {
 	var lastCallTimeSQL sql.NullTime
 	if lastCallTime != nil {
@@ -117,7 +117,7 @@ func (db *DB) UpdateSkillStats(skillName string, totalCalls, successCalls, faile
 	return nil
 }
 
-// ClearSkillStats 清空所有Skills统计信息
+// English note.
 func (db *DB) ClearSkillStats() error {
 	query := `DELETE FROM skill_stats`
 	_, err := db.Exec(query)
@@ -129,7 +129,7 @@ func (db *DB) ClearSkillStats() error {
 	return nil
 }
 
-// ClearSkillStatsByName 清空指定skill的统计信息
+// English note.
 func (db *DB) ClearSkillStatsByName(skillName string) error {
 	query := `DELETE FROM skill_stats WHERE skill_name = ?`
 	_, err := db.Exec(query, skillName)

@@ -1,5 +1,5 @@
 /**
- * 系统设置 - 终端：多标签、流式输出、命令历史、Ctrl+L 清屏、长时间可取消
+ * English note.
  */
 (function () {
     var getContext = HTMLCanvasElement.prototype.getContext;
@@ -30,7 +30,7 @@
         if (typeof window !== 'undefined' && typeof window.t === 'function') {
             return window.t(key, opts);
         }
-        // i18n 未就绪时的后备（与 zh-CN 一致）
+        // English note.
         var fallbacks = {
             'settingsTerminal.welcomeLine': 'CyberStrikeAI 终端 - 真实 Shell 会话，直接输入命令；Ctrl+L 清屏',
             'settingsTerminal.sessionClosed': '[会话已关闭]',
@@ -55,7 +55,7 @@
     }
 
     function writePrompt(tab) {
-        // 提示符交由后端 Shell 自行输出，这里仅保留占位函数，避免旧代码报错
+        // English note.
     }
 
     function redrawTabDisplay(t) {
@@ -87,7 +87,7 @@
         t.term.write(suffix);
     }
 
-    // 从本地存储中获取当前登录 token（与 auth.js 使用的结构保持一致）
+    // English note.
     function getStoredAuthToken() {
         try {
             var raw = localStorage.getItem('cyberstrike-auth');
@@ -98,7 +98,7 @@
         return null;
     }
 
-    // WebSocket 地址构造（兼容 http/https，并通过 query 传递 token 以通过后端鉴权）
+    // English note.
     function buildTerminalWSURL() {
         var proto = (window.location.protocol === 'https:') ? 'wss://' : 'ws://';
         var url = proto + window.location.host + '/api/terminal/ws';
@@ -133,12 +133,12 @@
 
             ws.onmessage = function (ev) {
                 if (!tab.term) return;
-                // 处理二进制消息和文本消息
+                // English note.
                 if (ev.data instanceof ArrayBuffer) {
                     var decoder = new TextDecoder('utf-8');
                     tab.term.write(decoder.decode(ev.data));
                 } else if (ev.data instanceof Blob) {
-                    // Blob 类型，需要异步读取
+                    // English note.
                     var reader = new FileReader();
                     reader.onload = function () {
                         var decoder = new TextDecoder('utf-8');
@@ -146,7 +146,7 @@
                     };
                     reader.readAsArrayBuffer(ev.data);
                 } else {
-                    // 字符串类型
+                    // English note.
                     tab.term.write(ev.data);
                 }
             };
@@ -241,7 +241,7 @@
         }
 
         term.onData(function (data) {
-            // Ctrl+L：本地清屏，同时把 ^L 也发给后端
+            // English note.
             if (data === '\x0c') {
                 term.clear();
                 sendToWS(data);
@@ -258,8 +258,8 @@
 
         tab.term = term;
         tab.fitAddon = fitAddon;
-        // 立即建立 WebSocket，让后端 PTY/Shell 马上启动并输出提示符；
-        // 若等到首次按键才 connect，用户会感觉必须先按回车才能输入（实为连接尚未建立）。
+        // English note.
+        // English note.
         ensureTerminalWS(tab);
         return term;
     }
@@ -423,7 +423,7 @@
     }
 
     function refreshTerminalI18n() {
-        // 语言切换后更新标签与容器 title；已打开的终端内容不强制清屏，以免丢失会话输出
+        // English note.
         try {
             var tabsEl = document.querySelector('.terminal-tabs');
             if (tabsEl) {

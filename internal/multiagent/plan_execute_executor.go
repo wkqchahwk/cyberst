@@ -8,7 +8,7 @@ import (
 	"github.com/cloudwego/eino/adk/prebuilt/planexecute"
 )
 
-// newPlanExecuteExecutor 与 planexecute.NewExecutor 行为一致，但可为执行器注入 Handlers（例如 summarization 中间件）。
+// English note.
 func newPlanExecuteExecutor(ctx context.Context, cfg *planexecute.ExecutorConfig, handlers []adk.ChatModelAgentMiddleware) (adk.Agent, error) {
 	if cfg == nil {
 		return nil, fmt.Errorf("plan_execute: ExecutorConfig 为空")
@@ -62,7 +62,7 @@ func newPlanExecuteExecutor(ctx context.Context, cfg *planexecute.ExecutorConfig
 	return adk.NewChatModelAgent(ctx, agentCfg)
 }
 
-// planExecuteDefaultGenExecutorInput 对齐 Eino planexecute.defaultGenExecutorInputFn（包外不可引用默认实现）。
+// English note.
 func planExecuteDefaultGenExecutorInput(ctx context.Context, in *planexecute.ExecutionContext) ([]adk.Message, error) {
 	planContent, err := in.Plan.MarshalJSON()
 	if err != nil {

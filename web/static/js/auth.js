@@ -164,8 +164,8 @@ async function apiFetch(url, options = {}) {
 }
 
 /**
- * multipart POST with XMLHttpRequest so upload progress is available (fetch 无法可靠上报进度).
- * 返回与 fetch 类似的对象：ok、status、json()、text()
+ * English note.
+ * English note.
  */
 async function apiUploadWithProgress(url, formData, options = {}) {
     await ensureAuthenticated();
@@ -290,7 +290,7 @@ async function refreshAppData(showTaskErrors = false) {
 
 async function bootstrapApp() {
     if (!isAppInitialized) {
-        // 等待 i18n 首包加载完成后再插系统就绪消息，避免清除缓存后语言显示 English 气泡仍是中文
+        // English note.
         try {
             if (window.i18nReady && typeof window.i18nReady.then === 'function') {
                 await window.i18nReady;
@@ -304,7 +304,7 @@ async function bootstrapApp() {
     await refreshAppData();
 }
 
-// 通用工具函数
+// English note.
 function getStatusText(status) {
     if (typeof window.t !== 'function') {
         const fallback = { pending: '等待中', running: '执行中', completed: '已完成', failed: '失败' };
@@ -404,7 +404,7 @@ async function initializeApp() {
     showLoginOverlay();
 }
 
-// 用户菜单控制
+// English note.
 function toggleUserMenu() {
     const dropdown = document.getElementById('user-menu-dropdown');
     if (!dropdown) return;
@@ -413,7 +413,7 @@ function toggleUserMenu() {
     dropdown.style.display = isVisible ? 'none' : 'block';
 }
 
-// 点击页面其他地方时关闭下拉菜单
+// English note.
 document.addEventListener('click', function(event) {
     const dropdown = document.getElementById('user-menu-dropdown');
     const avatarBtn = document.querySelector('.user-avatar-btn');
@@ -425,16 +425,16 @@ document.addEventListener('click', function(event) {
     }
 });
 
-// 退出登录
+// English note.
 async function logout() {
-    // 关闭下拉菜单
+    // English note.
     const dropdown = document.getElementById('user-menu-dropdown');
     if (dropdown) {
         dropdown.style.display = 'none';
     }
     
     try {
-        // 先尝试调用退出API（如果token有效）
+        // English note.
         if (authToken) {
             const headers = new Headers();
             headers.set('Authorization', `Bearer ${authToken}`);
@@ -442,20 +442,20 @@ async function logout() {
                 method: 'POST',
                 headers: headers,
             }).catch(() => {
-                // 忽略错误，继续清除本地认证信息
+                // English note.
             });
         }
     } catch (error) {
         console.error('退出登录API调用失败:', error);
     } finally {
-        // 无论如何都清除本地认证信息
+        // English note.
         clearAuthStorage();
         hideLoginOverlay();
         showLoginOverlay(typeof window.t === 'function' ? window.t('auth.loggedOut') : '已退出登录');
     }
 }
 
-// 导出函数供HTML使用
+// English note.
 window.toggleUserMenu = toggleUserMenu;
 window.logout = logout;
 

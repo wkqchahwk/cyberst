@@ -179,7 +179,8 @@ This behavior can be abused to bypass the authentication by escaping the context
 
 ```php
 sql1 = "SELECT * FROM admin WHERE pass = '".md5("ffifdyop", true)."'";
-sql1 = "SELECT * FROM admin WHERE pass = ''or'6�]��!r,��b'";
+sql1 = "SELECT * FROM admin WHERE pass = ''or'6�]��!r,��b
+'";
 ```
 
 ### Hashed Passwords

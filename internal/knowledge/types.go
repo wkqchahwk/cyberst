@@ -5,7 +5,7 @@ import (
 	"time"
 )
 
-// formatTime 格式化时间为 RFC3339 格式，零时间返回空字符串
+// English note.
 func formatTime(t time.Time) string {
 	if t.IsZero() {
 		return ""
@@ -13,7 +13,7 @@ func formatTime(t time.Time) string {
 	return t.Format(time.RFC3339)
 }
 
-// KnowledgeItem 知识库项
+// English note.
 type KnowledgeItem struct {
 	ID        string    `json:"id"`
 	Category  string    `json:"category"` // 风险类型（文件夹名）
@@ -24,7 +24,7 @@ type KnowledgeItem struct {
 	UpdatedAt time.Time `json:"updatedAt"`
 }
 
-// KnowledgeItemSummary 知识库项摘要（用于列表，不包含完整内容）
+// English note.
 type KnowledgeItemSummary struct {
 	ID        string    `json:"id"`
 	Category  string    `json:"category"`
@@ -35,7 +35,7 @@ type KnowledgeItemSummary struct {
 	UpdatedAt time.Time `json:"updatedAt"`
 }
 
-// MarshalJSON 自定义 JSON 序列化，确保时间格式正确
+// English note.
 func (k *KnowledgeItemSummary) MarshalJSON() ([]byte, error) {
 	type Alias KnowledgeItemSummary
 	aux := &struct {
@@ -50,7 +50,7 @@ func (k *KnowledgeItemSummary) MarshalJSON() ([]byte, error) {
 	return json.Marshal(aux)
 }
 
-// MarshalJSON 自定义 JSON 序列化，确保时间格式正确
+// English note.
 func (k *KnowledgeItem) MarshalJSON() ([]byte, error) {
 	type Alias KnowledgeItem
 	aux := &struct {
@@ -65,7 +65,7 @@ func (k *KnowledgeItem) MarshalJSON() ([]byte, error) {
 	return json.Marshal(aux)
 }
 
-// KnowledgeChunk 知识块（用于向量化）
+// English note.
 type KnowledgeChunk struct {
 	ID         string    `json:"id"`
 	ItemID     string    `json:"itemId"`
@@ -75,7 +75,7 @@ type KnowledgeChunk struct {
 	CreatedAt  time.Time `json:"createdAt"`
 }
 
-// RetrievalResult 检索结果
+// English note.
 type RetrievalResult struct {
 	Chunk      *KnowledgeChunk `json:"chunk"`
 	Item       *KnowledgeItem  `json:"item"`
@@ -83,7 +83,7 @@ type RetrievalResult struct {
 	Score      float64         `json:"score"`      // 与 Similarity 相同：余弦相似度
 }
 
-// RetrievalLog 检索日志
+// English note.
 type RetrievalLog struct {
 	ID             string    `json:"id"`
 	ConversationID string    `json:"conversationId,omitempty"`
@@ -94,7 +94,7 @@ type RetrievalLog struct {
 	CreatedAt      time.Time `json:"createdAt"`
 }
 
-// MarshalJSON 自定义 JSON 序列化，确保时间格式正确
+// English note.
 func (r *RetrievalLog) MarshalJSON() ([]byte, error) {
 	type Alias RetrievalLog
 	return json.Marshal(&struct {
@@ -106,14 +106,14 @@ func (r *RetrievalLog) MarshalJSON() ([]byte, error) {
 	})
 }
 
-// CategoryWithItems 分类及其下的知识项（用于按分类分页）
+// English note.
 type CategoryWithItems struct {
 	Category  string                `json:"category"`           // 分类名称
 	ItemCount int                   `json:"itemCount"`          // 该分类下的知识项总数
 	Items     []*KnowledgeItemSummary `json:"items"`            // 该分类下的知识项列表
 }
 
-// SearchRequest 搜索请求
+// English note.
 type SearchRequest struct {
 	Query          string  `json:"query"`
 	RiskType       string  `json:"riskType,omitempty"`       // 可选：指定风险类型

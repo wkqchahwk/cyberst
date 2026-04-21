@@ -15,7 +15,7 @@ import (
 	"go.uber.org/zap"
 )
 
-// setupTestExecutor 创建测试用的执行器
+// English note.
 func setupTestExecutor(t *testing.T) (*Executor, *mcp.Server) {
 	logger := zap.NewNop()
 	mcpServer := mcp.NewServer(logger)
@@ -28,7 +28,7 @@ func setupTestExecutor(t *testing.T) (*Executor, *mcp.Server) {
 	return executor, mcpServer
 }
 
-// setupTestStorage 创建测试用的存储
+// English note.
 func setupTestStorage(t *testing.T) *storage.FileResultStorage {
 	tmpDir := filepath.Join(os.TempDir(), "test_executor_storage_"+time.Now().Format("20060102_150405"))
 	logger := zap.NewNop()
@@ -46,12 +46,12 @@ func TestExecutor_ExecuteInternalTool_QueryExecutionResult(t *testing.T) {
 	testStorage := setupTestStorage(t)
 	executor.SetResultStorage(testStorage)
 	
-	// 准备测试数据
+	// English note.
 	executionID := "test_exec_001"
 	toolName := "nmap_scan"
 	result := "Line 1: Port 22 open\nLine 2: Port 80 open\nLine 3: Port 443 open\nLine 4: error occurred"
 	
-	// 保存测试结果
+	// English note.
 	err := testStorage.SaveResult(executionID, toolName, result)
 	if err != nil {
 		t.Fatalf("保存测试结果失败: %v", err)
@@ -59,7 +59,7 @@ func TestExecutor_ExecuteInternalTool_QueryExecutionResult(t *testing.T) {
 	
 	ctx := context.Background()
 	
-	// 测试1: 基本查询（第一页）
+	// English note.
 	args := map[string]interface{}{
 		"execution_id": executionID,
 		"page":         float64(1),
@@ -75,7 +75,7 @@ func TestExecutor_ExecuteInternalTool_QueryExecutionResult(t *testing.T) {
 		t.Fatalf("查询应该成功，但返回了错误: %s", toolResult.Content[0].Text)
 	}
 	
-	// 验证结果包含预期内容
+	// English note.
 	resultText := toolResult.Content[0].Text
 	if !strings.Contains(resultText, executionID) {
 		t.Errorf("结果中应该包含执行ID: %s", executionID)
@@ -85,7 +85,7 @@ func TestExecutor_ExecuteInternalTool_QueryExecutionResult(t *testing.T) {
 		t.Errorf("结果中应该包含分页信息")
 	}
 	
-	// 测试2: 搜索功能
+	// English note.
 	args2 := map[string]interface{}{
 		"execution_id": executionID,
 		"search":       "error",
@@ -107,7 +107,7 @@ func TestExecutor_ExecuteInternalTool_QueryExecutionResult(t *testing.T) {
 		t.Errorf("搜索结果中应该包含关键词: error")
 	}
 	
-	// 测试3: 过滤功能
+	// English note.
 	args3 := map[string]interface{}{
 		"execution_id": executionID,
 		"filter":       "Port",
@@ -129,7 +129,7 @@ func TestExecutor_ExecuteInternalTool_QueryExecutionResult(t *testing.T) {
 		t.Errorf("过滤结果中应该包含关键词: Port")
 	}
 	
-	// 测试4: 缺少必需参数
+	// English note.
 	args4 := map[string]interface{}{
 		"page": float64(1),
 	}
@@ -143,7 +143,7 @@ func TestExecutor_ExecuteInternalTool_QueryExecutionResult(t *testing.T) {
 		t.Fatal("缺少execution_id应该返回错误")
 	}
 	
-	// 测试5: 不存在的执行ID
+	// English note.
 	args5 := map[string]interface{}{
 		"execution_id": "nonexistent_id",
 		"page":         float64(1),
@@ -167,7 +167,7 @@ func TestExecutor_ExecuteInternalTool_UnknownTool(t *testing.T) {
 		"test": "value",
 	}
 	
-	// 测试未知的内部工具类型
+	// English note.
 	toolResult, err := executor.executeInternalTool(ctx, "unknown_tool", "internal:unknown_tool", args)
 	if err != nil {
 		t.Fatalf("执行内部工具失败: %v", err)
@@ -184,7 +184,7 @@ func TestExecutor_ExecuteInternalTool_UnknownTool(t *testing.T) {
 
 func TestExecutor_ExecuteInternalTool_NoStorage(t *testing.T) {
 	executor, _ := setupTestExecutor(t)
-	// 不设置存储，测试未初始化的情况
+	// English note.
 	
 	ctx := context.Background()
 	args := map[string]interface{}{
@@ -208,7 +208,7 @@ func TestExecutor_ExecuteInternalTool_NoStorage(t *testing.T) {
 func TestPaginateLines(t *testing.T) {
 	lines := []string{"Line 1", "Line 2", "Line 3", "Line 4", "Line 5"}
 	
-	// 测试第一页
+	// English note.
 	page := paginateLines(lines, 1, 2)
 	if page.Page != 1 {
 		t.Errorf("页码不匹配。期望: 1, 实际: %d", page.Page)
@@ -226,7 +226,7 @@ func TestPaginateLines(t *testing.T) {
 		t.Errorf("第一页行数不匹配。期望: 2, 实际: %d", len(page.Lines))
 	}
 	
-	// 测试第二页
+	// English note.
 	page2 := paginateLines(lines, 2, 2)
 	if len(page2.Lines) != 2 {
 		t.Errorf("第二页行数不匹配。期望: 2, 实际: %d", len(page2.Lines))
@@ -235,13 +235,13 @@ func TestPaginateLines(t *testing.T) {
 		t.Errorf("第二页第一行不匹配。期望: Line 3, 实际: %s", page2.Lines[0])
 	}
 	
-	// 测试最后一页
+	// English note.
 	page3 := paginateLines(lines, 3, 2)
 	if len(page3.Lines) != 1 {
 		t.Errorf("第三页行数不匹配。期望: 1, 实际: %d", len(page3.Lines))
 	}
 	
-	// 测试超出范围的页码（应该返回最后一页）
+	// English note.
 	page4 := paginateLines(lines, 4, 2)
 	if page4.Page != 3 {
 		t.Errorf("超出范围的页码应该被修正为最后一页。期望: 3, 实际: %d", page4.Page)
@@ -250,13 +250,13 @@ func TestPaginateLines(t *testing.T) {
 		t.Errorf("最后一页应该只有1行。实际: %d行", len(page4.Lines))
 	}
 	
-	// 测试无效页码（小于1）
+	// English note.
 	page0 := paginateLines(lines, 0, 2)
 	if page0.Page != 1 {
 		t.Errorf("无效页码应该被修正为1。实际: %d", page0.Page)
 	}
 	
-	// 测试空列表
+	// English note.
 	emptyPage := paginateLines([]string{}, 1, 10)
 	if emptyPage.TotalLines != 0 {
 		t.Errorf("空列表的总行数应该为0。实际: %d", emptyPage.TotalLines)

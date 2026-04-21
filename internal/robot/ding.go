@@ -21,8 +21,8 @@ const (
 	dingReconnectMax     = 60 * time.Second // 最大重连间隔
 )
 
-// StartDing 启动钉钉 Stream 长连接（无需公网），收到消息后调用 handler 并通过 SessionWebhook 回复。
-// 断线（如笔记本睡眠、网络中断）后会自动重连；ctx 被取消时退出，便于配置变更时重启。
+// English note.
+// English note.
 func StartDing(ctx context.Context, cfg config.RobotDingtalkConfig, h MessageHandler, logger *zap.Logger) {
 	if !cfg.Enabled || cfg.ClientID == "" || cfg.ClientSecret == "" {
 		return
@@ -30,7 +30,7 @@ func StartDing(ctx context.Context, cfg config.RobotDingtalkConfig, h MessageHan
 	go runDingLoop(ctx, cfg, h, logger)
 }
 
-// runDingLoop 循环维持钉钉长连接：断开且 ctx 未取消时按退避间隔重连。
+// English note.
 func runDingLoop(ctx context.Context, cfg config.RobotDingtalkConfig, h MessageHandler, logger *zap.Logger) {
 	backoff := dingReconnectInitial
 	for {
@@ -55,7 +55,7 @@ func runDingLoop(ctx context.Context, cfg config.RobotDingtalkConfig, h MessageH
 		case <-ctx.Done():
 			return
 		case <-time.After(backoff):
-			// 下次重连间隔递增，上限 60 秒，避免频繁重试
+			// English note.
 			if backoff < dingReconnectMax {
 				backoff *= 2
 				if backoff > dingReconnectMax {
@@ -98,7 +98,7 @@ func handleDingMessage(ctx context.Context, msg *chatbot.BotCallbackDataModel, h
 		userID = msg.ConversationId
 	}
 	reply := h.HandleMessage("dingtalk", userID, content)
-	// 使用 markdown 类型以便正确展示标题、列表、代码块等格式
+	// English note.
 	title := reply
 	if idx := strings.IndexAny(reply, "\n"); idx > 0 {
 		title = strings.TrimSpace(reply[:idx])

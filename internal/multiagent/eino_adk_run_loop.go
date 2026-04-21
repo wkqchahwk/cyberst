@@ -18,7 +18,7 @@ import (
 	"go.uber.org/zap"
 )
 
-// einoADKRunLoopArgs 将 Eino adk.Runner 事件循环从 RunDeepAgent / RunEinoSingleChatModelAgent 中抽出复用。
+// English note.
 type einoADKRunLoopArgs struct {
 	OrchMode             string
 	OrchestratorName     string
@@ -35,7 +35,7 @@ type einoADKRunLoopArgs struct {
 
 	DA adk.Agent
 
-	// EmptyResponseMessage 当未捕获到助手正文时的占位（多代理与单代理文案不同）。
+	// English note.
 	EmptyResponseMessage string
 }
 
@@ -79,7 +79,7 @@ func runEinoADKAgentLoop(ctx context.Context, args *einoADKRunLoopArgs, baseMsgs
 	mcpIDsMu := args.McpIDsMu
 	mcpIDs := args.McpIDs
 
-	// panic recovery：防止 Eino 框架内部 panic 导致整个 goroutine 崩溃、连接无法正常关闭。
+	// English note.
 	defer func() {
 		if r := recover(); r != nil {
 			if logger != nil {
@@ -207,7 +207,7 @@ attemptLoop:
 		iter := runner.Run(ctx, msgs)
 
 		for {
-			// 检测 context 取消（用户关闭浏览器、请求超时等），flush pending 工具状态避免 UI 卡在 "执行中"。
+			// English note.
 			select {
 			case <-ctx.Done():
 				flushAllPendingAsFailed(ctx.Err())
@@ -564,7 +564,7 @@ attemptLoop:
 	}
 	cleaned = dedupeRepeatedParagraphs(cleaned, 80)
 	cleaned = dedupeParagraphsByLineFingerprint(cleaned, 100)
-	// 防止超长响应导致 JSON 序列化慢或 OOM（多代理拼接大量工具输出时可能触发）。
+	// English note.
 	const maxResponseRunes = 100000
 	if rs := []rune(cleaned); len(rs) > maxResponseRunes {
 		cleaned = string(rs[:maxResponseRunes]) + "\n\n... (response truncated / 响应已截断)"

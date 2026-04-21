@@ -1,4 +1,4 @@
-// 仪表盘页面：拉取运行中任务、漏洞统计、批量任务、工具与 Skills 统计并渲染
+// English note.
 
 async function refreshDashboard() {
     const runningEl = document.getElementById('dashboard-running-tasks');
@@ -38,7 +38,7 @@ async function refreshDashboard() {
             apiFetch('/api/skills/stats').then(r => r.ok ? r.json() : null).catch(() => null)
         ]);
 
-        // 运行中任务：Agent 循环任务 + 批量队列「执行中」数量统一统计，避免顶部 KPI 与运行概览不一致
+        // English note.
         let agentRunningCount = null;
         if (tasksRes && Array.isArray(tasksRes.tasks)) {
             agentRunningCount = tasksRes.tasks.length;
@@ -78,7 +78,7 @@ async function refreshDashboard() {
             });
         }
 
-        // 批量任务队列：按状态统计（优化版；running 与上方 batchRunningCount 一致）
+        // English note.
         if (batchRes && Array.isArray(batchRes.queues)) {
             const queues = batchRes.queues;
             let pending = 0, running = batchRunningCount, done = 0;
@@ -94,7 +94,7 @@ async function refreshDashboard() {
             setEl('dashboard-batch-done', String(done));
             setEl('dashboard-batch-total', total > 0 ? (typeof window.t === 'function' ? window.t('dashboard.totalCount', { count: total }) : `共 ${total} 个`) : (typeof window.t === 'function' ? window.t('dashboard.noTasks') : '暂无任务'));
             
-            // 更新进度条
+            // English note.
             if (total > 0) {
                 const pendingPct = (pending / total * 100).toFixed(1);
                 const runningPct = (running / total * 100).toFixed(1);
@@ -117,17 +117,17 @@ async function refreshDashboard() {
             updateProgressBar('dashboard-batch-progress-done', '0');
         }
 
-        // 工具调用：monitor/stats 为 { toolName: { totalCalls, successCalls, failedCalls, ... } }（优化版）
+        // English note.
         if (monitorRes && typeof monitorRes === 'object') {
             const names = Object.keys(monitorRes);
             let totalCalls = 0, totalSuccess = 0, totalFailed = 0;
             names.forEach(k => {
                 const v = monitorRes[k];
-                const n = v && (v.totalCalls ?? v.TotalCalls);
+                const n = v && (v.totalCalls Auth v.TotalCalls);
                 if (typeof n === 'number') totalCalls += n;
-                const s = v && (v.successCalls ?? v.SuccessCalls);
+                const s = v && (v.successCalls Auth v.SuccessCalls);
                 if (typeof s === 'number') totalSuccess += s;
-                const f = v && (v.failedCalls ?? v.FailedCalls);
+                const f = v && (v.failedCalls Auth v.FailedCalls);
                 if (typeof f === 'number') totalFailed += f;
             });
             setEl('dashboard-tools-count', String(names.length));
@@ -146,22 +146,22 @@ async function refreshDashboard() {
             renderDashboardToolsBar(null);
         }
 
-        // 知识：{ enabled, total_categories, total_items, ... }（优化版）
+        // English note.
         const knowledgeItemsEl = document.getElementById('dashboard-knowledge-items');
         const knowledgeCategoriesEl = document.getElementById('dashboard-knowledge-categories');
         const knowledgeStatusEl = document.getElementById('dashboard-knowledge-status');
         if (knowledgeRes && typeof knowledgeRes === 'object') {
             if (knowledgeRes.enabled === false) {
-                // 功能未启用：用状态标签展示，数值保持为 "-"
+                // English note.
                 if (knowledgeStatusEl) knowledgeStatusEl.textContent = (typeof window.t === 'function' ? window.t('dashboard.notEnabled') : '未启用');
                 if (knowledgeItemsEl) knowledgeItemsEl.textContent = '-';
                 if (knowledgeCategoriesEl) knowledgeCategoriesEl.textContent = '-';
             } else {
-                const categories = knowledgeRes.total_categories ?? 0;
-                const items = knowledgeRes.total_items ?? 0;
+                const categories = knowledgeRes.total_categories Auth 0;
+                const items = knowledgeRes.total_items Auth 0;
                 if (knowledgeItemsEl) knowledgeItemsEl.textContent = formatNumber(items);
                 if (knowledgeCategoriesEl) knowledgeCategoriesEl.textContent = formatNumber(categories);
-                // 根据数据量给个轻量状态文案
+                // English note.
                 if (knowledgeStatusEl) {
                     if (items > 0 || categories > 0) {
                         knowledgeStatusEl.textContent = (typeof window.t === 'function' ? window.t('dashboard.enabled') : '已启用');
@@ -176,14 +176,14 @@ async function refreshDashboard() {
             if (knowledgeStatusEl) knowledgeStatusEl.textContent = '-';
         }
 
-        // Skills：{ total_skills, total_calls, ... }（优化版）
+        // English note.
         if (skillsRes && typeof skillsRes === 'object') {
-            const totalSkills = skillsRes.total_skills ?? 0;
-            const totalCalls = skillsRes.total_calls ?? 0;
+            const totalSkills = skillsRes.total_skills Auth 0;
+            const totalCalls = skillsRes.total_calls Auth 0;
             setEl('dashboard-skills-count', formatNumber(totalSkills));
             setEl('dashboard-skills-calls', formatNumber(totalCalls));
             
-            // 设置状态标签
+            // English note.
             const statusEl = document.getElementById('dashboard-skills-status');
             if (statusEl) {
                 if (totalCalls === 0) {
@@ -234,14 +234,14 @@ function setDashboardOverviewPlaceholder(t) {
     updateProgressBar('dashboard-batch-progress-done', '0');
 }
 
-// 格式化数字，添加千位分隔符
+// English note.
 function formatNumber(num) {
     if (typeof num !== 'number' || isNaN(num)) return '-';
     if (num === 0) return '0';
     return num.toLocaleString('zh-CN');
 }
 
-// 更新进度条宽度
+// English note.
 function updateProgressBar(id, percentage) {
     const el = document.getElementById(id);
     if (el) {
@@ -250,7 +250,7 @@ function updateProgressBar(id, percentage) {
     }
 }
 
-// Top 30 工具执行次数柱状图颜色（30 色不重复，柔和、易区分）
+// English note.
 var DASHBOARD_BAR_COLORS = [
     '#93c5fd', '#a78bfa', '#6ee7b7', '#fde047', '#fda4af',
     '#7dd3fc', '#a5b4fc', '#5eead4', '#fdba74', '#e9d5ff',
@@ -280,7 +280,7 @@ function renderDashboardToolsBar(monitorRes) {
 
     const entries = Object.keys(monitorRes).map(function (k) {
         const v = monitorRes[k];
-        const totalCalls = v && (v.totalCalls ?? v.TotalCalls);
+        const totalCalls = v && (v.totalCalls Auth v.TotalCalls);
         return { name: k, totalCalls: typeof totalCalls === 'number' ? totalCalls : 0 };
     }).filter(function (e) { return e.totalCalls > 0; })
         .sort(function (a, b) { return b.totalCalls - a.totalCalls; })

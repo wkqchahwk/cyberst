@@ -16,12 +16,12 @@ import (
 
 var markdownAgentFilenameRe = regexp.MustCompile(`^[a-zA-Z0-9][a-zA-Z0-9_.-]*\.md$`)
 
-// MarkdownAgentsHandler 管理 agents 目录下子代理 Markdown（增删改查）。
+// English note.
 type MarkdownAgentsHandler struct {
 	dir string
 }
 
-// NewMarkdownAgentsHandler dir 须为已解析的绝对路径。
+// English note.
 func NewMarkdownAgentsHandler(dir string) *MarkdownAgentsHandler {
 	return &MarkdownAgentsHandler{dir: strings.TrimSpace(dir)}
 }
@@ -38,7 +38,7 @@ func (h *MarkdownAgentsHandler) safeJoin(filename string) (string, error) {
 	return filepath.Join(h.dir, clean), nil
 }
 
-// existingOtherOrchestrator 若目录中已有同槽位的其他主代理文件，返回其文件名；writingBasename 为当前正在写入的文件名时不冲突。
+// English note.
 func existingOtherOrchestrator(dir, writingBasename string) (other string, err error) {
 	load, err := agents.LoadMarkdownAgentsDir(dir)
 	if err != nil {

@@ -1,8 +1,8 @@
-// WebShell 管理（类似冰蝎/蚁剑：虚拟终端、文件管理、命令执行）
+// English note.
 
 const WEBSHELL_SIDEBAR_WIDTH_KEY = 'webshell_sidebar_width';
 const WEBSHELL_DEFAULT_SIDEBAR_WIDTH = 360;
-/** 右侧主区域（终端/文件管理）最小宽度，避免拖到中间时右边变形 */
+/* English note. */
 const WEBSHELL_MAIN_MIN_WIDTH = 380;
 const WEBSHELL_PROMPT = 'shell> ';
 let webshellConnections = [];
@@ -19,13 +19,13 @@ let webshellTerminalLogsByConn = {};
 let webshellTerminalSessionsByConn = {};
 let webshellPersistLoadedByConn = {};
 let webshellPersistSaveTimersByConn = {};
-// 按连接保存命令历史，用于上下键
+// English note.
 let webshellHistoryByConn = {};
 let webshellHistoryIndex = -1;
 const WEBSHELL_HISTORY_MAX = 100;
-// 清屏防重入：一次点击只执行一次（避免多次绑定或重复触发导致多个 shell>）
+// English note.
 let webshellClearInProgress = false;
-// AI 助手：按连接 ID 保存对话 ID，便于多轮对话
+// English note.
 let webshellAiConvMap = {};
 let webshellAiSending = false;
 let webshellAiAbortController = null; // AbortController for current AI stream
@@ -34,12 +34,12 @@ let webshellDbConfigByConn = {};
 let webshellDirTreeByConn = {};
 let webshellDirExpandedByConn = {};
 let webshellDirLoadedByConn = {};
-// 流式打字机效果：当前会话的 response 序号，用于中止过期的打字
+// English note.
 let webshellStreamingTypingId = 0;
 let webshellProbeStatusById = {};
 let webshellBatchProbeRunning = false;
 
-/** 与主对话页一致：Eino 模式走 /api/multi-agent/stream，body 带 orchestration */
+/* English note. */
 function resolveWebshellAiStreamRequest() {
     if (typeof apiFetch === 'undefined') {
         return Promise.resolve({ path: '/api/agent-loop/stream', orchestration: null });
@@ -72,7 +72,7 @@ function resolveWebshellAiStreamRequest() {
     });
 }
 
-// ─── WebShell AI 助手：角色 + 对话模式选择器（与主「对话」页对齐） ───
+// English note.
 
 let wsRolesCache = null; // 缓存 /api/roles 结果
 
@@ -113,7 +113,7 @@ function wsRenderRoleList() {
     if (!listEl) return;
     var cur = (typeof getCurrentRole === 'function') ? getCurrentRole() : (localStorage.getItem('currentRole') || '');
     var html = '';
-    // 默认角色
+    // English note.
     var defSelected = !cur ? ' selected' : '';
     html += '<button type="button" class="role-selection-item-main' + defSelected + '" onclick="wsSelectRole(\'\')">' +
         '<div class="role-selection-item-icon-main">\ud83d\udd35</div>' +
@@ -143,7 +143,7 @@ function wsRenderRoleList() {
 
 function wsSelectRole(name) {
     var roleName = name || '';
-    // 使用主页的 handleRoleChange 来同步 roles.js 内部状态和 localStorage
+    // English note.
     if (typeof handleRoleChange === 'function') {
         try { handleRoleChange(roleName); } catch (e) { /* */ }
     } else {
@@ -168,7 +168,7 @@ function wsCloseRolePanel() {
     if (panel) panel.style.display = 'none';
 }
 
-// ─── 对话模式选择器 ───
+// English note.
 
 function wsInitAgentMode() {
     if (typeof apiFetch === 'undefined') return;
@@ -176,9 +176,9 @@ function wsInitAgentMode() {
         var wrapper = document.getElementById('ws-agent-mode-wrapper');
         if (!wrapper) return;
         wrapper.style.display = '';
-        // 是否启用多代理
+        // English note.
         var multiOn = cfg && cfg.multi_agent && cfg.multi_agent.enabled;
-        // 隐藏/显示多代理选项
+        // English note.
         var opts = wrapper.querySelectorAll('.ws-agent-mode-option');
         opts.forEach(function (el) {
             var v = el.getAttribute('data-value');
@@ -186,7 +186,7 @@ function wsInitAgentMode() {
                 el.style.display = multiOn ? '' : 'none';
             }
         });
-        // 标准化当前值
+        // English note.
         var stored = localStorage.getItem('cyberstrike-chat-agent-mode');
         var norm;
         if (typeof window.csaiChatAgentMode === 'object' && typeof window.csaiChatAgentMode.normalizeStored === 'function') {
@@ -223,7 +223,7 @@ function wsSelectAgentMode(mode) {
     try { localStorage.setItem('cyberstrike-chat-agent-mode', mode); } catch (e) { /* */ }
     wsSyncAgentMode(mode);
     wsCloseAgentModePanel();
-    // 同步主页模式选择器
+    // English note.
     if (typeof syncAgentModeFromValue === 'function') try { syncAgentModeFromValue(mode); } catch (e) { /* */ }
 }
 
@@ -240,7 +240,7 @@ function wsCloseAgentModePanel() {
     if (panel) panel.style.display = 'none';
 }
 
-/** 当 WebShell AI Tab 可见时刷新选择器显示（同步主页可能的更改） */
+/* English note. */
 function wsRefreshSelectors() {
     wsUpdateRoleSelectorDisplay();
     wsRenderRoleList();
@@ -248,7 +248,7 @@ function wsRefreshSelectors() {
     wsSyncAgentMode(stored);
 }
 
-// 点击面板外部关闭
+// English note.
 document.addEventListener('click', function (e) {
     var rolePanel = document.getElementById('ws-role-selection-panel');
     var roleBtn = document.getElementById('ws-role-selector-btn');
@@ -262,9 +262,9 @@ document.addEventListener('click', function (e) {
     }
 });
 
-// ─── end WebShell AI 选择器 ───
+// English note.
 
-/** 停止当前 WebShell AI 流式请求 */
+/* English note. */
 function wsStopAiStream(conn) {
     // 1. Abort the fetch
     if (webshellAiAbortController) {
@@ -289,7 +289,7 @@ function wsStopAiStream(conn) {
     wsSetAiSendingState(false);
 }
 
-/** 切换发送/停止按钮状态 */
+/* English note. */
 function wsSetAiSendingState(sending) {
     webshellAiSending = sending;
     var sendBtn = document.getElementById('webshell-ai-send');
@@ -303,7 +303,7 @@ function wsSetAiSendingState(sending) {
     }
 }
 
-// 从服务端（SQLite）拉取连接列表
+// English note.
 function getWebshellConnections() {
     if (typeof apiFetch === 'undefined') {
         return Promise.resolve([]);
@@ -317,7 +317,7 @@ function getWebshellConnections() {
         });
 }
 
-// 从服务端刷新连接列表并重绘侧栏
+// English note.
 function refreshWebshellConnectionsFromServer() {
     return getWebshellConnections().then(function (list) {
         webshellConnections = list;
@@ -326,7 +326,7 @@ function refreshWebshellConnectionsFromServer() {
     });
 }
 
-// 使用 wsT 避免与全局 window.t 冲突导致无限递归
+// English note.
 function wsT(key) {
     var globalT = typeof window !== 'undefined' ? window.t : null;
     if (typeof globalT === 'function' && globalT !== wsT) return globalT(key);
@@ -455,7 +455,7 @@ function wsTOr(key, fallbackText) {
     return text;
 }
 
-// 全局只绑定一次：清屏 = 销毁终端并重新创建，保证只出现一个 shell>（不依赖 xterm.clear()，避免某些环境下 clear 不生效或重复写入）
+// English note.
 function bindWebshellClearOnce() {
     if (window._webshellClearBound) return;
     window._webshellClearBound = true;
@@ -481,12 +481,12 @@ function bindWebshellClearOnce() {
     }, true);
 }
 
-// WebShell 行内/工具栏“操作”下拉：点击菜单外自动收起
+// English note.
 function bindWebshellActionMenusAutoCloseOnce() {
     if (window._webshellActionMenusAutoCloseBound) return;
     window._webshellActionMenusAutoCloseBound = true;
     document.addEventListener('click', function (e) {
-        // 只要点在 details 内部，就让浏览器自行切换（open/close）
+        // English note.
         var clickedInMenu = e.target && e.target.closest && (
             e.target.closest('details.webshell-conn-actions') ||
             e.target.closest('details.webshell-row-actions') ||
@@ -501,7 +501,7 @@ function bindWebshellActionMenusAutoCloseOnce() {
     }, true);
 }
 
-// 初始化 WebShell 管理页面（从 SQLite 拉取连接列表）
+// English note.
 function initWebshellPage() {
     bindWebshellClearOnce();
     bindWebshellActionMenusAutoCloseOnce();
@@ -513,7 +513,7 @@ function initWebshellPage() {
     applyWebshellSidebarWidth();
     initWebshellSidebarResize();
 
-    // 连接搜索：实时过滤连接列表
+    // English note.
     var searchEl = document.getElementById('webshell-conn-search');
     if (searchEl && searchEl.dataset.bound !== '1') {
         searchEl.dataset.bound = '1';
@@ -598,7 +598,7 @@ function initWebshellSidebarResize() {
     });
 }
 
-// 销毁当前终端实例（切换连接或离开页面时）
+// English note.
 function destroyWebshellTerminal() {
     if (webshellTerminalResizeObserver && webshellTerminalResizeContainer) {
         try { webshellTerminalResizeObserver.unobserve(webshellTerminalResizeContainer); } catch (e) {}
@@ -618,7 +618,7 @@ function destroyWebshellTerminal() {
     setWebshellTerminalStatus(false);
 }
 
-// 渲染连接列表
+// English note.
 function renderWebshellList() {
     const listEl = document.getElementById('webshell-list');
     if (!listEl) return;
@@ -987,7 +987,7 @@ function renderWebshellTerminalSessions(conn) {
                     curr2.activeId = fallback.id;
                 }
                 saveWebshellTerminalSessions(connId, curr2);
-                // 清理该终端的日志与历史
+                // English note.
                 var terminalKey = getWebshellTerminalSessionKey(connId, targetId);
                 clearWebshellTerminalLog(terminalKey);
                 delete webshellHistoryByConn[terminalKey];
@@ -1530,7 +1530,7 @@ function webshellAgentPx(data) {
     return s ? ('[' + s + '] ') : '';
 }
 
-// 根据后端保存的 processDetail 构建一条时间线项的 HTML（与 appendTimelineItem 展示一致）
+// English note.
 function buildWebshellTimelineItemFromDetail(detail) {
     var eventType = detail.eventType || '';
     var title = detail.message || '';
@@ -1589,7 +1589,7 @@ function buildWebshellTimelineItemFromDetail(detail) {
     return html;
 }
 
-// 渲染「执行过程及调用工具」折叠块（默认折叠，刷新后加载历史时保留并可展开）
+// English note.
 function renderWebshellProcessDetailsBlock(processDetails, defaultCollapsed) {
     if (!processDetails || processDetails.length === 0) return null;
     var expandLabel = (typeof window.t === 'function') ? window.t('chat.expandDetail') : '展开详情';
@@ -1714,7 +1714,7 @@ function webshellAiConvListSelect(conn, convId, messagesContainer, listEl) {
         .catch(function (e) { console.warn('加载对话失败', e); });
 }
 
-// 选择连接：渲染终端 + 文件管理 Tab，并初始化终端
+// English note.
 function selectWebshell(id, stateReady) {
     currentWebshellId = id;
     renderWebshellList();
@@ -1892,7 +1892,7 @@ function selectWebshell(id, stateReady) {
         '</div>' +
         '</div>';
 
-    // Tab 切换
+    // English note.
     workspace.querySelectorAll('.webshell-tab').forEach(btn => {
         btn.addEventListener('click', function () {
             const tab = btn.getAttribute('data-tab');
@@ -1910,10 +1910,10 @@ function selectWebshell(id, stateReady) {
         });
     });
 
-    // 文件管理：列出目录、上级目录
+    // English note.
     const pathInput = document.getElementById('webshell-file-path');
     document.getElementById('webshell-list-dir').addEventListener('click', function () {
-        // 点击时用当前连接，编辑保存后立即生效
+        // English note.
         webshellFileListDir(webshellCurrentConn, pathInput ? pathInput.value.trim() || '.' : '.');
     });
     document.getElementById('webshell-parent-dir').addEventListener('click', function () {
@@ -1926,7 +1926,7 @@ function selectWebshell(id, stateReady) {
         webshellFileListDir(webshellCurrentConn, pathInput.value || '.');
     });
 
-    // 清屏由 bindWebshellClearOnce 统一事件委托处理，此处不再绑定，避免重复绑定导致一次点击出现多个 shell>
+    // English note.
     var terminalCopyLogBtn = document.getElementById('webshell-terminal-copy-log');
     if (terminalCopyLogBtn) {
         terminalCopyLogBtn.addEventListener('click', function () {
@@ -1955,14 +1955,14 @@ function selectWebshell(id, stateReady) {
         });
     }
     renderWebshellTerminalSessions(conn);
-    // 快捷命令：点击后执行并输出到终端
+    // English note.
     workspace.querySelectorAll('.webshell-quick-cmd').forEach(function (btn) {
         btn.addEventListener('click', function () {
             var cmd = btn.getAttribute('data-cmd');
             if (cmd) runQuickCommand(cmd);
         });
     });
-    // 文件：刷新、新建目录、新建文件、上传、批量操作
+    // English note.
     var filterInput = document.getElementById('webshell-file-filter');
     document.getElementById('webshell-file-refresh').addEventListener('click', function () {
         webshellFileListDir(webshellCurrentConn, pathInput ? pathInput.value.trim() || '.' : '.');
@@ -1976,14 +1976,14 @@ function selectWebshell(id, stateReady) {
     document.getElementById('webshell-batch-delete-btn').addEventListener('click', function () { webshellBatchDelete(webshellCurrentConn, pathInput); });
     document.getElementById('webshell-batch-download-btn').addEventListener('click', function () { webshellBatchDownload(webshellCurrentConn, pathInput); });
 
-    // AI 助手：侧边栏对话列表 + 主区消息
+    // English note.
     var aiInput = document.getElementById('webshell-ai-input');
     var aiSendBtn = document.getElementById('webshell-ai-send');
     var aiMessages = document.getElementById('webshell-ai-messages');
     var aiNewConvBtn = document.getElementById('webshell-ai-new-conv');
     var aiConvListEl = document.getElementById('webshell-ai-conv-list');
 
-    // 初始化角色 + 模式选择器
+    // English note.
     wsLoadRoles();
     wsInitAgentMode();
     var aiMemoInput = document.getElementById('webshell-ai-memo-input');
@@ -2068,7 +2068,7 @@ function selectWebshell(id, stateReady) {
         });
     }
 
-    // 数据库管理：支持多连接工作区（不同数据库类型并存）+ 刷新持久化
+    // English note.
     var dbTypeEl = document.getElementById('webshell-db-type');
     var dbRunBtn = document.getElementById('webshell-db-run-btn');
     var dbTestBtn = document.getElementById('webshell-db-test-btn');
@@ -2565,7 +2565,7 @@ function selectWebshell(id, stateReady) {
     initWebshellTerminal(conn);
 }
 
-// 加载 WebShell 连接的 AI 助手对话历史（持久化展示），返回 Promise 供 .then 更新工具栏等；含 processDetails 时渲染折叠的「执行过程及调用工具」
+// English note.
 function loadWebshellAiHistory(conn, messagesContainer) {
     if (!conn || !conn.id || !messagesContainer) return Promise.resolve();
     if (typeof apiFetch !== 'function') return Promise.resolve();
@@ -2652,7 +2652,7 @@ function runWebshellAiSend(conn, inputEl, sendBtn, messagesContainer) {
 
         var html = '<span class="webshell-ai-timeline-title">' + escapeHtml(title || message || '') + '</span>';
 
-        // 工具调用入参
+        // English note.
         if (type === 'tool_call' && data) {
             try {
                 var args = data.argumentsObj;
@@ -2672,12 +2672,12 @@ function runWebshellAiSend(conn, inputEl, sendBtn, messagesContainer) {
                         '</pre></div></div>';
                 }
             } catch (e) {
-                // JSON 解析失败时忽略参数详情，避免打断主流程
+                // English note.
             }
         } else if (type === 'eino_agent_reply' && message) {
             html += '<div class="webshell-ai-timeline-msg"><pre style="white-space:pre-wrap;">' + escapeHtml(message) + '</pre></div>';
         } else if (type === 'tool_result' && data) {
-            // 工具调用出参
+            // English note.
             var isError = data.isError || data.success === false;
             var noResultText = (typeof window.t === 'function') ? window.t('timeline.noResult') : '无结果';
             var result = data.result != null ? data.result : (data.error != null ? data.error : noResultText);
@@ -2721,7 +2721,7 @@ function runWebshellAiSend(conn, inputEl, sendBtn, messagesContainer) {
         role: wsRole
     };
 
-    // 流式输出：支持 progress 实时更新、response 打字机效果；若后端发送多段 response 则追加
+    // English note.
     var streamingTarget = '';  // 当前要打字显示的目标全文（用于打字机效果）
     var streamingTypingId = 0;  // 防重入，每次新 response 自增
 
@@ -2808,7 +2808,7 @@ function runWebshellAiSend(conn, inputEl, sendBtn, messagesContainer) {
                             assistantDiv.textContent = cancelLabel;
                         }
                     } else if (_et === 'done') {
-                        // 清理流式状态
+                        // English note.
                         wsThinkingStreams.clear();
                         wsToolResultStreams.clear();
                         einoSubReplyStreams.clear();
@@ -2868,9 +2868,9 @@ function runWebshellAiSend(conn, inputEl, sendBtn, messagesContainer) {
                             wsThinkingStreams.delete(_ed.streamId);
                         }
                     } else if (_et === 'thinking' && _em) {
-                        // 如果有 streamId 且已存在流式条目，跳过避免重复
+                        // English note.
                         if (_ed.streamId && wsThinkingStreams.has(_ed.streamId)) {
-                            // 已由 thinking_stream_* 处理
+                            // English note.
                         } else {
                             var thinkLabel = wsTOr('chat.aiThinking', 'AI 思考');
                             appendTimelineItem('thinking', webshellAgentPx(_ed) + '🤔 ' + thinkLabel, _em, _ed);
@@ -2947,16 +2947,16 @@ function runWebshellAiSend(conn, inputEl, sendBtn, messagesContainer) {
                         if (typeof window.t === 'function') {
                             try { titleText = window.t(success ? 'chat.toolExecComplete' : 'chat.toolExecFailed', { name: tname }); } catch (e) { /* */ }
                         }
-                        // 如果有流式占位条目，更新标题
+                        // English note.
                         var trdExist = _ed.toolCallId ? wsToolResultStreams.get(_ed.toolCallId) : null;
                         if (trdExist) {
                             var trdTitleEl = trdExist.el.querySelector('.webshell-ai-timeline-title');
                             if (trdTitleEl) trdTitleEl.textContent = webshellAgentPx(_ed) + (success ? '✅ ' : '❌ ') + titleText;
-                            // 更新结果内容
+                            // English note.
                             var resultText = _ed.result ? String(_ed.result) : (_em || '');
                             var trdPreEl = trdExist.el.querySelector('pre.tool-result');
                             if (trdPreEl && resultText) trdPreEl.textContent = resultText;
-                            // 更新 section class
+                            // English note.
                             var trdSection = trdExist.el.querySelector('.tool-result-section');
                             if (trdSection) { trdSection.className = 'tool-result-section ' + (success ? 'success' : 'error'); }
                             wsToolResultStreams.delete(_ed.toolCallId);
@@ -3039,19 +3039,19 @@ function runWebshellAiSend(conn, inputEl, sendBtn, messagesContainer) {
         webshellAiStreamReader = null;
         wsSetAiSendingState(false);
         if (assistantDiv.textContent === '…' && !streamingTarget) {
-            // 没有任何 response 内容，保持纯文本提示
+            // English note.
             assistantDiv.textContent = '无回复内容';
         } else if (streamingTarget) {
-            // 流式结束：先终止当前打字机循环，避免后续 tick 把 HTML 覆盖回纯文本
+            // English note.
             webshellStreamingTypingId += 1;
-            // 再使用 Markdown 渲染完整内容
+            // English note.
             if (typeof formatMarkdown === 'function') {
                 assistantDiv.innerHTML = formatMarkdown(streamingTarget);
             } else {
                 assistantDiv.textContent = streamingTarget;
             }
         }
-        // 生成结果后：将执行过程折叠并保留，供后续查看；统一放在「助手回复下方」（与刷新后加载历史一致，最佳实践）
+        // English note.
         if (timelineContainer && timelineContainer.classList.contains('has-items') && !timelineContainer.closest('.webshell-ai-process-block')) {
             var headerLabel = (typeof window.t === 'function') ? (window.t('chat.penetrationTestDetail') || '执行过程及调用工具') : '执行过程及调用工具';
             var wrap = document.createElement('div');
@@ -3074,7 +3074,7 @@ function runWebshellAiSend(conn, inputEl, sendBtn, messagesContainer) {
     });
 }
 
-// 打字机效果：将 target 逐字/逐段写入 el，保证只生效于当前 id 的调用
+// English note.
 function runWebshellAiStreamingTyping(el, target, id, scrollContainer) {
     if (!el || id === undefined) return;
     var chunkSize = 3;
@@ -3109,7 +3109,7 @@ function pushWebshellHistory(connId, cmd) {
     if (h.length > WEBSHELL_HISTORY_MAX) h.shift();
 }
 
-// 执行快捷命令并将输出写入当前终端
+// English note.
 function runQuickCommand(cmd) {
     if (!webshellCurrentConn || !webshellTerminalInstance) return;
     if (webshellRunning || webshellTerminalRunning) return;
@@ -3139,7 +3139,7 @@ function runQuickCommand(cmd) {
     });
 }
 
-// ---------- 虚拟终端（xterm + 按行执行） ----------
+// English note.
 function initWebshellTerminal(conn) {
     const container = document.getElementById('webshell-terminal-container');
     if (!container || typeof Terminal === 'undefined') {
@@ -3173,7 +3173,7 @@ function initWebshellTerminal(conn) {
     }
 
     term.open(container);
-    // 先 fit 再写内容，避免未计算尺寸时光标/画布错位挡住文字
+    // English note.
     try {
         if (fitAddon) fitAddon.fit();
     } catch (e) {}
@@ -3183,12 +3183,12 @@ function initWebshellTerminal(conn) {
     var terminalKey = getWebshellTerminalSessionKey(connId, sessionId);
     var cachedLog = getWebshellTerminalLog(terminalKey);
     if (cachedLog) {
-        // xterm 恢复内容时统一使用 CRLF，避免切换窗口后出现“斜排”错位
+        // English note.
         term.write(String(cachedLog).replace(/\r\n/g, '\n').replace(/\r/g, '\n').replace(/\n/g, '\r\n'));
     }
     term.write(WEBSHELL_PROMPT);
 
-    // 按行写入输出，与系统设置终端 writeOutput 一致，避免 ls 等输出错位
+    // English note.
     function writeWebshellOutput(term, text, isError) {
         if (!term || !text) return;
         var s = String(text).replace(/\r\n/g, '\n').replace(/\r/g, '\n');
@@ -3203,7 +3203,7 @@ function initWebshellTerminal(conn) {
     }
 
     term.onData(function (data) {
-        // Ctrl+L 清屏
+        // English note.
         if (data === '\x0c') {
             term.clear();
             webshellLineBuffer = '';
@@ -3212,7 +3212,7 @@ function initWebshellTerminal(conn) {
             clearWebshellTerminalLog(terminalKey);
             return;
         }
-        // Ctrl+C：当前实现不支持远程中断，给出提示并回到提示符
+        // English note.
         if (data === '\x03') {
             if (webshellTerminalRunning) {
                 writeWebshellOutput(term, '^C (当前版本暂不支持中断远程命令)', true);
@@ -3223,13 +3223,13 @@ function initWebshellTerminal(conn) {
             term.write(WEBSHELL_PROMPT);
             return;
         }
-        // Ctrl+U：清空当前输入行
+        // English note.
         if (data === '\x15') {
             webshellLineBuffer = '';
             term.write('\x1b[2K\r' + WEBSHELL_PROMPT);
             return;
         }
-        // 上/下键：命令历史
+        // English note.
         if (data === '\x1b[A' || data === '\x1bOA') {
             var hist = getWebshellHistory(terminalKey);
             if (hist.length === 0) return;
@@ -3247,7 +3247,7 @@ function initWebshellTerminal(conn) {
             term.write('\x1b[2K\r' + WEBSHELL_PROMPT + webshellLineBuffer);
             return;
         }
-        // 回车：发送当前行到后端执行
+        // English note.
         if (data === '\r' || data === '\n') {
             term.writeln('');
             var cmd = webshellLineBuffer.trim();
@@ -3288,7 +3288,7 @@ function initWebshellTerminal(conn) {
             }
             return;
         }
-        // 多行粘贴：按行依次执行
+        // English note.
         if (data.indexOf('\n') !== -1 || data.indexOf('\r') !== -1) {
             var full = (webshellLineBuffer + data).replace(/\r\n/g, '\n').replace(/\r/g, '\n');
             var lines = full.split('\n');
@@ -3331,7 +3331,7 @@ function initWebshellTerminal(conn) {
             }
             return;
         }
-        // 退格
+        // English note.
         if (data === '\x7f' || data === '\b') {
             if (webshellLineBuffer.length > 0) {
                 webshellLineBuffer = webshellLineBuffer.slice(0, -1);
@@ -3345,11 +3345,11 @@ function initWebshellTerminal(conn) {
 
     webshellTerminalInstance = term;
     webshellTerminalFitAddon = fitAddon;
-    // 延迟再次 fit，确保容器尺寸稳定后光标与文字不错位
+    // English note.
     setTimeout(function () {
         try { if (fitAddon) fitAddon.fit(); } catch (e) {}
     }, 100);
-    // 容器尺寸变化时重新 fit，避免光标/文字被遮挡
+    // English note.
     if (fitAddon && typeof ResizeObserver !== 'undefined' && container) {
         webshellTerminalResizeContainer = container;
         webshellTerminalResizeObserver = new ResizeObserver(function () {
@@ -3360,7 +3360,7 @@ function initWebshellTerminal(conn) {
     renderWebshellTerminalSessions(conn);
 }
 
-// 调用后端执行命令
+// English note.
 function execWebshellCommand(conn, command) {
     return new Promise(function (resolve, reject) {
         if (typeof apiFetch === 'undefined') {
@@ -3388,7 +3388,7 @@ function execWebshellCommand(conn, command) {
     });
 }
 
-// ---------- 文件管理 ----------
+// English note.
 function webshellFileListDir(conn, path) {
     const listEl = document.getElementById('webshell-file-list');
     if (!listEl) return;
@@ -3464,7 +3464,7 @@ function parseWebshellListItems(rawOutput) {
     for (var i = 0; i < lines.length; i++) {
         var line = lines[i];
         var trimmedLine = String(line || '').trim();
-        // `ls -la` 首行常见 "total 12"（中文环境为 "总计 12"），不是文件项。
+        // English note.
         if (/^(total|总计)\s+\d+$/i.test(trimmedLine)) continue;
         var name = '';
         var isDir = false;
@@ -3531,7 +3531,7 @@ function renderFileList(listEl, currentPath, rawOutput, conn, nameFilter) {
         var f = nameFilter.trim().toLowerCase();
         items = items.filter(function (item) { return item.name.toLowerCase().indexOf(f) !== -1; });
     }
-    // 面包屑
+    // English note.
     var breadcrumbEl = document.getElementById('webshell-file-breadcrumb');
     if (breadcrumbEl) {
         var parts = (currentPath === '.' || currentPath === '') ? [] : currentPath.replace(/^\//, '').split('/');
@@ -3544,7 +3544,7 @@ function renderFileList(listEl, currentPath, rawOutput, conn, nameFilter) {
     renderDirectoryTree(currentPath, items, conn);
     var html = '';
     if (items.length === 0) {
-        // 目录为空/过滤后为空时，给出明确空状态，避免 tbody 留白导致“整块抽象大白屏”
+        // English note.
         if (rawOutput.trim() && !nameFilter) {
             html = '<pre class="webshell-file-raw">' + escapeHtml(rawOutput) + '</pre>';
         } else {
@@ -3597,7 +3597,7 @@ function renderFileList(listEl, currentPath, rawOutput, conn, nameFilter) {
                 if (pathInput) pathInput.value = path;
                 webshellFileListDir(webshellCurrentConn, path);
             } else {
-                // 打开文件时保留当前“浏览目录”上下文，避免返回时落到单文件视图
+                // English note.
                 webshellFileRead(webshellCurrentConn, path, listEl, currentPath);
             }
         });
@@ -3670,7 +3670,7 @@ function renderDirectoryTree(currentPath, items, conn) {
     if (!tree['.']) tree['.'] = [];
     if (expanded['.'] !== false) expanded['.'] = true;
 
-    // 把当前目录的子项（目录+文件）同步到树缓存
+    // English note.
     var childNodes = (items || []).map(function (item) {
         var childPath = curr === '.' ? normalizeWebshellPath(item.name) : normalizeWebshellPath(curr + '/' + item.name);
         return {
@@ -3680,7 +3680,7 @@ function renderDirectoryTree(currentPath, items, conn) {
         };
     }).filter(function (n) { return !!n.path; });
     childNodes.sort(function (a, b) {
-        // 目录优先，再按名称排序
+        // English note.
         if (a.isDir !== b.isDir) return a.isDir ? -1 : 1;
         return (a.name || '').localeCompare(b.name || '');
     });
@@ -3690,7 +3690,7 @@ function renderDirectoryTree(currentPath, items, conn) {
         if (node.isDir && !tree[node.path]) tree[node.path] = [];
     });
 
-    // 确保当前路径祖先链存在并展开
+    // English note.
     var parts = curr === '.' ? [] : curr.split('/');
     var parentPath = '.';
     for (var i = 0; i < parts.length; i++) {
@@ -3911,7 +3911,7 @@ function webshellBatchDownload(conn, pathInput) {
     paths.forEach(function (path) { webshellFileDownload(conn, path); });
 }
 
-// 下载文件到本地（读取内容后触发浏览器下载）
+// English note.
 function webshellFileDownload(conn, path) {
     if (typeof apiFetch === 'undefined') return;
     apiFetch('/api/webshell/file', {
@@ -3944,7 +3944,7 @@ function webshellFileRead(conn, path, listEl, browsePath) {
             const out = (data && data.output) ? data.output : (data.error || '');
             var backPath = (browsePath && String(browsePath).trim()) ? String(browsePath).trim() : ((document.getElementById('webshell-file-path') && document.getElementById('webshell-file-path').value.trim()) || '.');
             if (backPath === path) {
-                // 兜底：若路径被污染成文件路径，回退到父目录
+                // English note.
                 backPath = path.replace(/\/[^/]+$/, '') || '.';
             }
             listEl.innerHTML = '<div class="webshell-file-content"><pre>' + escapeHtml(out) + '</pre><button type="button" class="btn-ghost" id="webshell-file-back-btn" data-back-path="' + escapeHtml(backPath) + '">' + wsT('webshell.back') + '</button></div>';
@@ -4028,12 +4028,12 @@ function webshellFileDelete(conn, path, onDone) {
         .catch(function () { if (onDone) onDone(); });
 }
 
-// 删除连接（请求服务端删除后刷新列表）
+// English note.
 function deleteWebshell(id) {
     if (!confirm(wsT('webshell.deleteConfirm'))) return;
     if (currentWebshellId === id) destroyWebshellTerminal();
     if (currentWebshellId === id) currentWebshellId = null;
-    // 清理本地缓存（服务端会级联删除 SQLite 里的状态）
+    // English note.
     delete webshellPersistLoadedByConn[id];
     if (webshellPersistSaveTimersByConn[id]) {
         clearTimeout(webshellPersistSaveTimersByConn[id]);
@@ -4065,7 +4065,7 @@ function deleteWebshell(id) {
         });
 }
 
-// 打开添加连接弹窗
+// English note.
 function showAddWebshellModal() {
     var editIdEl = document.getElementById('webshell-edit-id');
     if (editIdEl) editIdEl.value = '';
@@ -4081,7 +4081,7 @@ function showAddWebshellModal() {
     if (modal) modal.style.display = 'block';
 }
 
-// 打开编辑连接弹窗（预填当前连接信息）
+// English note.
 function showEditWebshellModal(connId) {
     var conn = webshellConnections.find(function (c) { return c.id === connId; });
     if (!conn) return;
@@ -4099,7 +4099,7 @@ function showEditWebshellModal(connId) {
     if (modal) modal.style.display = 'block';
 }
 
-// 关闭弹窗
+// English note.
 function closeWebshellModal() {
     var editIdEl = document.getElementById('webshell-edit-id');
     if (editIdEl) editIdEl.value = '';
@@ -4107,7 +4107,7 @@ function closeWebshellModal() {
     if (modal) modal.style.display = 'none';
 }
 
-// 语言切换时刷新 WebShell 页面内所有由 JS 生成的文案（不重建终端）
+// English note.
 function refreshWebshellUIOnLanguageChange() {
     var page = typeof window.currentPage === 'function' ? window.currentPage() : (window.currentPage || '');
     if (page !== 'webshell') return;
@@ -4118,7 +4118,7 @@ function refreshWebshellUIOnLanguageChange() {
         if (!currentWebshellId || !webshellCurrentConn) {
             workspace.innerHTML = '<div class="webshell-workspace-placeholder" data-i18n="webshell.selectOrAdd">' + wsT('webshell.selectOrAdd') + '</div>';
         } else {
-            // 只更新标签文案，不重建终端
+            // English note.
             var tabTerminal = workspace.querySelector('.webshell-tab[data-tab="terminal"]');
             var tabFile = workspace.querySelector('.webshell-tab[data-tab="file"]');
             var tabAi = workspace.querySelector('.webshell-tab[data-tab="ai"]');
@@ -4154,7 +4154,7 @@ function refreshWebshellUIOnLanguageChange() {
             if (fileMoreActionsBtn) fileMoreActionsBtn.textContent = wsT('webshell.moreActions') || '更多操作';
             if (listDirBtn) listDirBtn.textContent = wsT('webshell.listDir');
             if (parentDirBtn) parentDirBtn.textContent = wsT('webshell.parentDir');
-            // 文件管理工具栏按钮（红框区域）：切换语言时立即更新
+            // English note.
             var refreshBtn = document.getElementById('webshell-file-refresh');
             var mkdirBtn = document.getElementById('webshell-mkdir-btn');
             var newFileBtn = document.getElementById('webshell-newfile-btn');
@@ -4170,7 +4170,7 @@ function refreshWebshellUIOnLanguageChange() {
             if (batchDownloadBtn) batchDownloadBtn.textContent = wsT('webshell.batchDownload') || '批量下载';
             if (filterInput) filterInput.placeholder = wsT('webshell.filterPlaceholder') || '过滤文件名';
 
-            // AI 助手区域文案：Tab 内按钮、占位符、系统就绪提示
+            // English note.
             var aiNewConvBtn = document.getElementById('webshell-ai-new-conv');
             if (aiNewConvBtn) aiNewConvBtn.textContent = wsT('webshell.aiNewConversation') || '新对话';
             var aiInput = document.getElementById('webshell-ai-input');
@@ -4244,7 +4244,7 @@ function refreshWebshellUIOnLanguageChange() {
                 dbTree.innerHTML = '<div class="webshell-empty">' + escapeHtml(wsT('webshell.dbNoSchema') || '暂无数据库结构，请先加载') + '</div>';
             }
 
-            // 如果当前 AI 对话区只有系统就绪提示（没有用户消息），用当前语言重置这条提示
+            // English note.
             var aiMessages = document.getElementById('webshell-ai-messages');
             if (aiMessages) {
                 var hasUserMsg = !!aiMessages.querySelector('.webshell-ai-msg.user');
@@ -4265,7 +4265,7 @@ function refreshWebshellUIOnLanguageChange() {
                 webshellFileListDir(webshellCurrentConn, pathInput.value.trim() || '.');
             }
 
-            // 连接搜索占位符（动态属性：这里手动更新）
+            // English note.
             var connSearchEl = document.getElementById('webshell-conn-search');
             if (connSearchEl) {
                 var ph = wsT('webshell.searchPlaceholder') || '搜索连接...';
@@ -4292,7 +4292,7 @@ document.addEventListener('languagechange', function () {
     refreshWebshellUIOnLanguageChange();
 });
 
-// 任意入口删除对话后同步：若当前在 WebShell AI 助手且已选连接，则刷新对话列表（与 Chat 侧边栏删除保持一致）
+// English note.
 document.addEventListener('conversation-deleted', function (e) {
     var id = e.detail && e.detail.conversationId;
     if (!id || !currentWebshellId || !webshellCurrentConn) return;
@@ -4305,7 +4305,7 @@ document.addEventListener('conversation-deleted', function (e) {
     }
 });
 
-// 测试连通性（不保存，仅用当前表单参数请求 Shell 执行 echo 1）
+// English note.
 function testWebshellConnection() {
     var url = (document.getElementById('webshell-url') || {}).value;
     if (url && typeof url.trim === 'function') url = url.trim();
@@ -4345,7 +4345,7 @@ function testWebshellConnection() {
                 alert(wsT('webshell.testFailed') || '连通性测试失败');
                 return;
             }
-            // 仅 HTTP 200 不算通过，需校验是否真的执行了 echo 1（响应体 trim 后应为 "1"）
+            // English note.
             var output = (data.output != null) ? String(data.output).trim() : '';
             var reallyOk = data.ok && output === '1';
             if (reallyOk) {
@@ -4366,7 +4366,7 @@ function testWebshellConnection() {
         });
 }
 
-// 保存连接（新建或更新，请求服务端写入 SQLite 后刷新列表）
+// English note.
 function saveWebshellConnection() {
     var url = (document.getElementById('webshell-url') || {}).value;
     if (url && typeof url.trim === 'function') url = url.trim();
@@ -4401,7 +4401,7 @@ function saveWebshellConnection() {
             return refreshWebshellConnectionsFromServer();
         })
         .then(function (list) {
-            // 若编辑的是当前选中的连接，同步更新 webshellCurrentConn，使终端/文件管理立即使用新配置
+            // English note.
             if (editId && currentWebshellId === editId && Array.isArray(list)) {
                 var updated = list.find(function (c) { return c.id === editId; });
                 if (updated) webshellCurrentConn = updated;

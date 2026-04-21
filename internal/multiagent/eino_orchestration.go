@@ -15,7 +15,7 @@ import (
 	"go.uber.org/zap"
 )
 
-// PlanExecuteRootArgs 构建 Eino adk/prebuilt/planexecute 根 Agent 所需参数。
+// English note.
 type PlanExecuteRootArgs struct {
 	MainToolCallingModel *openai.ChatModel
 	ExecModel            *openai.ChatModel
@@ -23,19 +23,19 @@ type PlanExecuteRootArgs struct {
 	ToolsCfg             adk.ToolsConfig
 	ExecMaxIter          int
 	LoopMaxIter          int
-	// AppCfg / Logger 非空时为 Executor 挂载与 Deep/Supervisor 一致的 Eino summarization 中间件。
+	// English note.
 	AppCfg *config.Config
 	Logger *zap.Logger
-	// ExecPreMiddlewares 是由 prependEinoMiddlewares 构建的前置中间件（patchtoolcalls, reduction, toolsearch, plantask），
-	// 与 Deep/Supervisor 主代理的 mainOrchestratorPre 一致。
+	// English note.
+	// English note.
 	ExecPreMiddlewares []adk.ChatModelAgentMiddleware
-	// SkillMiddleware 是 Eino 官方 skill 渐进式披露中间件（可选）。
+	// English note.
 	SkillMiddleware adk.ChatModelAgentMiddleware
-	// FilesystemMiddleware 是 Eino filesystem 中间件，当 eino_skills.filesystem_tools 启用时提供本机文件读写与 Shell 能力（可选）。
+	// English note.
 	FilesystemMiddleware adk.ChatModelAgentMiddleware
 }
 
-// NewPlanExecuteRoot 返回 plan → execute → replan 预置编排根节点（与 Deep / Supervisor 并列）。
+// English note.
 func NewPlanExecuteRoot(ctx context.Context, a *PlanExecuteRootArgs) (adk.ResumableAgent, error) {
 	if a == nil {
 		return nil, fmt.Errorf("plan_execute: args 为空")
@@ -65,21 +65,21 @@ func NewPlanExecuteRoot(ctx context.Context, a *PlanExecuteRootArgs) (adk.Resuma
 		return nil, fmt.Errorf("plan_execute replanner: %w", err)
 	}
 
-	// 组装 executor handler 栈，顺序与 Deep/Supervisor 主代理一致（outermost first）。
+	// English note.
 	var execHandlers []adk.ChatModelAgentMiddleware
-	// 1. patchtoolcalls, reduction, toolsearch, plantask（来自 prependEinoMiddlewares）
+	// English note.
 	if len(a.ExecPreMiddlewares) > 0 {
 		execHandlers = append(execHandlers, a.ExecPreMiddlewares...)
 	}
-	// 2. filesystem 中间件（可选）
+	// English note.
 	if a.FilesystemMiddleware != nil {
 		execHandlers = append(execHandlers, a.FilesystemMiddleware)
 	}
-	// 3. skill 中间件（可选）
+	// English note.
 	if a.SkillMiddleware != nil {
 		execHandlers = append(execHandlers, a.SkillMiddleware)
 	}
-	// 4. summarization（最后，与 Deep/Supervisor 一致）
+	// English note.
 	if a.AppCfg != nil {
 		sumMw, sumErr := newEinoSummarizationMiddleware(ctx, a.ExecModel, a.AppCfg, a.Logger)
 		if sumErr != nil {
@@ -108,8 +108,8 @@ func NewPlanExecuteRoot(ctx context.Context, a *PlanExecuteRootArgs) (adk.Resuma
 	})
 }
 
-// planExecutePlannerGenInput 将 orchestrator instruction 作为 SystemMessage 注入 planner 输入。
-// 返回 nil 时 Eino 使用内置默认 planner prompt。
+// English note.
+// English note.
 func planExecutePlannerGenInput(orchInstruction string) planexecute.GenPlannerModelInputFn {
 	oi := strings.TrimSpace(orchInstruction)
 	if oi == "" {
@@ -164,8 +164,8 @@ func planExecuteFormatExecutedSteps(results []planexecute.ExecutedStep) string {
 	return sb.String()
 }
 
-// planExecuteReplannerGenInput 与 Eino 默认 Replanner 输入一致，但 executed_steps 经 cap 后再写入 prompt，
-// 且在 orchInstruction 非空时 prepend SystemMessage 使 replanner 也能接收全局指令。
+// English note.
+// English note.
 func planExecuteReplannerGenInput(orchInstruction string) planexecute.GenModelInputFn {
 	oi := strings.TrimSpace(orchInstruction)
 	return func(ctx context.Context, in *planexecute.ExecutionContext) ([]adk.Message, error) {
@@ -190,7 +190,7 @@ func planExecuteReplannerGenInput(orchInstruction string) planexecute.GenModelIn
 	}
 }
 
-// planExecuteStreamsMainAssistant 将规划/执行/重规划各阶段助手流式输出映射到主对话区。
+// English note.
 func planExecuteStreamsMainAssistant(agent string) bool {
 	if agent == "" {
 		return true

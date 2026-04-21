@@ -14,7 +14,7 @@ import (
 	"go.uber.org/zap"
 )
 
-// RegisterBatchTaskMCPTools 注册批量任务队列相关 MCP 工具（需传入已初始化 DB 的 AgentHandler）
+// English note.
 func RegisterBatchTaskMCPTools(mcpServer *mcp.Server, h *AgentHandler, logger *zap.Logger) {
 	if mcpServer == nil || h == nil || logger == nil {
 		return
@@ -619,18 +619,18 @@ schedule_mode 为 cron 时必须提供有效 cron_expr；为 manual 时会清除
 	logger.Info("批量任务 MCP 工具已注册", zap.Int("count", 12))
 }
 
-// --- batch_task_list 精简结构（避免把每条子任务的 result 等大段文本塞进列表上下文） ---
+// English note.
 
 const mcpBatchListTaskMessageMaxRunes = 160
 
-// batchTaskMCPListSummary 列表中的子任务摘要（完整字段用 batch_task_get）
+// English note.
 type batchTaskMCPListSummary struct {
 	ID      string `json:"id"`
 	Status  string `json:"status"`
 	Message string `json:"message,omitempty"`
 }
 
-// batchTaskQueueMCPListItem 列表中的队列摘要
+// English note.
 type batchTaskQueueMCPListItem struct {
 	ID                    string                    `json:"id"`
 	Title                 string                    `json:"title,omitempty"`
@@ -685,7 +685,7 @@ func toBatchTaskQueueMCPListItem(q *BatchTaskQueue) batchTaskQueueMCPListItem {
 			continue
 		}
 		counts[t.Status]++
-		// 列表视图限制子任务摘要数量，完整列表通过 batch_task_get 查看
+		// English note.
 		if len(tasks) < mcpBatchListMaxTasksPerQueue {
 			tasks = append(tasks, batchTaskMCPListSummary{
 				ID:      t.ID,

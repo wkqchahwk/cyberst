@@ -16,14 +16,14 @@ import (
 	"go.uber.org/zap"
 )
 
-// Client 统一封装与OpenAI兼容模型交互的HTTP客户端。
+// English note.
 type Client struct {
 	httpClient *http.Client
 	config     *config.OpenAIConfig
 	logger     *zap.Logger
 }
 
-// APIError 表示OpenAI接口返回的非200错误。
+// English note.
 type APIError struct {
 	StatusCode int
 	Body       string
@@ -33,7 +33,7 @@ func (e *APIError) Error() string {
 	return fmt.Sprintf("openai api error: status=%d body=%s", e.StatusCode, e.Body)
 }
 
-// NewClient 创建一个新的OpenAI客户端。
+// English note.
 func NewClient(cfg *config.OpenAIConfig, httpClient *http.Client, logger *zap.Logger) *Client {
 	if httpClient == nil {
 		httpClient = http.DefaultClient
@@ -48,12 +48,12 @@ func NewClient(cfg *config.OpenAIConfig, httpClient *http.Client, logger *zap.Lo
 	}
 }
 
-// UpdateConfig 动态更新OpenAI配置。
+// English note.
 func (c *Client) UpdateConfig(cfg *config.OpenAIConfig) {
 	c.config = cfg
 }
 
-// ChatCompletion 调用 /chat/completions 接口。
+// English note.
 func (c *Client) ChatCompletion(ctx context.Context, payload interface{}, out interface{}) error {
 	if c == nil {
 		return fmt.Errorf("openai client is not initialized")
@@ -61,17 +61,14 @@ func (c *Client) ChatCompletion(ctx context.Context, payload interface{}, out in
 	if c.config == nil {
 		return fmt.Errorf("openai config is nil")
 	}
-	if strings.TrimSpace(c.config.APIKey) == "" {
+	if ProviderRequiresAPIKey(c.config.Provider) && strings.TrimSpace(c.config.APIKey) == "" {
 		return fmt.Errorf("openai api key is empty")
 	}
 	if c.isClaude() {
 		return c.claudeChatCompletion(ctx, payload, out)
 	}
 
-	baseURL := strings.TrimSuffix(c.config.BaseURL, "/")
-	if baseURL == "" {
-		baseURL = "https://api.openai.com/v1"
-	}
+	baseURL := ResolveBaseURL(c.config)
 
 	body, err := json.Marshal(payload)
 	if err != nil {
@@ -85,8 +82,7 @@ func (c *Client) ChatCompletion(ctx context.Context, payload interface{}, out in
 	if err != nil {
 		return fmt.Errorf("build openai request: %w", err)
 	}
-	req.Header.Set("Content-Type", "application/json")
-	req.Header.Set("Authorization", "Bearer "+c.config.APIKey)
+	ApplyOpenAICompatibleHeaders(req, c.config)
 
 	requestStart := time.Now()
 	resp, err := c.httpClient.Do(req)
@@ -147,8 +143,8 @@ func (c *Client) ChatCompletion(ctx context.Context, payload interface{}, out in
 	return nil
 }
 
-// ChatCompletionStream 调用 /chat/completions 的流式模式（stream=true），并在每个 delta 到达时回调 onDelta。
-// 返回最终拼接的 content（只拼 content delta；工具调用 delta 未做处理）。
+// English note.
+// English note.
 func (c *Client) ChatCompletionStream(ctx context.Context, payload interface{}, onDelta func(delta string) error) (string, error) {
 	if c == nil {
 		return "", fmt.Errorf("openai client is not initialized")
@@ -156,17 +152,14 @@ func (c *Client) ChatCompletionStream(ctx context.Context, payload interface{}, 
 	if c.config == nil {
 		return "", fmt.Errorf("openai config is nil")
 	}
-	if strings.TrimSpace(c.config.APIKey) == "" {
+	if ProviderRequiresAPIKey(c.config.Provider) && strings.TrimSpace(c.config.APIKey) == "" {
 		return "", fmt.Errorf("openai api key is empty")
 	}
 	if c.isClaude() {
 		return c.claudeChatCompletionStream(ctx, payload, onDelta)
 	}
 
-	baseURL := strings.TrimSuffix(c.config.BaseURL, "/")
-	if baseURL == "" {
-		baseURL = "https://api.openai.com/v1"
-	}
+	baseURL := ResolveBaseURL(c.config)
 
 	body, err := json.Marshal(payload)
 	if err != nil {
@@ -177,8 +170,7 @@ func (c *Client) ChatCompletionStream(ctx context.Context, payload interface{}, 
 	if err != nil {
 		return "", fmt.Errorf("build openai request: %w", err)
 	}
-	req.Header.Set("Content-Type", "application/json")
-	req.Header.Set("Authorization", "Bearer "+c.config.APIKey)
+	ApplyOpenAICompatibleHeaders(req, c.config)
 
 	requestStart := time.Now()
 	resp, err := c.httpClient.Do(req)
@@ -187,7 +179,7 @@ func (c *Client) ChatCompletionStream(ctx context.Context, payload interface{}, 
 	}
 	defer resp.Body.Close()
 
-	// 非200：读完 body 返回
+	// English note.
 	if resp.StatusCode != http.StatusOK {
 		respBody, _ := io.ReadAll(resp.Body)
 		return "", &APIError{
@@ -197,7 +189,7 @@ func (c *Client) ChatCompletionStream(ctx context.Context, payload interface{}, 
 	}
 
 	type streamDelta struct {
-		// OpenAI 兼容流式通常使用 content；但部分兼容实现可能用 text。
+		// English note.
 		Content string `json:"content,omitempty"`
 		Text    string `json:"text,omitempty"`
 	}
@@ -217,7 +209,7 @@ func (c *Client) ChatCompletionStream(ctx context.Context, payload interface{}, 
 	reader := bufio.NewReader(resp.Body)
 	var full strings.Builder
 
-	// 典型 SSE 结构：
+	// English note.
 	// data: {...}\n\n
 	// data: [DONE]\n\n
 	for {
@@ -242,7 +234,7 @@ func (c *Client) ChatCompletionStream(ctx context.Context, payload interface{}, 
 
 		var chunk streamResponse
 		if err := json.Unmarshal([]byte(dataStr), &chunk); err != nil {
-			// 解析失败跳过（兼容各种兼容层的差异）
+			// English note.
 			continue
 		}
 		if chunk.Error != nil && strings.TrimSpace(chunk.Error.Message) != "" {
@@ -276,7 +268,7 @@ func (c *Client) ChatCompletionStream(ctx context.Context, payload interface{}, 
 	return full.String(), nil
 }
 
-// StreamToolCall 流式工具调用的累积结果（arguments 以字符串形式拼接，留给上层再解析为 JSON）。
+// English note.
 type StreamToolCall struct {
 	Index            int
 	ID               string
@@ -285,7 +277,7 @@ type StreamToolCall struct {
 	FunctionArgsStr string
 }
 
-// ChatCompletionStreamWithToolCalls 流式模式：同时把 content delta 实时回调，并在结束后返回 tool_calls 和 finish_reason。
+// English note.
 func (c *Client) ChatCompletionStreamWithToolCalls(
 	ctx context.Context,
 	payload interface{},
@@ -297,17 +289,14 @@ func (c *Client) ChatCompletionStreamWithToolCalls(
 	if c.config == nil {
 		return "", nil, "", fmt.Errorf("openai config is nil")
 	}
-	if strings.TrimSpace(c.config.APIKey) == "" {
+	if ProviderRequiresAPIKey(c.config.Provider) && strings.TrimSpace(c.config.APIKey) == "" {
 		return "", nil, "", fmt.Errorf("openai api key is empty")
 	}
 	if c.isClaude() {
 		return c.claudeChatCompletionStreamWithToolCalls(ctx, payload, onContentDelta)
 	}
 
-	baseURL := strings.TrimSuffix(c.config.BaseURL, "/")
-	if baseURL == "" {
-		baseURL = "https://api.openai.com/v1"
-	}
+	baseURL := ResolveBaseURL(c.config)
 
 	body, err := json.Marshal(payload)
 	if err != nil {
@@ -318,8 +307,7 @@ func (c *Client) ChatCompletionStreamWithToolCalls(
 	if err != nil {
 		return "", nil, "", fmt.Errorf("build openai request: %w", err)
 	}
-	req.Header.Set("Content-Type", "application/json")
-	req.Header.Set("Authorization", "Bearer "+c.config.APIKey)
+	ApplyOpenAICompatibleHeaders(req, c.config)
 
 	requestStart := time.Now()
 	resp, err := c.httpClient.Do(req)
@@ -336,7 +324,7 @@ func (c *Client) ChatCompletionStreamWithToolCalls(
 		}
 	}
 
-	// delta tool_calls 的增量结构
+	// English note.
 	type toolCallFunctionDelta struct {
 		Name      string `json:"name,omitempty"`
 		Arguments string `json:"arguments,omitempty"`
@@ -398,7 +386,7 @@ func (c *Client) ChatCompletionStreamWithToolCalls(
 
 		var chunk streamResponse2
 		if err := json.Unmarshal([]byte(dataStr), &chunk); err != nil {
-			// 兼容：解析失败跳过
+			// English note.
 			continue
 		}
 		if chunk.Error != nil && strings.TrimSpace(chunk.Error.Message) != "" {
@@ -451,12 +439,12 @@ func (c *Client) ChatCompletionStreamWithToolCalls(
 		}
 	}
 
-	// 组装 tool calls
+	// English note.
 	indices := make([]int, 0, len(toolCallAccums))
 	for idx := range toolCallAccums {
 		indices = append(indices, idx)
 	}
-	// 手写简单排序（避免额外 import）
+	// English note.
 	for i := 0; i < len(indices); i++ {
 		for j := i + 1; j < len(indices); j++ {
 			if indices[j] < indices[i] {

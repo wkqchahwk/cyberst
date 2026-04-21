@@ -17,14 +17,14 @@ import (
 	"go.uber.org/zap"
 )
 
-// WebShellHandler 代理执行 WebShell 命令（类似冰蝎/蚁剑），避免前端跨域并统一构建请求
+// English note.
 type WebShellHandler struct {
 	logger *zap.Logger
 	client *http.Client
 	db     *database.DB
 }
 
-// NewWebShellHandler 创建 WebShell 处理器，db 可为 nil（连接配置接口将不可用）
+// English note.
 func NewWebShellHandler(logger *zap.Logger, db *database.DB) *WebShellHandler {
 	return &WebShellHandler{
 		logger: logger,
@@ -36,7 +36,7 @@ func NewWebShellHandler(logger *zap.Logger, db *database.DB) *WebShellHandler {
 	}
 }
 
-// CreateConnectionRequest 创建连接请求
+// English note.
 type CreateConnectionRequest struct {
 	URL      string `json:"url" binding:"required"`
 	Password string `json:"password"`
@@ -46,7 +46,7 @@ type CreateConnectionRequest struct {
 	Remark   string `json:"remark"`
 }
 
-// UpdateConnectionRequest 更新连接请求
+// English note.
 type UpdateConnectionRequest struct {
 	URL      string `json:"url" binding:"required"`
 	Password string `json:"password"`
@@ -56,7 +56,7 @@ type UpdateConnectionRequest struct {
 	Remark   string `json:"remark"`
 }
 
-// ListConnections 列出所有 WebShell 连接（GET /api/webshell/connections）
+// English note.
 func (h *WebShellHandler) ListConnections(c *gin.Context) {
 	if h.db == nil {
 		c.JSON(http.StatusServiceUnavailable, gin.H{"error": "database not available"})
@@ -73,7 +73,7 @@ func (h *WebShellHandler) ListConnections(c *gin.Context) {
 	c.JSON(http.StatusOK, list)
 }
 
-// CreateConnection 创建 WebShell 连接（POST /api/webshell/connections）
+// English note.
 func (h *WebShellHandler) CreateConnection(c *gin.Context) {
 	if h.db == nil {
 		c.JSON(http.StatusServiceUnavailable, gin.H{"error": "database not available"})
@@ -118,7 +118,7 @@ func (h *WebShellHandler) CreateConnection(c *gin.Context) {
 	c.JSON(http.StatusOK, conn)
 }
 
-// UpdateConnection 更新 WebShell 连接（PUT /api/webshell/connections/:id）
+// English note.
 func (h *WebShellHandler) UpdateConnection(c *gin.Context) {
 	if h.db == nil {
 		c.JSON(http.StatusServiceUnavailable, gin.H{"error": "database not available"})
@@ -176,7 +176,7 @@ func (h *WebShellHandler) UpdateConnection(c *gin.Context) {
 	}
 }
 
-// DeleteConnection 删除 WebShell 连接（DELETE /api/webshell/connections/:id）
+// English note.
 func (h *WebShellHandler) DeleteConnection(c *gin.Context) {
 	if h.db == nil {
 		c.JSON(http.StatusServiceUnavailable, gin.H{"error": "database not available"})
@@ -198,7 +198,7 @@ func (h *WebShellHandler) DeleteConnection(c *gin.Context) {
 	c.JSON(http.StatusOK, gin.H{"ok": true})
 }
 
-// GetConnectionState 获取 WebShell 连接关联的前端持久化状态（GET /api/webshell/connections/:id/state）
+// English note.
 func (h *WebShellHandler) GetConnectionState(c *gin.Context) {
 	if h.db == nil {
 		c.JSON(http.StatusServiceUnavailable, gin.H{"error": "database not available"})
@@ -230,7 +230,7 @@ func (h *WebShellHandler) GetConnectionState(c *gin.Context) {
 	c.JSON(http.StatusOK, gin.H{"state": state})
 }
 
-// SaveConnectionState 保存 WebShell 连接关联的前端持久化状态（PUT /api/webshell/connections/:id/state）
+// English note.
 func (h *WebShellHandler) SaveConnectionState(c *gin.Context) {
 	if h.db == nil {
 		c.JSON(http.StatusServiceUnavailable, gin.H{"error": "database not available"})
@@ -277,7 +277,7 @@ func (h *WebShellHandler) SaveConnectionState(c *gin.Context) {
 	c.JSON(http.StatusOK, gin.H{"ok": true})
 }
 
-// GetAIHistory 获取指定 WebShell 连接的 AI 助手对话历史（GET /api/webshell/connections/:id/ai-history）
+// English note.
 func (h *WebShellHandler) GetAIHistory(c *gin.Context) {
 	if h.db == nil {
 		c.JSON(http.StatusServiceUnavailable, gin.H{"error": "database not available"})
@@ -301,7 +301,7 @@ func (h *WebShellHandler) GetAIHistory(c *gin.Context) {
 	c.JSON(http.StatusOK, gin.H{"conversationId": conv.ID, "messages": conv.Messages})
 }
 
-// ListAIConversations 列出该 WebShell 连接下的所有 AI 对话（供侧边栏）
+// English note.
 func (h *WebShellHandler) ListAIConversations(c *gin.Context) {
 	if h.db == nil {
 		c.JSON(http.StatusServiceUnavailable, gin.H{"error": "database not available"})
@@ -324,7 +324,7 @@ func (h *WebShellHandler) ListAIConversations(c *gin.Context) {
 	c.JSON(http.StatusOK, list)
 }
 
-// ExecRequest 执行命令请求（前端传入连接信息 + 命令）
+// English note.
 type ExecRequest struct {
 	URL      string `json:"url" binding:"required"`
 	Password string `json:"password"`
@@ -334,7 +334,7 @@ type ExecRequest struct {
 	Command  string `json:"command" binding:"required"`
 }
 
-// ExecResponse 执行命令响应
+// English note.
 type ExecResponse struct {
 	OK       bool   `json:"ok"`
 	Output   string `json:"output"`
@@ -342,7 +342,7 @@ type ExecResponse struct {
 	HTTPCode int    `json:"http_code,omitempty"`
 }
 
-// FileOpRequest 文件操作请求
+// English note.
 type FileOpRequest struct {
 	URL        string `json:"url" binding:"required"`
 	Password   string `json:"password"`
@@ -356,7 +356,7 @@ type FileOpRequest struct {
 	ChunkIndex int    `json:"chunk_index"` // upload_chunk 时，0 表示首块
 }
 
-// FileOpResponse 文件操作响应
+// English note.
 type FileOpResponse struct {
 	OK     bool   `json:"ok"`
 	Output string `json:"output"`
@@ -422,13 +422,13 @@ func (h *WebShellHandler) Exec(c *gin.Context) {
 	})
 }
 
-// buildExecBody 按常见 WebShell 约定构建 POST 体（多数使用 pass + cmd，可配置命令参数名）
+// English note.
 func (h *WebShellHandler) buildExecBody(shellType, password, cmdParam, command string) []byte {
 	form := h.execParams(shellType, password, cmdParam, command)
 	return []byte(form.Encode())
 }
 
-// buildExecURL 构建 GET 请求的完整 URL（baseURL + ?pass=xxx&cmd=yyy，cmd 可配置）
+// English note.
 func (h *WebShellHandler) buildExecURL(baseURL, shellType, password, cmdParam, command string) string {
 	form := h.execParams(shellType, password, cmdParam, command)
 	if parsed, err := url.Parse(baseURL); err == nil {
@@ -471,7 +471,7 @@ func (h *WebShellHandler) FileOp(c *gin.Context) {
 		return
 	}
 
-	// 通过执行系统命令实现文件操作（与通用一句话兼容）
+	// English note.
 	var command string
 	shellType := strings.ToLower(strings.TrimSpace(req.Type))
 	switch req.Action {
@@ -533,7 +533,7 @@ func (h *WebShellHandler) FileOp(c *gin.Context) {
 			c.JSON(http.StatusBadRequest, FileOpResponse{OK: false, Error: "upload content too large (max 512KB base64)"})
 			return
 		}
-		// base64 仅含 A-Za-z0-9+/=，用单引号包裹安全
+		// English note.
 		command = "echo " + "'" + req.Content + "'" + " | base64 -d > " + h.escapePath(path)
 	case "upload_chunk":
 		path := strings.TrimSpace(req.Path)
@@ -591,16 +591,16 @@ func (h *WebShellHandler) escapePath(p string) string {
 	if p == "" {
 		return "."
 	}
-	// 简单转义空格与敏感字符，避免命令注入
+	// English note.
 	return "'" + strings.ReplaceAll(p, "'", "'\\''") + "'"
 }
 
 func (h *WebShellHandler) escapeForEcho(s string) string {
-	// 仅用于 write：base64 写入更安全，这里简单用单引号包裹
+	// English note.
 	return "'" + strings.ReplaceAll(s, "'", "'\"'\"'") + "'"
 }
 
-// ExecWithConnection 在指定 WebShell 连接上执行命令（供 MCP/Agent 等非 HTTP 调用）
+// English note.
 func (h *WebShellHandler) ExecWithConnection(conn *database.WebShellConnection, command string) (output string, ok bool, errMsg string) {
 	if conn == nil {
 		return "", false, "connection is nil"
@@ -637,7 +637,7 @@ func (h *WebShellHandler) ExecWithConnection(conn *database.WebShellConnection, 
 	return string(out), resp.StatusCode == http.StatusOK, ""
 }
 
-// FileOpWithConnection 在指定 WebShell 连接上执行文件操作（供 MCP/Agent 调用），支持 list / read / write
+// English note.
 func (h *WebShellHandler) FileOpWithConnection(conn *database.WebShellConnection, action, path, content, targetPath string) (output string, ok bool, errMsg string) {
 	if conn == nil {
 		return "", false, "connection is nil"

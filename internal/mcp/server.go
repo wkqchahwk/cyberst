@@ -17,7 +17,7 @@ import (
 	"go.uber.org/zap"
 )
 
-// MonitorStorage 监控数据存储接口
+// English note.
 type MonitorStorage interface {
 	SaveToolExecution(exec *ToolExecution) error
 	LoadToolExecutions() ([]*ToolExecution, error)
@@ -27,7 +27,7 @@ type MonitorStorage interface {
 	UpdateToolStats(toolName string, totalCalls, successCalls, failedCalls int, lastCallTime *time.Time) error
 }
 
-// Server MCP服务器
+// English note.
 type Server struct {
 	tools                 map[string]ToolHandler
 	toolDefs              map[string]Tool // 工具定义
@@ -47,15 +47,15 @@ type sseClient struct {
 	send chan []byte
 }
 
-// ToolHandler 工具处理函数
+// English note.
 type ToolHandler func(ctx context.Context, args map[string]interface{}) (*ToolResult, error)
 
-// NewServer 创建新的MCP服务器
+// English note.
 func NewServer(logger *zap.Logger) *Server {
 	return NewServerWithStorage(logger, nil)
 }
 
-// NewServerWithStorage 创建新的MCP服务器（带持久化存储）
+// English note.
 func NewServerWithStorage(logger *zap.Logger, storage MonitorStorage) *Server {
 	s := &Server{
 		tools:                 make(map[string]ToolHandler),
@@ -70,21 +70,21 @@ func NewServerWithStorage(logger *zap.Logger, storage MonitorStorage) *Server {
 		sseClients:            make(map[string]*sseClient),
 	}
 
-	// 初始化默认提示词和资源
+	// English note.
 	s.initDefaultPrompts()
 	s.initDefaultResources()
 
 	return s
 }
 
-// RegisterTool 注册工具
+// English note.
 func (s *Server) RegisterTool(tool Tool, handler ToolHandler) {
 	s.mu.Lock()
 	defer s.mu.Unlock()
 	s.tools[tool.Name] = handler
 	s.toolDefs[tool.Name] = tool
 
-	// 自动为工具创建资源文档
+	// English note.
 	resourceURI := fmt.Sprintf("tool://%s", tool.Name)
 	s.resources[resourceURI] = &Resource{
 		URI:         resourceURI,
@@ -94,19 +94,19 @@ func (s *Server) RegisterTool(tool Tool, handler ToolHandler) {
 	}
 }
 
-// ClearTools 清空所有工具（用于重新加载配置）
+// English note.
 func (s *Server) ClearTools() {
 	s.mu.Lock()
 	defer s.mu.Unlock()
 
-	// 清空工具和工具定义
+	// English note.
 	s.tools = make(map[string]ToolHandler)
 	s.toolDefs = make(map[string]Tool)
 
-	// 清空工具相关的资源（保留其他资源）
+	// English note.
 	newResources := make(map[string]*Resource)
 	for uri, resource := range s.resources {
-		// 保留非工具资源
+		// English note.
 		if !strings.HasPrefix(uri, "tool://") {
 			newResources[uri] = resource
 		}
@@ -114,7 +114,7 @@ func (s *Server) ClearTools() {
 	s.resources = newResources
 }
 
-// HandleHTTP 处理HTTP请求
+// English note.
 func (s *Server) HandleHTTP(w http.ResponseWriter, r *http.Request) {
 	if r.Method == http.MethodGet && strings.Contains(r.Header.Get("Accept"), "text/event-stream") {
 		s.handleSSE(w, r)
@@ -126,13 +126,13 @@ func (s *Server) HandleHTTP(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	// 官方 MCP SSE 规范：带 sessionid 的 POST 表示消息发往该 SSE 会话，响应通过 SSE 流返回
+	// English note.
 	if sessionID := r.URL.Query().Get("sessionid"); sessionID != "" {
 		s.serveSSESessionMessage(w, r, sessionID)
 		return
 	}
 
-	// 简单 POST：请求体为 JSON-RPC，响应在 body 中返回
+	// English note.
 	body, err := io.ReadAll(r.Body)
 	if err != nil {
 		s.sendError(w, nil, -32700, "Parse error", err.Error())
@@ -150,7 +150,7 @@ func (s *Server) HandleHTTP(w http.ResponseWriter, r *http.Request) {
 	json.NewEncoder(w).Encode(response)
 }
 
-// serveSSESessionMessage 处理发往 SSE 会话的 POST：读取 JSON-RPC 请求，处理后将响应通过该会话的 SSE 流推送
+// English note.
 func (s *Server) serveSSESessionMessage(w http.ResponseWriter, r *http.Request, sessionID string) {
 	s.mu.RLock()
 	client, exists := s.sseClients[sessionID]
@@ -192,9 +192,9 @@ func (s *Server) serveSSESessionMessage(w http.ResponseWriter, r *http.Request, 
 	}
 }
 
-// handleSSE 处理 SSE 连接，兼容官方 MCP 2024-11-05 SSE 规范：
-// 1. 首个事件必须为 event: endpoint，data 为客户端 POST 消息的 URL（含 sessionid）
-// 2. 后续事件为 event: message，data 为 JSON-RPC 响应
+// English note.
+// English note.
+// English note.
 func (s *Server) handleSSE(w http.ResponseWriter, r *http.Request) {
 	flusher, ok := w.(http.Flusher)
 	if !ok {
@@ -216,7 +216,7 @@ func (s *Server) handleSSE(w http.ResponseWriter, r *http.Request) {
 	s.addSSEClient(client)
 	defer s.removeSSEClient(client.id)
 
-	// 官方规范：首个事件为 endpoint，data 为消息端点 URL（客户端将向该 URL POST 请求）
+	// English note.
 	scheme := "http"
 	if r.TLS != nil {
 		scheme = "https"
@@ -248,14 +248,14 @@ func (s *Server) handleSSE(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
-// addSSEClient 注册SSE客户端
+// English note.
 func (s *Server) addSSEClient(client *sseClient) {
 	s.mu.Lock()
 	defer s.mu.Unlock()
 	s.sseClients[client.id] = client
 }
 
-// removeSSEClient 移除SSE客户端
+// English note.
 func (s *Server) removeSSEClient(id string) {
 	s.mu.Lock()
 	defer s.mu.Unlock()
@@ -265,12 +265,12 @@ func (s *Server) removeSSEClient(id string) {
 	}
 }
 
-// handleMessage 处理MCP消息
+// English note.
 func (s *Server) handleMessage(msg *Message) *Message {
-	// 检查是否是通知（notification）- 通知没有id字段，不需要响应
+	// English note.
 	isNotification := msg.ID.Value() == nil || msg.ID.String() == ""
 
-	// 如果不是通知且ID为空，生成新的UUID
+	// English note.
 	if !isNotification && msg.ID.String() == "" {
 		msg.ID = MessageID{value: uuid.New().String()}
 	}
@@ -293,23 +293,23 @@ func (s *Server) handleMessage(msg *Message) *Message {
 	case "sampling/request":
 		return s.handleSamplingRequest(msg)
 	case "notifications/initialized":
-		// 通知类型，不需要响应
+		// English note.
 		s.logger.Debug("收到 initialized 通知")
 		return nil
 	case "":
-		// 空方法名，可能是通知，不返回错误
+		// English note.
 		if isNotification {
 			s.logger.Debug("收到无方法名的通知消息")
 			return nil
 		}
 		fallthrough
 	default:
-		// 如果是通知，不返回错误响应
+		// English note.
 		if isNotification {
 			s.logger.Debug("收到未知通知", zap.String("method", msg.Method))
 			return nil
 		}
-		// 对于请求，返回方法未找到错误
+		// English note.
 		return &Message{
 			ID:      msg.ID,
 			Type:    MessageTypeError,
@@ -319,7 +319,7 @@ func (s *Server) handleMessage(msg *Message) *Message {
 	}
 }
 
-// handleInitialize 处理初始化请求
+// English note.
 func (s *Server) handleInitialize(msg *Message) *Message {
 	var req InitializeRequest
 	if err := json.Unmarshal(msg.Params, &req); err != nil {
@@ -361,7 +361,7 @@ func (s *Server) handleInitialize(msg *Message) *Message {
 	}
 }
 
-// handleListTools 处理列出工具请求
+// English note.
 func (s *Server) handleListTools(msg *Message) *Message {
 	s.mu.RLock()
 	tools := make([]Tool, 0, len(s.toolDefs))
@@ -381,7 +381,7 @@ func (s *Server) handleListTools(msg *Message) *Message {
 	}
 }
 
-// handleCallTool 处理工具调用请求
+// English note.
 func (s *Server) handleCallTool(msg *Message) *Message {
 	var req CallToolRequest
 	if err := json.Unmarshal(msg.Params, &req); err != nil {
@@ -404,7 +404,7 @@ func (s *Server) handleCallTool(msg *Message) *Message {
 
 	s.mu.Lock()
 	s.executions[executionID] = execution
-	// 如果内存中的执行记录超过限制，清理最旧的记录
+	// English note.
 	s.cleanupOldExecutions()
 	s.mu.Unlock()
 
@@ -567,7 +567,7 @@ func (s *Server) handleCallTool(msg *Message) *Message {
 	}
 }
 
-// updateStats 更新统计信息
+// English note.
 func (s *Server) updateStats(toolName string, failed bool) {
 	now := time.Now()
 	if s.storage != nil {
@@ -605,7 +605,7 @@ func (s *Server) updateStats(toolName string, failed bool) {
 	}
 }
 
-// GetExecution 获取执行记录（先从内存查找，再从数据库查找）
+// English note.
 func (s *Server) GetExecution(id string) (*ToolExecution, bool) {
 	s.mu.RLock()
 	exec, exists := s.executions[id]
@@ -625,20 +625,20 @@ func (s *Server) GetExecution(id string) (*ToolExecution, bool) {
 	return nil, false
 }
 
-// loadHistoricalData 从数据库加载历史数据
+// English note.
 func (s *Server) loadHistoricalData() {
 	if s.storage == nil {
 		return
 	}
 
-	// 加载历史执行记录（最近1000条）
+	// English note.
 	executions, err := s.storage.LoadToolExecutions()
 	if err != nil {
 		s.logger.Warn("加载历史执行记录失败", zap.Error(err))
 	} else {
 		s.mu.Lock()
 		for _, exec := range executions {
-			// 只加载最近 maxExecutionsInMemory 条，避免内存占用过大
+			// English note.
 			if len(s.executions) < s.maxExecutionsInMemory {
 				s.executions[exec.ID] = exec
 			} else {
@@ -649,7 +649,7 @@ func (s *Server) loadHistoricalData() {
 		s.logger.Info("加载历史执行记录", zap.Int("count", len(executions)))
 	}
 
-	// 加载历史统计信息
+	// English note.
 	stats, err := s.storage.LoadToolStats()
 	if err != nil {
 		s.logger.Warn("加载历史统计信息失败", zap.Error(err))
@@ -663,7 +663,7 @@ func (s *Server) loadHistoricalData() {
 	}
 }
 
-// GetAllExecutions 获取所有执行记录（合并内存和数据库）
+// English note.
 func (s *Server) GetAllExecutions() []*ToolExecution {
 	if s.storage != nil {
 		dbExecutions, err := s.storage.LoadToolExecutions()
@@ -703,7 +703,7 @@ func (s *Server) GetAllExecutions() []*ToolExecution {
 	return memExecutions
 }
 
-// GetStats 获取统计信息（合并内存和数据库）
+// English note.
 func (s *Server) GetStats() map[string]*ToolStats {
 	if s.storage != nil {
 		dbStats, err := s.storage.LoadToolStats()
@@ -725,7 +725,7 @@ func (s *Server) GetStats() map[string]*ToolStats {
 	return memStats
 }
 
-// GetAllTools 获取所有已注册的工具（用于Agent动态获取工具列表）
+// English note.
 func (s *Server) GetAllTools() []Tool {
 	s.mu.RLock()
 	defer s.mu.RUnlock()
@@ -737,7 +737,7 @@ func (s *Server) GetAllTools() []Tool {
 	return tools
 }
 
-// CallTool 直接调用工具（用于内部调用）
+// English note.
 func (s *Server) CallTool(ctx context.Context, toolName string, args map[string]interface{}) (*ToolResult, string, error) {
 	s.mu.RLock()
 	handler, exists := s.tools[toolName]
@@ -747,7 +747,7 @@ func (s *Server) CallTool(ctx context.Context, toolName string, args map[string]
 		return nil, "", fmt.Errorf("工具 %s 未找到", toolName)
 	}
 
-	// 创建执行记录
+	// English note.
 	executionID := uuid.New().String()
 	execution := &ToolExecution{
 		ID:        executionID,
@@ -759,7 +759,7 @@ func (s *Server) CallTool(ctx context.Context, toolName string, args map[string]
 
 	s.mu.Lock()
 	s.executions[executionID] = execution
-	// 如果内存中的执行记录超过限制，清理最旧的记录
+	// English note.
 	s.cleanupOldExecutions()
 	s.mu.Unlock()
 
@@ -832,13 +832,13 @@ func (s *Server) CallTool(ctx context.Context, toolName string, args map[string]
 	return finalResult, executionID, nil
 }
 
-// cleanupOldExecutions 清理旧的执行记录，防止内存无限增长
+// English note.
 func (s *Server) cleanupOldExecutions() {
 	if len(s.executions) <= s.maxExecutionsInMemory {
 		return
 	}
 
-	// 按开始时间排序，找出最旧的记录
+	// English note.
 	type execWithTime struct {
 		id        string
 		startTime time.Time
@@ -851,12 +851,12 @@ func (s *Server) cleanupOldExecutions() {
 		})
 	}
 
-	// 使用 sort 包进行高效排序（最旧的在前）
+	// English note.
 	sort.Slice(execs, func(i, j int) bool {
 		return execs[i].startTime.Before(execs[j].startTime)
 	})
 
-	// 删除最旧的记录，保留 maxExecutionsInMemory 条
+	// English note.
 	toDelete := len(s.executions) - s.maxExecutionsInMemory
 	for i := 0; i < toDelete; i++ {
 		delete(s.executions, execs[i].id)
@@ -869,12 +869,12 @@ func (s *Server) cleanupOldExecutions() {
 	)
 }
 
-// initDefaultPrompts 初始化默认提示词模板
+// English note.
 func (s *Server) initDefaultPrompts() {
 	s.mu.Lock()
 	defer s.mu.Unlock()
 
-	// 网络安全测试提示词
+	// English note.
 	s.prompts["security_scan"] = &Prompt{
 		Name:        "security_scan",
 		Description: "生成网络安全扫描任务的提示词",
@@ -884,7 +884,7 @@ func (s *Server) initDefaultPrompts() {
 		},
 	}
 
-	// 渗透测试提示词
+	// English note.
 	s.prompts["penetration_test"] = &Prompt{
 		Name:        "penetration_test",
 		Description: "生成渗透测试任务的提示词",
@@ -895,13 +895,13 @@ func (s *Server) initDefaultPrompts() {
 	}
 }
 
-// initDefaultResources 初始化默认资源
-// 注意：工具资源现在在 RegisterTool 时自动创建，此函数保留用于其他非工具资源
+// English note.
+// English note.
 func (s *Server) initDefaultResources() {
-	// 工具资源已改为在 RegisterTool 时自动创建，无需在此硬编码
+	// English note.
 }
 
-// handleListPrompts 处理列出提示词请求
+// English note.
 func (s *Server) handleListPrompts(msg *Message) *Message {
 	s.mu.RLock()
 	prompts := make([]Prompt, 0, len(s.prompts))
@@ -922,7 +922,7 @@ func (s *Server) handleListPrompts(msg *Message) *Message {
 	}
 }
 
-// handleGetPrompt 处理获取提示词请求
+// English note.
 func (s *Server) handleGetPrompt(msg *Message) *Message {
 	var req GetPromptRequest
 	if err := json.Unmarshal(msg.Params, &req); err != nil {
@@ -947,7 +947,7 @@ func (s *Server) handleGetPrompt(msg *Message) *Message {
 		}
 	}
 
-	// 根据提示词名称生成消息
+	// English note.
 	messages := s.generatePromptMessages(prompt, req.Arguments)
 
 	response := GetPromptResponse{
@@ -962,7 +962,7 @@ func (s *Server) handleGetPrompt(msg *Message) *Message {
 	}
 }
 
-// generatePromptMessages 生成提示词消息
+// English note.
 func (s *Server) generatePromptMessages(prompt *Prompt, args map[string]interface{}) []PromptMessage {
 	messages := []PromptMessage{}
 
@@ -1010,7 +1010,7 @@ func (s *Server) generatePromptMessages(prompt *Prompt, args map[string]interfac
 	return messages
 }
 
-// handleListResources 处理列出资源请求
+// English note.
 func (s *Server) handleListResources(msg *Message) *Message {
 	s.mu.RLock()
 	resources := make([]Resource, 0, len(s.resources))
@@ -1031,7 +1031,7 @@ func (s *Server) handleListResources(msg *Message) *Message {
 	}
 }
 
-// handleReadResource 处理读取资源请求
+// English note.
 func (s *Server) handleReadResource(msg *Message) *Message {
 	var req ReadResourceRequest
 	if err := json.Unmarshal(msg.Params, &req); err != nil {
@@ -1056,7 +1056,7 @@ func (s *Server) handleReadResource(msg *Message) *Message {
 		}
 	}
 
-	// 生成资源内容
+	// English note.
 	content := s.generateResourceContent(resource)
 
 	response := ReadResourceResponse{
@@ -1071,34 +1071,34 @@ func (s *Server) handleReadResource(msg *Message) *Message {
 	}
 }
 
-// generateResourceContent 生成资源内容
+// English note.
 func (s *Server) generateResourceContent(resource *Resource) ResourceContent {
 	content := ResourceContent{
 		URI:      resource.URI,
 		MimeType: resource.MimeType,
 	}
 
-	// 如果是工具资源，生成详细文档
+	// English note.
 	if strings.HasPrefix(resource.URI, "tool://") {
 		toolName := strings.TrimPrefix(resource.URI, "tool://")
 		content.Text = s.generateToolDocumentation(toolName, resource)
 	} else {
-		// 其他资源使用描述或默认内容
+		// English note.
 		content.Text = resource.Description
 	}
 
 	return content
 }
 
-// generateToolDocumentation 生成工具文档
-// 注意：硬编码的工具文档已移除，现在只使用工具定义中的信息
+// English note.
+// English note.
 func (s *Server) generateToolDocumentation(toolName string, resource *Resource) string {
-	// 获取工具定义以获取更详细的信息
+	// English note.
 	s.mu.RLock()
 	tool, hasTool := s.toolDefs[toolName]
 	s.mu.RUnlock()
 
-	// 使用工具定义中的描述信息
+	// English note.
 	if hasTool {
 		doc := fmt.Sprintf("%s\n\n", resource.Description)
 		if tool.InputSchema != nil {
@@ -1118,7 +1118,7 @@ func (s *Server) generateToolDocumentation(toolName string, resource *Resource) 
 	return resource.Description
 }
 
-// handleSamplingRequest 处理采样请求
+// English note.
 func (s *Server) handleSamplingRequest(msg *Message) *Message {
 	var req SamplingRequest
 	if err := json.Unmarshal(msg.Params, &req); err != nil {
@@ -1130,8 +1130,8 @@ func (s *Server) handleSamplingRequest(msg *Message) *Message {
 		}
 	}
 
-	// 注意：采样功能通常需要连接到实际的LLM服务
-	// 这里返回一个占位符响应，实际实现需要集成LLM API
+	// English note.
+	// English note.
 	s.logger.Warn("Sampling request received but not fully implemented",
 		zap.Any("request", req),
 	)
@@ -1154,27 +1154,27 @@ func (s *Server) handleSamplingRequest(msg *Message) *Message {
 	}
 }
 
-// RegisterPrompt 注册提示词模板
+// English note.
 func (s *Server) RegisterPrompt(prompt *Prompt) {
 	s.mu.Lock()
 	defer s.mu.Unlock()
 	s.prompts[prompt.Name] = prompt
 }
 
-// RegisterResource 注册资源
+// English note.
 func (s *Server) RegisterResource(resource *Resource) {
 	s.mu.Lock()
 	defer s.mu.Unlock()
 	s.resources[resource.URI] = resource
 }
 
-// HandleStdio 处理标准输入输出（用于 stdio 传输模式）
-// MCP 协议使用换行分隔的 JSON-RPC 消息；管道下需每次写入后 Flush，否则客户端会读不到响应
+// English note.
+// English note.
 func (s *Server) HandleStdio() error {
 	decoder := json.NewDecoder(os.Stdin)
 	stdout := bufio.NewWriter(os.Stdout)
 	encoder := json.NewEncoder(stdout)
-	// 注意：不设置缩进，MCP 协议期望紧凑的 JSON 格式
+	// English note.
 
 	for {
 		var msg Message
@@ -1182,9 +1182,9 @@ func (s *Server) HandleStdio() error {
 			if err == io.EOF {
 				break
 			}
-			// 日志输出到 stderr，避免干扰 stdout 的 JSON-RPC 通信
+			// English note.
 			s.logger.Error("读取消息失败", zap.Error(err))
-			// 发送错误响应
+			// English note.
 			errorMsg := Message{
 				ID:      msg.ID,
 				Type:    MessageTypeError,
@@ -1200,15 +1200,15 @@ func (s *Server) HandleStdio() error {
 			continue
 		}
 
-		// 处理消息
+		// English note.
 		response := s.handleMessage(&msg)
 
-		// 如果是通知（response 为 nil），不需要发送响应
+		// English note.
 		if response == nil {
 			continue
 		}
 
-		// 发送响应
+		// English note.
 		if err := encoder.Encode(response); err != nil {
 			return fmt.Errorf("发送响应失败: %w", err)
 		}
@@ -1220,7 +1220,7 @@ func (s *Server) HandleStdio() error {
 	return nil
 }
 
-// sendError 发送错误响应
+// English note.
 func (s *Server) sendError(w http.ResponseWriter, id interface{}, code int, message, data string) {
 	var msgID MessageID
 	if id != nil {

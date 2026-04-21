@@ -11,7 +11,7 @@ import (
 	"go.uber.org/zap"
 )
 
-// multiAgentPrepared 多代理请求在调用 Eino 前的会话与消息准备结果。
+// English note.
 type multiAgentPrepared struct {
 	ConversationID     string
 	CreatedNew         bool
@@ -81,7 +81,7 @@ func (h *AgentHandler) prepareMultiAgentSession(req *ChatRequest) (*multiAgentPr
 		}
 		webshellContext := fmt.Sprintf("[WebShell 助手上下文] 当前连接 ID：%s，备注：%s。可用工具（仅在该连接上操作时使用，connection_id 填 \"%s\"）：webshell_exec、webshell_file_list、webshell_file_read、webshell_file_write、record_vulnerability、list_knowledge_risk_types、search_knowledge_base。Skills 包请使用 Eino 多代理内置 `skill` 工具。\n\n用户请求：%s",
 			conn.ID, remark, conn.ID, req.Message)
-		// WebShell 模式下如果同时指定了角色，追加角色 user_prompt（工具集仍仅限 webshell 专用工具）
+		// English note.
 		if req.Role != "" && req.Role != "默认" && h.config != nil && h.config.Roles != nil {
 			if role, exists := h.config.Roles[req.Role]; exists && role.Enabled && role.UserPrompt != "" {
 				finalMessage = role.UserPrompt + "\n\n" + webshellContext

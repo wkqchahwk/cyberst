@@ -1,6 +1,6 @@
 let currentConversationId = null;
 
-// @ 提及相关状态
+// English note.
 let mentionTools = [];
 let mentionToolsLoaded = false;
 let mentionToolsLoadingPromise = null;
@@ -14,25 +14,25 @@ const mentionState = {
     selectedIndex: 0,
 };
 
-// IME输入法状态跟踪
+// English note.
 let isComposing = false;
 
-// 输入框草稿保存相关
+// English note.
 const DRAFT_STORAGE_KEY = 'cyberstrike-chat-draft';
 let draftSaveTimer = null;
 const DRAFT_SAVE_DELAY = 500; // 500ms防抖延迟
 
-// 对话文件上传相关（后端会拼接路径与内容发给大模型，前端不再重复发文件列表）
+// English note.
 const MAX_CHAT_FILES = 10;
 const CHAT_FILE_DEFAULT_PROMPT = '请根据上传的文件内容进行分析。';
 /**
- * 对话附件：选文件后异步 POST /api/chat-uploads，发送时只传 serverPath（绝对路径），请求体不再内联大文件内容。
+ * English note.
  * @type {{ id: number, fileName: string, mimeType: string, serverPath: string|null, uploading: boolean, uploadPercent: number, uploadPromise: Promise<void>|null, uploadError: string|null }[]}
  */
 let chatAttachments = [];
 let chatAttachmentSeq = 0;
 
-// 对话模式：react = 原生 ReAct（/agent-loop）；eino_single = Eino ADK 单代理（/api/eino-agent/stream）；deep / plan_execute / supervisor = Eino 多代理（/api/multi-agent/stream，请求体 orchestration）
+// English note.
 const AGENT_MODE_STORAGE_KEY = 'cyberstrike-chat-agent-mode';
 const CHAT_AGENT_MODE_REACT = 'react';
 const CHAT_AGENT_MODE_EINO_SINGLE = 'eino_single';
@@ -54,7 +54,7 @@ function chatAgentModeIsEinoSingle(mode) {
     return mode === CHAT_AGENT_MODE_EINO_SINGLE;
 }
 
-/** 将 localStorage / 历史值规范为 react | eino_single | deep | plan_execute | supervisor */
+/* English note. */
 function chatAgentModeNormalizeStored(stored, cfg) {
     const pub = cfg && cfg.multi_agent ? cfg.multi_agent : null;
     const multiOn = !!(pub && pub.enabled);
@@ -212,40 +212,40 @@ document.addEventListener('languagechange', function () {
     }
 });
 
-// 保存输入框草稿到localStorage（防抖版本）
+// English note.
 function saveChatDraftDebounced(content) {
-    // 清除之前的定时器
+    // English note.
     if (draftSaveTimer) {
         clearTimeout(draftSaveTimer);
     }
     
-    // 设置新的定时器
+    // English note.
     draftSaveTimer = setTimeout(() => {
         saveChatDraft(content);
     }, DRAFT_SAVE_DELAY);
 }
 
-// 保存输入框草稿到localStorage
+// English note.
 function saveChatDraft(content) {
     try {
         const chatInput = document.getElementById('chat-input');
         const placeholderText = chatInput ? (chatInput.getAttribute('placeholder') || '').trim() : '';
         const trimmed = (content || '').trim();
 
-        // 不要把占位提示本身当作草稿保存
+        // English note.
         if (trimmed && (!placeholderText || trimmed !== placeholderText)) {
             localStorage.setItem(DRAFT_STORAGE_KEY, content);
         } else {
-            // 如果内容为空或等于占位提示，清除保存的草稿
+            // English note.
             localStorage.removeItem(DRAFT_STORAGE_KEY);
         }
     } catch (error) {
-        // localStorage可能已满或不可用，静默失败
+        // English note.
         console.warn('保存草稿失败:', error);
     }
 }
 
-// 从localStorage恢复输入框草稿
+// English note.
 function restoreChatDraft() {
     try {
         const chatInput = document.getElementById('chat-input');
@@ -253,11 +253,11 @@ function restoreChatDraft() {
             return;
         }
         const placeholderText = (chatInput.getAttribute('placeholder') || '').trim();
-        // 若当前 value 与 placeholder 相同，说明提示被误当作内容，清空以便正确显示占位符
+        // English note.
         if (placeholderText && chatInput.value.trim() === placeholderText) {
             chatInput.value = '';
         }
-        // 如果输入框已有内容，不恢复草稿（避免覆盖用户输入）
+        // English note.
         if (chatInput.value && chatInput.value.trim().length > 0) {
             return;
         }
@@ -265,13 +265,13 @@ function restoreChatDraft() {
         const draft = localStorage.getItem(DRAFT_STORAGE_KEY);
         const trimmedDraft = draft ? draft.trim() : '';
 
-        // 如果草稿内容和占位提示一样，则认为是无效草稿，不恢复
+        // English note.
         if (trimmedDraft && (!placeholderText || trimmedDraft !== placeholderText)) {
             chatInput.value = draft;
-            // 调整输入框高度以适应内容
+            // English note.
             adjustTextareaHeight(chatInput);
         } else if (trimmedDraft && placeholderText && trimmedDraft === placeholderText) {
-            // 清理掉无效草稿，避免之后继续干扰
+            // English note.
             localStorage.removeItem(DRAFT_STORAGE_KEY);
         }
     } catch (error) {
@@ -279,37 +279,37 @@ function restoreChatDraft() {
     }
 }
 
-// 清除保存的草稿
+// English note.
 function clearChatDraft() {
     try {
-        // 同步清除，确保立即生效
+        // English note.
         localStorage.removeItem(DRAFT_STORAGE_KEY);
     } catch (error) {
         console.warn('清除草稿失败:', error);
     }
 }
 
-// 调整textarea高度以适应内容
+// English note.
 function adjustTextareaHeight(textarea) {
     if (!textarea) return;
     
-    // 先重置高度为auto，然后立即设置为固定值，确保能准确获取scrollHeight
+    // English note.
     textarea.style.height = 'auto';
-    // 强制浏览器重新计算布局
+    // English note.
     void textarea.offsetHeight;
     
-    // 计算新高度（最小40px，最大不超过300px）
+    // English note.
     const scrollHeight = textarea.scrollHeight;
     const newHeight = Math.min(Math.max(scrollHeight, 40), 300);
     textarea.style.height = newHeight + 'px';
     
-    // 如果内容为空或只有很少内容，立即重置到最小高度
+    // English note.
     if (!textarea.value || textarea.value.trim().length === 0) {
         textarea.style.height = '40px';
     }
 }
 
-// 发送消息
+// English note.
 async function sendMessage() {
     const input = document.getElementById('chat-input');
     let message = input.value.trim();
@@ -342,38 +342,38 @@ async function sendMessage() {
         }
     }
 
-    // 有附件且用户未输入时，发一句简短默认提示即可（后端会拼接路径和文件内容给大模型）
+    // English note.
     if (hasAttachments && !message) {
         message = CHAT_FILE_DEFAULT_PROMPT;
     }
 
-    // 显示用户消息（含附件名，便于用户确认）
+    // English note.
     const displayMessage = hasAttachments
         ? message + '\n' + chatAttachments.map(a => '📎 ' + a.fileName).join('\n')
         : message;
     addMessage('user', displayMessage);
     
-    // 清除防抖定时器，防止在清空输入框后重新保存草稿
+    // English note.
     if (draftSaveTimer) {
         clearTimeout(draftSaveTimer);
         draftSaveTimer = null;
     }
     
-    // 立即清除草稿，防止页面刷新时恢复
+    // English note.
     clearChatDraft();
-    // 使用同步方式确保草稿被清除
+    // English note.
     try {
         localStorage.removeItem(DRAFT_STORAGE_KEY);
     } catch (e) {
-        // 忽略错误
+        // English note.
     }
     
-    // 立即清空输入框并清除草稿（在发送请求之前）
+    // English note.
     input.value = '';
-    // 强制重置输入框高度为初始高度（40px）
+    // English note.
     input.style.height = '40px';
 
-    // 构建请求体（含附件）
+    // English note.
     const body = {
         message: message,
         conversationId: currentConversationId,
@@ -386,11 +386,11 @@ async function sendMessage() {
             serverPath: a.serverPath
         }));
     }
-    // 发送后清空附件列表
+    // English note.
     chatAttachments = [];
     renderChatFileChips();
 
-    // 创建进度消息容器（使用详细的进度展示）
+    // English note.
     const progressId = addProgressMessage();
     const progressElement = document.getElementById(progressId);
     registerProgressTask(progressId, currentConversationId);
@@ -445,7 +445,7 @@ async function sendMessage() {
             }
         }
         
-        // 处理剩余的buffer
+        // English note.
         if (buffer.trim()) {
             const lines = buffer.split('\n');
             for (const line of lines) {
@@ -462,12 +462,12 @@ async function sendMessage() {
             }
         }
         
-        // 消息发送成功后，再次确保草稿被清除
+        // English note.
         clearChatDraft();
         try {
             localStorage.removeItem(DRAFT_STORAGE_KEY);
         } catch (e) {
-            // 忽略错误
+            // English note.
         }
         
     } catch (error) {
@@ -484,11 +484,11 @@ async function sendMessage() {
         if (typeof loadActiveTasks === 'function') {
             loadActiveTasks();
         }
-        // 发送失败时，不恢复草稿，因为消息已经显示在对话框中了
+        // English note.
     }
 }
 
-// ---------- 对话文件上传 ----------
+// English note.
 function renderChatFileChips() {
     const list = document.getElementById('chat-file-list');
     if (!list) return;
@@ -529,7 +529,7 @@ function removeChatAttachment(index) {
     refreshChatAttachmentUploadProgress();
 }
 
-// 有附件且输入框为空时，填入一句默认提示（可编辑）；后端会单独拼接路径与内容给大模型
+// English note.
 function appendChatFilePrompt() {
     const input = document.getElementById('chat-input');
     if (!input || !chatAttachments.length) return;
@@ -691,7 +691,7 @@ function setupChatFileUpload() {
     });
 }
 
-// 确保 chat-input-container 有 id（若模板未写）
+// English note.
 function ensureChatInputContainerId() {
     const c = document.querySelector('.chat-input-container');
     if (c && !c.id) c.id = 'chat-input-container';
@@ -702,36 +702,36 @@ function setupMentionSupport() {
     if (mentionSuggestionsEl) {
         mentionSuggestionsEl.style.display = 'none';
         mentionSuggestionsEl.addEventListener('mousedown', (event) => {
-            // 防止点击候选项时输入框失焦
+            // English note.
             event.preventDefault();
         });
     }
     ensureMentionToolsLoaded().catch(() => {
-        // 忽略加载错误，稍后可重试
+        // English note.
     });
 }
 
-// 刷新工具列表（重置已加载状态，强制重新加载）
+// English note.
 function refreshMentionTools() {
     mentionToolsLoaded = false;
     mentionTools = [];
     externalMcpNames = [];
     mentionToolsLoadingPromise = null;
-    // 如果当前正在使用@功能，立即触发重新加载
+    // English note.
     if (mentionState.active) {
         ensureMentionToolsLoaded().catch(() => {
-            // 忽略加载错误
+            // English note.
         });
     }
 }
 
-// 将刷新函数暴露到window对象，供其他模块调用
+// English note.
 if (typeof window !== 'undefined') {
     window.refreshMentionTools = refreshMentionTools;
 }
 
 function ensureMentionToolsLoaded() {
-    // 检查角色是否改变，如果改变则强制重新加载
+    // English note.
     if (typeof window !== 'undefined' && window._mentionToolsRoleChanged) {
         mentionToolsLoaded = false;
         mentionTools = [];
@@ -750,10 +750,10 @@ function ensureMentionToolsLoaded() {
     return mentionToolsLoadingPromise;
 }
 
-// 生成工具的唯一标识符，用于区分同名但来源不同的工具
+// English note.
 function getToolKeyForMention(tool) {
-    // 如果是外部工具，使用 external_mcp::tool.name 作为唯一标识
-    // 如果是内部工具，使用 tool.name 作为标识
+    // English note.
+    // English note.
     if (tool.is_external && tool.external_mcp) {
         return `${tool.external_mcp}::${tool.name}`;
     }
@@ -768,17 +768,17 @@ async function fetchMentionTools() {
     const collected = [];
 
     try {
-        // 获取当前选中的角色（从 roles.js 的函数获取）
+        // English note.
         const roleName = typeof getCurrentRole === 'function' ? getCurrentRole() : '';
 
-        // 同时获取外部MCP列表
+        // English note.
         try {
             const mcpResponse = await apiFetch('/api/external-mcp');
             if (mcpResponse.ok) {
                 const mcpData = await mcpResponse.json();
                 externalMcpNames = Object.keys(mcpData.servers || {}).filter(name => {
                     const server = mcpData.servers[name];
-                    // 只包含已连接且已启用的MCP
+                    // English note.
                     return server.status === 'connected' && 
                            (server.config.external_mcp_enable || (server.config.enabled && !server.config.disabled));
                 });
@@ -789,7 +789,7 @@ async function fetchMentionTools() {
         }
 
         while (page <= totalPages && page <= 20) {
-            // 构建API URL，如果指定了角色，添加role查询参数
+            // English note.
             let url = `/api/config/tools?page=${page}&page_size=${pageSize}`;
             if (roleName && roleName !== '默认') {
                 url += `&role=${encodeURIComponent(roleName)}`;
@@ -805,16 +805,16 @@ async function fetchMentionTools() {
                 if (!tool || !tool.name) {
                     return;
                 }
-                // 使用唯一标识符来去重，而不是只使用工具名称
+                // English note.
                 const toolKey = getToolKeyForMention(tool);
                 if (seen.has(toolKey)) {
                     return;
                 }
                 seen.add(toolKey);
 
-                // 确定工具在当前角色中的启用状态
-                // 如果有 role_enabled 字段，使用它（表示指定了角色）
-                // 否则使用 enabled 字段（表示未指定角色或使用所有工具）
+                // English note.
+                // English note.
+                // English note.
                 let roleEnabled = tool.enabled !== false;
                 if (tool.role_enabled !== undefined && tool.role_enabled !== null) {
                     roleEnabled = tool.role_enabled;
@@ -847,12 +847,12 @@ async function fetchMentionTools() {
 function handleChatInputInput(event) {
     const textarea = event.target;
     updateMentionStateFromInput(textarea);
-    // 自动调整输入框高度
-    // 使用requestAnimationFrame确保在DOM更新后立即调整，特别是在删除内容时
+    // English note.
+    // English note.
     requestAnimationFrame(() => {
         adjustTextareaHeight(textarea);
     });
-    // 保存输入内容到localStorage（防抖）
+    // English note.
     saveChatDraftDebounced(textarea.value);
 }
 
@@ -861,8 +861,8 @@ function handleChatInputClick(event) {
 }
 
 function handleChatInputKeydown(event) {
-    // 如果正在使用输入法输入（IME），回车键应该用于确认候选词，而不是发送消息
-    // 使用 event.isComposing 或 isComposing 标志来判断
+    // English note.
+    // English note.
     if (event.isComposing || isComposing) {
         return;
     }
@@ -910,7 +910,7 @@ function updateMentionStateFromInput(textarea) {
         return;
     }
 
-    // 限制触发字符之前必须是空白或起始位置
+    // English note.
     if (atIndex > 0) {
         const boundaryChar = textBefore[atIndex - 1];
         if (boundaryChar && !/\s/.test(boundaryChar) && !'([{，。,.;:!?'.includes(boundaryChar)) {
@@ -960,29 +960,29 @@ function updateMentionCandidates() {
     let filtered = mentionTools;
 
     if (normalizedQuery) {
-        // 检查是否精确匹配外部MCP名称
+        // English note.
         const exactMatchedMcp = externalMcpNames.find(mcpName => 
             mcpName.toLowerCase() === normalizedQuery
         );
 
         if (exactMatchedMcp) {
-            // 如果完全匹配MCP名称，只显示该MCP下的所有工具
+            // English note.
             filtered = mentionTools.filter(tool => {
                 return tool.externalMcp && tool.externalMcp.toLowerCase() === exactMatchedMcp.toLowerCase();
             });
         } else {
-            // 检查是否部分匹配MCP名称
+            // English note.
             const partialMatchedMcps = externalMcpNames.filter(mcpName => 
                 mcpName.toLowerCase().includes(normalizedQuery)
             );
             
-            // 正常匹配：按工具名称和描述过滤，同时也匹配MCP名称
+            // English note.
             filtered = mentionTools.filter(tool => {
                 const nameMatch = tool.name.toLowerCase().includes(normalizedQuery);
                 const descMatch = tool.description && tool.description.toLowerCase().includes(normalizedQuery);
                 const mcpMatch = tool.externalMcp && tool.externalMcp.toLowerCase().includes(normalizedQuery);
                 
-                // 如果部分匹配到MCP名称，也包含该MCP下的所有工具
+                // English note.
                 const mcpPartialMatch = partialMatchedMcps.some(mcpName => 
                     tool.externalMcp && tool.externalMcp.toLowerCase() === mcpName.toLowerCase()
                 );
@@ -993,7 +993,7 @@ function updateMentionCandidates() {
     }
 
     filtered = filtered.slice().sort((a, b) => {
-        // 如果指定了角色，优先显示在当前角色中启用的工具
+        // English note.
         if (a.roleEnabled !== undefined || b.roleEnabled !== undefined) {
             const aRoleEnabled = a.roleEnabled !== undefined ? a.roleEnabled : a.enabled;
             const bRoleEnabled = b.roleEnabled !== undefined ? b.roleEnabled : b.enabled;
@@ -1003,7 +1003,7 @@ function updateMentionCandidates() {
         }
 
         if (normalizedQuery) {
-            // 精确匹配MCP名称的工具优先显示
+            // English note.
             const aMcpExact = a.externalMcp && a.externalMcp.toLowerCase() === normalizedQuery;
             const bMcpExact = b.externalMcp && b.externalMcp.toLowerCase() === normalizedQuery;
             if (aMcpExact !== bMcpExact) {
@@ -1016,7 +1016,7 @@ function updateMentionCandidates() {
                 return aStarts ? -1 : 1;
             }
         }
-        // 如果指定了角色，使用 roleEnabled；否则使用 enabled
+        // English note.
         const aEnabled = a.roleEnabled !== undefined ? a.roleEnabled : a.enabled;
         const bEnabled = b.roleEnabled !== undefined ? b.roleEnabled : b.enabled;
         if (aEnabled !== bEnabled) {
@@ -1062,14 +1062,14 @@ function renderMentionSuggestions({ showLoading = false } = {}) {
 
     const itemsHtml = mentionFilteredTools.map((tool, index) => {
         const activeClass = index === mentionState.selectedIndex ? 'active' : '';
-        // 如果工具有 roleEnabled 字段（指定了角色），使用它；否则使用 enabled
+        // English note.
         const toolEnabled = tool.roleEnabled !== undefined ? tool.roleEnabled : tool.enabled;
         const disabledClass = toolEnabled ? '' : 'disabled';
         const badge = tool.isExternal ? '<span class="mention-item-badge">外部</span>' : '<span class="mention-item-badge internal">内置</span>';
         const nameHtml = escapeHtml(tool.name);
         const description = tool.description && tool.description.length > 0 ? escapeHtml(tool.description) : (typeof window.t === 'function' ? window.t('chat.noDescription') : '暂无描述');
         const descHtml = `<div class="mention-item-desc">${description}</div>`;
-        // 根据工具在当前角色中的启用状态显示状态标签
+        // English note.
         const statusLabel = toolEnabled ? '可用' : (tool.roleEnabled !== undefined ? '已禁用（当前角色）' : '已禁用');
         const statusClass = toolEnabled ? 'enabled' : 'disabled';
         const originLabel = tool.isExternal
@@ -1216,7 +1216,7 @@ function applyMentionSelection() {
     textarea.focus();
     textarea.setSelectionRange(newCaret, newCaret);
     
-    // 调整输入框高度并保存草稿
+    // English note.
     adjustTextareaHeight(textarea);
     saveChatDraftDebounced(textarea.value);
 
@@ -1226,28 +1226,28 @@ function applyMentionSelection() {
 function initializeChatUI() {
     const chatInputEl = document.getElementById('chat-input');
     if (chatInputEl) {
-        // 初始化时设置正确的高度
+        // English note.
         adjustTextareaHeight(chatInputEl);
-        // 恢复保存的草稿（仅在输入框为空时恢复，避免覆盖用户输入）
+        // English note.
         if (!chatInputEl.value || chatInputEl.value.trim() === '') {
-            // 检查对话中是否有最近的消息（30秒内），如果有，说明可能是刚刚发送的消息，不恢复草稿
+            // English note.
             const messagesDiv = document.getElementById('chat-messages');
             let shouldRestoreDraft = true;
             if (messagesDiv && messagesDiv.children.length > 0) {
-                // 检查最后一条消息的时间
+                // English note.
                 const lastMessage = messagesDiv.lastElementChild;
                 if (lastMessage) {
                     const timeDiv = lastMessage.querySelector('.message-time');
                     if (timeDiv && timeDiv.textContent) {
-                        // 如果最后一条消息是用户消息，且时间很近，不恢复草稿
+                        // English note.
                         const isUserMessage = lastMessage.classList.contains('user');
                         if (isUserMessage) {
-                            // 检查消息时间，如果是最近30秒内的，不恢复草稿
+                            // English note.
                             const now = new Date();
                             const messageTimeText = timeDiv.textContent;
-                            // 简单检查：如果消息时间显示的是当前时间（格式：HH:MM），且是用户消息，不恢复草稿
-                            // 更精确的方法是检查消息的创建时间，但需要从消息元素中获取
-                            // 这里采用简单策略：如果最后一条是用户消息，且输入框为空，可能是刚发送的，不恢复草稿
+                            // English note.
+                            // English note.
+                            // English note.
                             shouldRestoreDraft = false;
                         }
                     }
@@ -1256,7 +1256,7 @@ function initializeChatUI() {
             if (shouldRestoreDraft) {
                 restoreChatDraft();
             } else {
-                // 即使不恢复草稿，也要清除localStorage中的草稿，避免下次误恢复
+                // English note.
                 clearChatDraft();
             }
         }
@@ -1279,30 +1279,30 @@ function initializeChatUI() {
     setupChatFileUpload();
 }
 
-// 消息计数器，确保ID唯一
+// English note.
 let messageCounter = 0;
 
-// 为消息气泡中的表格添加独立的滚动容器
+// English note.
 function wrapTablesInBubble(bubble) {
     const tables = bubble.querySelectorAll('table');
     tables.forEach(table => {
-        // 检查表格是否已经有包装容器
+        // English note.
         if (table.parentElement && table.parentElement.classList.contains('table-wrapper')) {
             return;
         }
         
-        // 创建表格包装容器
+        // English note.
         const wrapper = document.createElement('div');
         wrapper.className = 'table-wrapper';
         
-        // 将表格移动到包装容器中
+        // English note.
         table.parentNode.insertBefore(wrapper, table);
         wrapper.appendChild(table);
     });
 }
 
 /**
- * 将「系统已就绪」类文案按当前语言重新渲染进气泡（与 addMessage 助手分支一致的安全处理）
+ * English note.
  */
 function refreshSystemReadyMessageBubbles() {
     if (typeof window.t !== 'function') return;
@@ -1353,7 +1353,7 @@ function refreshSystemReadyMessageBubbles() {
     });
 }
 
-// 添加消息（options.systemReadyMessage 为 true 时，语言切换会刷新该条文案）
+// English note.
 function addMessage(role, content, mcpExecutionIds = null, progressId = null, createdAt = null, options = null) {
     const messagesDiv = document.getElementById('chat-messages');
     const messageDiv = document.createElement('div');
@@ -1362,7 +1362,7 @@ function addMessage(role, content, mcpExecutionIds = null, progressId = null, cr
     messageDiv.id = id;
     messageDiv.className = 'message ' + role;
     
-    // 创建头像
+    // English note.
     const avatar = document.createElement('div');
     avatar.className = 'message-avatar';
     if (role === 'user') {
@@ -1374,15 +1374,15 @@ function addMessage(role, content, mcpExecutionIds = null, progressId = null, cr
     }
     messageDiv.appendChild(avatar);
     
-    // 创建消息内容容器
+    // English note.
     const contentWrapper = document.createElement('div');
     contentWrapper.className = 'message-content';
     
-    // 创建消息气泡
+    // English note.
     const bubble = document.createElement('div');
     bubble.className = 'message-bubble';
     
-    // 解析 Markdown 或 HTML 格式
+    // English note.
     let formattedContent;
     const defaultSanitizeConfig = {
         ALLOWED_TAGS: ['p', 'br', 'strong', 'em', 'u', 's', 'code', 'pre', 'blockquote', 'h1', 'h2', 'h3', 'h4', 'h5', 'h6', 'ul', 'ol', 'li', 'a', 'img', 'table', 'thead', 'tbody', 'tr', 'th', 'td', 'hr'],
@@ -1390,7 +1390,7 @@ function addMessage(role, content, mcpExecutionIds = null, progressId = null, cr
         ALLOW_DATA_ATTR: false,
     };
     
-    // HTML实体编码函数
+    // English note.
     const escapeHtml = (text) => {
         if (!text) return '';
         const div = document.createElement('div');
@@ -1398,11 +1398,11 @@ function addMessage(role, content, mcpExecutionIds = null, progressId = null, cr
         return div.innerHTML;
     };
     
-    // 注意：代码块内容不需要转义，因为：
-    // 1. Markdown解析后，代码块会被包裹在<code>或<pre>标签中
-    // 2. 浏览器不会执行<code>和<pre>标签内的HTML（它们是文本节点）
-    // 3. DOMPurify会保留这些标签内的文本内容
-    // 这样既能防止XSS，又能正常显示代码
+    // English note.
+    // English note.
+    // English note.
+    // English note.
+    // English note.
     
     const parseMarkdown = (raw) => {
         if (typeof marked === 'undefined') {
@@ -1420,7 +1420,7 @@ function addMessage(role, content, mcpExecutionIds = null, progressId = null, cr
         }
     };
     
-    // 助手消息中的已知中文错误前缀做国际化替换（后端固定返回中文）
+    // English note.
     let displayContent = content;
     if (role === 'assistant' && typeof displayContent === 'string' && typeof window.t === 'function') {
         if (displayContent.indexOf('执行失败: ') === 0) {
@@ -1431,33 +1431,33 @@ function addMessage(role, content, mcpExecutionIds = null, progressId = null, cr
         }
     }
 
-    // 对于用户消息，直接转义HTML，不进行Markdown解析，以保留所有特殊字符
+    // English note.
     if (role === 'user') {
         formattedContent = escapeHtml(content).replace(/\n/g, '<br>');
     } else if (typeof DOMPurify !== 'undefined') {
-        // 直接解析Markdown（代码块会被包裹在<code>/<pre>中，DOMPurify会保留其文本内容）
+        // English note.
         let parsedContent = parseMarkdown(role === 'assistant' ? displayContent : content);
         if (!parsedContent) {
             parsedContent = content;
         }
         
-        // 使用DOMPurify清理，只添加必要的URL验证钩子（DOMPurify默认会处理事件处理器等）
+        // English note.
         if (DOMPurify.addHook) {
-            // 移除之前可能存在的钩子
+            // English note.
             try {
                 DOMPurify.removeHook('uponSanitizeAttribute');
             } catch (e) {
-                // 钩子不存在，忽略
+                // English note.
             }
             
-            // 只验证URL属性，防止危险协议（DOMPurify默认会处理事件处理器、style等）
+            // English note.
             DOMPurify.addHook('uponSanitizeAttribute', (node, data) => {
                 const attrName = data.attrName.toLowerCase();
                 
-                // 只验证URL属性（src, href）
+                // English note.
                 if ((attrName === 'src' || attrName === 'href') && data.attrValue) {
                     const value = data.attrValue.trim().toLowerCase();
-                    // 禁止危险协议
+                    // English note.
                     if (value.startsWith('javascript:') || 
                         value.startsWith('vbscript:') ||
                         value.startsWith('data:text/html') ||
@@ -1465,7 +1465,7 @@ function addMessage(role, content, mcpExecutionIds = null, progressId = null, cr
                         data.keepAttr = false;
                         return;
                     }
-                    // 对于img的src，禁止可疑的短URL（防止404和XSS）
+                    // English note.
                     if (attrName === 'src' && node.tagName && node.tagName.toLowerCase() === 'img') {
                         if (value.length <= 2 || /^[a-z]$/i.test(value)) {
                             data.keepAttr = false;
@@ -1492,14 +1492,14 @@ function addMessage(role, content, mcpExecutionIds = null, progressId = null, cr
     
     bubble.innerHTML = formattedContent;
     
-    // 最后的安全检查：只处理明显的可疑图片（防止404和XSS）
-    // DOMPurify已经处理了大部分XSS向量，这里只做必要的补充
+    // English note.
+    // English note.
     const images = bubble.querySelectorAll('img');
     images.forEach(img => {
         const src = img.getAttribute('src');
         if (src) {
             const trimmedSrc = src.trim();
-            // 只检查明显的可疑URL（短字符串、单个字符）
+            // English note.
             if (trimmedSrc.length <= 2 || /^[a-z]$/i.test(trimmedSrc)) {
                 img.remove();
             }
@@ -1508,17 +1508,17 @@ function addMessage(role, content, mcpExecutionIds = null, progressId = null, cr
         }
     });
     
-    // 为每个表格添加独立的滚动容器
+    // English note.
     wrapTablesInBubble(bubble);
     
     contentWrapper.appendChild(bubble);
     
-    // 保存原始内容到消息元素，用于复制功能
+    // English note.
     if (role === 'assistant') {
         messageDiv.dataset.originalContent = content;
     }
     
-    // 为助手消息添加复制按钮（复制整个回复内容）- 放在消息气泡右下角
+    // English note.
     if (role === 'assistant') {
         const copyBtn = document.createElement('button');
         copyBtn.className = 'message-copy-btn';
@@ -1531,13 +1531,13 @@ function addMessage(role, content, mcpExecutionIds = null, progressId = null, cr
         bubble.appendChild(copyBtn);
     }
     
-    // 添加时间戳
+    // English note.
     const timeDiv = document.createElement('div');
     timeDiv.className = 'message-time';
-    // 如果有传入的创建时间，使用它；否则使用当前时间
+    // English note.
     let messageTime;
     if (createdAt) {
-        // 处理字符串或Date对象
+        // English note.
         if (typeof createdAt === 'string') {
             messageTime = new Date(createdAt);
         } else if (createdAt instanceof Date) {
@@ -1545,7 +1545,7 @@ function addMessage(role, content, mcpExecutionIds = null, progressId = null, cr
         } else {
             messageTime = new Date(createdAt);
         }
-        // 如果解析失败，使用当前时间
+        // English note.
         if (isNaN(messageTime.getTime())) {
             messageTime = new Date();
         }
@@ -1561,7 +1561,7 @@ function addMessage(role, content, mcpExecutionIds = null, progressId = null, cr
     } catch (e) { /* ignore */ }
     contentWrapper.appendChild(timeDiv);
     
-    // 有 MCP 执行记录且非流式占位消息时展示调用按钮；带 progressId 的流式占位不挂此条（与进度卡片一致，结束时 integrate 再创建）
+    // English note.
     if (role === 'assistant' && (mcpExecutionIds && Array.isArray(mcpExecutionIds) && mcpExecutionIds.length > 0) && !progressId) {
         const mcpSection = document.createElement('div');
         mcpSection.className = 'mcp-call-section';
@@ -1583,7 +1583,7 @@ function addMessage(role, content, mcpExecutionIds = null, progressId = null, cr
             detailBtn.onclick = () => showMCPDetail(execId);
             buttonsContainer.appendChild(detailBtn);
         });
-        // 使用批量 API 一次性获取所有工具名称（消除 N 次单独请求）
+        // English note.
         batchUpdateButtonToolNames(buttonsContainer, mcpExecutionIds);
         
         mcpSection.appendChild(buttonsContainer);
@@ -1591,7 +1591,7 @@ function addMessage(role, content, mcpExecutionIds = null, progressId = null, cr
     }
     
     messageDiv.appendChild(contentWrapper);
-    // 标记「系统就绪」占位消息，便于切换语言后刷新文案
+    // English note.
     if (options && options.systemReadyMessage) {
         messageDiv.setAttribute('data-system-ready-message', '1');
     }
@@ -1600,15 +1600,15 @@ function addMessage(role, content, mcpExecutionIds = null, progressId = null, cr
     return id;
 }
 
-// 复制消息内容到剪贴板（使用原始Markdown格式）
+// English note.
 function copyMessageToClipboard(messageDiv, button) {
     try {
-        // 获取保存的原始Markdown内容
+        // English note.
         const originalContent = messageDiv.dataset.originalContent;
 
-        // 统一的复制处理函数
+        // English note.
         const doCopy = (text) => {
-            // 优先使用现代 Clipboard API（需要 HTTPS 或 localhost）
+            // English note.
             if (navigator.clipboard && navigator.clipboard.writeText) {
                 return navigator.clipboard.writeText(text).then(() => {
                     showCopySuccess(button);
@@ -1617,12 +1617,12 @@ function copyMessageToClipboard(messageDiv, button) {
                     fallbackCopy(text);
                 });
             } else {
-                // 降级方案：使用传统的 execCommand 方法（适用于 HTTP 环境）
+                // English note.
                 return fallbackCopy(text);
             }
         };
 
-        // 降级复制函数（使用 document.execCommand）
+        // English note.
         const fallbackCopy = (text) => {
             try {
                 const textArea = document.createElement('textarea');
@@ -1650,19 +1650,19 @@ function copyMessageToClipboard(messageDiv, button) {
         };
 
         if (!originalContent) {
-            // 如果没有保存原始内容，尝试从渲染后的HTML提取（降级方案）
+            // English note.
             const bubble = messageDiv.querySelector('.message-bubble');
             if (bubble) {
                 const tempDiv = document.createElement('div');
                 tempDiv.innerHTML = bubble.innerHTML;
                 
-                // 移除复制按钮本身（避免复制按钮文本）
+                // English note.
                 const copyBtnInTemp = tempDiv.querySelector('.message-copy-btn');
                 if (copyBtnInTemp) {
                     copyBtnInTemp.remove();
                 }
                 
-                // 提取纯文本内容
+                // English note.
                 let textContent = tempDiv.textContent || tempDiv.innerText || '';
                 textContent = textContent.replace(/\n{3,}/g, '\n\n').trim();
 
@@ -1671,7 +1671,7 @@ function copyMessageToClipboard(messageDiv, button) {
             return;
         }
         
-        // 使用原始Markdown内容
+        // English note.
         doCopy(originalContent);
     } catch (error) {
         console.error('复制消息时出错:', error);
@@ -1679,7 +1679,7 @@ function copyMessageToClipboard(messageDiv, button) {
     }
 }
 
-// 显示复制成功提示
+// English note.
 function showCopySuccess(button) {
     if (button) {
         const originalText = button.innerHTML;
@@ -1696,14 +1696,14 @@ function showCopySuccess(button) {
     }
 }
 
-// 渲染过程详情
+// English note.
 function renderProcessDetails(messageId, processDetails) {
     const messageElement = document.getElementById(messageId);
     if (!messageElement) {
         return;
     }
     
-    // 查找或创建MCP调用区域
+    // English note.
     let mcpSection = messageElement.querySelector('.mcp-call-section');
     if (!mcpSection) {
         mcpSection = document.createElement('div');
@@ -1717,29 +1717,29 @@ function renderProcessDetails(messageId, processDetails) {
         }
     }
     
-    // 确保有标签和按钮容器（统一结构）
+    // English note.
     let mcpLabel = mcpSection.querySelector('.mcp-call-label');
     let buttonsContainer = mcpSection.querySelector('.mcp-call-buttons');
     
-    // 如果没有标签，创建一个（当没有工具调用时）
+    // English note.
     if (!mcpLabel && !buttonsContainer) {
         mcpLabel = document.createElement('div');
         mcpLabel.className = 'mcp-call-label';
         mcpLabel.textContent = '📋 ' + (typeof window.t === 'function' ? window.t('chat.penetrationTestDetail') : '渗透测试详情');
         mcpSection.appendChild(mcpLabel);
     } else if (mcpLabel && mcpLabel.textContent !== ('📋 ' + (typeof window.t === 'function' ? window.t('chat.penetrationTestDetail') : '渗透测试详情'))) {
-        // 如果标签存在但不是统一格式，更新它
+        // English note.
         mcpLabel.textContent = '📋 ' + (typeof window.t === 'function' ? window.t('chat.penetrationTestDetail') : '渗透测试详情');
     }
     
-    // 如果没有按钮容器，创建一个
+    // English note.
     if (!buttonsContainer) {
         buttonsContainer = document.createElement('div');
         buttonsContainer.className = 'mcp-call-buttons';
         mcpSection.appendChild(buttonsContainer);
     }
     
-    // 添加过程详情按钮（如果还没有）
+    // English note.
     let processDetailBtn = buttonsContainer.querySelector('.process-detail-btn');
     if (!processDetailBtn) {
         processDetailBtn = document.createElement('button');
@@ -1749,7 +1749,7 @@ function renderProcessDetails(messageId, processDetails) {
         buttonsContainer.appendChild(processDetailBtn);
     }
     
-    // 创建过程详情容器（放在按钮容器之后）
+    // English note.
     const detailsId = 'process-details-' + messageId;
     let detailsContainer = document.getElementById(detailsId);
     
@@ -1757,7 +1757,7 @@ function renderProcessDetails(messageId, processDetails) {
         detailsContainer = document.createElement('div');
         detailsContainer.id = detailsId;
         detailsContainer.className = 'process-details-container';
-        // 确保容器在按钮容器之后
+        // English note.
         if (buttonsContainer.nextSibling) {
             mcpSection.insertBefore(detailsContainer, buttonsContainer.nextSibling);
         } else {
@@ -1765,7 +1765,7 @@ function renderProcessDetails(messageId, processDetails) {
         }
     }
     
-    // 创建时间线（即使没有processDetails也要创建，以便展开详情按钮能正常工作）
+    // English note.
     const timelineId = detailsId + '-timeline';
     let timeline = document.getElementById(timelineId);
     
@@ -1781,7 +1781,7 @@ function renderProcessDetails(messageId, processDetails) {
         detailsContainer.appendChild(contentDiv);
     }
     
-    // processDetails === null 表示“尚未加载（懒加载）”
+    // English note.
     const isLazyNotLoaded = (processDetails === null);
     if (isLazyNotLoaded) {
         detailsContainer.dataset.lazyNotLoaded = '1';
@@ -1789,22 +1789,22 @@ function renderProcessDetails(messageId, processDetails) {
         timeline.innerHTML = '<div class="progress-timeline-empty">' +
             (typeof window.t === 'function' ? window.t('chat.expandDetail') : '展开详情') +
             '（点击后加载）</div>';
-        // 默认折叠
+        // English note.
         timeline.classList.remove('expanded');
         return;
     }
     detailsContainer.dataset.lazyNotLoaded = '0';
     detailsContainer.dataset.loaded = '1';
-    // 如果没有processDetails或为空，显示空状态
+    // English note.
     if (!processDetails || processDetails.length === 0) {
-        // 显示空状态提示
+        // English note.
         timeline.innerHTML = '<div class="progress-timeline-empty">' + (typeof window.t === 'function' ? window.t('chat.noProcessDetail') : '暂无过程详情（可能执行过快或未触发详细事件）') + '</div>';
-        // 默认折叠
+        // English note.
         timeline.classList.remove('expanded');
         return;
     }
     
-    // 清空时间线并重新渲染
+    // English note.
     timeline.innerHTML = '';
     
     
@@ -1814,14 +1814,14 @@ function renderProcessDetails(messageId, processDetails) {
         return s ? ('[' + s + '] ') : '';
     }
 
-    // 渲染每个过程详情事件
+    // English note.
     processDetails.forEach(detail => {
         const eventType = detail.eventType || '';
         const title = detail.message || '';
         const data = detail.data || {};
         const agPx = processDetailAgentPrefix(data);
         
-        // 根据事件类型渲染不同的内容
+        // English note.
         let itemTitle = title;
         if (eventType === 'iteration') {
             const n = data.iteration || 1;
@@ -1892,14 +1892,14 @@ function renderProcessDetails(messageId, processDetails) {
         });
     });
     
-    // 检查是否有错误或取消事件，如果有，确保详情默认折叠
+    // English note.
     const hasErrorOrCancelled = processDetails.some(d => 
         d.eventType === 'error' || d.eventType === 'cancelled'
     );
     if (hasErrorOrCancelled) {
-        // 确保时间线是折叠的
+        // English note.
         timeline.classList.remove('expanded');
-        // 更新按钮文本为"展开详情"
+        // English note.
         const processDetailBtn = messageElement.querySelector('.process-detail-btn');
         if (processDetailBtn) {
             processDetailBtn.innerHTML = '<span>' + (typeof window.t === 'function' ? window.t('chat.expandDetail') : '展开详情') + '</span>';
@@ -1907,7 +1907,7 @@ function renderProcessDetails(messageId, processDetails) {
     }
 }
 
-// 移除消息
+// English note.
 function removeMessage(id) {
     const messageDiv = document.getElementById(id);
     if (messageDiv) {
@@ -1915,14 +1915,14 @@ function removeMessage(id) {
     }
 }
 
-// 输入框事件绑定（回车发送 / @提及）
+// English note.
 const chatInput = document.getElementById('chat-input');
 if (chatInput) {
     chatInput.addEventListener('keydown', handleChatInputKeydown);
     chatInput.addEventListener('input', handleChatInputInput);
     chatInput.addEventListener('click', handleChatInputClick);
     chatInput.addEventListener('focus', handleChatInputClick);
-    // IME输入法事件监听，用于跟踪输入法状态
+    // English note.
     chatInput.addEventListener('compositionstart', () => {
         isComposing = true;
     });
@@ -1935,40 +1935,40 @@ if (chatInput) {
                 deactivateMentionState();
             }
         }, 120);
-        // 失焦时立即保存草稿（不等待防抖）
+        // English note.
         if (chatInput.value) {
             saveChatDraft(chatInput.value);
         }
     });
 }
 
-// 页面卸载时立即保存草稿
+// English note.
 window.addEventListener('beforeunload', () => {
     const chatInput = document.getElementById('chat-input');
     if (chatInput && chatInput.value) {
-        // 立即保存，不使用防抖
+        // English note.
         saveChatDraft(chatInput.value);
     }
 });
 
-// 异步获取工具名称并更新按钮文本
+// English note.
 async function updateButtonWithToolName(button, executionId, index) {
     try {
         const response = await apiFetch(`/api/monitor/execution/${executionId}`);
         if (response.ok) {
             const exec = await response.json();
             const toolName = exec.toolName || (typeof window.t === 'function' ? window.t('chat.unknownTool') : '未知工具');
-            // 格式化工具名称（如果是 name::toolName 格式，只显示 toolName 部分）
+            // English note.
             const displayToolName = toolName.includes('::') ? toolName.split('::')[1] : toolName;
             button.querySelector('span').textContent = `${displayToolName} #${index}`;
         }
     } catch (error) {
-        // 如果获取失败，保持原有文本不变
+        // English note.
         console.error('获取工具名称失败:', error);
     }
 }
 
-// 批量获取工具名称并更新按钮（消除 N 次单独 API 请求，合并为 1 次）
+// English note.
 async function batchUpdateButtonToolNames(buttonsContainer, executionIds) {
     if (!executionIds || executionIds.length === 0) return;
     try {
@@ -1979,7 +1979,7 @@ async function batchUpdateButtonToolNames(buttonsContainer, executionIds) {
         });
         if (!response.ok) return;
         const nameMap = await response.json(); // { execId: toolName }
-        // 更新对应按钮的文本
+        // English note.
         const buttons = buttonsContainer.querySelectorAll('.mcp-detail-btn[data-exec-id]');
         buttons.forEach(btn => {
             const execId = btn.dataset.execId;
@@ -1996,14 +1996,14 @@ async function batchUpdateButtonToolNames(buttonsContainer, executionIds) {
     }
 }
 
-// 显示MCP调用详情
+// English note.
 async function showMCPDetail(executionId) {
     try {
         const response = await apiFetch(`/api/monitor/execution/${executionId}`);
         const exec = await response.json();
         
         if (response.ok) {
-            // 填充模态框内容
+            // English note.
             document.getElementById('detail-tool-name').textContent = exec.toolName || (typeof window.t === 'function' ? window.t('mcpDetailModal.unknown') : 'Unknown');
             document.getElementById('detail-execution-id').textContent = exec.id || 'N/A';
             const statusEl = document.getElementById('detail-status');
@@ -2024,21 +2024,21 @@ async function showMCPDetail(executionId) {
                 } catch (e) { /* ignore */ }
             }
             
-            // 请求参数
+            // English note.
             const requestData = {
                 tool: exec.toolName,
                 arguments: exec.arguments
             };
             document.getElementById('detail-request').textContent = JSON.stringify(requestData, null, 2);
             
-            // 响应结果 + 正确信息 / 错误信息
+            // English note.
             const responseElement = document.getElementById('detail-response');
             const successSection = document.getElementById('detail-success-section');
             const successElement = document.getElementById('detail-success');
             const errorSection = document.getElementById('detail-error-section');
             const errorElement = document.getElementById('detail-error');
 
-            // 重置状态
+            // English note.
             responseElement.className = 'code-block';
             responseElement.textContent = '';
             if (successSection && successElement) {
@@ -2058,14 +2058,14 @@ async function showMCPDetail(executionId) {
                 responseElement.textContent = JSON.stringify(responseData, null, 2);
 
                 if (exec.result.isError) {
-                    // 错误场景：响应结果标红 + 错误信息区块
+                    // English note.
                     responseElement.className = 'code-block error';
                     if (exec.error && errorSection && errorElement) {
                         errorSection.style.display = 'block';
                         errorElement.textContent = exec.error;
                     }
                 } else {
-                    // 成功场景：响应结果保持普通样式，正确信息单独拎出来
+                    // English note.
                     responseElement.className = 'code-block';
                     if (successSection && successElement) {
                         successSection.style.display = 'block';
@@ -2093,7 +2093,7 @@ async function showMCPDetail(executionId) {
                 responseElement.textContent = typeof window.t === 'function' ? window.t('chat.noResponseData') : '暂无响应数据';
             }
             
-            // 显示模态框
+            // English note.
             document.getElementById('mcp-detail-modal').style.display = 'block';
         } else {
             alert((typeof window.t === 'function' ? window.t('mcpDetailModal.getDetailFailed') : '获取详情失败') + ': ' + (exec.error || (typeof window.t === 'function' ? window.t('mcpDetailModal.unknown') : '未知错误')));
@@ -2103,12 +2103,12 @@ async function showMCPDetail(executionId) {
     }
 }
 
-// 关闭MCP详情模态框
+// English note.
 function closeMCPDetail() {
     document.getElementById('mcp-detail-modal').style.display = 'none';
 }
 
-// 复制详情面板中的内容
+// English note.
 function copyDetailBlock(elementId, triggerBtn = null) {
     const target = document.getElementById(elementId);
     if (!target) {
@@ -2178,16 +2178,16 @@ function copyDetailBlock(elementId, triggerBtn = null) {
 }
 
 
-// 开始新对话
+// English note.
 async function startNewConversation() {
-    // 如果当前在分组详情页面，先退出分组详情
+    // English note.
     if (currentGroupId) {
         const groupDetailPage = document.getElementById('group-detail-page');
         const chatContainer = document.querySelector('.chat-container');
         if (groupDetailPage) groupDetailPage.style.display = 'none';
         if (chatContainer) chatContainer.style.display = 'flex';
         currentGroupId = null;
-        // 刷新对话列表
+        // English note.
         loadConversationsWithGroups();
     }
     
@@ -2198,18 +2198,18 @@ async function startNewConversation() {
     addMessage('assistant', readyMsgNew, null, null, null, { systemReadyMessage: true });
     addAttackChainButton(null);
     updateActiveConversation();
-    // 刷新分组列表，清除分组高亮
+    // English note.
     await loadGroups();
-    // 刷新对话列表，确保显示最新的历史对话
+    // English note.
     loadConversationsWithGroups();
-    // 清除防抖定时器，防止恢复草稿时触发保存
+    // English note.
     if (draftSaveTimer) {
         clearTimeout(draftSaveTimer);
         draftSaveTimer = null;
     }
-    // 清除草稿，新对话不应该恢复之前的草稿
+    // English note.
     clearChatDraft();
-    // 清空输入框
+    // English note.
     const chatInput = document.getElementById('chat-input');
     if (chatInput) {
         chatInput.value = '';
@@ -2217,7 +2217,7 @@ async function startNewConversation() {
     }
 }
 
-// 加载对话列表（按时间分组）
+// English note.
 async function loadConversations(searchQuery = '') {
     try {
         let url = '/api/conversations?limit=50';
@@ -2231,14 +2231,14 @@ async function loadConversations(searchQuery = '') {
             return;
         }
 
-        // 保存滚动位置
+        // English note.
         const sidebarContent = listContainer.closest('.sidebar-content');
         const savedScrollTop = sidebarContent ? sidebarContent.scrollTop : 0;
 
         const emptyStateHtml = '<div style="padding: 20px; text-align: center; color: var(--text-muted); font-size: 0.875rem;" data-i18n="chat.noHistoryConversations"></div>';
         listContainer.innerHTML = '';
 
-        // 如果响应不是200，显示空状态（友好处理，不显示错误）
+        // English note.
         if (!response.ok) {
             listContainer.innerHTML = emptyStateHtml;
             if (typeof window.applyTranslations === 'function') window.applyTranslations(listContainer);
@@ -2305,7 +2305,7 @@ async function loadConversations(searchQuery = '') {
             section.appendChild(title);
 
             items.forEach(itemData => {
-                // 判断是否置顶
+                // English note.
                 const isPinned = itemData.pinned || false;
                 section.appendChild(createConversationListItemWithMenu(itemData, isPinned));
             });
@@ -2322,16 +2322,16 @@ async function loadConversations(searchQuery = '') {
         listContainer.appendChild(fragment);
         updateActiveConversation();
         
-        // 恢复滚动位置
+        // English note.
         if (sidebarContent) {
-            // 使用 requestAnimationFrame 确保 DOM 已经更新
+            // English note.
             requestAnimationFrame(() => {
                 sidebarContent.scrollTop = savedScrollTop;
             });
         }
     } catch (error) {
         console.error('加载对话列表失败:', error);
-        // 错误时显示空状态，而不是错误提示（更友好的用户体验）
+        // English note.
         const listContainer = document.getElementById('conversations-list');
         if (listContainer) {
             const emptyStateHtml = '<div style="padding: 20px; text-align: center; color: var(--text-muted); font-size: 0.875rem;" data-i18n="chat.noHistoryConversations"></div>';
@@ -2389,10 +2389,10 @@ function createConversationListItem(conversation) {
     return item;
 }
 
-// 处理历史记录搜索
+// English note.
 let conversationSearchTimer = null;
 function handleConversationSearch(query) {
-    // 防抖处理，避免频繁请求
+    // English note.
     if (conversationSearchTimer) {
         clearTimeout(conversationSearchTimer);
     }
@@ -2413,7 +2413,7 @@ function handleConversationSearch(query) {
     }, 300); // 300ms防抖延迟
 }
 
-// 清除搜索
+// English note.
 function clearConversationSearch() {
     const searchInput = document.getElementById('conversation-search-input');
     const clearBtn = document.getElementById('conversation-search-clear');
@@ -2432,7 +2432,7 @@ function formatConversationTimestamp(dateObj, todayStart, yesterdayStart) {
     if (!(dateObj instanceof Date) || isNaN(dateObj.getTime())) {
         return '';
     }
-    // 如果没有传入 todayStart，使用当前日期作为参考
+    // English note.
     const now = new Date();
     const referenceToday = todayStart || new Date(now.getFullYear(), now.getMonth(), now.getDate());
     const referenceYesterday = yesterdayStart || new Date(referenceToday.getTime() - 24 * 60 * 60 * 1000);
@@ -2480,10 +2480,10 @@ function getConversationGroup(dateObj, todayStart, startOfWeek, yesterdayStart) 
     return 'earlier';
 }
 
-// 加载对话
+// English note.
 async function loadConversation(conversationId) {
     try {
-        // 轻量加载：不带 processDetails，避免历史会话切换卡顿；展开详情时再按需拉取
+        // English note.
         const response = await apiFetch(`/api/conversations/${conversationId}?include_process_details=0`);
         const conversation = await response.json();
         
@@ -2492,43 +2492,43 @@ async function loadConversation(conversationId) {
             return;
         }
         
-        // 如果当前在分组详情页面，切换到对话界面
-        // 退出分组详情模式，显示所有最近对话，提供更好的用户体验
+        // English note.
+        // English note.
         if (currentGroupId) {
             const sidebar = document.querySelector('.conversation-sidebar');
             const groupDetailPage = document.getElementById('group-detail-page');
             const chatContainer = document.querySelector('.chat-container');
             
-            // 确保侧边栏始终可见
+            // English note.
             if (sidebar) sidebar.style.display = 'flex';
-            // 隐藏分组详情页，显示对话界面
+            // English note.
             if (groupDetailPage) groupDetailPage.style.display = 'none';
             if (chatContainer) chatContainer.style.display = 'flex';
             
-            // 退出分组详情模式，这样最近对话列表会显示所有对话
-            // 用户可以在侧边栏看到所有对话，方便切换
+            // English note.
+            // English note.
             const previousGroupId = currentGroupId;
             currentGroupId = null;
             
-            // 刷新最近对话列表，显示所有对话（包括分组中的）
+            // English note.
             loadConversationsWithGroups();
         }
         
-        // 获取当前对话所属的分组ID（用于高亮显示）
-        // 确保分组映射已加载（使用缓存避免重复请求）
+        // English note.
+        // English note.
         if (Object.keys(conversationGroupMappingCache).length === 0) {
             await loadConversationGroupMapping();
         }
         currentConversationGroupId = conversationGroupMappingCache[conversationId] || null;
 
-        // 异步刷新分组列表高亮状态（不阻塞消息渲染）
+        // English note.
         loadGroups();
         
-        // 更新当前对话ID
+        // English note.
         currentConversationId = conversationId;
         updateActiveConversation();
         
-        // 如果攻击链模态框打开且显示的不是当前对话，关闭它
+        // English note.
         const attackChainModal = document.getElementById('attack-chain-modal');
         if (attackChainModal && attackChainModal.style.display === 'block') {
             if (currentAttackChainConversationId !== conversationId) {
@@ -2536,16 +2536,16 @@ async function loadConversation(conversationId) {
             }
         }
         
-        // 清空消息区域
+        // English note.
         const messagesDiv = document.getElementById('chat-messages');
         messagesDiv.innerHTML = '';
         
-        // 检查对话中是否有最近的消息，如果有，清除草稿（避免恢复已发送的消息）
+        // English note.
         let hasRecentUserMessage = false;
         if (conversation.messages && conversation.messages.length > 0) {
             const lastMessage = conversation.messages[conversation.messages.length - 1];
             if (lastMessage && lastMessage.role === 'user') {
-                // 检查消息时间，如果是最近30秒内的，清除草稿
+                // English note.
                 const messageTime = new Date(lastMessage.createdAt);
                 const now = new Date();
                 const timeDiff = now.getTime() - messageTime.getTime();
@@ -2555,7 +2555,7 @@ async function loadConversation(conversationId) {
             }
         }
         if (hasRecentUserMessage) {
-            // 如果有最近发送的用户消息，清除草稿
+            // English note.
             clearChatDraft();
             const chatInput = document.getElementById('chat-input');
             if (chatInput) {
@@ -2564,12 +2564,12 @@ async function loadConversation(conversationId) {
             }
         }
         
-        // 加载消息 — 分批渲染避免长时间阻塞主线程
+        // English note.
         if (conversation.messages && conversation.messages.length > 0) {
             const FIRST_BATCH = 20;  // 首批同步渲染（用户可见区域）
             const BATCH_SIZE = 10;   // 后续每批条数
 
-            // 渲染单条消息的辅助函数
+            // English note.
             const renderOneMessage = (msg) => {
                 let displayContent = msg.content;
                 if (msg.role === 'assistant' && msg.content === '处理中...' && msg.processDetails && msg.processDetails.length > 0) {
@@ -2606,15 +2606,15 @@ async function loadConversation(conversationId) {
             const firstBatch = msgs.slice(0, FIRST_BATCH);
             const rest = msgs.slice(FIRST_BATCH);
 
-            // 首批同步渲染
+            // English note.
             firstBatch.forEach(renderOneMessage);
 
-            // 剩余消息通过 requestAnimationFrame 分批渲染，避免阻塞 UI
+            // English note.
             if (rest.length > 0) {
                 const savedConvId = conversationId;
                 let offset = 0;
                 const renderNextBatch = () => {
-                    // 如果用户已经切换到其他对话，停止渲染
+                    // English note.
                     if (currentConversationId !== savedConvId) return;
                     const batch = rest.slice(offset, offset + BATCH_SIZE);
                     batch.forEach(renderOneMessage);
@@ -2622,7 +2622,7 @@ async function loadConversation(conversationId) {
                     if (offset < rest.length) {
                         requestAnimationFrame(renderNextBatch);
                     } else {
-                        // 所有消息渲染完毕，滚动到底部
+                        // English note.
                         messagesDiv.scrollTop = messagesDiv.scrollHeight;
                     }
                 };
@@ -2633,10 +2633,10 @@ async function loadConversation(conversationId) {
             addMessage('assistant', readyMsgEmpty, null, null, null, { systemReadyMessage: true });
         }
 
-        // 滚动到底部（首批渲染后立即滚动，剩余批次渲染后会再次滚动）
+        // English note.
         messagesDiv.scrollTop = messagesDiv.scrollHeight;
 
-        // 添加攻击链按钮
+        // English note.
         addAttackChainButton(conversationId);
     } catch (error) {
         console.error('加载对话失败:', error);
@@ -2644,7 +2644,7 @@ async function loadConversation(conversationId) {
     }
 }
 
-/** 「删除本轮」：与时间戳同一行（message-meta-footer），风格与复制按钮区区分 */
+/* English note. */
 function attachDeleteTurnButton(messageEl) {
     if (!messageEl || !messageEl.dataset.backendMessageId) return;
     if (messageEl.querySelector('.message-delete-turn-btn')) return;
@@ -2677,7 +2677,7 @@ function attachDeleteTurnButton(messageEl) {
     }
 }
 
-/** 删除锚点所在整轮（后端：该轮 user 至下一轮 user 之前），并清空 ReAct 快照 */
+/* English note. */
 async function deleteConversationTurnFromUI(anchorBackendMessageId) {
     if (!currentConversationId || !anchorBackendMessageId) return;
     const confirmMsg = typeof window.t === 'function' ? window.t('chat.deleteTurnConfirm') : '确定删除本轮对话？';
@@ -2705,9 +2705,9 @@ async function deleteConversationTurnFromUI(anchorBackendMessageId) {
     }
 }
 
-// 删除对话
+// English note.
 async function deleteConversation(conversationId, skipConfirm = false) {
-    // 确认删除（如果调用者没有跳过确认）
+    // English note.
     if (!skipConfirm) {
         if (!confirm('确定要删除这个对话吗？此操作不可恢复。')) {
             return;
@@ -2724,7 +2724,7 @@ async function deleteConversation(conversationId, skipConfirm = false) {
             throw new Error(error.error || '删除失败');
         }
         
-        // 如果删除的是当前对话，清空对话界面
+        // English note.
         if (conversationId === currentConversationId) {
             currentConversationId = null;
             document.getElementById('chat-messages').innerHTML = '';
@@ -2733,23 +2733,23 @@ async function deleteConversation(conversationId, skipConfirm = false) {
             addAttackChainButton(null);
         }
         
-        // 更新缓存 - 立即删除，确保后续加载时能正确识别
+        // English note.
         delete conversationGroupMappingCache[conversationId];
-        // 同时从待保留映射中移除
+        // English note.
         delete pendingGroupMappings[conversationId];
         
-        // 如果当前在分组详情页面，重新加载分组对话
+        // English note.
         if (currentGroupId) {
             await loadGroupConversations(currentGroupId);
         }
         
-        // 刷新对话列表（使用分组接口以与其他入口一致）
+        // English note.
         if (typeof loadConversationsWithGroups === 'function') {
             loadConversationsWithGroups();
         } else if (typeof loadConversations === 'function') {
             loadConversations();
         }
-        // 通知其他模块（如 WebShell AI 助手）同步删除，保持列表一致
+        // English note.
         try {
             document.dispatchEvent(new CustomEvent('conversation-deleted', { detail: { conversationId } }));
         } catch (e) { /* ignore */ }
@@ -2759,7 +2759,7 @@ async function deleteConversation(conversationId, skipConfirm = false) {
     }
 }
 
-// 更新活动对话样式
+// English note.
 function updateActiveConversation() {
     document.querySelectorAll('.conversation-item').forEach(item => {
         item.classList.remove('active');
@@ -2769,19 +2769,19 @@ function updateActiveConversation() {
     });
 }
 
-// ==================== 攻击链可视化功能 ====================
+// English note.
 
 let attackChainCytoscape = null;
 let currentAttackChainConversationId = null;
-// 按对话ID管理加载状态，实现不同对话之间的解耦
+// English note.
 const attackChainLoadingMap = new Map(); // Map<conversationId, boolean>
 
-// 检查指定对话是否正在加载
+// English note.
 function isAttackChainLoading(conversationId) {
     return attackChainLoadingMap.get(conversationId) === true;
 }
 
-// 设置指定对话的加载状态
+// English note.
 function setAttackChainLoading(conversationId, loading) {
     if (loading) {
         attackChainLoadingMap.set(conversationId, true);
@@ -2790,10 +2790,10 @@ function setAttackChainLoading(conversationId, loading) {
     }
 }
 
-// 添加攻击链按钮（已移至菜单，此函数保留以保持兼容性，但不再显示顶部按钮）
+// English note.
 function addAttackChainButton(conversationId) {
-    // 攻击链按钮已移至三点菜单，不再需要显示顶部按钮
-    // 此函数保留以保持代码兼容性，但不再执行任何操作
+    // English note.
+    // English note.
     const conversationHeader = document.getElementById('conversation-header');
     if (conversationHeader) {
         conversationHeader.style.display = 'none';
@@ -2804,12 +2804,12 @@ function updateAttackChainAvailability() {
     addAttackChainButton(currentConversationId);
 }
 
-// 显示攻击链模态框
+// English note.
 async function showAttackChain(conversationId) {
-    // 如果当前显示的对话ID不同，或者没有在加载，允许打开
-    // 如果正在加载同一个对话，也允许打开（显示加载状态）
+    // English note.
+    // English note.
     if (isAttackChainLoading(conversationId) && currentAttackChainConversationId === conversationId) {
-        // 如果模态框已经打开且显示的是同一个对话，不重复打开
+        // English note.
         const modal = document.getElementById('attack-chain-modal');
         if (modal && modal.style.display === 'block') {
             console.log('攻击链正在加载中，模态框已打开');
@@ -2825,22 +2825,22 @@ async function showAttackChain(conversationId) {
     }
     
     modal.style.display = 'block';
-    // 打开时立即按当前语言刷新统计（避免红框内仍显示硬编码中文）
+    // English note.
     updateAttackChainStats({ nodes: [], edges: [] });
 
-    // 清空容器
+    // English note.
     const container = document.getElementById('attack-chain-container');
     if (container) {
         container.innerHTML = '<div class="loading-spinner">' + (typeof window.t === 'function' ? window.t('chat.loading') : '加载中...') + '</div>';
     }
     
-    // 隐藏详情面板
+    // English note.
     const detailsPanel = document.getElementById('attack-chain-details');
     if (detailsPanel) {
         detailsPanel.style.display = 'none';
     }
     
-    // 禁用重新生成按钮
+    // English note.
     const regenerateBtn = document.querySelector('button[onclick="regenerateAttackChain()"]');
     if (regenerateBtn) {
         regenerateBtn.disabled = true;
@@ -2848,11 +2848,11 @@ async function showAttackChain(conversationId) {
         regenerateBtn.style.cursor = 'not-allowed';
     }
     
-    // 加载攻击链数据
+    // English note.
     await loadAttackChain(conversationId);
 }
 
-// 加载攻击链数据
+// English note.
 async function loadAttackChain(conversationId) {
     if (isAttackChainLoading(conversationId)) {
         return; // 防止重复调用
@@ -2864,7 +2864,7 @@ async function loadAttackChain(conversationId) {
         const response = await apiFetch(`/api/attack-chain/${conversationId}`);
         
         if (!response.ok) {
-            // 处理 409 Conflict（正在生成中）
+            // English note.
             if (response.status === 409) {
                 const error = await response.json();
                 const container = document.getElementById('attack-chain-container');
@@ -2881,18 +2881,18 @@ async function loadAttackChain(conversationId) {
                         </div>
                     `;
                 }
-                // 5秒后自动刷新（允许刷新，但保持加载状态防止重复点击）
-                // 使用闭包保存 conversationId，防止串台
+                // English note.
+                // English note.
                 setTimeout(() => {
-                    // 检查当前显示的对话ID是否匹配
+                    // English note.
                     if (currentAttackChainConversationId === conversationId) {
                         refreshAttackChain();
                     }
                 }, 5000);
-                // 在 409 情况下，保持加载状态，防止重复点击
-                // 但允许 refreshAttackChain 调用 loadAttackChain 来检查状态
-                // 注意：不重置加载状态，保持加载状态
-                // 恢复按钮状态（虽然保持加载状态，但允许用户手动刷新）
+                // English note.
+                // English note.
+                // English note.
+                // English note.
                 const regenerateBtn = document.querySelector('button[onclick="regenerateAttackChain()"]');
                 if (regenerateBtn) {
                     regenerateBtn.disabled = false;
@@ -2908,7 +2908,7 @@ async function loadAttackChain(conversationId) {
         
         const chainData = await response.json();
         
-        // 检查当前显示的对话ID是否匹配，防止串台
+        // English note.
         if (currentAttackChainConversationId !== conversationId) {
             console.log('攻击链数据已返回，但当前显示的对话已切换，忽略此次渲染', {
                 returned: conversationId,
@@ -2918,13 +2918,13 @@ async function loadAttackChain(conversationId) {
             return;
         }
         
-        // 渲染攻击链
+        // English note.
         renderAttackChain(chainData);
         
-        // 更新统计信息
+        // English note.
         updateAttackChainStats(chainData);
         
-        // 成功加载后，重置加载状态
+        // English note.
         setAttackChainLoading(conversationId, false);
         
     } catch (error) {
@@ -2933,10 +2933,10 @@ async function loadAttackChain(conversationId) {
         if (container) {
             container.innerHTML = '<div class="error-message">' + (typeof window.t === 'function' ? window.t('chat.loadFailed', { message: error.message }) : '加载失败: ' + error.message) + '</div>';
         }
-        // 错误时也重置加载状态
+        // English note.
         setAttackChainLoading(conversationId, false);
     } finally {
-        // 恢复重新生成按钮
+        // English note.
         const regenerateBtn = document.querySelector('button[onclick="regenerateAttackChain()"]');
         if (regenerateBtn) {
             regenerateBtn.disabled = false;
@@ -2946,14 +2946,14 @@ async function loadAttackChain(conversationId) {
     }
 }
 
-// 渲染攻击链
+// English note.
 function renderAttackChain(chainData) {
     const container = document.getElementById('attack-chain-container');
     if (!container) {
         return;
     }
     
-    // 清空容器
+    // English note.
     container.innerHTML = '';
     
     if (!chainData.nodes || chainData.nodes.length === 0) {
@@ -2961,19 +2961,19 @@ function renderAttackChain(chainData) {
         return;
     }
     
-    // 计算图的复杂度（用于动态调整布局和样式）
+    // English note.
     const nodeCount = chainData.nodes.length;
     const edgeCount = chainData.edges.length;
     const isComplexGraph = nodeCount > 15 || edgeCount > 25;
     
-    // 优化节点标签：智能截断和换行
+    // English note.
     chainData.nodes.forEach(node => {
         if (node.label) {
-            // 智能截断：优先在标点符号、空格处截断
+            // English note.
             const maxLength = isComplexGraph ? 18 : 22;
             if (node.label.length > maxLength) {
                 let truncated = node.label.substring(0, maxLength);
-                // 尝试在最后一个标点符号或空格处截断
+                // English note.
                 const lastPunct = Math.max(
                     truncated.lastIndexOf('，'),
                     truncated.lastIndexOf('。'),
@@ -2989,15 +2989,15 @@ function renderAttackChain(chainData) {
         }
     });
     
-    // 准备Cytoscape数据
+    // English note.
     const elements = [];
     
-    // 添加节点，并预计算文字颜色和边框颜色，同时为类型标签准备数据
+    // English note.
     chainData.nodes.forEach(node => {
         const riskScore = node.risk_score || 0;
         const nodeType = node.type || '';
         
-        // 根据节点类型设置类型标签文本和标识符（使用更现代的设计）
+        // English note.
         let typeLabel = '';
         let typeBadge = '';
         let typeColor = '';
@@ -3019,35 +3019,35 @@ function renderAttackChain(chainData) {
             typeColor = '#666';
         }
         
-        // 根据风险分数计算文字颜色和边框颜色
+        // English note.
         let textColor, borderColor, textOutlineWidth, textOutlineColor;
         if (riskScore >= 80) {
-            // 红色背景：白色文字，白色边框
+            // English note.
             textColor = '#fff';
             borderColor = '#fff';
             textOutlineWidth = 1;
             textOutlineColor = '#333';
         } else if (riskScore >= 60) {
-            // 橙色背景：白色文字，白色边框
+            // English note.
             textColor = '#fff';
             borderColor = '#fff';
             textOutlineWidth = 1;
             textOutlineColor = '#333';
         } else if (riskScore >= 40) {
-            // 黄色背景：深色文字，深色边框
+            // English note.
             textColor = '#333';
             borderColor = '#cc9900';
             textOutlineWidth = 2;
             textOutlineColor = '#fff';
         } else {
-            // 绿色背景：深绿色文字，深色边框
+            // English note.
             textColor = '#1a5a1a';
             borderColor = '#5a8a5a';
             textOutlineWidth = 2;
             textOutlineColor = '#fff';
         }
         
-        // 保存节点数据，使用原始标签（样式中会添加类型标签）
+        // English note.
         elements.push({
             data: {
                 id: node.id,
@@ -3068,13 +3068,13 @@ function renderAttackChain(chainData) {
         });
     });
     
-    // 添加边（只添加源节点和目标节点都存在的边）
+    // English note.
     const nodeIds = new Set(chainData.nodes.map(node => node.id));
     
-    // 保存有效的边用于ELK布局
+    // English note.
     const validEdges = [];
     chainData.edges.forEach(edge => {
-        // 验证源节点和目标节点是否存在
+        // English note.
         if (nodeIds.has(edge.source) && nodeIds.has(edge.target)) {
             validEdges.push(edge);
             elements.push({
@@ -3097,7 +3097,7 @@ function renderAttackChain(chainData) {
         }
     });
     
-    // 初始化Cytoscape
+    // English note.
     attackChainCytoscape = cytoscape({
         container: container,
         elements: elements,
@@ -3105,14 +3105,14 @@ function renderAttackChain(chainData) {
             {
                 selector: 'node',
                 style: {
-                    // 参考图二：现代化卡片设计，清晰的视觉层次
+                    // English note.
                     'label': function(ele) {
                         const typeLabel = ele.data('typeLabel') || '';
                         const label = ele.data('label') || '';
-                        // 简洁的两行显示：类型标签 + 内容
+                        // English note.
                         return typeLabel + '\n' + label;
                     },
-                    // 合理的节点尺寸，参考图二
+                    // English note.
                     'width': function(ele) {
                         const type = ele.data('type');
                         if (type === 'target') return isComplexGraph ? 280 : 320;
@@ -3126,16 +3126,16 @@ function renderAttackChain(chainData) {
                         return isComplexGraph ? 80 : 100;
                     },
                     'shape': 'round-rectangle',
-                    // 现代化背景：白色卡片 + 左侧彩色条
+                    // English note.
                     'background-color': '#FFFFFF',
                     'background-opacity': 1,
-                    // 左侧彩色条效果（通过边框实现）
+                    // English note.
                     'border-width': function(ele) {
                         const type = ele.data('type');
                         return 0;  // 无边框，使用背景色块
                     },
                     'border-color': 'transparent',
-                    // 文字样式：清晰易读
+                    // English note.
                     'color': '#2C3E50',  // 深蓝灰色，专业感
                     'font-size': function(ele) {
                         const type = ele.data('type');
@@ -3162,7 +3162,7 @@ function renderAttackChain(chainData) {
                 }
             },
             {
-                // 目标节点：蓝色主题
+                // English note.
                 selector: 'node[type = "target"]',
                 style: {
                     'background-color': '#E3F2FD',
@@ -3173,7 +3173,7 @@ function renderAttackChain(chainData) {
                 }
             },
             {
-                // 行动节点：根据状态显示不同颜色
+                // English note.
                 selector: 'node[type = "action"]',
                 style: {
                     'background-color': function(ele) {
@@ -3208,7 +3208,7 @@ function renderAttackChain(chainData) {
                 }
             },
             {
-                // 漏洞节点：根据风险等级显示颜色
+                // English note.
                 selector: 'node[type = "vulnerability"]',
                 style: {
                     'background-color': function(ele) {
@@ -3239,7 +3239,7 @@ function renderAttackChain(chainData) {
             {
                 selector: 'edge',
                 style: {
-                    // 参考图二：简洁清晰的连接线
+                    // English note.
                     'width': function(ele) {
                         const type = ele.data('type');
                         if (type === 'discovers') return 2.5;  // 发现漏洞的边稍粗
@@ -3295,7 +3295,7 @@ function renderAttackChain(chainData) {
         boxSelectionEnabled: true
     });
     
-    // 使用ELK布局（高质量DAG布局，减少边交叉）
+    // English note.
     let layoutOptions = {
         name: 'breadthfirst',
         directed: true,
@@ -3303,8 +3303,8 @@ function renderAttackChain(chainData) {
         padding: 40
     };
     
-    // 使用ELK.js进行布局计算
-    // elk.bundled.js会暴露ELK对象，可以直接使用new ELK()
+    // English note.
+    // English note.
     let elkInstance = null;
     if (typeof ELK !== 'undefined') {
         try {
@@ -3317,7 +3317,7 @@ function renderAttackChain(chainData) {
     if (elkInstance) {
         try {
             
-            // 构建ELK图结构
+            // English note.
             const elkGraph = {
                 id: 'root',
                 layoutOptions: {
@@ -3358,9 +3358,9 @@ function renderAttackChain(chainData) {
                 }))
             };
             
-            // 使用ELK计算布局
+            // English note.
             elkInstance.layout(elkGraph).then(laidOutGraph => {
-                // 应用ELK计算的布局到Cytoscape节点
+                // English note.
                 if (laidOutGraph && laidOutGraph.children) {
                     laidOutGraph.children.forEach(elkNode => {
                         const cyNode = attackChainCytoscape.getElementById(elkNode.id);
@@ -3372,7 +3372,7 @@ function renderAttackChain(chainData) {
                         }
                     });
                     
-                    // 布局完成后，居中显示图
+                    // English note.
                     setTimeout(() => {
                         centerAttackChain();
                     }, 150);
@@ -3381,7 +3381,7 @@ function renderAttackChain(chainData) {
                 }
             }).catch(err => {
                 console.warn('ELK布局计算失败，使用默认布局:', err);
-                // 回退到默认布局
+                // English note.
                 const layout = attackChainCytoscape.layout(layoutOptions);
                 layout.one('layoutstop', () => {
                     setTimeout(() => {
@@ -3392,7 +3392,7 @@ function renderAttackChain(chainData) {
             });
         } catch (e) {
             console.warn('ELK布局初始化失败，使用默认布局:', e);
-            // 回退到默认布局
+            // English note.
             const layout = attackChainCytoscape.layout(layoutOptions);
             layout.one('layoutstop', () => {
                 setTimeout(() => {
@@ -3403,7 +3403,7 @@ function renderAttackChain(chainData) {
         }
     } else {
         console.warn('ELK.js未加载，使用默认布局。请检查elkjs库是否正确加载。');
-        // 使用默认布局
+        // English note.
         const layout = attackChainCytoscape.layout(layoutOptions);
         layout.one('layoutstop', () => {
             setTimeout(() => {
@@ -3413,7 +3413,7 @@ function renderAttackChain(chainData) {
         layout.run();
     }
     
-    // 居中攻击链的函数
+    // English note.
     function centerAttackChain() {
         try {
             if (!attackChainCytoscape) {
@@ -3429,16 +3429,16 @@ function renderAttackChain(chainData) {
             const containerHeight = container.offsetHeight;
             
             if (containerWidth === 0 || containerHeight === 0) {
-                // 如果容器尺寸为0，延迟重试
+                // English note.
                 setTimeout(centerAttackChain, 100);
                 return;
             }
             
-            // 居中显示图，同时保持合理的缩放
+            // English note.
             const padding = 80;  // 边距
             attackChainCytoscape.fit(undefined, padding);
             
-            // 等待fit完成后再调整
+            // English note.
             setTimeout(() => {
                 const extent = attackChainCytoscape.extent();
                 if (!extent || typeof extent.x1 === 'undefined' || typeof extent.x2 === 'undefined' || 
@@ -3450,21 +3450,21 @@ function renderAttackChain(chainData) {
                 const graphHeight = extent.y2 - extent.y1;
                 const currentZoom = attackChainCytoscape.zoom();
                 
-                // 如果图太小，适当放大
+                // English note.
                 const availableWidth = containerWidth - padding * 2;
                 const availableHeight = containerHeight - padding * 2;
                 const widthScale = graphWidth > 0 ? availableWidth / (graphWidth * currentZoom) : 1;
                 const heightScale = graphHeight > 0 ? availableHeight / (graphHeight * currentZoom) : 1;
                 const scale = Math.min(widthScale, heightScale);
                 
-                // 只在合理范围内调整缩放（0.8-1.3倍）
+                // English note.
                 if (scale > 1 && scale < 1.3) {
                     attackChainCytoscape.zoom(currentZoom * scale);
                 } else if (scale < 0.8) {
                     attackChainCytoscape.zoom(currentZoom * 0.8);
                 }
                 
-                // 确保图居中
+                // English note.
                 const graphCenterX = (extent.x1 + extent.x2) / 2;
                 const graphCenterY = (extent.y1 + extent.y2) / 2;
                 const zoom = attackChainCytoscape.zoom();
@@ -3489,13 +3489,13 @@ function renderAttackChain(chainData) {
         }
     }
     
-    // 添加点击事件
+    // English note.
     attackChainCytoscape.on('tap', 'node', function(evt) {
         const node = evt.target;
         showNodeDetails(node.data());
     });
     
-    // 添加悬停效果（使用事件监听器替代CSS选择器）
+    // English note.
     attackChainCytoscape.on('mouseover', 'node', function(evt) {
         const node = evt.target;
         node.style('border-width', 5);
@@ -3507,24 +3507,24 @@ function renderAttackChain(chainData) {
     attackChainCytoscape.on('mouseout', 'node', function(evt) {
         const node = evt.target;
         const type = node.data('type');
-        // 恢复默认边框宽度
+        // English note.
         const defaultBorderWidth = type === 'target' ? 5 : 4;
         node.style('border-width', defaultBorderWidth);
         node.style('z-index', 'auto');
         node.style('overlay-opacity', 0);
     });
     
-    // 保存原始数据用于过滤
+    // English note.
     window.attackChainOriginalData = chainData;
 }
 
-// 安全地获取边的源节点和目标节点
+// English note.
 function getEdgeNodes(edge) {
     try {
         const source = edge.source();
         const target = edge.target();
         
-        // 检查源节点和目标节点是否存在
+        // English note.
         if (!source || !target || source.length === 0 || target.length === 0) {
             return { source: null, target: null, valid: false };
         }
@@ -3536,7 +3536,7 @@ function getEdgeNodes(edge) {
     }
 }
 
-// 过滤攻击链节点（按搜索关键词）
+// English note.
 function filterAttackChainNodes(searchText) {
     if (!attackChainCytoscape || !window.attackChainOriginalData) {
         return;
@@ -3544,17 +3544,17 @@ function filterAttackChainNodes(searchText) {
     
     const searchLower = searchText.toLowerCase().trim();
     if (searchLower === '') {
-        // 重置所有节点可见性
+        // English note.
         attackChainCytoscape.nodes().style('display', 'element');
         attackChainCytoscape.edges().style('display', 'element');
-        // 恢复默认边框
+        // English note.
         attackChainCytoscape.nodes().style('border-width', 2);
         return;
     }
     
-    // 过滤节点
+    // English note.
     attackChainCytoscape.nodes().forEach(node => {
-        // 使用原始标签进行搜索，不包含类型标签
+        // English note.
         const originalLabel = node.data('originalLabel') || node.data('label') || '';
         const label = originalLabel.toLowerCase();
         const type = (node.data('type') || '').toLowerCase();
@@ -3562,7 +3562,7 @@ function filterAttackChainNodes(searchText) {
         
         if (matches) {
             node.style('display', 'element');
-            // 高亮匹配的节点
+            // English note.
             node.style('border-width', 4);
             node.style('border-color', '#0066ff');
         } else {
@@ -3570,7 +3570,7 @@ function filterAttackChainNodes(searchText) {
         }
     });
     
-    // 隐藏没有可见源节点或目标节点的边
+    // English note.
     attackChainCytoscape.edges().forEach(edge => {
         const { source, target, valid } = getEdgeNodes(edge);
         if (!valid) {
@@ -3587,11 +3587,11 @@ function filterAttackChainNodes(searchText) {
         }
     });
     
-    // 重新调整视图
+    // English note.
     attackChainCytoscape.fit(undefined, 60);
 }
 
-// 按类型过滤攻击链节点
+// English note.
 function filterAttackChainByType(type) {
     if (!attackChainCytoscape || !window.attackChainOriginalData) {
         return;
@@ -3605,7 +3605,7 @@ function filterAttackChainByType(type) {
         return;
     }
     
-    // 过滤节点
+    // English note.
     attackChainCytoscape.nodes().forEach(node => {
         const nodeType = node.data('type') || '';
         if (nodeType === type) {
@@ -3615,7 +3615,7 @@ function filterAttackChainByType(type) {
         }
     });
     
-    // 隐藏没有可见源节点或目标节点的边
+    // English note.
     attackChainCytoscape.edges().forEach(edge => {
         const { source, target, valid } = getEdgeNodes(edge);
         if (!valid) {
@@ -3632,11 +3632,11 @@ function filterAttackChainByType(type) {
         }
     });
     
-    // 重新调整视图
+    // English note.
     attackChainCytoscape.fit(undefined, 60);
 }
 
-// 按风险等级过滤攻击链节点
+// English note.
 function filterAttackChainByRisk(riskLevel) {
     if (!attackChainCytoscape || !window.attackChainOriginalData) {
         return;
@@ -3650,7 +3650,7 @@ function filterAttackChainByRisk(riskLevel) {
         return;
     }
     
-    // 定义风险范围
+    // English note.
     const riskRanges = {
         'high': [80, 100],
         'medium-high': [60, 79],
@@ -3660,7 +3660,7 @@ function filterAttackChainByRisk(riskLevel) {
     
     const [minRisk, maxRisk] = riskRanges[riskLevel] || [0, 100];
     
-    // 过滤节点
+    // English note.
     attackChainCytoscape.nodes().forEach(node => {
         const riskScore = node.data('riskScore') || 0;
         if (riskScore >= minRisk && riskScore <= maxRisk) {
@@ -3670,7 +3670,7 @@ function filterAttackChainByRisk(riskLevel) {
         }
     });
     
-    // 隐藏没有可见源节点或目标节点的边
+    // English note.
     attackChainCytoscape.edges().forEach(edge => {
         const { source, target, valid } = getEdgeNodes(edge);
         if (!valid) {
@@ -3687,31 +3687,31 @@ function filterAttackChainByRisk(riskLevel) {
         }
     });
     
-    // 重新调整视图
+    // English note.
     attackChainCytoscape.fit(undefined, 60);
 }
 
-// 重置攻击链筛选
+// English note.
 function resetAttackChainFilters() {
-    // 重置搜索框
+    // English note.
     const searchInput = document.getElementById('attack-chain-search');
     if (searchInput) {
         searchInput.value = '';
     }
     
-    // 重置类型筛选
+    // English note.
     const typeFilter = document.getElementById('attack-chain-type-filter');
     if (typeFilter) {
         typeFilter.value = 'all';
     }
     
-    // 重置风险筛选
+    // English note.
     const riskFilter = document.getElementById('attack-chain-risk-filter');
     if (riskFilter) {
         riskFilter.value = 'all';
     }
     
-    // 重置所有节点可见性
+    // English note.
     if (attackChainCytoscape) {
         attackChainCytoscape.nodes().forEach(node => {
             node.style('display', 'element');
@@ -3722,7 +3722,7 @@ function resetAttackChainFilters() {
     }
 }
 
-// 显示节点详情
+// English note.
 function showNodeDetails(nodeData) {
     const detailsPanel = document.getElementById('attack-chain-details');
     const detailsContent = document.getElementById('attack-chain-details-content');
@@ -3731,10 +3731,10 @@ function showNodeDetails(nodeData) {
         return;
     }
     
-    // 使用 requestAnimationFrame 优化显示动画
+    // English note.
     requestAnimationFrame(() => {
         detailsPanel.style.display = 'flex';
-        // 在下一帧设置透明度，确保显示动画流畅
+        // English note.
         requestAnimationFrame(() => {
             detailsPanel.style.opacity = '1';
         });
@@ -3755,7 +3755,7 @@ function showNodeDetails(nodeData) {
         </div>
     `;
     
-    // 显示action节点信息（工具执行 + AI分析）
+    // English note.
     if (nodeData.type === 'action' && nodeData.metadata) {
         if (nodeData.metadata.tool_name) {
             html += `
@@ -3797,7 +3797,7 @@ function showNodeDetails(nodeData) {
         }
     }
     
-    // 显示目标信息（如果是目标节点）
+    // English note.
     if (nodeData.type === 'target' && nodeData.metadata && nodeData.metadata.target) {
         html += `
             <div class="node-detail-item">
@@ -3806,7 +3806,7 @@ function showNodeDetails(nodeData) {
         `;
     }
     
-    // 显示漏洞信息（如果是漏洞节点）
+    // English note.
     if (nodeData.type === 'vulnerability' && nodeData.metadata) {
         if (nodeData.metadata.vulnerability_type) {
             html += `
@@ -3846,30 +3846,30 @@ function showNodeDetails(nodeData) {
         `;
     }
     
-    // 先重置滚动位置，避免内容更新时的滚动计算
+    // English note.
     if (detailsContent) {
         detailsContent.scrollTop = 0;
     }
     
-    // 使用 requestAnimationFrame 优化 DOM 更新和滚动
+    // English note.
     requestAnimationFrame(() => {
-        // 更新内容
+        // English note.
         detailsContent.innerHTML = html;
         
-        // 在下一帧执行滚动，避免与 DOM 更新冲突
+        // English note.
         requestAnimationFrame(() => {
-            // 重置详情内容区域的滚动位置
+            // English note.
             if (detailsContent) {
                 detailsContent.scrollTop = 0;
             }
             
-            // 重置侧边栏的滚动位置，确保详情区域可见
+            // English note.
             const sidebar = document.querySelector('.attack-chain-sidebar-content');
             if (sidebar) {
-                // 找到详情面板的位置
+                // English note.
                 const detailsPanel = document.getElementById('attack-chain-details');
                 if (detailsPanel && detailsPanel.offsetParent !== null) {
-                    // 使用 getBoundingClientRect 获取位置，性能更好
+                    // English note.
                     const detailsRect = detailsPanel.getBoundingClientRect();
                     const sidebarRect = sidebar.getBoundingClientRect();
                     const scrollTop = sidebar.scrollTop;
@@ -3881,7 +3881,7 @@ function showNodeDetails(nodeData) {
     });
 }
 
-// 获取严重程度颜色
+// English note.
 function getSeverityColor(severity) {
     const colors = {
         'critical': '#ff0000',
@@ -3892,7 +3892,7 @@ function getSeverityColor(severity) {
     return colors[severity.toLowerCase()] || '#666';
 }
 
-// 获取节点类型标签
+// English note.
 function getNodeTypeLabel(type) {
     const labels = {
         'action': '行动',
@@ -3902,7 +3902,7 @@ function getNodeTypeLabel(type) {
     return labels[type] || type;
 }
 
-// 更新统计信息（使用 i18n，与 attackChainModal.nodesEdges 一致）
+// English note.
 function updateAttackChainStats(chainData) {
     const statsElement = document.getElementById('attack-chain-stats');
     if (statsElement) {
@@ -3919,7 +3919,7 @@ function updateAttackChainStats(chainData) {
     }
 }
 
-// 语言切换时刷新攻击链统计文案（动态 textContent 不会随 applyTranslations 更新）
+// English note.
 document.addEventListener('languagechange', function () {
     if (window.attackChainOriginalData && typeof updateAttackChainStats === 'function') {
         updateAttackChainStats(window.attackChainOriginalData);
@@ -3931,11 +3931,11 @@ document.addEventListener('languagechange', function () {
     }
 });
 
-// 关闭节点详情
+// English note.
 function closeNodeDetails() {
     const detailsPanel = document.getElementById('attack-chain-details');
     if (detailsPanel) {
-        // 添加淡出动画
+        // English note.
         detailsPanel.style.opacity = '0';
         detailsPanel.style.maxHeight = detailsPanel.scrollHeight + 'px';
         
@@ -3946,23 +3946,23 @@ function closeNodeDetails() {
         }, 300);
     }
     
-    // 取消选中节点
+    // English note.
     if (attackChainCytoscape) {
         attackChainCytoscape.elements().unselect();
     }
 }
 
-// 关闭攻击链模态框
+// English note.
 function closeAttackChainModal() {
     const modal = document.getElementById('attack-chain-modal');
     if (modal) {
         modal.style.display = 'none';
     }
     
-    // 关闭节点详情
+    // English note.
     closeNodeDetails();
     
-    // 清理Cytoscape实例
+    // English note.
     if (attackChainCytoscape) {
         attackChainCytoscape.destroy();
         attackChainCytoscape = null;
@@ -3971,38 +3971,38 @@ function closeAttackChainModal() {
     currentAttackChainConversationId = null;
 }
 
-// 刷新攻击链（重新加载）
-// 注意：此函数允许在加载过程中调用，用于检查生成状态
+// English note.
+// English note.
 function refreshAttackChain() {
     if (currentAttackChainConversationId) {
-        // 临时允许刷新，即使正在加载中（用于检查生成状态）
+        // English note.
         const wasLoading = isAttackChainLoading(currentAttackChainConversationId);
         setAttackChainLoading(currentAttackChainConversationId, false); // 临时重置，允许刷新
         loadAttackChain(currentAttackChainConversationId).finally(() => {
-            // 如果之前正在加载（409 情况），恢复加载状态
-            // 否则保持 false（正常完成）
+            // English note.
+            // English note.
             if (wasLoading) {
-                // 检查是否仍然需要保持加载状态（如果还是 409，会在 loadAttackChain 中处理）
-                // 这里我们假设如果成功加载，则重置状态
-                // 如果还是 409，loadAttackChain 会保持加载状态
+                // English note.
+                // English note.
+                // English note.
             }
         });
     }
 }
 
-// 重新生成攻击链
+// English note.
 async function regenerateAttackChain() {
     if (!currentAttackChainConversationId) {
         return;
     }
     
-    // 防止重复点击（只检查当前对话的加载状态）
+    // English note.
     if (isAttackChainLoading(currentAttackChainConversationId)) {
         console.log('攻击链正在生成中，请稍候...');
         return;
     }
     
-    // 保存请求时的对话ID，防止串台
+    // English note.
     const savedConversationId = currentAttackChainConversationId;
     setAttackChainLoading(savedConversationId, true);
     
@@ -4011,7 +4011,7 @@ async function regenerateAttackChain() {
         container.innerHTML = '<div class="loading-spinner">重新生成中...</div>';
     }
     
-    // 禁用重新生成按钮
+    // English note.
     const regenerateBtn = document.querySelector('button[onclick="regenerateAttackChain()"]');
     if (regenerateBtn) {
         regenerateBtn.disabled = true;
@@ -4020,13 +4020,13 @@ async function regenerateAttackChain() {
     }
     
     try {
-        // 调用重新生成接口
+        // English note.
         const response = await apiFetch(`/api/attack-chain/${savedConversationId}/regenerate`, {
             method: 'POST'
         });
         
         if (!response.ok) {
-            // 处理 409 Conflict（正在生成中）
+            // English note.
             if (response.status === 409) {
                 const error = await response.json();
                 if (container) {
@@ -4042,10 +4042,10 @@ async function regenerateAttackChain() {
                         </div>
                     `;
                 }
-                // 5秒后自动刷新
-                // savedConversationId 已在函数开始处定义
+                // English note.
+                // English note.
                 setTimeout(() => {
-                    // 检查当前显示的对话ID是否匹配，且仍在加载中
+                    // English note.
                     if (currentAttackChainConversationId === savedConversationId && 
                         isAttackChainLoading(savedConversationId)) {
                         refreshAttackChain();
@@ -4060,7 +4060,7 @@ async function regenerateAttackChain() {
         
         const chainData = await response.json();
         
-        // 检查当前显示的对话ID是否匹配，防止串台
+        // English note.
         if (currentAttackChainConversationId !== savedConversationId) {
             console.log('攻击链数据已返回，但当前显示的对话已切换，忽略此次渲染', {
                 returned: savedConversationId,
@@ -4070,10 +4070,10 @@ async function regenerateAttackChain() {
             return;
         }
         
-        // 渲染攻击链
+        // English note.
         renderAttackChain(chainData);
         
-        // 更新统计信息
+        // English note.
         updateAttackChainStats(chainData);
         
     } catch (error) {
@@ -4084,7 +4084,7 @@ async function regenerateAttackChain() {
     } finally {
         setAttackChainLoading(savedConversationId, false);
         
-        // 恢复重新生成按钮
+        // English note.
         if (regenerateBtn) {
             regenerateBtn.disabled = false;
             regenerateBtn.style.opacity = '1';
@@ -4093,14 +4093,14 @@ async function regenerateAttackChain() {
     }
 }
 
-// 导出攻击链
+// English note.
 function exportAttackChain(format) {
     if (!attackChainCytoscape) {
         alert('请先加载攻击链');
         return;
     }
     
-    // 确保图形已经渲染完成（使用小延迟）
+    // English note.
     setTimeout(() => {
         try {
             if (format === 'png') {
@@ -4112,7 +4112,7 @@ function exportAttackChain(format) {
                         scale: 1
                     });
                     
-                    // 处理 Promise
+                    // English note.
                     if (pngPromise && typeof pngPromise.then === 'function') {
                         pngPromise.then(blob => {
                             if (!blob) {
@@ -4131,7 +4131,7 @@ function exportAttackChain(format) {
                             alert('导出PNG失败: ' + (err.message || '未知错误'));
                         });
                     } else {
-                        // 如果不是 Promise，直接使用
+                        // English note.
                         const url = URL.createObjectURL(pngPromise);
                         const a = document.createElement('a');
                         a.href = url;
@@ -4147,14 +4147,14 @@ function exportAttackChain(format) {
                 }
             } else if (format === 'svg') {
                 try {
-                    // Cytoscape.js 3.x 不直接支持 .svg() 方法
-                    // 使用替代方案：从 Cytoscape 数据手动构建 SVG
+                    // English note.
+                    // English note.
                     const container = attackChainCytoscape.container();
                     if (!container) {
                         throw new Error('无法获取容器元素');
                     }
                     
-                    // 获取所有节点和边
+                    // English note.
                     const nodes = attackChainCytoscape.nodes();
                     const edges = attackChainCytoscape.edges();
                     
@@ -4162,7 +4162,7 @@ function exportAttackChain(format) {
                         throw new Error('没有节点可导出');
                     }
                     
-                    // 计算所有节点的实际边界（包括节点大小）
+                    // English note.
                     let minX = Infinity, minY = Infinity, maxX = -Infinity, maxY = -Infinity;
                     nodes.forEach(node => {
                         const pos = node.position();
@@ -4176,7 +4176,7 @@ function exportAttackChain(format) {
                         maxY = Math.max(maxY, pos.y + size);
                     });
                     
-                    // 也考虑边的范围
+                    // English note.
                     edges.forEach(edge => {
                         const { source, target, valid } = getEdgeNodes(edge);
                         if (valid) {
@@ -4189,7 +4189,7 @@ function exportAttackChain(format) {
                         }
                     });
                     
-                    // 添加边距
+                    // English note.
                     const padding = 50;
                     minX -= padding;
                     minY -= padding;
@@ -4199,14 +4199,14 @@ function exportAttackChain(format) {
                     const width = maxX - minX;
                     const height = maxY - minY;
                     
-                    // 创建 SVG 元素
+                    // English note.
                     const svg = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
                     svg.setAttribute('width', width.toString());
                     svg.setAttribute('height', height.toString());
                     svg.setAttribute('xmlns', 'http://www.w3.org/2000/svg');
                     svg.setAttribute('viewBox', `${minX} ${minY} ${width} ${height}`);
                     
-                    // 添加白色背景矩形
+                    // English note.
                     const bgRect = document.createElementNS('http://www.w3.org/2000/svg', 'rect');
                     bgRect.setAttribute('x', minX.toString());
                     bgRect.setAttribute('y', minY.toString());
@@ -4215,10 +4215,10 @@ function exportAttackChain(format) {
                     bgRect.setAttribute('fill', 'white');
                     svg.appendChild(bgRect);
                     
-                    // 创建 defs 用于箭头标记
+                    // English note.
                     const defs = document.createElementNS('http://www.w3.org/2000/svg', 'defs');
                     
-                    // 添加边的箭头标记（为不同类型的边创建不同的箭头）
+                    // English note.
                     const edgeTypes = ['discovers', 'targets', 'enables', 'leads_to'];
                     edgeTypes.forEach((type, index) => {
                         let color = '#999';
@@ -4242,7 +4242,7 @@ function exportAttackChain(format) {
                     });
                     svg.appendChild(defs);
                     
-                    // 添加边（先绘制，这样节点会在上面）
+                    // English note.
                     edges.forEach(edge => {
                         const { source, target, valid } = getEdgeNodes(edge);
                         if (!valid) {
@@ -4254,23 +4254,23 @@ function exportAttackChain(format) {
                         const edgeData = edge.data();
                         const edgeType = edgeData.type || 'leads_to';
                         
-                        // 获取边的样式
+                        // English note.
                         let lineColor = '#999';
                         if (edgeType === 'discovers') lineColor = '#3498db';
                         else if (edgeType === 'targets') lineColor = '#0066ff';
                         else if (edgeType === 'enables') lineColor = '#e74c3c';
                         else if (edgeType === 'leads_to') lineColor = '#666';
                         
-                        // 创建路径（支持曲线）
+                        // English note.
                         const path = document.createElementNS('http://www.w3.org/2000/svg', 'path');
-                        // 简单的直线路径（可以改进为曲线）
+                        // English note.
                         const midX = (sourcePos.x + targetPos.x) / 2;
                         const midY = (sourcePos.y + targetPos.y) / 2;
                         const dx = targetPos.x - sourcePos.x;
                         const dy = targetPos.y - sourcePos.y;
                         const offset = Math.min(30, Math.sqrt(dx * dx + dy * dy) * 0.3);
                         
-                        // 使用二次贝塞尔曲线
+                        // English note.
                         const controlX = midX + (dy > 0 ? -offset : offset);
                         const controlY = midY + (dx > 0 ? offset : -offset);
                         path.setAttribute('d', `M ${sourcePos.x} ${sourcePos.y} Q ${controlX} ${controlY} ${targetPos.x} ${targetPos.y}`);
@@ -4281,7 +4281,7 @@ function exportAttackChain(format) {
                         svg.appendChild(path);
                     });
                     
-                    // 添加节点
+                    // English note.
                     nodes.forEach(node => {
                         const pos = node.position();
                         const nodeData = node.data();
@@ -4290,7 +4290,7 @@ function exportAttackChain(format) {
                         const nodeHeight = node.height();
                         const size = Math.max(nodeWidth, nodeHeight) / 2;
                         
-                        // 确定节点颜色
+                        // English note.
                         let bgColor = '#88cc00';
                         let textColor = '#1a5a1a';
                         let borderColor = '#5a8a5a';
@@ -4308,11 +4308,11 @@ function exportAttackChain(format) {
                             borderColor = '#cc9900';
                         }
                         
-                        // 确定节点形状
+                        // English note.
                         const nodeType = nodeData.type;
                         let shapeElement;
                         if (nodeType === 'vulnerability') {
-                            // 菱形
+                            // English note.
                             shapeElement = document.createElementNS('http://www.w3.org/2000/svg', 'polygon');
                             const points = [
                                 `${pos.x},${pos.y - size}`,
@@ -4322,7 +4322,7 @@ function exportAttackChain(format) {
                             ].join(' ');
                             shapeElement.setAttribute('points', points);
                         } else if (nodeType === 'target') {
-                            // 星形（五角星）
+                            // English note.
                             shapeElement = document.createElementNS('http://www.w3.org/2000/svg', 'polygon');
                             const points = [];
                             for (let i = 0; i < 5; i++) {
@@ -4333,7 +4333,7 @@ function exportAttackChain(format) {
                             }
                             shapeElement.setAttribute('points', points.join(' '));
                         } else {
-                            // 圆角矩形
+                            // English note.
                             shapeElement = document.createElementNS('http://www.w3.org/2000/svg', 'rect');
                             shapeElement.setAttribute('x', (pos.x - size).toString());
                             shapeElement.setAttribute('y', (pos.y - size).toString());
@@ -4348,17 +4348,17 @@ function exportAttackChain(format) {
                         shapeElement.setAttribute('stroke-width', '2');
                         svg.appendChild(shapeElement);
                         
-                        // 添加文本标签（使用文本描边提高可读性）
-                        // 使用原始标签，不包含类型标签前缀
+                        // English note.
+                        // English note.
                         const label = (nodeData.originalLabel || nodeData.label || nodeData.id || '').toString();
                         const maxLength = 15;
                         
-                        // 创建文本组，包含描边和填充
+                        // English note.
                         const textGroup = document.createElementNS('http://www.w3.org/2000/svg', 'g');
                         textGroup.setAttribute('text-anchor', 'middle');
                         textGroup.setAttribute('dominant-baseline', 'middle');
                         
-                        // 处理长文本（简单换行）
+                        // English note.
                         let lines = [];
                         if (label.length > maxLength) {
                             const words = label.split(' ');
@@ -4377,28 +4377,28 @@ function exportAttackChain(format) {
                             lines = [label];
                         }
                         
-                        // 确定文本描边颜色（与原始渲染一致）
+                        // English note.
                         let textOutlineColor = '#fff';
                         let textOutlineWidth = 2;
                         if (riskScore >= 80 || riskScore >= 60) {
-                            // 红色/橙色背景：白色文字，白色描边，深色轮廓
+                            // English note.
                             textOutlineColor = '#333';
                             textOutlineWidth = 1;
                         } else if (riskScore >= 40) {
-                            // 黄色背景：深色文字，白色描边
+                            // English note.
                             textOutlineColor = '#fff';
                             textOutlineWidth = 2;
                         } else {
-                            // 绿色背景：深绿色文字，白色描边
+                            // English note.
                             textOutlineColor = '#fff';
                             textOutlineWidth = 2;
                         }
                         
-                        // 为每行文本创建描边和填充
+                        // English note.
                         lines.forEach((line, i) => {
                             const textY = pos.y + (i - (lines.length - 1) / 2) * 16;
                             
-                            // 描边文本（用于提高对比度，模拟text-outline效果）
+                            // English note.
                             const strokeText = document.createElementNS('http://www.w3.org/2000/svg', 'text');
                             strokeText.setAttribute('x', pos.x.toString());
                             strokeText.setAttribute('y', textY.toString());
@@ -4415,7 +4415,7 @@ function exportAttackChain(format) {
                             strokeText.textContent = line;
                             textGroup.appendChild(strokeText);
                             
-                            // 填充文本（实际可见的文本）
+                            // English note.
                             const fillText = document.createElementNS('http://www.w3.org/2000/svg', 'text');
                             fillText.setAttribute('x', pos.x.toString());
                             fillText.setAttribute('y', textY.toString());
@@ -4432,11 +4432,11 @@ function exportAttackChain(format) {
                         svg.appendChild(textGroup);
                     });
                     
-                    // 将 SVG 转换为字符串
+                    // English note.
                     const serializer = new XMLSerializer();
                     let svgString = serializer.serializeToString(svg);
                     
-                    // 确保有 XML 声明
+                    // English note.
                     if (!svgString.startsWith('<?xml')) {
                         svgString = '<?xml version="1.0" encoding="UTF-8"?>\n' + svgString;
                     }
@@ -4465,10 +4465,10 @@ function exportAttackChain(format) {
 }
 
 // ============================================
-// 对话分组和批量管理功能
+// English note.
 // ============================================
 
-// 分组数据管理（使用API）
+// English note.
 let currentGroupId = null; // 当前正在查看的分组详情页面
 let currentConversationGroupId = null; // 当前对话所属的分组ID（用于高亮显示）
 let contextMenuConversationId = null;
@@ -4478,7 +4478,7 @@ let conversationGroupMappingCache = {};
 let pendingGroupMappings = {}; // 待保留的分组映射（用于处理后端API延迟的情况）
 let conversationsListLoadSeq = 0; // 对话列表加载序号，避免并发请求导致重复渲染
 
-// 加载分组列表
+// English note.
 async function loadGroups() {
     try {
         const response = await apiFetch('/api/groups');
@@ -4487,11 +4487,11 @@ async function loadGroups() {
             return;
         }
         const data = await response.json();
-        // 确保groupsCache是有效数组
+        // English note.
         if (Array.isArray(data)) {
             groupsCache = data;
         } else {
-            // 如果返回的不是数组，使用空数组（不打印警告，因为可能后端返回了错误格式但我们要优雅处理）
+            // English note.
             groupsCache = [];
         }
 
@@ -4504,15 +4504,15 @@ async function loadGroups() {
             return;
         }
 
-        // 对分组进行排序：置顶的分组在前（后端已经排序，这里只需要按顺序显示）
+        // English note.
         const sortedGroups = [...groupsCache];
 
             sortedGroups.forEach(group => {
             const groupItem = document.createElement('div');
             groupItem.className = 'group-item';
-            // 高亮逻辑：
-            // 1. 如果当前在分组详情页面，只高亮当前分组（currentGroupId）
-            // 2. 如果不在分组详情页面，高亮当前对话所属的分组（currentConversationGroupId）
+            // English note.
+            // English note.
+            // English note.
             const shouldHighlight = currentGroupId 
                 ? (currentGroupId === group.id)
                 : (currentConversationGroupId === group.id);
@@ -4539,7 +4539,7 @@ async function loadGroups() {
             content.appendChild(icon);
             content.appendChild(name);
 
-            // 如果是置顶分组，添加图钉图标
+            // English note.
             if (isPinned) {
                 const pinIcon = document.createElement('span');
                 pinIcon.className = 'group-item-pinned';
@@ -4569,11 +4569,11 @@ async function loadGroups() {
     }
 }
 
-// 加载对话列表（修改为支持分组和置顶）
+// English note.
 async function loadConversationsWithGroups(searchQuery = '') {
     const loadSeq = ++conversationsListLoadSeq;
     try {
-        // 并行加载分组列表、分组映射和对话列表（消除串行等待）
+        // English note.
         const limit = (searchQuery && searchQuery.trim()) ? 100 : 100;
         let url = `/api/conversations?limit=${limit}`;
         if (searchQuery && searchQuery.trim()) {
@@ -4591,14 +4591,14 @@ async function loadConversationsWithGroups(searchQuery = '') {
             return;
         }
 
-        // 保存滚动位置
+        // English note.
         const sidebarContent = listContainer.closest('.sidebar-content');
         const savedScrollTop = sidebarContent ? sidebarContent.scrollTop : 0;
 
         const emptyStateHtml = '<div style="padding: 20px; text-align: center; color: var(--text-muted); font-size: 0.875rem;" data-i18n="chat.noHistoryConversations"></div>';
         listContainer.innerHTML = '';
 
-        // 如果响应不是200，显示空状态（友好处理，不显示错误）
+        // English note.
         if (!response.ok) {
             listContainer.innerHTML = emptyStateHtml;
             if (typeof window.applyTranslations === 'function') window.applyTranslations(listContainer);
@@ -4608,7 +4608,7 @@ async function loadConversationsWithGroups(searchQuery = '') {
         const conversations = await response.json();
         if (loadSeq !== conversationsListLoadSeq) return;
 
-        // 双重保险：后端或并发情况下若出现重复ID，前端按ID去重
+        // English note.
         const uniqueConversations = [];
         const seenConversationIds = new Set();
         (Array.isArray(conversations) ? conversations : []).forEach(conv => {
@@ -4625,15 +4625,15 @@ async function loadConversationsWithGroups(searchQuery = '') {
             return;
         }
         
-        // 分离置顶和普通对话
+        // English note.
         const pinnedConvs = [];
         const normalConvs = [];
         const hasSearchQuery = searchQuery && searchQuery.trim();
 
         uniqueConversations.forEach(conv => {
-            // 如果有搜索关键词，显示所有匹配的对话（全局搜索，包括分组中的）
+            // English note.
             if (hasSearchQuery) {
-                // 搜索时显示所有匹配的对话，不管是否在分组中
+                // English note.
                 if (conv.pinned) {
                     pinnedConvs.push(conv);
                 } else {
@@ -4642,11 +4642,11 @@ async function loadConversationsWithGroups(searchQuery = '') {
                 return;
             }
 
-            // 如果没有搜索关键词，使用原有逻辑
-            // "最近对话"列表应该只显示不在任何分组中的对话
-            // 无论是否在分组详情页，都不应该在"最近对话"中显示分组中的对话
+            // English note.
+            // English note.
+            // English note.
             if (conversationGroupMappingCache[conv.id]) {
-                // 对话在某个分组中，不应该显示在"最近对话"列表中
+                // English note.
                 return;
             }
 
@@ -4657,7 +4657,7 @@ async function loadConversationsWithGroups(searchQuery = '') {
             }
         });
 
-        // 按时间排序
+        // English note.
         const sortByTime = (a, b) => {
             const timeA = a.updatedAt ? new Date(a.updatedAt) : new Date(0);
             const timeB = b.updatedAt ? new Date(b.updatedAt) : new Date(0);
@@ -4669,14 +4669,14 @@ async function loadConversationsWithGroups(searchQuery = '') {
 
         const fragment = document.createDocumentFragment();
 
-        // 添加置顶对话
+        // English note.
         if (pinnedConvs.length > 0) {
             pinnedConvs.forEach(conv => {
                 fragment.appendChild(createConversationListItemWithMenu(conv, true));
             });
         }
 
-        // 添加普通对话
+        // English note.
         normalConvs.forEach(conv => {
             fragment.appendChild(createConversationListItemWithMenu(conv, false));
         });
@@ -4691,9 +4691,9 @@ async function loadConversationsWithGroups(searchQuery = '') {
         listContainer.appendChild(fragment);
         updateActiveConversation();
         
-        // 恢复滚动位置
+        // English note.
         if (sidebarContent) {
-            // 使用 requestAnimationFrame 确保 DOM 已经更新
+            // English note.
             requestAnimationFrame(() => {
                 if (loadSeq === conversationsListLoadSeq) {
                     sidebarContent.scrollTop = savedScrollTop;
@@ -4703,7 +4703,7 @@ async function loadConversationsWithGroups(searchQuery = '') {
     } catch (error) {
         if (loadSeq !== conversationsListLoadSeq) return;
         console.error('加载对话列表失败:', error);
-        // 错误时显示空状态，而不是错误提示（更友好的用户体验）
+        // English note.
         const listContainer = document.getElementById('conversations-list');
         if (listContainer) {
             const emptyStateHtml = '<div style="padding: 20px; text-align: center; color: var(--text-muted); font-size: 0.875rem;" data-i18n="chat.noHistoryConversations"></div>';
@@ -4713,7 +4713,7 @@ async function loadConversationsWithGroups(searchQuery = '') {
     }
 }
 
-// 创建带菜单的对话项
+// English note.
 function createConversationListItemWithMenu(conversation, isPinned) {
     const item = document.createElement('div');
     item.className = 'conversation-item';
@@ -4753,7 +4753,7 @@ function createConversationListItemWithMenu(conversation, isPinned) {
     time.textContent = formatConversationTimestamp(dateObj);
     contentWrapper.appendChild(time);
 
-    // 如果对话属于某个分组，显示分组标签
+    // English note.
     const groupId = conversationGroupMappingCache[conversation.id];
     if (groupId) {
         const group = groupsCache.find(g => g.id === groupId);
@@ -4790,12 +4790,12 @@ function createConversationListItemWithMenu(conversation, isPinned) {
     return item;
 }
 
-// 显示对话上下文菜单
+// English note.
 async function showConversationContextMenu(event) {
     const menu = document.getElementById('conversation-context-menu');
     if (!menu) return;
 
-    // 先隐藏子菜单，确保每次打开菜单时子菜单都是关闭状态
+    // English note.
     const submenu = document.getElementById('move-to-group-submenu');
     if (submenu) {
         submenu.style.display = 'none';
@@ -4805,7 +4805,7 @@ async function showConversationContextMenu(event) {
     if (downloadSubmenu) {
         downloadSubmenu.style.display = 'none';
     }
-    // 清除所有定时器
+    // English note.
     clearSubmenuHideTimeout();
     clearSubmenuShowTimeout();
     clearDownloadMarkdownSubmenuHideTimeout();
@@ -4813,7 +4813,7 @@ async function showConversationContextMenu(event) {
 
     const convId = contextMenuConversationId;
     
-    // 更新攻击链菜单项的启用状态
+    // English note.
     const attackChainMenuItem = document.getElementById('attack-chain-menu-item');
     if (attackChainMenuItem) {
         if (convId) {
@@ -4839,16 +4839,16 @@ async function showConversationContextMenu(event) {
         }
     }
     
-    // 先获取对话的置顶状态并更新菜单文本（在显示菜单之前）
+    // English note.
     if (convId) {
         try {
             let isPinned = false;
-            // 检查对话是否真的在当前分组中
+            // English note.
             const conversationGroupId = conversationGroupMappingCache[convId];
             const isInCurrentGroup = currentGroupId && conversationGroupId === currentGroupId;
             
             if (isInCurrentGroup) {
-                // 对话在当前分组中，获取分组内置顶状态
+                // English note.
                 const response = await apiFetch(`/api/groups/${currentGroupId}/conversations`);
                 if (response.ok) {
                     const groupConvs = await response.json();
@@ -4858,7 +4858,7 @@ async function showConversationContextMenu(event) {
                     }
                 }
             } else {
-                // 不在分组详情页面，或者对话不在当前分组中，获取全局置顶状态
+                // English note.
                 const response = await apiFetch(`/api/conversations/${convId}`);
                 if (response.ok) {
                     const conv = await response.json();
@@ -4866,7 +4866,7 @@ async function showConversationContextMenu(event) {
                 }
             }
             
-            // 更新菜单文本
+            // English note.
             const pinMenuText = document.getElementById('pin-conversation-menu-text');
             if (pinMenuText && typeof window.t === 'function') {
                 pinMenuText.textContent = isPinned ? window.t('contextMenu.unpinConversation') : window.t('contextMenu.pinConversation');
@@ -4891,46 +4891,46 @@ async function showConversationContextMenu(event) {
         }
     }
 
-    // 在状态获取完成后再显示菜单
+    // English note.
     menu.style.display = 'block';
     menu.style.visibility = 'visible';
     menu.style.opacity = '1';
     
-    // 强制重排以获取正确尺寸
+    // English note.
     void menu.offsetHeight;
     
-    // 计算菜单位置，确保不超出屏幕
+    // English note.
     const menuRect = menu.getBoundingClientRect();
     const viewportWidth = window.innerWidth;
     const viewportHeight = window.innerHeight;
     
-    // 获取子菜单的宽度（如果存在，重用之前获取的submenu变量）
+    // English note.
     const submenuWidth = submenu ? 180 : 0; // 子菜单宽度 + 间距
     
     let left = event.clientX;
     let top = event.clientY;
     
-    // 如果菜单会超出右边界，调整到左侧
-    // 考虑子菜单的宽度
+    // English note.
+    // English note.
     if (left + menuRect.width + submenuWidth > viewportWidth) {
         left = event.clientX - menuRect.width;
-        // 如果调整后仍然超出，则放在按钮左侧
+        // English note.
         if (left < 0) {
             left = Math.max(8, event.clientX - menuRect.width - submenuWidth);
         }
     }
     
-    // 如果菜单会超出下边界，调整到上方
+    // English note.
     if (top + menuRect.height > viewportHeight) {
         top = Math.max(8, event.clientY - menuRect.height);
     }
     
-    // 确保不超出左边界
+    // English note.
     if (left < 0) {
         left = 8;
     }
     
-    // 确保不超出上边界
+    // English note.
     if (top < 0) {
         top = 8;
     }
@@ -4938,7 +4938,7 @@ async function showConversationContextMenu(event) {
     menu.style.left = left + 'px';
     menu.style.top = top + 'px';
     
-    // 如果菜单在右侧，子菜单应该在左侧显示
+    // English note.
     if (left < event.clientX) {
         if (submenu) {
             submenu.style.left = 'auto';
@@ -4967,9 +4967,9 @@ async function showConversationContextMenu(event) {
         }
     }
 
-    // 点击外部关闭菜单
+    // English note.
     const closeMenu = (e) => {
-        // 检查点击是否在主菜单或子菜单内
+        // English note.
         const moveToGroupSubmenuEl = document.getElementById('move-to-group-submenu');
         const downloadMarkdownSubmenuEl = document.getElementById('download-markdown-submenu');
         const clickedInMenu = menu.contains(e.target);
@@ -4977,7 +4977,7 @@ async function showConversationContextMenu(event) {
         const clickedInDownloadSubmenu = downloadMarkdownSubmenuEl && downloadMarkdownSubmenuEl.contains(e.target);
         
         if (!clickedInMenu && !clickedInSubmenu && !clickedInDownloadSubmenu) {
-            // 使用 closeContextMenu 确保同时关闭主菜单和子菜单
+            // English note.
             closeContextMenu();
             document.removeEventListener('click', closeMenu);
         }
@@ -4987,23 +4987,23 @@ async function showConversationContextMenu(event) {
     }, 0);
 }
 
-// 显示分组上下文菜单
+// English note.
 async function showGroupContextMenu(event, groupId) {
     const menu = document.getElementById('group-context-menu');
     if (!menu) return;
 
     contextMenuGroupId = groupId;
 
-    // 先获取分组的置顶状态并更新菜单文本（在显示菜单之前）
+    // English note.
     try {
-        // 先从缓存中查找
+        // English note.
         let group = groupsCache.find(g => g.id === groupId);
         let isPinned = false;
         
         if (group) {
             isPinned = group.pinned || false;
         } else {
-            // 如果缓存中没有，从API获取
+            // English note.
             const response = await apiFetch(`/api/groups/${groupId}`);
             if (response.ok) {
                 group = await response.json();
@@ -5011,7 +5011,7 @@ async function showGroupContextMenu(event, groupId) {
             }
         }
         
-        // 更新菜单文本
+        // English note.
         const pinMenuText = document.getElementById('pin-group-menu-text');
         if (pinMenuText && typeof window.t === 'function') {
             pinMenuText.textContent = isPinned ? window.t('contextMenu.unpinGroup') : window.t('contextMenu.pinGroup');
@@ -5028,15 +5028,15 @@ async function showGroupContextMenu(event, groupId) {
         }
     }
 
-    // 在状态获取完成后再显示菜单
+    // English note.
     menu.style.display = 'block';
     menu.style.visibility = 'visible';
     menu.style.opacity = '1';
     
-    // 强制重排以获取正确尺寸
+    // English note.
     void menu.offsetHeight;
     
-    // 计算菜单位置，确保不超出屏幕
+    // English note.
     const menuRect = menu.getBoundingClientRect();
     const viewportWidth = window.innerWidth;
     const viewportHeight = window.innerHeight;
@@ -5044,22 +5044,22 @@ async function showGroupContextMenu(event, groupId) {
     let left = event.clientX;
     let top = event.clientY;
     
-    // 如果菜单会超出右边界，调整到左侧
+    // English note.
     if (left + menuRect.width > viewportWidth) {
         left = event.clientX - menuRect.width;
     }
     
-    // 如果菜单会超出下边界，调整到上方
+    // English note.
     if (top + menuRect.height > viewportHeight) {
         top = event.clientY - menuRect.height;
     }
     
-    // 确保不超出左边界
+    // English note.
     if (left < 0) {
         left = 8;
     }
     
-    // 确保不超出上边界
+    // English note.
     if (top < 0) {
         top = 8;
     }
@@ -5067,7 +5067,7 @@ async function showGroupContextMenu(event, groupId) {
     menu.style.left = left + 'px';
     menu.style.top = top + 'px';
 
-    // 点击外部关闭菜单
+    // English note.
     const closeMenu = (e) => {
         if (!menu.contains(e.target)) {
             menu.style.display = 'none';
@@ -5079,7 +5079,7 @@ async function showGroupContextMenu(event, groupId) {
     }, 0);
 }
 
-// 重命名对话
+// English note.
 async function renameConversation() {
     const convId = contextMenuConversationId;
     if (!convId) return;
@@ -5104,7 +5104,7 @@ async function renameConversation() {
             throw new Error(error.error || '更新失败');
         }
 
-        // 更新前端显示
+        // English note.
         const item = document.querySelector(`[data-conversation-id="${convId}"]`);
         if (item) {
             const titleEl = item.querySelector('.conversation-title');
@@ -5113,7 +5113,7 @@ async function renameConversation() {
             }
         }
 
-        // 如果在分组详情页，也需要更新
+        // English note.
         const groupItem = document.querySelector(`.group-conversation-item[data-conversation-id="${convId}"]`);
         if (groupItem) {
             const groupTitleEl = groupItem.querySelector('.group-conversation-title');
@@ -5122,7 +5122,7 @@ async function renameConversation() {
             }
         }
 
-        // 重新加载对话列表
+        // English note.
         loadConversationsWithGroups();
     } catch (error) {
         console.error('重命名对话失败:', error);
@@ -5134,30 +5134,30 @@ async function renameConversation() {
     closeContextMenu();
 }
 
-// 置顶对话
+// English note.
 async function pinConversation() {
     const convId = contextMenuConversationId;
     if (!convId) return;
 
     try {
-        // 检查对话是否真的在当前分组中
-        // 如果对话已经从分组移出，conversationGroupMappingCache 中不会有该对话的映射
-        // 或者映射的分组ID不等于当前分组ID
+        // English note.
+        // English note.
+        // English note.
         const conversationGroupId = conversationGroupMappingCache[convId];
         const isInCurrentGroup = currentGroupId && conversationGroupId === currentGroupId;
         
-        // 如果当前在分组详情页面，且对话确实在当前分组中，使用分组内置顶
+        // English note.
         if (isInCurrentGroup) {
-            // 获取当前对话在分组中的置顶状态
+            // English note.
             const response = await apiFetch(`/api/groups/${currentGroupId}/conversations`);
             const groupConvs = await response.json();
             const conv = groupConvs.find(c => c.id === convId);
             
-            // 如果找不到对话，说明可能有问题，使用默认值
+            // English note.
             const currentPinned = conv && conv.groupPinned !== undefined ? conv.groupPinned : false;
             const newPinned = !currentPinned;
 
-            // 更新分组内置顶状态
+            // English note.
             await apiFetch(`/api/groups/${currentGroupId}/conversations/${convId}/pinned`, {
                 method: 'PUT',
                 headers: {
@@ -5166,15 +5166,15 @@ async function pinConversation() {
                 body: JSON.stringify({ pinned: newPinned }),
             });
 
-            // 重新加载分组对话
+            // English note.
             loadGroupConversations(currentGroupId);
         } else {
-            // 不在分组详情页面，或者对话不在当前分组中，使用全局置顶
+            // English note.
             const response = await apiFetch(`/api/conversations/${convId}`);
             const conv = await response.json();
             const newPinned = !conv.pinned;
 
-            // 更新全局置顶状态
+            // English note.
             await apiFetch(`/api/conversations/${convId}/pinned`, {
                 method: 'PUT',
                 headers: {
@@ -5193,36 +5193,36 @@ async function pinConversation() {
     closeContextMenu();
 }
 
-// 显示移动到分组子菜单
+// English note.
 async function showMoveToGroupSubmenu() {
     const submenu = document.getElementById('move-to-group-submenu');
     if (!submenu) return;
 
-    // 如果子菜单已经显示，不需要重复渲染
+    // English note.
     if (submenuVisible && submenu.style.display === 'block') {
         return;
     }
 
-    // 如果正在加载中，避免重复调用
+    // English note.
     if (submenuLoading) {
         return;
     }
 
-    // 清除隐藏定时器
+    // English note.
     clearSubmenuHideTimeout();
     
-    // 标记为加载中
+    // English note.
     submenuLoading = true;
     submenu.innerHTML = '';
 
-    // 确保分组列表已加载 - 强制重新加载以确保数据是最新的
+    // English note.
     try {
-        // 如果缓存为空，强制加载
+        // English note.
         if (!Array.isArray(groupsCache) || groupsCache.length === 0) {
             await loadGroups();
         } else {
-            // 即使缓存不为空，也尝试刷新一次，确保数据是最新的
-            // 但使用静默方式，不显示错误
+            // English note.
+            // English note.
             try {
                 const response = await apiFetch('/api/groups');
                 if (response.ok) {
@@ -5232,28 +5232,28 @@ async function showMoveToGroupSubmenu() {
                     }
                 }
             } catch (err) {
-                // 如果刷新失败，使用缓存的数据
+                // English note.
                 console.warn('刷新分组列表失败，使用缓存数据:', err);
             }
         }
         
-        // 再次验证缓存
+        // English note.
         if (!Array.isArray(groupsCache)) {
             console.warn('groupsCache 不是有效数组，重置为空数组');
             groupsCache = [];
-            // 如果仍然无效，尝试重新加载
+            // English note.
             if (groupsCache.length === 0) {
                 await loadGroups();
             }
         }
     } catch (error) {
         console.error('加载分组列表失败:', error);
-        // 即使加载失败，也继续显示菜单，使用现有缓存
+        // English note.
     }
 
-    // 如果当前在分组详情页面，显示"移出本组"选项
+    // English note.
     if (currentGroupId && contextMenuConversationId) {
-        // 检查对话是否在当前分组中
+        // English note.
         const convInGroup = conversationGroupMappingCache[contextMenuConversationId] === currentGroupId;
         if (convInGroup) {
             const removeItem = document.createElement('div');
@@ -5270,34 +5270,34 @@ async function showMoveToGroupSubmenu() {
             };
             submenu.appendChild(removeItem);
             
-            // 添加分隔线
+            // English note.
             const divider = document.createElement('div');
             divider.className = 'context-menu-divider';
             submenu.appendChild(divider);
         }
     }
 
-    // 验证 groupsCache 是否为有效数组
+    // English note.
     if (!Array.isArray(groupsCache)) {
         console.warn('groupsCache 不是有效数组，重置为空数组');
         groupsCache = [];
     }
 
-    // 如果有分组，显示所有分组（排除对话已所在的分组）
+    // English note.
     if (groupsCache.length > 0) {
-        // 检查对话当前所在的分组ID
+        // English note.
         const conversationCurrentGroupId = contextMenuConversationId 
             ? conversationGroupMappingCache[contextMenuConversationId] 
             : null;
         
         groupsCache.forEach(group => {
-            // 验证分组对象是否有效
+            // English note.
             if (!group || !group.id || !group.name) {
                 console.warn('无效的分组对象:', group);
                 return;
             }
             
-            // 如果对话已经在当前分组中，不显示该分组（因为已经在里面了）
+            // English note.
             if (conversationCurrentGroupId && group.id === conversationCurrentGroupId) {
                 return;
             }
@@ -5316,11 +5316,11 @@ async function showMoveToGroupSubmenu() {
             submenu.appendChild(item);
         });
     } else {
-        // 如果仍然没有分组，记录日志以便调试
+        // English note.
         console.warn('showMoveToGroupSubmenu: groupsCache 为空，无法显示分组列表');
     }
 
-    // 始终显示"创建分组"选项
+    // English note.
     const addGroupLabel = typeof window.t === 'function' ? window.t('chat.addNewGroup') : '+ 新增分组';
     const addItem = document.createElement('div');
     addItem.className = 'context-submenu-item add-group-item';
@@ -5339,13 +5339,13 @@ async function showMoveToGroupSubmenu() {
     submenuVisible = true;
     submenuLoading = false;
     
-    // 计算子菜单位置，防止溢出
+    // English note.
     setTimeout(() => {
         const submenuRect = submenu.getBoundingClientRect();
         const viewportWidth = window.innerWidth;
         const viewportHeight = window.innerHeight;
         
-        // 如果子菜单超出右边界，调整到左侧
+        // English note.
         if (submenuRect.right > viewportWidth) {
             submenu.style.left = 'auto';
             submenu.style.right = '100%';
@@ -5353,7 +5353,7 @@ async function showMoveToGroupSubmenu() {
             submenu.style.marginRight = '4px';
         }
         
-        // 如果子菜单超出下边界，调整位置
+        // English note.
         if (submenuRect.bottom > viewportHeight) {
             const overflow = submenuRect.bottom - viewportHeight;
             const currentTop = parseInt(submenu.style.top) || 0;
@@ -5362,18 +5362,18 @@ async function showMoveToGroupSubmenu() {
     }, 0);
 }
 
-// 隐藏移动到分组子菜单的定时器
+// English note.
 let submenuHideTimeout = null;
-// 显示子菜单的防抖定时器
+// English note.
 let submenuShowTimeout = null;
-// 子菜单是否正在加载中
+// English note.
 let submenuLoading = false;
-// 子菜单是否已显示
+// English note.
 let submenuVisible = false;
-// 下载Markdown子菜单隐藏定时器
+// English note.
 let downloadMarkdownSubmenuHideTimeout = null;
 
-// 隐藏移动到分组子菜单
+// English note.
 function hideMoveToGroupSubmenu() {
     const submenu = document.getElementById('move-to-group-submenu');
     if (submenu) {
@@ -5382,7 +5382,7 @@ function hideMoveToGroupSubmenu() {
     }
 }
 
-// 清除隐藏子菜单的定时器
+// English note.
 function clearSubmenuHideTimeout() {
     if (submenuHideTimeout) {
         clearTimeout(submenuHideTimeout);
@@ -5390,7 +5390,7 @@ function clearSubmenuHideTimeout() {
     }
 }
 
-// 清除显示子菜单的定时器
+// English note.
 function clearSubmenuShowTimeout() {
     if (submenuShowTimeout) {
         clearTimeout(submenuShowTimeout);
@@ -5437,53 +5437,53 @@ function handleDownloadMarkdownSubmenuLeave(event) {
     }, 200);
 }
 
-// 处理鼠标进入"移动到分组"菜单项（带防抖）
+// English note.
 function handleMoveToGroupSubmenuEnter() {
-    // 清除隐藏定时器
+    // English note.
     clearSubmenuHideTimeout();
     
-    // 如果子菜单已经显示，不需要重复调用
+    // English note.
     const submenu = document.getElementById('move-to-group-submenu');
     if (submenu && submenuVisible && submenu.style.display === 'block') {
         return;
     }
     
-    // 清除之前的显示定时器
+    // English note.
     clearSubmenuShowTimeout();
     
-    // 使用防抖延迟显示，避免频繁触发
+    // English note.
     submenuShowTimeout = setTimeout(() => {
         showMoveToGroupSubmenu();
         submenuShowTimeout = null;
     }, 100);
 }
 
-// 处理鼠标离开"移动到分组"菜单项
+// English note.
 function handleMoveToGroupSubmenuLeave(event) {
     const submenu = document.getElementById('move-to-group-submenu');
     if (!submenu) return;
     
-    // 清除显示定时器
+    // English note.
     clearSubmenuShowTimeout();
     
-    // 检查鼠标是否移动到子菜单
+    // English note.
     const relatedTarget = event.relatedTarget;
     if (relatedTarget && submenu.contains(relatedTarget)) {
-        // 鼠标移动到子菜单，不清除
+        // English note.
         return;
     }
     
-    // 清除之前的隐藏定时器
+    // English note.
     clearSubmenuHideTimeout();
     
-    // 延迟隐藏，给用户时间移动到子菜单
+    // English note.
     submenuHideTimeout = setTimeout(() => {
         hideMoveToGroupSubmenu();
         submenuHideTimeout = null;
     }, 200);
 }
 
-// 移动对话到分组
+// English note.
 async function moveConversationToGroup(convId, groupId) {
     try {
         await apiFetch('/api/groups/conversations', {
@@ -5497,36 +5497,36 @@ async function moveConversationToGroup(convId, groupId) {
             }),
         });
 
-        // 更新缓存
+        // English note.
         const oldGroupId = conversationGroupMappingCache[convId];
         conversationGroupMappingCache[convId] = groupId;
         
-        // 将新移动的对话添加到待保留映射中，防止后端API延迟导致映射丢失
+        // English note.
         pendingGroupMappings[convId] = groupId;
         
-        // 如果移动的是当前对话，更新 currentConversationGroupId
+        // English note.
         if (currentConversationId === convId) {
             currentConversationGroupId = groupId;
         }
         
-        // 如果当前在分组详情页面，重新加载分组对话
+        // English note.
         if (currentGroupId) {
-            // 如果从当前分组移出，或者移动到当前分组，都需要重新加载
+            // English note.
             if (currentGroupId === oldGroupId || currentGroupId === groupId) {
                 await loadGroupConversations(currentGroupId);
             }
         }
         
-        // 无论是否在分组详情页面，都需要刷新最近对话列表
-        // 因为最近对话列表会根据分组映射缓存来过滤显示，需要立即更新
-        // loadConversationsWithGroups 内部会调用 loadConversationGroupMapping，
-        // loadConversationGroupMapping 会保留 pendingGroupMappings 中的映射
+        // English note.
+        // English note.
+        // English note.
+        // English note.
         await loadConversationsWithGroups();
         
-        // 注意：pendingGroupMappings 中的映射会在下次 loadConversationGroupMapping 
-        // 成功从后端加载时自动清理（在 loadConversationGroupMapping 中处理）
+        // English note.
+        // English note.
         
-        // 刷新分组列表，更新高亮状态
+        // English note.
         await loadGroups();
     } catch (error) {
         console.error('移动对话到分组失败:', error);
@@ -5536,36 +5536,36 @@ async function moveConversationToGroup(convId, groupId) {
     closeContextMenu();
 }
 
-// 从分组中移除对话
+// English note.
 async function removeConversationFromGroup(convId, groupId) {
     try {
         await apiFetch(`/api/groups/${groupId}/conversations/${convId}`, {
             method: 'DELETE',
         });
 
-        // 更新缓存 - 立即删除，确保后续加载时能正确识别
+        // English note.
         delete conversationGroupMappingCache[convId];
-        // 同时从待保留映射中移除
+        // English note.
         delete pendingGroupMappings[convId];
         
-        // 如果移除的是当前对话，清除 currentConversationGroupId
+        // English note.
         if (currentConversationId === convId) {
             currentConversationGroupId = null;
         }
         
-        // 如果当前在分组详情页面，重新加载分组对话
+        // English note.
         if (currentGroupId === groupId) {
             await loadGroupConversations(groupId);
         }
         
-        // 重新加载分组映射，确保缓存是最新的
+        // English note.
         await loadConversationGroupMapping();
         
-        // 刷新分组列表，更新高亮状态
+        // English note.
         await loadGroups();
         
-        // 刷新最近对话列表，让移出的对话立即显示
-        // 使用临时变量保存 currentGroupId，然后临时设置为 null，确保显示所有不在分组的对话
+        // English note.
+        // English note.
         const savedGroupId = currentGroupId;
         currentGroupId = null;
         await loadConversationsWithGroups();
@@ -5578,13 +5578,13 @@ async function removeConversationFromGroup(convId, groupId) {
     closeContextMenu();
 }
 
-// 加载对话分组映射
+// English note.
 async function loadConversationGroupMapping() {
     try {
-        // 使用批量 API 一次性获取所有映射（消除 N+1 串行请求）
+        // English note.
         const response = await apiFetch('/api/groups/mappings');
 
-        // 保存待保留的映射
+        // English note.
         const preservedMappings = { ...pendingGroupMappings };
 
         conversationGroupMappingCache = {};
@@ -5594,7 +5594,7 @@ async function loadConversationGroupMapping() {
             if (Array.isArray(mappings)) {
                 mappings.forEach(m => {
                     conversationGroupMappingCache[m.conversationId] = m.groupId;
-                    // 如果这个对话在待保留映射中，从待保留映射中移除（因为已经从后端加载了）
+                    // English note.
                     if (preservedMappings[m.conversationId] === m.groupId) {
                         delete pendingGroupMappings[m.conversationId];
                     }
@@ -5602,14 +5602,14 @@ async function loadConversationGroupMapping() {
             }
         }
 
-        // 恢复待保留的映射（这些是后端API尚未同步的映射）
+        // English note.
         Object.assign(conversationGroupMappingCache, preservedMappings);
     } catch (error) {
         console.error('加载对话分组映射失败:', error);
     }
 }
 
-// 从上下文菜单查看攻击链
+// English note.
 function showAttackChainFromContext() {
     const convId = contextMenuConversationId;
     if (!convId) return;
@@ -5720,13 +5720,13 @@ function buildConversationMarkdownFileName(conversation, options = {}) {
     return `${safeTitle}_${idPart}_${modePart}.md`;
 }
 
-// 从上下文菜单下载对话 Markdown
+// English note.
 async function downloadConversationMarkdownFromContext(includeToolDetails = false) {
     const convId = contextMenuConversationId;
     if (!convId) return;
 
     try {
-        // 下载不影响页面性能：直接从后端一次性拉取全量过程详情
+        // English note.
         const response = await apiFetch(`/api/conversations/${convId}?include_process_details=1`);
         let conversation = null;
         try {
@@ -5759,7 +5759,7 @@ async function downloadConversationMarkdownFromContext(includeToolDetails = fals
     closeContextMenu();
 }
 
-// 从上下文菜单删除对话
+// English note.
 function deleteConversationFromContext() {
     const convId = contextMenuConversationId;
     if (!convId) return;
@@ -5771,7 +5771,7 @@ function deleteConversationFromContext() {
     closeContextMenu();
 }
 
-// 关闭上下文菜单
+// English note.
 function closeContextMenu() {
     const menu = document.getElementById('conversation-context-menu');
     if (menu) {
@@ -5786,7 +5786,7 @@ function closeContextMenu() {
     if (downloadSubmenu) {
         downloadSubmenu.style.display = 'none';
     }
-    // 清除所有定时器
+    // English note.
     clearSubmenuHideTimeout();
     clearSubmenuShowTimeout();
     clearDownloadMarkdownSubmenuHideTimeout();
@@ -5794,10 +5794,10 @@ function closeContextMenu() {
     contextMenuConversationId = null;
 }
 
-// 显示批量管理模态框
+// English note.
 let allConversationsForBatch = [];
 
-// 更新批量管理模态框标题（含条数），支持 i18n；count 为当前条数
+// English note.
 function updateBatchManageTitle(count) {
     const titleEl = document.getElementById('batch-manage-title');
     if (!titleEl || typeof window.t !== 'function') return;
@@ -5810,7 +5810,7 @@ async function showBatchManageModal() {
     try {
         const response = await apiFetch('/api/conversations?limit=1000');
         
-        // 如果响应不是200，使用空数组（友好处理，不显示错误）
+        // English note.
         if (!response.ok) {
             allConversationsForBatch = [];
         } else {
@@ -5827,7 +5827,7 @@ async function showBatchManageModal() {
         }
     } catch (error) {
         console.error('加载对话列表失败:', error);
-        // 错误时使用空数组，不显示错误提示（更友好的用户体验）
+        // English note.
         allConversationsForBatch = [];
         const modal = document.getElementById('batch-manage-modal');
         updateBatchManageTitle(0);
@@ -5838,25 +5838,25 @@ async function showBatchManageModal() {
     }
 }
 
-// 安全截断中文字符串，避免在汉字中间截断
+// English note.
 function safeTruncateText(text, maxLength = 50) {
     if (!text || typeof text !== 'string') {
         return text || '';
     }
     
-    // 使用 Array.from 将字符串转换为字符数组（正确处理 Unicode 代理对）
+    // English note.
     const chars = Array.from(text);
     
-    // 如果文本长度未超过限制，直接返回
+    // English note.
     if (chars.length <= maxLength) {
         return text;
     }
     
-    // 截断到最大长度（基于字符数，而不是代码单元）
+    // English note.
     let truncatedChars = chars.slice(0, maxLength);
     
-    // 尝试在标点符号或空格处截断，使截断更自然
-    // 在截断点往前查找合适的断点（不超过20%的长度）
+    // English note.
+    // English note.
     const searchRange = Math.floor(maxLength * 0.2);
     const breakChars = ['，', '。', '、', ' ', ',', '.', ';', ':', '!', '?', '！', '？', '/', '\\', '-', '_'];
     let bestBreakPos = truncatedChars.length;
@@ -5868,16 +5868,16 @@ function safeTruncateText(text, maxLength = 50) {
         }
     }
     
-    // 如果找到合适的断点，使用它；否则使用原截断位置
+    // English note.
     if (bestBreakPos < truncatedChars.length) {
         truncatedChars = truncatedChars.slice(0, bestBreakPos);
     }
     
-    // 将字符数组转换回字符串，并添加省略号
+    // English note.
     return truncatedChars.join('') + '...';
 }
 
-// 渲染批量管理对话列表
+// English note.
 function renderBatchConversations(filtered = null) {
     const list = document.getElementById('batch-conversations-list');
     if (!list) return;
@@ -5898,10 +5898,10 @@ function renderBatchConversations(filtered = null) {
         const name = document.createElement('div');
         name.className = 'batch-table-col-name';
         const originalTitle = conv.title || (typeof window.t === 'function' ? window.t('batchManageModal.unnamedConversation') : '未命名对话');
-        // 使用安全截断函数，限制最大长度为45个字符（留出空间显示省略号）
+        // English note.
         const truncatedTitle = safeTruncateText(originalTitle, 45);
         name.textContent = truncatedTitle;
-        // 设置title属性以显示完整文本（鼠标悬停时）
+        // English note.
         name.title = originalTitle;
 
         const time = document.createElement('div');
@@ -5933,7 +5933,7 @@ function renderBatchConversations(filtered = null) {
     });
 }
 
-// 筛选批量管理对话
+// English note.
 function filterBatchConversations(query) {
     if (!query || !query.trim()) {
         renderBatchConversations();
@@ -5948,7 +5948,7 @@ function filterBatchConversations(query) {
     renderBatchConversations(filtered);
 }
 
-// 全选/取消全选
+// English note.
 function toggleSelectAllBatch() {
     const selectAll = document.getElementById('batch-select-all');
     const checkboxes = document.querySelectorAll('.batch-conversation-checkbox');
@@ -5958,7 +5958,7 @@ function toggleSelectAllBatch() {
     });
 }
 
-// 删除选中的对话
+// English note.
 async function deleteSelectedConversations() {
     const checkboxes = document.querySelectorAll('.batch-conversation-checkbox:checked');
     if (checkboxes.length === 0) {
@@ -5987,7 +5987,7 @@ async function deleteSelectedConversations() {
     }
 }
 
-// 关闭批量管理模态框
+// English note.
 function closeBatchManageModal() {
     const modal = document.getElementById('batch-manage-modal');
     if (modal) {
@@ -6000,7 +6000,7 @@ function closeBatchManageModal() {
     allConversationsForBatch = [];
 }
 
-// 语言切换时刷新当前聊天页内的时间与动态文案（消息时间、执行流程时间由 monitor 的 refreshProgressAndTimelineI18n 处理）
+// English note.
 function refreshChatPanelI18n() {
     const locale = (typeof window.__locale === 'string' && window.__locale.startsWith('zh')) ? 'zh-CN' : 'en-US';
     const timeOpts = { hour: '2-digit', minute: '2-digit' };
@@ -6050,7 +6050,7 @@ function refreshChatPanelI18n() {
     }
 }
 
-// 语言切换时刷新批量管理模态框标题（若当前正在显示）；并刷新对话列表时间格式与系统就绪提示；刷新当前页消息时间与动态文案
+// English note.
 document.addEventListener('languagechange', function () {
     refreshSystemReadyMessageBubbles();
     refreshChatPanelI18n();
@@ -6058,7 +6058,7 @@ document.addEventListener('languagechange', function () {
     if (modal && modal.style.display === 'flex') {
         updateBatchManageTitle(allConversationsForBatch.length);
     }
-    // 侧边栏最近对话等列表的时间戳会随语言变化（24h/12h 等），重新拉列表以统一格式
+    // English note.
     if (typeof loadConversationsWithGroups === 'function') {
         loadConversationsWithGroups();
     } else if (typeof loadConversations === 'function') {
@@ -6066,7 +6066,7 @@ document.addEventListener('languagechange', function () {
     }
 });
 
-// 显示创建分组模态框
+// English note.
 function showCreateGroupModal(andMoveConversation = false) {
     const modal = document.getElementById('create-group-modal');
     const input = document.getElementById('create-group-name-input');
@@ -6077,15 +6077,15 @@ function showCreateGroupModal(andMoveConversation = false) {
     if (input) {
         input.value = '';
     }
-    // 重置图标为默认值
+    // English note.
     if (iconBtn) {
         iconBtn.textContent = '📁';
     }
-    // 清空自定义图标输入框
+    // English note.
     if (customInput) {
         customInput.value = '';
     }
-    // 关闭图标选择器
+    // English note.
     if (iconPicker) {
         iconPicker.style.display = 'none';
     }
@@ -6098,7 +6098,7 @@ function showCreateGroupModal(andMoveConversation = false) {
     }
 }
 
-// 关闭创建分组模态框
+// English note.
 function closeCreateGroupModal() {
     const modal = document.getElementById('create-group-modal');
     if (modal) {
@@ -6108,24 +6108,24 @@ function closeCreateGroupModal() {
     if (input) {
         input.value = '';
     }
-    // 重置图标为默认值
+    // English note.
     const iconBtn = document.getElementById('create-group-icon-btn');
     if (iconBtn) {
         iconBtn.textContent = '📁';
     }
-    // 清空自定义图标输入框
+    // English note.
     const customInput = document.getElementById('custom-icon-input');
     if (customInput) {
         customInput.value = '';
     }
-    // 关闭图标选择器
+    // English note.
     const iconPicker = document.getElementById('group-icon-picker');
     if (iconPicker) {
         iconPicker.style.display = 'none';
     }
 }
 
-// 选择建议标签
+// English note.
 function selectSuggestion(name) {
     const input = document.getElementById('create-group-name-input');
     if (input) {
@@ -6134,7 +6134,7 @@ function selectSuggestion(name) {
     }
 }
 
-// 按 i18n key 选择建议标签（用于国际化下填充当前语言的文案）
+// English note.
 function selectSuggestionByKey(i18nKey) {
     const input = document.getElementById('create-group-name-input');
     if (input && typeof window.t === 'function') {
@@ -6143,7 +6143,7 @@ function selectSuggestionByKey(i18nKey) {
     }
 }
 
-// 切换图标选择器显示状态
+// English note.
 function toggleGroupIconPicker() {
     const picker = document.getElementById('group-icon-picker');
     if (picker) {
@@ -6152,25 +6152,25 @@ function toggleGroupIconPicker() {
     }
 }
 
-// 选择分组图标
+// English note.
 function selectGroupIcon(icon) {
     const iconBtn = document.getElementById('create-group-icon-btn');
     if (iconBtn) {
         iconBtn.textContent = icon;
     }
-    // 清空自定义输入框
+    // English note.
     const customInput = document.getElementById('custom-icon-input');
     if (customInput) {
         customInput.value = '';
     }
-    // 关闭选择器
+    // English note.
     const picker = document.getElementById('group-icon-picker');
     if (picker) {
         picker.style.display = 'none';
     }
 }
 
-// 应用自定义图标
+// English note.
 function applyCustomIcon() {
     const customInput = document.getElementById('custom-icon-input');
     if (!customInput) return;
@@ -6185,7 +6185,7 @@ function applyCustomIcon() {
         iconBtn.textContent = customIcon;
     }
     
-    // 清空输入框并关闭选择器
+    // English note.
     customInput.value = '';
     const picker = document.getElementById('group-icon-picker');
     if (picker) {
@@ -6193,7 +6193,7 @@ function applyCustomIcon() {
     }
 }
 
-// 自定义图标输入框回车键处理
+// English note.
 document.addEventListener('DOMContentLoaded', function() {
     const customInput = document.getElementById('custom-icon-input');
     if (customInput) {
@@ -6207,12 +6207,12 @@ document.addEventListener('DOMContentLoaded', function() {
     initChatAgentModeFromConfig();
 });
 
-// 点击外部关闭图标选择器、对话模式面板
+// English note.
 document.addEventListener('click', function(event) {
     const picker = document.getElementById('group-icon-picker');
     const iconBtn = document.getElementById('create-group-icon-btn');
     if (picker && iconBtn) {
-        // 如果点击的不是图标按钮和选择器本身，则关闭选择器
+        // English note.
         if (!picker.contains(event.target) && !iconBtn.contains(event.target)) {
             picker.style.display = 'none';
         }
@@ -6227,9 +6227,9 @@ document.addEventListener('click', function(event) {
     }
 });
 
-// 创建分组
+// English note.
 async function createGroup(event) {
-    // 阻止事件冒泡
+    // English note.
     if (event) {
         event.preventDefault();
         event.stopPropagation();
@@ -6247,7 +6247,7 @@ async function createGroup(event) {
         return;
     }
 
-    // 前端校验：检查名称是否已存在
+    // English note.
     try {
         let groups;
         if (Array.isArray(groupsCache) && groupsCache.length > 0) {
@@ -6257,7 +6257,7 @@ async function createGroup(event) {
             groups = await response.json();
         }
         
-        // 确保groups是有效数组
+        // English note.
         if (!Array.isArray(groups)) {
             groups = [];
         }
@@ -6271,7 +6271,7 @@ async function createGroup(event) {
         console.error('检查分组名称失败:', error);
     }
 
-    // 获取选中的图标
+    // English note.
     const iconBtn = document.getElementById('create-group-icon-btn');
     const selectedIcon = iconBtn ? iconBtn.textContent.trim() : '📁';
 
@@ -6300,7 +6300,7 @@ async function createGroup(event) {
 
         const newGroup = await response.json();
         
-        // 检查"移动到分组"子菜单是否打开
+        // English note.
         const submenu = document.getElementById('move-to-group-submenu');
         const isSubmenuOpen = submenu && submenu.style.display !== 'none';
 
@@ -6315,7 +6315,7 @@ async function createGroup(event) {
             moveConversationToGroup(contextMenuConversationId, newGroup.id);
         }
 
-        // 如果子菜单是打开的，刷新它，让新创建的分组立即显示
+        // English note.
         if (isSubmenuOpen) {
             await showMoveToGroupSubmenu();
         }
@@ -6327,11 +6327,11 @@ async function createGroup(event) {
     }
 }
 
-// 进入分组详情
+// English note.
 async function enterGroupDetail(groupId) {
     currentGroupId = groupId;
-    // 进入分组详情页面时，清除当前对话所属的分组ID，避免高亮冲突
-    // 因为此时用户是在查看分组详情，而不是在查看分组中的某个对话
+    // English note.
+    // English note.
     currentConversationGroupId = null;
     
     try {
@@ -6343,23 +6343,23 @@ async function enterGroupDetail(groupId) {
             return;
         }
 
-        // 显示分组详情页，隐藏对话界面，但保持侧边栏可见
+        // English note.
         const sidebar = document.querySelector('.conversation-sidebar');
         const groupDetailPage = document.getElementById('group-detail-page');
         const chatContainer = document.querySelector('.chat-container');
         const titleEl = document.getElementById('group-detail-title');
 
-        // 保持侧边栏可见
+        // English note.
         if (sidebar) sidebar.style.display = 'flex';
-        // 隐藏对话界面，显示分组详情页
+        // English note.
         if (chatContainer) chatContainer.style.display = 'none';
         if (groupDetailPage) groupDetailPage.style.display = 'flex';
         if (titleEl) titleEl.textContent = group.name;
 
-        // 刷新分组列表，确保当前分组高亮显示
+        // English note.
         await loadGroups();
 
-        // 加载分组对话（如果有搜索查询则使用搜索查询）
+        // English note.
         loadGroupConversations(groupId, currentGroupSearchQuery);
     } catch (error) {
         console.error('加载分组失败:', error);
@@ -6367,12 +6367,12 @@ async function enterGroupDetail(groupId) {
     }
 }
 
-// 退出分组详情
+// English note.
 function exitGroupDetail() {
     currentGroupId = null;
     currentGroupSearchQuery = ''; // 清除搜索状态
     
-    // 隐藏搜索框并清除搜索内容
+    // English note.
     const searchContainer = document.getElementById('group-search-container');
     const searchInput = document.getElementById('group-search-input');
     if (searchContainer) searchContainer.style.display = 'none';
@@ -6382,16 +6382,16 @@ function exitGroupDetail() {
     const groupDetailPage = document.getElementById('group-detail-page');
     const chatContainer = document.querySelector('.chat-container');
 
-    // 保持侧边栏可见
+    // English note.
     if (sidebar) sidebar.style.display = 'flex';
-    // 隐藏分组详情页，显示对话界面
+    // English note.
     if (groupDetailPage) groupDetailPage.style.display = 'none';
     if (chatContainer) chatContainer.style.display = 'flex';
 
     loadConversationsWithGroups();
 }
 
-// 加载分组中的对话
+// English note.
 async function loadGroupConversations(groupId, searchQuery = '') {
     try {
         if (!groupId) {
@@ -6399,26 +6399,26 @@ async function loadGroupConversations(groupId, searchQuery = '') {
             return;
         }
         
-        // 确保分组映射已加载
+        // English note.
         if (Object.keys(conversationGroupMappingCache).length === 0) {
             await loadConversationGroupMapping();
         }
         
-        // 先清空列表，避免显示旧数据
+        // English note.
         const list = document.getElementById('group-conversations-list');
         if (!list) {
             console.error('group-conversations-list element not found');
             return;
         }
         
-        // 显示加载状态
+        // English note.
         if (searchQuery) {
             list.innerHTML = '<div style="padding: 40px; text-align: center; color: var(--text-muted);">' + (typeof window.t === 'function' ? window.t('chat.searching') : '搜索中...') + '</div>';
         } else {
             list.innerHTML = '<div style="padding: 40px; text-align: center; color: var(--text-muted);">' + (typeof window.t === 'function' ? window.t('chat.loading') : '加载中...') + '</div>';
         }
 
-        // 构建URL，如果有搜索关键词则添加search参数
+        // English note.
         let url = `/api/groups/${groupId}/conversations`;
         if (searchQuery && searchQuery.trim()) {
             url += '?search=' + encodeURIComponent(searchQuery.trim());
@@ -6433,35 +6433,35 @@ async function loadGroupConversations(groupId, searchQuery = '') {
         
         let groupConvs = await response.json();
         
-        // 处理 null 或 undefined 的情况，将其视为空数组
+        // English note.
         if (!groupConvs) {
             groupConvs = [];
         }
         
-        // 验证返回的数据类型
+        // English note.
         if (!Array.isArray(groupConvs)) {
             console.error(`Invalid response for group ${groupId}:`, groupConvs);
             list.innerHTML = '<div style="padding: 40px; text-align: center; color: var(--text-muted);">' + (typeof window.t === 'function' ? window.t('chat.dataFormatError') : '数据格式错误') + '</div>';
             return;
         }
         
-        // 更新分组映射缓存（只更新当前分组的对话）
-        // 先清理该分组之前的映射（如果有对话被移出）
+        // English note.
+        // English note.
         Object.keys(conversationGroupMappingCache).forEach(convId => {
             if (conversationGroupMappingCache[convId] === groupId) {
-                // 如果这个对话不在新的列表中，说明已被移出
+                // English note.
                 if (!groupConvs.find(c => c.id === convId)) {
                     delete conversationGroupMappingCache[convId];
                 }
             }
         });
         
-        // 更新当前分组的对话映射
+        // English note.
         groupConvs.forEach(conv => {
             conversationGroupMappingCache[conv.id] = groupId;
         });
 
-        // 再次清空列表（清除"加载中"提示）
+        // English note.
         list.innerHTML = '';
 
         if (groupConvs.length === 0) {
@@ -6475,10 +6475,10 @@ async function loadGroupConversations(groupId, searchQuery = '') {
             return;
         }
 
-        // 加载每个对话的详细信息以获取消息
+        // English note.
         for (const conv of groupConvs) {
             try {
-                // 验证对话ID存在
+                // English note.
                 if (!conv.id) {
                     console.warn('Conversation missing id:', conv);
                     continue;
@@ -6495,15 +6495,15 @@ async function loadGroupConversations(groupId, searchQuery = '') {
                 const item = document.createElement('div');
                 item.className = 'group-conversation-item';
                 item.dataset.conversationId = conv.id;
-                // 只有在分组详情页面且对话ID匹配时才显示active状态
-                // 如果不在分组详情页面，不应该显示active状态
+                // English note.
+                // English note.
                 if (currentGroupId && conv.id === currentConversationId) {
                     item.classList.add('active');
                 } else {
                     item.classList.remove('active');
                 }
 
-                // 创建内容包装器
+                // English note.
                 const contentWrapper = document.createElement('div');
                 contentWrapper.className = 'group-conversation-content-wrapper';
 
@@ -6519,7 +6519,7 @@ async function loadGroupConversations(groupId, searchQuery = '') {
                 title.title = titleText; // 设置完整标题以便悬停查看
                 titleWrapper.appendChild(title);
 
-                // 如果对话在分组中置顶，显示置顶图标
+                // English note.
                 if (conv.groupPinned) {
                     const pinIcon = document.createElement('span');
                     pinIcon.className = 'conversation-item-pinned';
@@ -6544,7 +6544,7 @@ async function loadGroupConversations(groupId, searchQuery = '') {
 
                 contentWrapper.appendChild(timeWrapper);
 
-                // 如果有第一条消息，显示内容预览
+                // English note.
                 if (fullConv.messages && fullConv.messages.length > 0) {
                     const firstMsg = fullConv.messages.find(m => m.role === 'user' && m.content);
                     if (firstMsg && firstMsg.content) {
@@ -6561,7 +6561,7 @@ async function loadGroupConversations(groupId, searchQuery = '') {
 
                 item.appendChild(contentWrapper);
 
-                // 添加三个点菜单按钮
+                // English note.
                 const menuBtn = document.createElement('button');
                 menuBtn.className = 'conversation-item-menu';
                 menuBtn.innerHTML = '⋯';
@@ -6575,7 +6575,7 @@ async function loadGroupConversations(groupId, searchQuery = '') {
                 item.onclick = (e) => {
                     e.preventDefault();
                     e.stopPropagation();
-                    // 切换到对话界面，但保持分组详情状态
+                    // English note.
                     const groupDetailPage = document.getElementById('group-detail-page');
                     const chatContainer = document.querySelector('.chat-container');
                     if (groupDetailPage) groupDetailPage.style.display = 'none';
@@ -6593,7 +6593,7 @@ async function loadGroupConversations(groupId, searchQuery = '') {
     }
 }
 
-// 编辑分组
+// English note.
 async function editGroup() {
     if (!currentGroupId) return;
 
@@ -6608,7 +6608,7 @@ async function editGroup() {
 
         const trimmedName = newName.trim();
         
-        // 前端校验：检查名称是否已存在（排除当前分组）
+        // English note.
         let groups;
         if (Array.isArray(groupsCache) && groupsCache.length > 0) {
             groups = groupsCache;
@@ -6617,7 +6617,7 @@ async function editGroup() {
             groups = await response.json();
         }
         
-        // 确保groups是有效数组
+        // English note.
         if (!Array.isArray(groups)) {
             groups = [];
         }
@@ -6660,7 +6660,7 @@ async function editGroup() {
     }
 }
 
-// 删除分组
+// English note.
 async function deleteGroup() {
     if (!currentGroupId) return;
 
@@ -6674,7 +6674,7 @@ async function deleteGroup() {
             method: 'DELETE',
         });
 
-        // 更新缓存
+        // English note.
         groupsCache = groupsCache.filter(g => g.id !== currentGroupId);
         Object.keys(conversationGroupMappingCache).forEach(convId => {
             if (conversationGroupMappingCache[convId] === currentGroupId) {
@@ -6682,10 +6682,10 @@ async function deleteGroup() {
             }
         });
 
-        // 如果"移动到分组"子菜单是打开的，刷新它
+        // English note.
         const submenu = document.getElementById('move-to-group-submenu');
         if (submenu && submenu.style.display !== 'none') {
-            // 子菜单是打开的，重新加载分组列表并刷新子菜单
+            // English note.
             await loadGroups();
             await showMoveToGroupSubmenu();
         } else {
@@ -6693,7 +6693,7 @@ async function deleteGroup() {
             await loadGroups();
         }
         
-        // 刷新对话列表，确保之前被分组的对话能立即显示
+        // English note.
         await loadConversationsWithGroups();
     } catch (error) {
         console.error('删除分组失败:', error);
@@ -6701,7 +6701,7 @@ async function deleteGroup() {
     }
 }
 
-// 从上下文菜单重命名分组
+// English note.
 async function renameGroupFromContext() {
     const groupId = contextMenuGroupId;
     if (!groupId) return;
@@ -6720,7 +6720,7 @@ async function renameGroupFromContext() {
 
         const trimmedName = newName.trim();
         
-        // 前端校验：检查名称是否已存在（排除当前分组）
+        // English note.
         let groups;
         if (Array.isArray(groupsCache) && groupsCache.length > 0) {
             groups = groupsCache;
@@ -6729,7 +6729,7 @@ async function renameGroupFromContext() {
             groups = await response.json();
         }
         
-        // 确保groups是有效数组
+        // English note.
         if (!Array.isArray(groups)) {
             groups = [];
         }
@@ -6762,7 +6762,7 @@ async function renameGroupFromContext() {
 
         loadGroups();
         
-        // 如果当前在分组详情页，更新标题
+        // English note.
         if (currentGroupId === groupId) {
             const titleEl = document.getElementById('group-detail-title');
             if (titleEl) {
@@ -6779,20 +6779,20 @@ async function renameGroupFromContext() {
     closeGroupContextMenu();
 }
 
-// 从上下文菜单置顶分组
+// English note.
 async function pinGroupFromContext() {
     const groupId = contextMenuGroupId;
     if (!groupId) return;
 
     try {
-        // 获取当前分组信息
+        // English note.
         const response = await apiFetch(`/api/groups/${groupId}`);
         const group = await response.json();
         if (!group) return;
 
         const newPinnedState = !group.pinned;
 
-        // 调用 API 更新置顶状态
+        // English note.
         const updateResponse = await apiFetch(`/api/groups/${groupId}/pinned`, {
             method: 'PUT',
             headers: {
@@ -6808,7 +6808,7 @@ async function pinGroupFromContext() {
             throw new Error(error.error || '更新失败');
         }
 
-        // 重新加载分组列表以更新显示顺序
+        // English note.
         loadGroups();
     } catch (error) {
         console.error('置顶分组失败:', error);
@@ -6818,7 +6818,7 @@ async function pinGroupFromContext() {
     closeGroupContextMenu();
 }
 
-// 从上下文菜单删除分组
+// English note.
 async function deleteGroupFromContext() {
     const groupId = contextMenuGroupId;
     if (!groupId) return;
@@ -6834,7 +6834,7 @@ async function deleteGroupFromContext() {
             method: 'DELETE',
         });
 
-        // 更新缓存
+        // English note.
         groupsCache = groupsCache.filter(g => g.id !== groupId);
         Object.keys(conversationGroupMappingCache).forEach(convId => {
             if (conversationGroupMappingCache[convId] === groupId) {
@@ -6842,21 +6842,21 @@ async function deleteGroupFromContext() {
             }
         });
 
-        // 如果"移动到分组"子菜单是打开的，刷新它
+        // English note.
         const submenu = document.getElementById('move-to-group-submenu');
         if (submenu && submenu.style.display !== 'none') {
-            // 子菜单是打开的，重新加载分组列表并刷新子菜单
+            // English note.
             await loadGroups();
             await showMoveToGroupSubmenu();
         } else {
-            // 如果当前在分组详情页，退出详情页
+            // English note.
             if (currentGroupId === groupId) {
                 exitGroupDetail();
             }
             await loadGroups();
         }
         
-        // 刷新对话列表，确保之前被分组的对话能立即显示
+        // English note.
         await loadConversationsWithGroups();
     } catch (error) {
         console.error('删除分组失败:', error);
@@ -6866,7 +6866,7 @@ async function deleteGroupFromContext() {
     closeGroupContextMenu();
 }
 
-// 关闭分组上下文菜单
+// English note.
 function closeGroupContextMenu() {
     const menu = document.getElementById('group-context-menu');
     if (menu) {
@@ -6876,11 +6876,11 @@ function closeGroupContextMenu() {
 }
 
 
-// 分组搜索相关变量
+// English note.
 let groupSearchTimer = null;
 let currentGroupSearchQuery = '';
 
-// 切换分组搜索框显示/隐藏
+// English note.
 function toggleGroupSearch() {
     const searchContainer = document.getElementById('group-search-container');
     const searchInput = document.getElementById('group-search-input');
@@ -6896,16 +6896,16 @@ function toggleGroupSearch() {
     }
 }
 
-// 处理分组搜索输入
+// English note.
 function handleGroupSearchInput(event) {
-    // 支持回车键搜索
+    // English note.
     if (event.key === 'Enter') {
         event.preventDefault();
         performGroupSearch();
         return;
     }
     
-    // 支持ESC键关闭搜索
+    // English note.
     if (event.key === 'Escape') {
         clearGroupSearch();
         toggleGroupSearch();
@@ -6919,12 +6919,12 @@ function handleGroupSearchInput(event) {
     
     const query = searchInput.value.trim();
     
-    // 显示/隐藏清除按钮
+    // English note.
     if (clearBtn) {
         clearBtn.style.display = query ? 'block' : 'none';
     }
     
-    // 防抖搜索
+    // English note.
     if (groupSearchTimer) {
         clearTimeout(groupSearchTimer);
     }
@@ -6934,7 +6934,7 @@ function handleGroupSearchInput(event) {
     }, 300); // 300ms 防抖
 }
 
-// 执行分组搜索
+// English note.
 async function performGroupSearch() {
     const searchInput = document.getElementById('group-search-input');
     if (!searchInput || !currentGroupId) return;
@@ -6942,11 +6942,11 @@ async function performGroupSearch() {
     const query = searchInput.value.trim();
     currentGroupSearchQuery = query;
     
-    // 加载搜索结果
+    // English note.
     await loadGroupConversations(currentGroupId, query);
 }
 
-// 清除分组搜索
+// English note.
 function clearGroupSearch() {
     const searchInput = document.getElementById('group-search-input');
     const clearBtn = document.getElementById('group-search-clear-btn');
@@ -6960,18 +6960,18 @@ function clearGroupSearch() {
     
     currentGroupSearchQuery = '';
     
-    // 重新加载分组对话（不搜索）
+    // English note.
     if (currentGroupId) {
         loadGroupConversations(currentGroupId, '');
     }
 }
 
-// 初始化时加载分组
+// English note.
 document.addEventListener('DOMContentLoaded', async () => {
     await loadGroups();
-    // 替换原来的loadConversations调用
+    // English note.
     if (typeof loadConversations === 'function') {
-        // 保留原函数，但使用新函数
+        // English note.
         const originalLoad = loadConversations;
         loadConversations = function(...args) {
             loadConversationsWithGroups(...args);
@@ -6979,14 +6979,14 @@ document.addEventListener('DOMContentLoaded', async () => {
     }
     await loadConversationsWithGroups();
     
-    // 添加页面焦点时自动刷新对话列表的功能
-    // 这样当通过OpenAPI创建对话后，切换回页面时能自动看到新对话
+    // English note.
+    // English note.
     let lastFocusTime = Date.now();
     const CONVERSATION_REFRESH_INTERVAL = 30000; // 30秒内最多刷新一次，避免过于频繁
     
     window.addEventListener('focus', () => {
         const now = Date.now();
-        // 如果距离上次刷新超过30秒，才刷新对话列表
+        // English note.
         if (now - lastFocusTime > CONVERSATION_REFRESH_INTERVAL) {
             lastFocusTime = now;
             if (typeof loadConversationsWithGroups === 'function') {
@@ -6995,10 +6995,10 @@ document.addEventListener('DOMContentLoaded', async () => {
         }
     });
     
-    // 监听页面可见性变化（当用户切换标签页回来时）
+    // English note.
     document.addEventListener('visibilitychange', () => {
         if (!document.hidden) {
-            // 页面变为可见时，检查是否需要刷新
+            // English note.
             const now = Date.now();
             if (now - lastFocusTime > CONVERSATION_REFRESH_INTERVAL) {
                 lastFocusTime = now;
@@ -7009,7 +7009,7 @@ document.addEventListener('DOMContentLoaded', async () => {
         }
     });
 
-    // 任意入口删除对话后同步：若删除的是当前对话则清空主区，并刷新侧边栏列表（如从 WebShell AI 助手删除）
+    // English note.
     document.addEventListener('conversation-deleted', (e) => {
         const id = e.detail && e.detail.conversationId;
         if (!id) return;

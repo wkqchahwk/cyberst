@@ -1,201 +1,198 @@
-# CyberStrikeAI 机器人使用说明
+# CyberStrikeAI Robot / Chatbot Guide
 
-[English](robot_en.md)
+[中文](robot.md)
 
-本文档说明如何通过**钉钉**、**飞书**与 **企业微信** 与 CyberStrikeAI 对话（长连接 / 回调模式），在手机端即可使用，无需在服务器上打开网页。按下面步骤操作可避免常见弯路。
-
----
-
-## 一、在 CyberStrikeAI 里从哪里配置
-
-1. 登录 CyberStrikeAI Web 端  
-2. 左侧导航进入 **系统设置**  
-3. 在左侧设置分类中点击 **机器人设置**（位于「基本设置」与「安全设置」之间）  
-4. 按平台勾选并填写（钉钉填 Client ID / Client Secret，飞书填 App ID / App Secret）  
-5. 点击 **应用配置** 保存  
-6. **重启 CyberStrikeAI 应用**（只保存不重启，机器人不会连上）
-
-配置会写入 `config.yaml` 的 `robots` 段，也可在配置文件中直接编辑。**修改钉钉/飞书配置后必须重启，长连接才会生效。**
+This document explains how to chat with CyberStrikeAI from **DingTalk**, **Lark (Feishu)**, and **WeCom (Enterprise WeChat)** using long-lived connections or HTTP callbacks—no need to open a browser on the server. Following the steps below helps avoid common mistakes.
 
 ---
 
-## 二、支持的平台（长连接 / 回调）
+## 1. Where to configure in CyberStrikeAI
 
-| 平台     | 说明 |
-|----------|------|
-| 钉钉     | 使用 Stream 长连接，程序主动连接钉钉接收消息 |
-| 飞书     | 使用长连接，程序主动连接飞书接收消息 |
-| 企业微信 | 使用 HTTP 回调接收消息，被动回包 + 主动调用企业微信发送消息 API |
+1. Log in to the CyberStrikeAI web UI.
+2. Open **System Settings** in the left sidebar.
+3. Click **Robot settings** (between “Basic” and “Security”).
+4. Enable the platform and fill in credentials (DingTalk: Client ID / Client Secret; Lark: App ID / App Secret).
+5. Click **Apply configuration** to save.
+6. **Restart the CyberStrikeAI process** (saving alone does not establish the connection).
 
-下面第三节会按平台写清：在开放平台要做什么、要复制哪些字段、填到 CyberStrikeAI 的哪一栏。
-
----
-
-## 三、各平台配置项与详细步骤
-
-### 3.1 钉钉
-
-**先搞清楚：两种钉钉机器人不一样**
-
-| 类型 | 从哪里创建 | 能否做「用户发消息→机器人回复」 | 本程序是否支持 |
-|------|------------|----------------------------------|----------------|
-| **自定义机器人** | 钉钉群里：群设置 → 添加机器人 → 自定义（Webhook） | ❌ 不能，只能你往群里发消息 | ❌ 不支持 |
-| **企业内部应用机器人** | [钉钉开放平台](https://open.dingtalk.com) 创建应用并开通机器人 | ✅ 能 | ✅ 支持 |
-
-如果你手里是「自定义机器人」的 Webhook 地址（`oapi.dingtalk.com/robot/send?access_token=xxx`）和加签密钥（`SEC...`），**不能直接填到本程序**，必须按下面步骤在开放平台创建「企业内部应用」并拿到 **Client ID**、**Client Secret**。
+Settings are written to the `robots` section of `config.yaml`; you can also edit the file directly. **After changing DingTalk or Lark config, you must restart for the long-lived connection to take effect.**
 
 ---
 
-**钉钉配置完整步骤（按顺序做）**
+## 2. Supported platforms (long-lived / callback)
 
-1. **打开钉钉开放平台**  
-   浏览器访问 [https://open.dingtalk.com](https://open.dingtalk.com)，用**企业管理员**账号登录。
+| Platform       | Description |
+|----------------|-------------|
+| DingTalk       | Stream long-lived connection; the app connects to DingTalk to receive messages |
+| Lark (Feishu)  | Long-lived connection; the app connects to Lark to receive messages |
+| WeCom (Qiye WX)| HTTP callback to receive messages; CyberStrikeAI replies via WeCom’s message sending API |
 
-2. **进入应用开发**  
-   左侧选 **应用开发** → **企业内部开发** → 点击 **创建应用**（或选择已有应用）。填写应用名称等基本信息后创建。
-
-3. **拿到 Client ID 和 Client Secret**  
-   - 左侧点 **凭证与基础信息**（在「基础信息」下）。  
-   - 页面上有 **Client ID（原 AppKey）** 和 **Client Secret（原 AppSecret）**。  
-   - 点击复制，**不要手打**，注意：数字 **0** 和字母 **o**、数字 **1** 和字母 **l** 容易抄错（例如 `ding9gf9tiozuc504aer` 中间是数字 **504** 不是 5o4）。
-
-4. **开通机器人并选 Stream 模式**  
-   - 左侧 **应用能力** → **机器人**。  
-   - 打开「机器人配置」开关。  
-   - 填写机器人名称、简介等（必填项按提示填）。  
-   - **关键**：消息接收方式要选 **「Stream 模式」**（流式接入）。若只有「HTTP 回调」或未选 Stream，本程序收不到消息。  
-   - 保存。
-
-5. **权限与发布**  
-   - 左侧 **权限管理**：搜索「机器人」「消息」等，勾选**接收消息**、**发送消息**等机器人相关权限，并确认授权。  
-   - 左侧 **版本管理与发布**：若有未发布配置，点击 **发布新版本** / **上线**，否则修改不生效。
-
-6. **填回 CyberStrikeAI**  
-   - 回到 CyberStrikeAI → 系统设置 → 机器人设置 → 钉钉。  
-   - 勾选「启用钉钉机器人」。  
-   - **Client ID (AppKey)** 粘贴第 3 步复制的 Client ID。  
-   - **Client Secret** 粘贴第 3 步复制的 Client Secret。  
-   - 点击 **应用配置**，然后**重启 CyberStrikeAI**。
+Section 3 below describes, per platform, what to do in the developer console and which fields to copy into CyberStrikeAI.
 
 ---
 
-**CyberStrikeAI 钉钉栏位对照**
+## 3. Configuration and step-by-step setup
 
-| CyberStrikeAI 中填写项 | 在钉钉开放平台的来源 |
-|------------------------|------------------------|
-| 启用钉钉机器人 | 勾选即启用 |
-| Client ID (AppKey) | 凭证与基础信息 → **Client ID（原 AppKey）** |
-| Client Secret | 凭证与基础信息 → **Client Secret（原 AppSecret）** |
+### 3.1 DingTalk
 
----
+**Important: two types of DingTalk bots**
 
-### 3.2 飞书 (Lark)
+| Type | Where it’s created | Can do “user sends message → bot replies”? | Supported here? |
+|------|-------------------|-------------------------------------------|------------------|
+| **Custom bot (Webhook)** | In a DingTalk group: Group settings → Add robot → Custom (Webhook) | No; you can only post to the group | No |
+| **Enterprise internal app bot** | [DingTalk Open Platform](https://open.dingtalk.com): create an app and enable the bot | Yes | Yes |
 
-| 配置项 | 说明 |
-|--------|------|
-| 启用飞书机器人 | 勾选后启动飞书长连接 |
-| App ID | 飞书开放平台应用凭证中的 App ID |
-| App Secret | 飞书开放平台应用凭证中的 App Secret |
-| Verify Token | 事件订阅用（可选） |
-
-**飞书配置简要步骤**：登录 [飞书开放平台](https://open.feishu.cn) → 创建企业自建应用 → 在「凭证与基础信息」中获取 **App ID**、**App Secret** → 在「应用能力」中开通**机器人**并启用相应权限 → **在「事件订阅」中添加事件**（见下）→ 发布应用 → 将 App ID、App Secret 填到 CyberStrikeAI 机器人设置 → 保存。
-
-**重要：事件订阅**  
-飞书长连接只有在开放平台订阅了「接收消息」事件后才会收到用户消息。请在该应用的 **事件订阅** 页面点击「添加事件」，在「消息与群组」下勾选 **接收消息（im.message.receive_v1）** 或同类事件；若未添加，连接会建立成功但收不到任何消息，表现为发消息后本地无日志、机器人无回复。
-
-**飞书权限配置（必读）**  
-在 **权限管理** 中需开通以下权限（与开放平台列表中的名称、标识一致）；修改后需在 **版本管理与发布** 中发布新版本才生效。
-
-| 权限名称（开放平台中显示） | 权限标识 | 说明 |
-|----------------------------|----------|------|
-| 获取与发送单聊、群组消息 | `im:message` | 收发消息的基础权限，**必须开通**。 |
-| 接收群聊中@机器人消息事件 | `im:message.group_at_msg:readonly` | 群聊中 @ 机器人时收消息，需开通。 |
-| 读取用户发给机器人的单聊消息 | `im:message.p2p_msg:readonly` | 单聊收消息，**必须开通**，否则私聊发消息没反应。 |
-| 获取单聊、群组消息 | `im:message:readonly` | 读取消息内容，**必须开通**。 |
-
-**事件订阅**（与权限分开配置）：在 **事件订阅** 中添加 **接收消息（im.message.receive_v1）**，否则长连接收不到消息推送。
-
-- **单聊**：在飞书里打开与机器人的私聊窗口，直接发「帮助」或任意文字即可，无需 @。  
-- **群聊**：在群里只有 **@ 机器人** 后发送的内容才会被机器人收到并回复。
+If you only have a **custom bot** Webhook URL (`oapi.dingtalk.com/robot/send?access_token=...`) and sign secret (`SEC...`), **do not** put them into CyberStrikeAI. You must create an **enterprise internal app** in the open platform and obtain **Client ID** and **Client Secret** as below.
 
 ---
 
-### 3.3 企业微信 (WeCom)
+**DingTalk setup (in order)**
 
-> 企业微信目前采用「HTTP 回调 + 主动发送消息 API」的方式工作：  
-> - 用户发消息 → 企业微信以加密 XML **回调到你的服务器**（本程序的 `/api/robot/wecom`）；  
-> - CyberStrikeAI 解密并调用 AI → 使用企业微信的 `message/send` 接口**主动发消息给用户**。
+1. **Open DingTalk Open Platform**  
+   Go to [https://open.dingtalk.com](https://open.dingtalk.com) and log in with an **enterprise admin** account.
 
-**配置概览：**
+2. **Create or select an app**  
+   In the left menu: **Application development** → **Enterprise internal development** → **Create application** (or choose an existing app). Fill in the app name and create.
 
-- 在企业微信管理后台创建或选择一个**自建应用**。
-- 在该应用的「接收消息」处配置回调 URL、Token、EncodingAESKey。
-- 在 CyberStrikeAI 的 `config.yaml` 中填入：
-  - `robots.wecom.corp_id`：企业 ID（CorpID）
-  - `robots.wecom.agent_id`：应用的 AgentId
-  - `robots.wecom.token`：消息回调使用的 Token
-  - `robots.wecom.encoding_aes_key`：消息回调使用的 EncodingAESKey
-  - `robots.wecom.secret`：该应用的 Secret（用于调用企业微信主动发送消息接口）
+3. **Get Client ID and Client Secret**  
+   - In the left menu open **Credentials and basic info** (under “Basic information”).  
+   - Copy **Client ID (formerly AppKey)** and **Client Secret (formerly AppSecret)**.  
+   - Use copy/paste; avoid typing by hand. Watch for **0** vs **o** and **1** vs **l** (e.g. `ding9gf9tiozuc504aer` has the digits **504**, not 5o4).
 
-> **重要：IP 白名单（errcode 60020）**  
-> CyberStrikeAI 使用 `https://qyapi.weixin.qq.com/cgi-bin/message/send` 主动发送 AI 回复。  
-> 若企业微信日志或本程序日志中出现 `errcode 60020 not allow to access from your ip`：
+4. **Enable the bot and choose Stream mode**  
+   - Left menu: **Application capabilities** → **Robot**.  
+   - Turn on “Robot configuration”.  
+   - Fill in robot name, description, etc. as required.  
+   - **Critical**: set message reception to **“Stream mode”** (流式接入). If you only enable “HTTP callback” or do not select Stream, CyberStrikeAI will not receive messages.  
+   - Save.
+
+5. **Permissions and release**  
+   - Left menu: **Permission management** — search for “robot”, “message”, etc., and enable **receive message**, **send message**, and other bot-related permissions; confirm.  
+   - Left menu: **Version management and release** — if there are unpublished changes, click **Release new version** / **Publish**; otherwise changes do not take effect.
+
+6. **Fill in CyberStrikeAI**  
+   - In CyberStrikeAI: System settings → Robot settings → DingTalk.  
+   - Enable “Enable DingTalk robot”.  
+   - Paste the Client ID and Client Secret from step 3.  
+   - Click **Apply configuration**, then **restart CyberStrikeAI**.
+
+---
+
+**Field mapping (DingTalk)**
+
+| Field in CyberStrikeAI | Source in DingTalk Open Platform |
+|------------------------|----------------------------------|
+| Enable DingTalk robot | Check to enable |
+| Client ID (AppKey) | Credentials and basic info → **Client ID (formerly AppKey)** |
+| Client Secret | Credentials and basic info → **Client Secret (formerly AppSecret)** |
+
+---
+
+### 3.2 Lark (Feishu)
+
+| Field | Description |
+|-------|-------------|
+| Enable Lark robot | Check to start the Lark long-lived connection |
+| App ID | From Lark open platform app credentials |
+| App Secret | From Lark open platform app credentials |
+| Verify Token | Optional; for event subscription |
+
+**Lark setup in short**: Log in to [Lark Open Platform](https://open.feishu.cn) → Create an enterprise app → In “Credentials and basic info” get **App ID** and **App Secret** → In “Application capabilities” enable **Robot** and the right permissions → Add **event subscription** and **permissions** below → Publish the app → Enter App ID and App Secret in CyberStrikeAI robot settings → Save and **restart** the app.
+
+**Event subscription**  
+The long-lived connection only receives message events if you subscribe to them. In the app’s **Events and callbacks** (事件与回调) → **Event subscription** (事件订阅), add the event **Receive message** (**im.message.receive_v1**). Without it, the connection succeeds but no message events are delivered (no logs when users send messages).
+
+**Lark permissions (required)**  
+In **Permission management** (权限管理), enable the following (names and identifiers match the Lark console). After changes, **publish a new version** in Version management and release so they take effect.
+
+| Permission name (as shown in console) | Identifier | Notes |
+|--------------------------------------|------------|-------|
+| 获取与发送单聊、群组消息 (Get and send direct & group messages) | `im:message` | Base permission for sending and receiving; **required**. |
+| 接收群聊中@机器人消息事件 (Receive @bot messages in group chat) | `im:message.group_at_msg:readonly` | Required for group chat when users @ the bot. |
+| 读取用户发给机器人的单聊消息 (Read direct messages from users to bot) | `im:message.p2p_msg:readonly` | **Required** for 1:1 chat; otherwise no response in private chat. |
+| 获取单聊、群组消息 (Get direct & group messages) | `im:message:readonly` | **Required** to read message content. |
+
+* English note.
+
+- **1:1 chat**: Open the bot’s private chat in Lark and send e.g. “帮助” or “help”; no @ needed.  
+- **Group chat**: Only messages that **@ the bot** are received and replied to.
+
+---
+
+### 3.3 WeCom (Enterprise WeChat)
+
+> WeCom uses a **“HTTP callback + active message send API”** model:  
+> - User sends a message → WeCom sends an **encrypted XML callback** to your server (CyberStrikeAI’s `/api/robot/wecom`).  
+> - CyberStrikeAI decrypts it, calls the AI, then uses WeCom’s `message/send` API to **actively push the reply** to the user.
+
+**Configuration overview:**
+
+- In the WeCom admin console, create or select a **custom app** (自建应用).
+- In that app’s settings, configure the message **callback URL**, **Token**, and **EncodingAESKey**.
+- In CyberStrikeAI’s `config.yaml`, fill in:
+  - `robots.wecom.corp_id`: your CorpID (企业 ID)
+  - `robots.wecom.agent_id`: the app’s AgentId
+  - `robots.wecom.token`: the Token used for message callbacks
+  - `robots.wecom.encoding_aes_key`: the EncodingAESKey used for callbacks
+  - `robots.wecom.secret`: the app’s Secret (used when calling WeCom APIs to send messages)
+
+> **Important: IP allowlist (errcode 60020)**  
+> CyberStrikeAI calls `https://qyapi.weixin.qq.com/cgi-bin/message/send` to actively send AI replies.  
+> If logs show `errcode 60020 not allow to access from your ip`:
 >
-> - 说明你的服务器出口 IP **没有加入企业微信的 IP 白名单**；  
-> - 请在企业微信管理后台中找到该自建应用的**「安全设置 / IP 白名单」**（具体入口可能因版本略有不同），将运行 CyberStrikeAI 的服务器公网 IP（如 `110.xxx.xxx.xxx`）加入白名单；  
-> - 保存后等待生效，再次发送消息测试。
+> - Your server’s outbound IP is **not in WeCom’s IP allowlist**.  
+> - In the WeCom admin console, open the custom app’s **Security / IP allowlist** settings (name may vary slightly), and add the public IP of the machine running CyberStrikeAI (e.g. `110.xxx.xxx.xxx`).  
+> - Save and wait for it to take effect, then test again.
 >
-> 如果 IP 未加入白名单，企业微信会拒绝主动发送消息，表现为：  
-> - 回调接口 `/api/robot/wecom` 能正常收到并处理消息；  
-> - 但手机端**始终收不到 AI 回复**，日志中有 `not allow to access from your ip` 提示。
+> If the IP is not whitelisted, WeCom will reject active message sending. You will see that `/api/robot/wecom` receives and processes callbacks, but users **never see AI replies**, and logs contain `not allow to access from your ip`.
 
 ---
 
-## 四、机器人命令
+## 4. Bot commands
 
-在钉钉/飞书中向机器人发送以下**文本命令**（仅支持文本）：
+Send these **text commands** to the bot in DingTalk or Lark (text only):
 
-| 命令 | 说明 |
-|------|------|
-| **帮助** | 显示命令帮助与说明 |
-| **列表** 或 **对话列表** | 列出所有对话的标题与对话 ID |
-| **切换 \<对话ID\>** 或 **继续 \<对话ID\>** | 指定对话 ID，后续消息在该对话中继续 |
-| **新对话** | 开启一个新对话，后续消息在新对话中 |
-| **清空** | 清空当前对话上下文（效果等同「新对话」） |
-| **当前** | 显示当前对话 ID 与标题 |
-| **停止** | 中断当前正在执行的任务 |
-| **角色** 或 **角色列表** | 列出所有可用角色（渗透测试、CTF、Web 应用扫描等） |
-| **角色 \<角色名\>** 或 **切换角色 \<角色名\>** | 切换当前使用的角色 |
-| **删除 \<对话ID\>** | 删除指定对话 |
-| **版本** | 显示当前 CyberStrikeAI 版本号 |
+| Command | Description |
+|---------|-------------|
+| **帮助** (help) | Show command help |
+| **列表** or **对话列表** (list) | List all conversation titles and IDs |
+| **切换 \<conversationID\>** or **继续 \<conversationID\>** | Continue in the given conversation |
+| **新对话** (new) | Start a new conversation |
+| **清空** (clear) | Clear current context (same effect as new conversation) |
+| **当前** (current) | Show current conversation ID and title |
+| **停止** (stop) | Abort the currently running task |
+| **角色** or **角色列表** (roles) | List all available roles (penetration testing, CTF, Web scan, etc.) |
+| **角色 \<roleName\>** or **切换角色 \<roleName\>** | Switch to the specified role |
+| **删除 \<conversationID\>** | Delete the specified conversation |
+| **版本** (version) | Show current CyberStrikeAI version |
 
-除以上命令外，**直接输入任意文字**会作为用户消息发给 AI，与 Web 端对话逻辑一致（渗透测试/安全分析等）。
-
----
-
-## 五、如何使用（要 @ 机器人吗？）
-
-- **单聊（推荐）**：在钉钉/飞书里**搜索并打开该机器人**，进入与机器人的**私聊**，直接输入「帮助」或任意文字即可，**不需要 @**。  
-- **群聊**：若机器人被添加到群里，在群内只有 **@机器人** 后发送的消息才会被机器人收到并回复；不 @ 的群消息不会触发机器人。
-
-总结：和机器人**单聊时直接发**；在**群里用时需要 @机器人** 再发内容。
+Any other text is sent to the AI as a user message, same as in the web UI (e.g. penetration testing, security analysis).
 
 ---
 
-## 六、推荐使用流程（避免漏步骤）
+## 5. How to use (do I need to @ the bot?)
 
-1. **在开放平台**：按第三节完成钉钉或飞书应用创建、凭证复制、机器人开通（钉钉务必选 **Stream 模式**）、权限与发布。  
-2. **在 CyberStrikeAI**：系统设置 → 机器人设置 → 勾选对应平台，粘贴 Client ID/App ID、Client Secret/App Secret → 点击 **应用配置**。  
-3. **重启 CyberStrikeAI 进程**（否则长连接不会建立）。  
-4. **在手机钉钉/飞书**：找到该机器人（单聊直接发，群聊需 @机器人），发「帮助」或任意内容测试。
+- **Direct chat (recommended)**: In DingTalk or Lark, **search for the bot and open a direct chat**. Type “帮助” or any message; **no @ needed**.  
+- **Group chat**: If the bot is in a group, only messages that **@ the bot** are received and answered; other group messages are ignored.
 
-若发消息没反应，先看 **第九节排查** 和 **第十节常见弯路**。
+Summary: **Direct chat** — just send; **in a group** — @ the bot first, then send.
 
 ---
 
-## 七、配置文件示例
+## 6. Recommended flow (so you don’t skip steps)
 
-`config.yaml` 中机器人相关片段示例：
+1. **In the open platform**: Complete app creation, copy credentials, enable the bot (DingTalk: **Stream mode**), set permissions, and publish (Section 3).  
+2. **In CyberStrikeAI**: System settings → Robot settings → Enable the platform, paste Client ID/App ID and Client Secret/App Secret → **Apply configuration**.  
+3. **Restart the CyberStrikeAI process** (otherwise the long-lived connection is not established).  
+4. **On your phone**: Open DingTalk or Lark, find the bot (direct chat or @ in a group), send “帮助” or any message to test.
+
+If the bot does not respond, see **Section 9 (troubleshooting)** and **Section 10 (common pitfalls)**.
+
+---
+
+## 7. Config file example
+
+Example `robots` section in `config.yaml`:
 
 ```yaml
 robots:
@@ -210,66 +207,66 @@ robots:
     verify_token: ""
 ```
 
-修改后需**重启应用**，长连接在应用启动时建立。
+**Restart the app** after changes; the long-lived connection is created at startup.
 
 ---
 
-## 八、如何验证是否可用（无需钉钉/飞书客户端）
+## 8. Testing without DingTalk/Lark installed
 
-在未安装钉钉或飞书时，可用**测试接口**验证机器人逻辑是否正常：
+You can verify bot logic with the **test API** (no DingTalk/Lark client needed):
 
-1. 先登录 CyberStrikeAI Web 端（保证有登录态）。  
-2. 使用 curl 调用测试接口（需携带登录后的 Cookie）：
+1. Log in to the CyberStrikeAI web UI (so you have a session).
+2. Call the test endpoint with curl (include your session Cookie):
 
 ```bash
-# 将 YOUR_COOKIE 替换为登录后获得的 Cookie（浏览器 F12 → 网络 → 任意请求 → 请求头中的 Cookie）
+# Replace YOUR_COOKIE with the Cookie from your browser (F12 → Network → any request → Request headers → Cookie)
 curl -X POST "http://localhost:8080/api/robot/test" \
   -H "Content-Type: application/json" \
   -H "Cookie: YOUR_COOKIE" \
   -d '{"platform":"dingtalk","user_id":"test_user","text":"帮助"}'
 ```
 
-若返回 JSON 中含有 `"reply":"【CyberStrikeAI 机器人命令】..."`，说明命令处理正常。可再试 `"text":"列表"`、`"text":"当前"` 等。
+If the JSON response contains `"reply":"【CyberStrikeAI 机器人命令】..."`, command handling works. You can also try `"text":"列表"` or `"text":"当前"`.
 
-接口说明：`POST /api/robot/test`（需登录），请求体 `{"platform":"可选","user_id":"可选","text":"必填"}`，响应 `{"reply":"回复内容"}`。
-
----
-
-## 九、钉钉发消息没反应时排查
-
-按顺序检查：
-
-0. **笔记本合盖睡眠 / 断网后**  
-   钉钉、飞书均使用长连接收消息，睡眠或断网后连接会断开。程序会**自动重连**（约 5 秒～60 秒内重试）。唤醒或恢复网络后稍等一会儿再发消息；若仍无反应，可重启 CyberStrikeAI 进程。
-
-1. **Client ID / Client Secret 是否与开放平台完全一致**  
-   从「凭证与基础信息」里**复制粘贴**，不要手打。注意数字 **0** 与字母 **o**、数字 **1** 与字母 **l**（例如 `ding9gf9tiozuc504aer` 中间是 **504** 不是 5o4）。
-
-2. **是否在保存配置后重启了应用**  
-   机器人长连接在**应用启动时**建立。在 Web 端点击「应用配置」只写入配置文件，**必须重启 CyberStrikeAI 进程**后钉钉连接才会生效。
-
-3. **看程序日志**  
-   - 启动后应看到：`钉钉 Stream 正在连接…`、`钉钉 Stream 已启动（无需公网），等待收消息`。  
-   - 若出现 `钉钉 Stream 长连接退出` 且带错误信息，多为 **Client ID / Client Secret 错误**或**开放平台未开通流式接入**。  
-   - 在钉钉里发一条消息后，若有收到，应有日志：`钉钉收到消息`；若没有，说明钉钉未把消息推到本程序（回头检查开放平台「机器人」是否开通、是否选用 **Stream 模式**）。
-
-4. **开放平台侧**  
-   应用需已**发布**；在「机器人」能力中需开启**流式接入（Stream）** 用于接收消息（仅 HTTP 回调不够）；权限管理里需有机器人接收、发送消息等权限。
+API: `POST /api/robot/test` (requires login). Body: `{"platform":"optional","user_id":"optional","text":"required"}`. Response: `{"reply":"..."}`.
 
 ---
 
-## 十、常见弯路（避免踩坑）
+## 9. DingTalk: no response when sending messages
 
-- **用错了机器人类型**：在钉钉**群里**添加的「自定义」机器人（Webhook + 加签）**不能**用来做对话，本程序只支持**开放平台「企业内部应用」**里的机器人。  
-- **只保存没重启**：在 CyberStrikeAI 里改完机器人配置后必须**重启应用**，否则长连接不会建立。  
-- **Client ID 抄错**：开放平台是 `504` 就填 `504`，不要填成 `5o4`；尽量用复制粘贴。  
-- **钉钉只开了 HTTP 回调没开 Stream**：本程序通过 **Stream 长连接**收消息，开放平台里机器人的消息接收方式必须选 **Stream 模式**。  
-- **应用没发布**：开放平台里修改了机器人或权限后，要在「版本管理与发布」里**发布新版本**，否则不生效。
+Check in this order:
+
+0. **After laptop sleep or network drop**  
+   DingTalk and Lark both use long-lived connections; they break when the machine sleeps or the network drops. The app **auto-reconnects** (retries within about 5–60 seconds). After wake or network recovery, wait a moment before sending; if there is still no response, restart the CyberStrikeAI process.
+
+1. **Client ID / Client Secret match the open platform exactly**  
+   Copy from “Credentials and basic info”; avoid typing. Watch **0** vs **o** and **1** vs **l** (e.g. `ding9gf9tiozuc504aer` has **504**, not 5o4).
+
+2. **Did you restart after saving?**  
+   The long-lived connection is created at **startup**. “Apply configuration” only updates the config file; you **must restart the CyberStrikeAI process** for the DingTalk connection to start.
+
+3. **Application logs**  
+   - On startup you should see: `钉钉 Stream 正在连接…`, `钉钉 Stream 已启动（无需公网），等待收消息`.  
+   - If you see `钉钉 Stream 长连接退出` with an error, it’s usually wrong **Client ID / Client Secret** or **Stream not enabled** in the open platform.  
+   - After sending a message in DingTalk, you should see `钉钉收到消息` in the logs; if not, the platform is not pushing to this app (check that the bot is enabled and **Stream mode** is selected).
+
+4. **Open platform**  
+   The app must be **published**. Under “Robot” you must enable **Stream** for receiving messages (HTTP callback only is not enough). Permission management must include robot receive/send message permissions.
 
 ---
 
-## 十一、注意事项
+## 10. Common pitfalls
 
-- 钉钉、飞书均**仅处理文本消息**；其他类型（如图片、语音）会提示暂不支持或忽略。  
-- 会话与 Web 端共用同一套对话数据：在机器人里创建的对话会在 Web 端「对话」列表中看到，反之亦然。  
-- 机器人执行逻辑与 **`/api/agent-loop/stream`** 一致（含进度回调、过程详情写入数据库），仅不向客户端推送 SSE，最后将完整回复一次性发回钉钉/飞书/企业微信。
+- **Wrong bot type**: The “Custom” bot added in a DingTalk **group** (Webhook + sign secret) **cannot** be used for two-way chat. Only the **enterprise internal app** bot from the open platform is supported.  
+- **Saved but not restarted**: After changing robot settings in CyberStrikeAI you **must restart** the app, or the long-lived connection will not be established.  
+- **Client ID typo**: If the platform shows `504`, use `504` (not `5o4`); prefer copy/paste.  
+- **DingTalk: only HTTP callback, no Stream**: This app receives messages via **Stream**. In the open platform, message reception must be **Stream mode**.  
+- **App not published**: After changing the bot or permissions in the open platform, **publish a new version** under “Version management and release”, or changes won’t apply.
+
+---
+
+## 11. Notes
+
+- DingTalk and Lark: **text messages only**; other types (e.g. image, voice) are not supported and may be ignored.  
+- Conversations are shared with the web UI: conversations created from the bot appear in the web “Conversations” list and vice versa.  
+- Bot execution uses the same logic as **`/api/agent-loop/stream`** (progress callbacks, process details stored in the DB); only the final reply is sent back to DingTalk/Lark in one message (no SSE to the client).

@@ -20,7 +20,7 @@ import (
 	"go.uber.org/zap"
 )
 
-// Builder 攻击链构建器
+// English note.
 type Builder struct {
 	db           *database.DB
 	logger       *zap.Logger
@@ -30,19 +30,19 @@ type Builder struct {
 	maxTokens    int // 最大tokens限制，默认100000
 }
 
-// Node 攻击链节点（使用database包的类型）
+// English note.
 type Node = database.AttackChainNode
 
-// Edge 攻击链边（使用database包的类型）
+// English note.
 type Edge = database.AttackChainEdge
 
-// Chain 完整的攻击链
+// English note.
 type Chain struct {
 	Nodes []Node `json:"nodes"`
 	Edges []Edge `json:"edges"`
 }
 
-// NewBuilder 创建新的攻击链构建器
+// English note.
 func NewBuilder(db *database.DB, openAIConfig *config.OpenAIConfig, logger *zap.Logger) *Builder {
 	transport := &http.Transport{
 		MaxIdleConns:        100,
@@ -51,12 +51,12 @@ func NewBuilder(db *database.DB, openAIConfig *config.OpenAIConfig, logger *zap.
 	}
 	httpClient := &http.Client{Timeout: 5 * time.Minute, Transport: transport}
 
-	// 优先使用配置文件中的统一 Token 上限（config.yaml -> openai.max_total_tokens）
+	// English note.
 	maxTokens := 0
 	if openAIConfig != nil && openAIConfig.MaxTotalTokens > 0 {
 		maxTokens = openAIConfig.MaxTotalTokens
 	} else if openAIConfig != nil {
-		// 如果未显式配置 max_total_tokens，则根据模型设置一个合理的默认值
+		// English note.
 		model := strings.ToLower(openAIConfig.Model)
 		if strings.Contains(model, "gpt-4") {
 			maxTokens = 128000 // gpt-4通常支持128k
@@ -68,7 +68,7 @@ func NewBuilder(db *database.DB, openAIConfig *config.OpenAIConfig, logger *zap.
 			maxTokens = 100000 // 兜底默认值
 		}
 	} else {
-		// 没有 OpenAI 配置时使用兜底值，避免为 0
+		// English note.
 		maxTokens = 100000
 	}
 
@@ -82,11 +82,11 @@ func NewBuilder(db *database.DB, openAIConfig *config.OpenAIConfig, logger *zap.
 	}
 }
 
-// BuildChainFromConversation 从对话构建攻击链（简化版本：用户输入+最后一轮ReAct输入+大模型输出）
+// English note.
 func (b *Builder) BuildChainFromConversation(ctx context.Context, conversationID string) (*Chain, error) {
 	b.logger.Info("开始构建攻击链（简化版本）", zap.String("conversationId", conversationID))
 
-	// 0. 首先检查是否有实际的工具执行记录
+	// English note.
 	messages, err := b.db.GetMessages(conversationID)
 	if err != nil {
 		return nil, fmt.Errorf("获取对话消息失败: %w", err)
@@ -97,8 +97,8 @@ func (b *Builder) BuildChainFromConversation(ctx context.Context, conversationID
 		return &Chain{Nodes: []Node{}, Edges: []Edge{}}, nil
 	}
 
-	// 检查是否有实际的工具执行：assistant 的 mcp_execution_ids，或过程详情中的 tool_call/tool_result
-	//（多代理下若 MCP 未返回 execution_id，IDs 可能为空，但工具已通过 Eino 执行并写入 process_details）
+	// English note.
+	// English note.
 	hasToolExecutions := false
 	for i := len(messages) - 1; i >= 0; i-- {
 		if strings.EqualFold(messages[i].Role, "assistant") {
@@ -116,7 +116,7 @@ func (b *Builder) BuildChainFromConversation(ctx context.Context, conversationID
 		}
 	}
 
-	// 检查任务是否被取消（通过检查最后一条assistant消息内容或process_details）
+	// English note.
 	taskCancelled := false
 	for i := len(messages) - 1; i >= 0; i-- {
 		if strings.EqualFold(messages[i].Role, "assistant") {
@@ -128,7 +128,7 @@ func (b *Builder) BuildChainFromConversation(ctx context.Context, conversationID
 		}
 	}
 
-	// 如果任务被取消且没有实际工具执行，返回空攻击链
+	// English note.
 	if taskCancelled && !hasToolExecutions {
 		b.logger.Info("任务已取消且没有实际工具执行，返回空攻击链",
 			zap.String("conversationId", conversationID),
@@ -137,18 +137,18 @@ func (b *Builder) BuildChainFromConversation(ctx context.Context, conversationID
 		return &Chain{Nodes: []Node{}, Edges: []Edge{}}, nil
 	}
 
-	// 如果没有实际工具执行，也返回空攻击链（避免AI编造）
+	// English note.
 	if !hasToolExecutions {
 		b.logger.Info("没有实际工具执行记录，返回空攻击链",
 			zap.String("conversationId", conversationID))
 		return &Chain{Nodes: []Node{}, Edges: []Edge{}}, nil
 	}
 
-	// 1. 优先尝试从数据库获取保存的最后一轮ReAct输入和输出
+	// English note.
 	reactInputJSON, modelOutput, err := b.db.GetReActData(conversationID)
 	if err != nil {
 		b.logger.Warn("获取保存的ReAct数据失败，将使用消息历史构建", zap.Error(err))
-		// 继续使用原来的逻辑
+		// English note.
 		reactInputJSON = ""
 		modelOutput = ""
 	}
@@ -157,13 +157,13 @@ func (b *Builder) BuildChainFromConversation(ctx context.Context, conversationID
 	var reactInputFinal string
 	var dataSource string // 记录数据来源
 
-	// 如果成功获取到保存的ReAct数据，直接使用
+	// English note.
 	if reactInputJSON != "" && modelOutput != "" {
-		// 计算 ReAct 输入的哈希值，用于追踪
+		// English note.
 		hash := sha256.Sum256([]byte(reactInputJSON))
 		reactInputHash := hex.EncodeToString(hash[:])[:16] // 使用前16字符作为短标识
 
-		// 统计消息数量
+		// English note.
 		var messageCount int
 		var tempMessages []interface{}
 		if json.Unmarshal([]byte(reactInputJSON), &tempMessages) == nil {
@@ -179,20 +179,20 @@ func (b *Builder) BuildChainFromConversation(ctx context.Context, conversationID
 			zap.String("reactInputHash", reactInputHash),
 			zap.Int("modelOutputSize", len(modelOutput)))
 
-		// 从保存的ReAct输入（JSON格式）中提取用户输入
+		// English note.
 		// userInput = b.extractUserInputFromReActInput(reactInputJSON)
 
-		// 将JSON格式的messages转换为可读格式
+		// English note.
 		reactInputFinal = b.formatReActInputFromJSON(reactInputJSON)
 	} else {
-		// 2. 如果没有保存的ReAct数据，从对话消息构建
+		// English note.
 		dataSource = "messages_table"
 		b.logger.Info("从消息历史构建ReAct数据",
 			zap.String("conversationId", conversationID),
 			zap.String("dataSource", dataSource),
 			zap.Int("messageCount", len(messages)))
 
-		// 提取用户输入（最后一条user消息）
+		// English note.
 		for i := len(messages) - 1; i >= 0; i-- {
 			if strings.EqualFold(messages[i].Role, "user") {
 				// userInput = messages[i].Content
@@ -200,10 +200,10 @@ func (b *Builder) BuildChainFromConversation(ctx context.Context, conversationID
 			}
 		}
 
-		// 提取最后一轮ReAct的输入（历史消息+当前用户输入）
+		// English note.
 		reactInputFinal = b.buildReActInput(messages)
 
-		// 提取大模型最后的输出（最后一条assistant消息）
+		// English note.
 		for i := len(messages) - 1; i >= 0; i-- {
 			if strings.EqualFold(messages[i].Role, "assistant") {
 				modelOutput = messages[i].Content
@@ -212,7 +212,7 @@ func (b *Builder) BuildChainFromConversation(ctx context.Context, conversationID
 		}
 	}
 
-	// 多代理：保存的 last_react_input 可能仅为首轮用户消息，不含工具轨迹；补充最后一轮助手的过程详情（与单代理「最后一轮 ReAct」对齐）
+	// English note.
 	hasMCPOnAssistant := false
 	var lastAssistantID string
 	for i := len(messages) - 1; i >= 0; i-- {
@@ -243,19 +243,19 @@ func (b *Builder) BuildChainFromConversation(ctx context.Context, conversationID
 		}
 	}
 
-	// 3. 构建简化的prompt，一次性传递给大模型
+	// English note.
 	prompt := b.buildSimplePrompt(reactInputFinal, modelOutput)
 	// fmt.Println(prompt)
-	// 6. 调用AI生成攻击链（一次性，不做任何处理）
+	// English note.
 	chainJSON, err := b.callAIForChainGeneration(ctx, prompt)
 	if err != nil {
 		return nil, fmt.Errorf("AI生成失败: %w", err)
 	}
 
-	// 7. 解析JSON并生成节点/边ID（前端需要有效的ID）
+	// English note.
 	chainData, err := b.parseChainJSON(chainJSON)
 	if err != nil {
-		// 如果解析失败，返回空链，让前端处理错误
+		// English note.
 		b.logger.Warn("解析攻击链JSON失败", zap.Error(err), zap.String("raw_json", chainJSON))
 		return &Chain{
 			Nodes: []Node{},
@@ -269,17 +269,17 @@ func (b *Builder) BuildChainFromConversation(ctx context.Context, conversationID
 		zap.Int("nodes", len(chainData.Nodes)),
 		zap.Int("edges", len(chainData.Edges)))
 
-	// 保存到数据库（供后续加载使用）
+	// English note.
 	if err := b.saveChain(conversationID, chainData.Nodes, chainData.Edges); err != nil {
 		b.logger.Warn("保存攻击链到数据库失败", zap.Error(err))
-		// 即使保存失败，也返回数据给前端
+		// English note.
 	}
 
-	// 直接返回，不做任何处理和校验
+	// English note.
 	return chainData, nil
 }
 
-// reactInputContainsToolTrace 判断保存的 ReAct JSON 是否包含可解析的工具调用轨迹（单代理完整保存时为 true）。
+// English note.
 func reactInputContainsToolTrace(reactInputJSON string) bool {
 	s := strings.TrimSpace(reactInputJSON)
 	if s == "" {
@@ -291,21 +291,21 @@ func reactInputContainsToolTrace(reactInputJSON string) bool {
 		strings.Contains(s, `"role": "tool"`)
 }
 
-// formatProcessDetailsForAttackChain 将最后一轮助手的过程详情格式化为攻击链分析的输入（覆盖多代理下 last_react_input 不完整的情况）。
+// English note.
 func (b *Builder) formatProcessDetailsForAttackChain(details []database.ProcessDetail) string {
 	if len(details) == 0 {
 		return ""
 	}
 	var sb strings.Builder
 	for _, d := range details {
-		// 目标：以主 agent（编排器）视角输出整轮迭代
-		// - 保留：编排器工具调用/结果、对子代理的 task 调度、子代理最终回复（不含推理）
-		// - 丢弃：thinking/planning/progress 等噪声、子代理的工具细节与推理过程
+		// English note.
+		// English note.
+		// English note.
 		if d.EventType == "progress" || d.EventType == "thinking" || d.EventType == "planning" {
 			continue
 		}
 
-		// 解析 data（JSON string），用于识别 einoRole / toolName 等
+		// English note.
 		var dataMap map[string]interface{}
 		if strings.TrimSpace(d.Data) != "" {
 			_ = json.Unmarshal([]byte(d.Data), &dataMap)
@@ -319,7 +319,7 @@ func (b *Builder) formatProcessDetailsForAttackChain(details []database.ProcessD
 			toolName = strings.TrimSpace(fmt.Sprint(v))
 		}
 
-		// 1) 编排器的工具调用/结果：保留（这是“主 agent 调了什么工具”）
+		// English note.
 		if (d.EventType == "tool_call" || d.EventType == "tool_result" || d.EventType == "tool_calls_detected" || d.EventType == "iteration" || d.EventType == "eino_recovery") && einoRole == "orchestrator" {
 			sb.WriteString("[")
 			sb.WriteString(d.EventType)
@@ -334,7 +334,7 @@ func (b *Builder) formatProcessDetailsForAttackChain(details []database.ProcessD
 			continue
 		}
 
-		// 2) 子代理调度：tool_call(toolName=="task") 代表编排器把子任务派发出去；保留（只需任务，不要子代理推理）
+		// English note.
 		if d.EventType == "tool_call" && strings.EqualFold(toolName, "task") {
 			sb.WriteString("[dispatch_subagent_task] ")
 			sb.WriteString(strings.TrimSpace(d.Message))
@@ -347,12 +347,12 @@ func (b *Builder) formatProcessDetailsForAttackChain(details []database.ProcessD
 			continue
 		}
 
-		// 3) 子代理最终回复：保留（只保留最终输出，不保留分析过程）
+		// English note.
 		if d.EventType == "eino_agent_reply" && einoRole == "sub" {
 			sb.WriteString("[subagent_final_reply] ")
 			sb.WriteString(strings.TrimSpace(d.Message))
 			sb.WriteString("\n")
-			// data 里含 einoAgent 等元信息，保留有助于追踪“哪个子代理说的”
+			// English note.
 			if strings.TrimSpace(d.Data) != "" {
 				sb.WriteString(d.Data)
 				sb.WriteString("\n")
@@ -361,12 +361,12 @@ func (b *Builder) formatProcessDetailsForAttackChain(details []database.ProcessD
 			continue
 		}
 
-		// 其他事件默认丢弃，避免把子代理工具细节/推理塞进 prompt，偏离“主 agent 一轮迭代”的视角。
+		// English note.
 	}
 	return strings.TrimSpace(sb.String())
 }
 
-// buildReActInput 构建最后一轮ReAct的输入（历史消息+当前用户输入）
+// English note.
 func (b *Builder) buildReActInput(messages []database.Message) string {
 	var builder strings.Builder
 	for _, msg := range messages {
@@ -375,16 +375,16 @@ func (b *Builder) buildReActInput(messages []database.Message) string {
 	return builder.String()
 }
 
-// extractUserInputFromReActInput 从保存的ReAct输入（JSON格式的messages数组）中提取最后一条用户输入
+// English note.
 // func (b *Builder) extractUserInputFromReActInput(reactInputJSON string) string {
-// 	// reactInputJSON是JSON格式的ChatMessage数组，需要解析
+// English note.
 // 	var messages []map[string]interface{}
 // 	if err := json.Unmarshal([]byte(reactInputJSON), &messages); err != nil {
-// 		b.logger.Warn("解析ReAct输入JSON失败", zap.Error(err))
+// English note.
 // 		return ""
 // 	}
 
-// 	// 从后往前查找最后一条user消息
+// English note.
 // 	for i := len(messages) - 1; i >= 0; i-- {
 // 		if role, ok := messages[i]["role"].(string); ok && strings.EqualFold(role, "user") {
 // 			if content, ok := messages[i]["content"].(string); ok {
@@ -396,7 +396,7 @@ func (b *Builder) buildReActInput(messages []database.Message) string {
 // 	return ""
 // }
 
-// formatReActInputFromJSON 将JSON格式的messages数组转换为可读的字符串格式
+// English note.
 func (b *Builder) formatReActInputFromJSON(reactInputJSON string) string {
 	var messages []map[string]interface{}
 	if err := json.Unmarshal([]byte(reactInputJSON), &messages); err != nil {
@@ -409,14 +409,14 @@ func (b *Builder) formatReActInputFromJSON(reactInputJSON string) string {
 		role, _ := msg["role"].(string)
 		content, _ := msg["content"].(string)
 
-		// 处理assistant消息：提取tool_calls信息
+		// English note.
 		if role == "assistant" {
 			if toolCalls, ok := msg["tool_calls"].([]interface{}); ok && len(toolCalls) > 0 {
-				// 如果有文本内容，先显示
+				// English note.
 				if content != "" {
 					builder.WriteString(fmt.Sprintf("[%s]: %s\n", role, content))
 				}
-				// 详细显示每个工具调用
+				// English note.
 				builder.WriteString(fmt.Sprintf("[%s] 工具调用 (%d个):\n", role, len(toolCalls)))
 				for i, toolCall := range toolCalls {
 					if tc, ok := toolCall.(map[string]interface{}); ok {
@@ -436,7 +436,7 @@ func (b *Builder) formatReActInputFromJSON(reactInputJSON string) string {
 			}
 		}
 
-		// 处理tool消息：显示tool_call_id和完整内容
+		// English note.
 		if role == "tool" {
 			toolCallID, _ := msg["tool_call_id"].(string)
 			if toolCallID != "" {
@@ -447,18 +447,18 @@ func (b *Builder) formatReActInputFromJSON(reactInputJSON string) string {
 			continue
 		}
 
-		// 其他消息类型（system, user等）正常显示
+		// English note.
 		builder.WriteString(fmt.Sprintf("[%s]: %s\n\n", role, content))
 	}
 
 	return builder.String()
 }
 
-// buildSimplePrompt 构建简化的prompt
+// English note.
 func (b *Builder) buildSimplePrompt(reactInput, modelOutput string) string {
 	return fmt.Sprintf(`你是专业的安全测试分析师和攻击链构建专家。你的任务是根据对话记录和工具执行结果，构建一个逻辑清晰、有教育意义的攻击链图，完整展现渗透测试的思维过程和执行路径。
 
-## 核心目标
+# English note.
 
 构建一个能够讲述完整攻击故事的攻击链让学习者能够：
 1. 理解渗透测试的完整流程和思维逻辑（从目标识别到漏洞发现的每一步）
@@ -466,26 +466,26 @@ func (b *Builder) buildSimplePrompt(reactInput, modelOutput string) string {
 3. 掌握工具使用的实际效果和局限性
 4. 理解漏洞发现和利用的因果关系
 
-**关键原则**：完整性优先。必须包含所有有意义的工具执行和关键步骤，不要为了控制节点数量而遗漏重要信息。
+* English note.
 
-## 构建流程（按此顺序思考）
+# English note.
 
-### 第一步：理解上下文
+# English note.
 仔细分析ReAct输入中的工具调用序列和大模型输出，识别：
 - 测试目标（IP、域名、URL等）
 - 实际执行的工具和参数
 - 工具返回的关键信息（成功结果、错误信息、超时等）
 - AI的分析和决策过程
 
-### 第二步：提取关键节点
+# English note.
 从工具执行记录中提取有意义的节点，**确保不遗漏任何关键步骤**：
 - **target节点**：每个独立的测试目标创建一个target节点
 - **action节点**：每个有意义的工具执行创建一个action节点（包括提供线索的失败、成功的信息收集、漏洞验证等）
 - **vulnerability节点**：每个真实确认的漏洞创建一个vulnerability节点
 - **完整性检查**：对照ReAct输入中的工具调用序列，确保每个有意义的工具执行都被包含在攻击链中
 
-### 第三步：构建逻辑关系（树状结构）
-**重要：必须构建树状结构，而不是简单的线性链。**
+# English note.
+* English note.
 按照因果关系连接节点，形成树状图（因为是单agent执行，所以可以不按照时间顺序）：
 - **分支结构**：一个节点可以有多个后续节点（例如：端口扫描发现多个端口后，可以同时进行多个不同的测试）
 - **汇聚结构**：多个节点可以指向同一个节点（例如：多个不同的测试都发现了同一个漏洞）
@@ -494,60 +494,60 @@ func (b *Builder) buildSimplePrompt(reactInput, modelOutput string) string {
 - 识别失败节点如何为后续成功提供线索
 - **避免线性链**：不要将所有节点连成一条线，应该根据实际的并行测试和分支探索构建树状结构
 
-### 第四步：优化和精简
+# English note.
 - **完整性检查**：确保所有有意义的工具执行都被包含，不要遗漏关键步骤
 - **合并规则**：只合并真正相似或重复的action节点（如多次相同工具的相似调用）
 - **删除规则**：只删除完全无价值的失败节点（完全无输出、纯系统错误、重复的相同失败）
 - **重要提醒**：宁可保留更多节点，也不要遗漏关键步骤。攻击链必须完整展现渗透测试过程
 - 确保攻击链逻辑连贯，能够讲述完整故事
 
-## 节点类型详解
+# English note.
 
-### target（目标节点）
+# English note.
 - **用途**：标识测试目标
 - **创建规则**：每个独立目标（不同IP/域名）创建一个target节点
 - **多目标处理**：不同目标的节点不相互连接，各自形成独立的子图
 - **metadata.target**：精确记录目标标识（IP地址、域名、URL等）
 
-### action（行动节点）
+# English note.
 - **用途**：记录工具执行和AI分析结果
 - **标签规则**：
-  * 15-25个汉字，动宾结构
-  * 成功节点：描述执行结果（如"扫描端口发现80/443/8080"、"目录扫描发现/admin路径"）
-  * 失败节点：描述失败原因（如"尝试SQL注入（被WAF拦截）"、"端口扫描超时（目标不可达）"）
+  * English note.
+  * English note.
+  * English note.
 - **ai_analysis要求**：
-  * 成功节点：总结工具执行的关键发现，说明这些发现的意义
-  * 失败节点：必须说明失败原因、获得的线索、这些线索如何指引后续行动
-  * 不超过150字，要具体、有信息量
+  * English note.
+  * English note.
+  * English note.
 - **findings要求**：
-  * 提取工具返回结果中的关键信息点
-  * 每个finding应该是独立的、有价值的信息片段
-  * 成功节点：列出关键发现（如["80端口开放", "443端口开放", "HTTP服务为Apache 2.4"]）
-  * 失败节点：列出失败线索（如["WAF拦截", "返回403", "检测到Cloudflare"]）
+  * English note.
+  * English note.
+  * English note.
+  * English note.
 - **status标记**：
-  * 成功节点：不设置或设为"success"
-  * 提供线索的失败节点：必须设为"failed_insight"
+  * English note.
+  * English note.
 - **risk_score**：始终为0（action节点不评估风险）
 
-### vulnerability（漏洞节点）
+# English note.
 - **用途**：记录真实确认的安全漏洞
 - **创建规则**：
-  * 必须是真实确认的漏洞，不是所有发现都是漏洞
-  * 需要明确的漏洞证据（如SQL注入返回数据库错误、XSS成功执行等）
+  * English note.
+  * English note.
 - **risk_score规则**：
-  * critical（90-100）：可导致系统完全沦陷（RCE、SQL注入导致数据泄露等）
-  * high（80-89）：可导致敏感信息泄露或权限提升
-  * medium（60-79）：存在安全风险但影响有限
-  * low（40-59）：轻微安全问题
+  * English note.
+  * English note.
+  * English note.
+  * English note.
 - **metadata要求**：
-  * vulnerability_type：漏洞类型（SQL注入、XSS、RCE等）
-  * description：详细描述漏洞位置、原理、影响
+  * English note.
+  * English note.
   * severity：critical/high/medium/low
-  * location：精确的漏洞位置（URL、参数、文件路径等）
+  * English note.
 
-## 节点过滤和合并规则
+# English note.
 
-### 必须保留的失败节点
+# English note.
 以下失败情况必须创建节点，因为它们提供了有价值的线索：
 - 工具返回明确的错误信息（权限错误、连接拒绝、认证失败等）
 - 超时或连接失败（可能表明防火墙、网络隔离等）
@@ -555,18 +555,18 @@ func (b *Builder) buildSimplePrompt(reactInput, modelOutput string) string {
 - 工具未安装或配置错误（但执行了调用）
 - 目标不可达（DNS解析失败、网络不通等）
 
-### 应该删除的失败节点
+# English note.
 以下情况不应创建节点：
 - 完全无输出的工具调用
 - 纯系统错误（与目标无关，如本地环境问题）
 - 重复的相同失败（多次相同错误只保留第一次）
 
-### 节点合并规则
+# English note.
 以下情况应合并节点：
 - 同一工具的多次相似调用（如多次nmap扫描不同端口范围，合并为一个"端口扫描"节点）
 - 同一目标的多个相似探测（如多个目录扫描工具，合并为一个"目录扫描"节点）
 
-### 节点数量控制
+# English note.
 - **完整性优先**：必须包含所有有意义的工具执行和关键步骤，不要为了控制数量而删除重要节点
 - **建议范围**：单目标通常8-15个节点，但如果实际执行步骤较多，可以适当增加（最多20个节点）
 - **优先保留**：关键成功步骤、提供线索的失败、发现的漏洞、重要的信息收集步骤
@@ -574,41 +574,41 @@ func (b *Builder) buildSimplePrompt(reactInput, modelOutput string) string {
 - **可以删除**：完全无输出的工具调用、纯系统错误、重复的相同失败（多次相同错误只保留第一次）
 - **重要原则**：宁可节点稍多，也不要遗漏关键步骤。攻击链必须能够完整展现渗透测试的完整过程
 
-## 边的类型和权重
+# English note.
 
-### 边的类型
+# English note.
 - **leads_to**：表示"导致"或"引导到"，用于action→action、target→action
-  * 例如：端口扫描 → 目录扫描（因为发现了80端口，所以进行目录扫描）
+  * English note.
 - **discovers**：表示"发现"，**专门用于action→vulnerability**
-  * 例如：SQL注入测试 → SQL注入漏洞
-  * **重要**：所有action→vulnerability的边都必须使用discovers类型，即使多个action都指向同一个vulnerability，也应该统一使用discovers
+  * English note.
+  * English note.
 - **enables**：表示"使能"或"促成"，**仅用于vulnerability→vulnerability、action→action（当后续行动依赖前面结果时）**
-  * 例如：信息泄露漏洞 → 权限提升漏洞（通过信息泄露获得的信息促成了权限提升）
-  * **重要**：enables不能用于action→vulnerability，action→vulnerability必须使用discovers
+  * English note.
+  * English note.
 
-### 边的权重
+# English note.
 - **权重1-2**：弱关联（如初步探测到进一步探测）
 - **权重3-4**：中等关联（如发现端口到服务识别）
 - **权重5-7**：强关联（如发现漏洞、关键信息泄露）
 - **权重8-10**：极强关联（如漏洞利用成功、权限提升）
 
-### DAG结构要求（有向无环图）
-**关键：必须确保生成的是真正的DAG（有向无环图），不能有任何循环。**
+# English note.
+* English note.
 
 - **节点编号规则**：节点id从"node_1"开始递增（node_1, node_2, node_3...）
 - **边的方向规则**：所有边的source节点id必须严格小于target节点id（source < target），这是确保无环的关键
-  * 例如：node_1 → node_2 ✓（正确）
-  * 例如：node_2 → node_1 ✗（错误，会形成环）
-  * 例如：node_3 → node_5 ✓（正确）
+  * English note.
+  * English note.
+  * English note.
 - **无环验证**：在输出JSON前，必须检查所有边，确保没有任何一条边的source >= target
 - **无孤立节点**：确保每个节点至少有一条边连接（除了可能的根节点）
 - **DAG结构特点**：
-  * 一个节点可以有多个后续节点（分支），例如：node_2（端口扫描）可以同时连接到node_3、node_4、node_5等多个节点
-  * 多个节点可以汇聚到一个节点（汇聚），例如：node_3、node_4、node_5都指向node_6（漏洞节点）
-  * 避免将所有节点连成一条线，应该根据实际的并行测试和分支探索构建DAG结构
+  * English note.
+  * English note.
+  * English note.
 - **拓扑排序验证**：如果按照节点id从小到大排序，所有边都应该从左指向右（从上指向下），这样就能保证无环
 
-## 攻击链逻辑连贯性要求
+# English note.
 
 构建的攻击链应该能够回答以下问题：
 1. **起点**：测试从哪里开始？（target节点）
@@ -618,19 +618,19 @@ func (b *Builder) buildSimplePrompt(reactInput, modelOutput string) string {
 5. **漏洞确认**：如何确认漏洞存在？（action→vulnerability）
 6. **攻击路径**：完整的攻击路径是什么？（从target到vulnerability的路径）
 
-## 最后一轮ReAct输入
+# English note.
 
 %s
 
-## 大模型输出
+# English note.
 
 %s
 
-## 输出格式
+# English note.
 
 严格按照以下JSON格式输出，不要添加任何其他文字：
 
-**重要：示例展示的是树状结构，注意node_2（端口扫描）同时连接到多个后续节点（node_3、node_4），形成分支结构。**
+* English note.
 
 {
    "nodes": [
@@ -739,7 +739,7 @@ func (b *Builder) buildSimplePrompt(reactInput, modelOutput string) string {
    ]
 }
 
-## 重要提醒
+# English note.
 
 1. **严禁杜撰**：只使用ReAct输入中实际执行的工具和实际返回的结果。如无实际数据，返回空的nodes和edges数组。
 2. **DAG结构必须**：必须构建真正的DAG（有向无环图），不能有任何循环。所有边的source节点id必须严格小于target节点id（source < target）。
@@ -755,9 +755,9 @@ func (b *Builder) buildSimplePrompt(reactInput, modelOutput string) string {
 现在开始分析并构建攻击链：`, reactInput, modelOutput)
 }
 
-// saveChain 保存攻击链到数据库
+// English note.
 func (b *Builder) saveChain(conversationID string, nodes []Node, edges []Edge) error {
-	// 先删除旧的攻击链数据
+	// English note.
 	if err := b.db.DeleteAttackChain(conversationID); err != nil {
 		b.logger.Warn("删除旧攻击链失败", zap.Error(err))
 	}
@@ -769,7 +769,7 @@ func (b *Builder) saveChain(conversationID string, nodes []Node, edges []Edge) e
 		}
 	}
 
-	// 保存边
+	// English note.
 	for _, edge := range edges {
 		if err := b.db.SaveAttackChainEdge(conversationID, edge.ID, edge.Source, edge.Target, edge.Type, edge.Weight); err != nil {
 			b.logger.Warn("保存攻击链边失败", zap.String("edgeId", edge.ID), zap.Error(err))
@@ -779,7 +779,7 @@ func (b *Builder) saveChain(conversationID string, nodes []Node, edges []Edge) e
 	return nil
 }
 
-// LoadChainFromDatabase 从数据库加载攻击链
+// English note.
 func (b *Builder) LoadChainFromDatabase(conversationID string) (*Chain, error) {
 	nodes, err := b.db.LoadAttackChainNodes(conversationID)
 	if err != nil {
@@ -797,7 +797,7 @@ func (b *Builder) LoadChainFromDatabase(conversationID string) (*Chain, error) {
 	}, nil
 }
 
-// callAIForChainGeneration 调用AI生成攻击链
+// English note.
 func (b *Builder) callAIForChainGeneration(ctx context.Context, prompt string) (string, error) {
 	requestBody := map[string]interface{}{
 		"model": b.openAIConfig.Model,
@@ -844,7 +844,7 @@ func (b *Builder) callAIForChainGeneration(ctx context.Context, prompt string) (
 	}
 
 	content := strings.TrimSpace(apiResponse.Choices[0].Message.Content)
-	// 尝试提取JSON（可能包含markdown代码块）
+	// English note.
 	content = strings.TrimPrefix(content, "```json")
 	content = strings.TrimPrefix(content, "```")
 	content = strings.TrimSuffix(content, "```")
@@ -853,7 +853,7 @@ func (b *Builder) callAIForChainGeneration(ctx context.Context, prompt string) (
 	return content, nil
 }
 
-// ChainJSON 攻击链JSON结构
+// English note.
 type ChainJSON struct {
 	Nodes []struct {
 		ID        string                 `json:"id"`
@@ -870,20 +870,20 @@ type ChainJSON struct {
 	} `json:"edges"`
 }
 
-// parseChainJSON 解析攻击链JSON
+// English note.
 func (b *Builder) parseChainJSON(chainJSON string) (*Chain, error) {
 	var chainData ChainJSON
 	if err := json.Unmarshal([]byte(chainJSON), &chainData); err != nil {
 		return nil, fmt.Errorf("解析JSON失败: %w", err)
 	}
 
-	// 创建节点ID映射（AI返回的ID -> 新的UUID）
+	// English note.
 	nodeIDMap := make(map[string]string)
 
-	// 转换为Chain结构
+	// English note.
 	nodes := make([]Node, 0, len(chainData.Nodes))
 	for _, n := range chainData.Nodes {
-		// 生成新的UUID节点ID
+		// English note.
 		newNodeID := fmt.Sprintf("node_%s", uuid.New().String())
 		nodeIDMap[n.ID] = newNodeID
 
@@ -900,7 +900,7 @@ func (b *Builder) parseChainJSON(chainJSON string) (*Chain, error) {
 		nodes = append(nodes, node)
 	}
 
-	// 转换边
+	// English note.
 	edges := make([]Edge, 0, len(chainData.Edges))
 	for _, e := range chainData.Edges {
 		sourceID, ok := nodeIDMap[e.Source]
@@ -912,7 +912,7 @@ func (b *Builder) parseChainJSON(chainJSON string) (*Chain, error) {
 			continue
 		}
 
-		// 生成边的ID（前端需要）
+		// English note.
 		edgeID := fmt.Sprintf("edge_%s", uuid.New().String())
 
 		edges = append(edges, Edge{
@@ -930,4 +930,4 @@ func (b *Builder) parseChainJSON(chainJSON string) (*Chain, error) {
 	}, nil
 }
 
-// 以下所有方法已不再使用，已删除以简化代码
+// English note.

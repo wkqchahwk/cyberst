@@ -1,12 +1,12 @@
 package openai
 
-// claude_bridge.go 将 OpenAI 格式的请求/响应自动转换为 Anthropic Claude Messages API 格式。
-// 当 config.Provider == "claude" 时，Client 自动走此桥接层，对上层调用方完全透明。
+// English note.
+// English note.
 //
-// 转换规则：
+// English note.
 //   Request:  OpenAI /chat/completions  → Claude /v1/messages
-//   Response: Claude /v1/messages       → OpenAI /chat/completions 格式
-//   Stream:   Claude SSE (event: content_block_delta / message_delta) → OpenAI SSE 格式
+// English note.
+// English note.
 //   Auth:     Bearer → x-api-key
 //   Tools:    OpenAI tools[] → Claude tools[] (input_schema)
 
@@ -30,7 +30,7 @@ import (
 // Claude Request Types
 // ============================================================
 
-// claudeRequest 表示 Anthropic Messages API 的请求体。
+// English note.
 type claudeRequest struct {
 	Model     string          `json:"model"`
 	MaxTokens int             `json:"max_tokens"`
@@ -45,8 +45,8 @@ type claudeMessage struct {
 	Content claudeMessageContent `json:"content"`
 }
 
-// claudeMessageContent 可以是纯字符串或 content block 数组。
-// MarshalJSON / UnmarshalJSON 自动处理两种形式。
+// English note.
+// English note.
 type claudeMessageContent struct {
 	Text   string               // 纯文本形式（简写）
 	Blocks []claudeContentBlock // 多 block 形式（tool_use / tool_result 必须用这种）
@@ -60,13 +60,13 @@ func (c claudeMessageContent) MarshalJSON() ([]byte, error) {
 }
 
 func (c *claudeMessageContent) UnmarshalJSON(data []byte) error {
-	// 尝试字符串
+	// English note.
 	var s string
 	if err := json.Unmarshal(data, &s); err == nil {
 		c.Text = s
 		return nil
 	}
-	// 尝试数组
+	// English note.
 	return json.Unmarshal(data, &c.Blocks)
 }
 
@@ -76,12 +76,12 @@ type claudeContentBlock struct {
 	// text block
 	Text string `json:"text,omitempty"`
 
-	// tool_use block (assistant 返回)
+	// English note.
 	ID    string          `json:"id,omitempty"`
 	Name  string          `json:"name,omitempty"`
 	Input json.RawMessage `json:"input,omitempty"`
 
-	// tool_result block (user 提交)
+	// English note.
 	ToolUseID string `json:"tool_use_id,omitempty"`
 	Content   string `json:"content,omitempty"`
 	IsError   bool   `json:"is_error,omitempty"`
@@ -123,9 +123,9 @@ type claudeError struct {
 // Conversion: OpenAI Request → Claude Request
 // ============================================================
 
-// convertOpenAIToClaude 将任意 OpenAI payload (map 或 struct) 转换为 claudeRequest。
+// English note.
 func convertOpenAIToClaude(payload interface{}) (*claudeRequest, error) {
-	// 先统一序列化为 JSON，再以 map 反序列化，方便处理各种输入形式
+	// English note.
 	raw, err := json.Marshal(payload)
 	if err != nil {
 		return nil, fmt.Errorf("claude bridge: marshal payload: %w", err)
@@ -143,7 +143,7 @@ func convertOpenAIToClaude(payload interface{}) (*claudeRequest, error) {
 		req.Model = m
 	}
 
-	// max_tokens (Claude 必需)
+	// English note.
 	if mt, ok := oai["max_tokens"].(float64); ok && mt > 0 {
 		req.MaxTokens = int(mt)
 	} else {
@@ -165,7 +165,7 @@ func convertOpenAIToClaude(payload interface{}) (*claudeRequest, error) {
 		role, _ := mm["role"].(string)
 		content, _ := mm["content"].(string)
 
-		// system message → 提取到顶级 system 字段
+		// English note.
 		if role == "system" {
 			if req.System != "" {
 				req.System += "\n\n"
@@ -174,7 +174,7 @@ func convertOpenAIToClaude(payload interface{}) (*claudeRequest, error) {
 			continue
 		}
 
-		// tool_calls (assistant 消息中包含工具调用)
+		// English note.
 		if role == "assistant" {
 			var blocks []claudeContentBlock
 			if content != "" {
@@ -192,7 +192,7 @@ func convertOpenAIToClaude(payload interface{}) (*claudeRequest, error) {
 					fnName, _ := fn["name"].(string)
 					fnArgs, _ := fn["arguments"]
 
-						// 防御：缺少 name 或 id 的 tool_call 会被 Claude 拒绝
+						// English note.
 						if strings.TrimSpace(fnName) == "" {
 							fnName = "unknown_function"
 						}
@@ -207,7 +207,7 @@ func convertOpenAIToClaude(payload interface{}) (*claudeRequest, error) {
 					default:
 						inputRaw, _ = json.Marshal(v)
 					}
-					// 防止空字符串/非法 JSON 导致 Marshal 失败
+					// English note.
 					if len(inputRaw) == 0 || !json.Valid(inputRaw) {
 						inputRaw = json.RawMessage("{}")
 					}
@@ -230,11 +230,11 @@ func convertOpenAIToClaude(payload interface{}) (*claudeRequest, error) {
 		}
 
 		// tool result (role == "tool" in OpenAI)
-		// Claude 要求同一轮的多个 tool_result 合并为一个 user 消息（多 block），
-		// 否则违反 user/assistant 交替规则。
+		// English note.
+		// English note.
 		if role == "tool" {
 			var toolBlocks []claudeContentBlock
-			// 收集当前及后续连续的 tool 消息
+			// English note.
 			for ; i < len(msgs); i++ {
 				tmm, ok := msgs[i].(map[string]interface{})
 				if !ok {
@@ -260,7 +260,7 @@ func convertOpenAIToClaude(payload interface{}) (*claudeRequest, error) {
 			continue
 		}
 
-		// 普通 user/assistant 消息
+		// English note.
 		req.Messages = append(req.Messages, claudeMessage{
 			Role:    role,
 			Content: claudeMessageContent{Text: content},
@@ -297,7 +297,7 @@ func convertOpenAIToClaude(payload interface{}) (*claudeRequest, error) {
 // Conversion: Claude Response → OpenAI Response (non-streaming)
 // ============================================================
 
-// claudeToOpenAIResponseJSON 将 Claude 响应 JSON 转为 OpenAI 兼容的 JSON。
+// English note.
 func claudeToOpenAIResponseJSON(claudeBody []byte) ([]byte, error) {
 	var cr claudeResponse
 	if err := json.Unmarshal(claudeBody, &cr); err != nil {
@@ -308,7 +308,7 @@ func claudeToOpenAIResponseJSON(claudeBody []byte) ([]byte, error) {
 		return nil, fmt.Errorf("claude api error: [%s] %s", cr.Error.Type, cr.Error.Message)
 	}
 
-	// 构建 OpenAI 格式的 response
+	// English note.
 	oaiResp := map[string]interface{}{
 		"id":      cr.ID,
 		"object":  "chat.completion",
@@ -383,7 +383,7 @@ func claudeStopReasonToOpenAI(reason string) string {
 // Claude HTTP Calls (non-streaming & streaming)
 // ============================================================
 
-// claudeChatCompletion 执行非流式 Claude API 调用，返回转换后的 OpenAI 格式 JSON。
+// English note.
 func (c *Client) claudeChatCompletion(ctx context.Context, payload interface{}, out interface{}) error {
 	claudeReq, err := convertOpenAIToClaude(payload)
 	if err != nil {
@@ -440,7 +440,7 @@ func (c *Client) claudeChatCompletion(ctx context.Context, payload interface{}, 
 		}
 	}
 
-	// 转换为 OpenAI 格式
+	// English note.
 	oaiJSON, err := claudeToOpenAIResponseJSON(respBody)
 	if err != nil {
 		return err
@@ -455,7 +455,7 @@ func (c *Client) claudeChatCompletion(ctx context.Context, payload interface{}, 
 	return nil
 }
 
-// claudeChatCompletionStream 流式调用 Claude API，将 Claude SSE 转换为 OpenAI 兼容的 delta 回调。
+// English note.
 func (c *Client) claudeChatCompletionStream(ctx context.Context, payload interface{}, onDelta func(delta string) error) (string, error) {
 	claudeReq, err := convertOpenAIToClaude(payload)
 	if err != nil {
@@ -551,8 +551,8 @@ func (c *Client) claudeChatCompletionStream(ctx context.Context, payload interfa
 	return full.String(), nil
 }
 
-// claudeChatCompletionStreamWithToolCalls 流式调用 Claude API，同时处理 content delta 和 tool_calls，
-// 返回值与 OpenAI 版本完全一致：(content, toolCalls, finishReason, error)。
+// English note.
+// English note.
 func (c *Client) claudeChatCompletionStreamWithToolCalls(
 	ctx context.Context,
 	payload interface{},
@@ -599,7 +599,7 @@ func (c *Client) claudeChatCompletionStreamWithToolCalls(
 	var full strings.Builder
 	finishReason := ""
 
-	// 追踪当前正在构建的 content blocks
+	// English note.
 	type toolAccum struct {
 		id    string
 		name  string
@@ -674,7 +674,7 @@ func (c *Client) claudeChatCompletionStreamWithToolCalls(
 			}
 
 		case "content_block_stop":
-			// block 完成，不需要特殊处理
+			// English note.
 
 		case "message_delta":
 			delta, _ := event["delta"].(map[string]interface{})
@@ -683,7 +683,7 @@ func (c *Client) claudeChatCompletionStreamWithToolCalls(
 			}
 
 		case "message_stop":
-			// 消息完成
+			// English note.
 
 		case "error":
 			errData, _ := event["error"].(map[string]interface{})
@@ -692,7 +692,7 @@ func (c *Client) claudeChatCompletionStreamWithToolCalls(
 		}
 	}
 
-	// 转换 tool calls 为 OpenAI 格式的 StreamToolCall
+	// English note.
 	var toolCalls []StreamToolCall
 	for i, tc := range currentToolCalls {
 		toolCalls = append(toolCalls, StreamToolCall{
@@ -722,14 +722,14 @@ func (c *Client) claudeChatCompletionStreamWithToolCalls(
 // Helpers
 // ============================================================
 
-// setClaudeHeaders 设置 Anthropic API 要求的请求头。
+// English note.
 func (c *Client) setClaudeHeaders(req *http.Request) {
 	req.Header.Set("Content-Type", "application/json")
 	req.Header.Set("x-api-key", c.config.APIKey)
 	req.Header.Set("anthropic-version", "2023-06-01")
 }
 
-// isClaude 判断当前配置是否为 Claude provider。
+// English note.
 func (c *Client) isClaude() bool {
 	return isClaudeProvider(c.config)
 }
@@ -738,16 +738,15 @@ func isClaudeProvider(cfg *config.OpenAIConfig) bool {
 	if cfg == nil {
 		return false
 	}
-	return strings.EqualFold(strings.TrimSpace(cfg.Provider), "claude") ||
-		strings.EqualFold(strings.TrimSpace(cfg.Provider), "anthropic")
+	return NormalizeProvider(cfg.Provider) == ProviderAnthropic
 }
 
 // ============================================================
 // Eino HTTP Client Bridge
 // ============================================================
 
-// NewEinoHTTPClient 为 einoopenai.ChatModelConfig 返回一个支持 Claude 自动桥接的 http.Client。
-// 当 cfg.Provider 为 claude 时，会拦截 /chat/completions 请求，透明转换为 Anthropic Messages API。
+// English note.
+// English note.
 func NewEinoHTTPClient(cfg *config.OpenAIConfig, base *http.Client) *http.Client {
 	if base == nil {
 		base = http.DefaultClient
@@ -768,19 +767,19 @@ func NewEinoHTTPClient(cfg *config.OpenAIConfig, base *http.Client) *http.Client
 	return &cloned
 }
 
-// claudeRoundTripper 是一个 http.RoundTripper，用于将 OpenAI 协议透明桥接到 Claude API。
+// English note.
 type claudeRoundTripper struct {
 	base   http.RoundTripper
 	config *config.OpenAIConfig
 }
 
 func (rt *claudeRoundTripper) RoundTrip(req *http.Request) (*http.Response, error) {
-	// 只拦截 chat completions
+	// English note.
 	if !strings.HasSuffix(req.URL.Path, "/chat/completions") {
 		return rt.base.RoundTrip(req)
 	}
 
-	// 读取原请求体
+	// English note.
 	body, err := io.ReadAll(req.Body)
 	if err != nil {
 		return nil, fmt.Errorf("claude bridge: read request body: %w", err)
@@ -792,13 +791,13 @@ func (rt *claudeRoundTripper) RoundTrip(req *http.Request) (*http.Response, erro
 		return nil, fmt.Errorf("claude bridge: unmarshal request: %w", err)
 	}
 
-	// 转换为 Claude 请求
+	// English note.
 	claudeReq, err := convertOpenAIToClaude(payload)
 	if err != nil {
 		return nil, err
 	}
 
-	// 构造 Claude 请求
+	// English note.
 	baseURL := strings.TrimSuffix(rt.config.BaseURL, "/")
 	if baseURL == "" {
 		baseURL = "https://api.anthropic.com"
@@ -822,7 +821,7 @@ func (rt *claudeRoundTripper) RoundTrip(req *http.Request) (*http.Response, erro
 		return nil, err
 	}
 
-	// 非 200：尝试把 Claude 错误格式转成 OpenAI 错误格式，便于 Eino 解析
+	// English note.
 	if resp.StatusCode != http.StatusOK {
 		bodyBytes, _ := io.ReadAll(resp.Body)
 		resp.Body.Close()
@@ -836,7 +835,7 @@ func (rt *claudeRoundTripper) RoundTrip(req *http.Request) (*http.Response, erro
 		}, nil
 	}
 
-	// 非流式：一次性转换响应体
+	// English note.
 	if !claudeReq.Stream {
 		respBody, _ := io.ReadAll(resp.Body)
 		resp.Body.Close()
@@ -853,10 +852,10 @@ func (rt *claudeRoundTripper) RoundTrip(req *http.Request) (*http.Response, erro
 		}, nil
 	}
 
-	// 流式：通过 pipe 实时转换 SSE
+	// English note.
 	pr, pw := io.Pipe()
 
-	// writeLine 将数据写入 pipe，返回 false 表示 pipe 已关闭（消费端断开），应立即退出。
+	// English note.
 	writeLine := func(data string) bool {
 		_, err := pw.Write([]byte(data))
 		return err == nil
@@ -875,7 +874,7 @@ func (rt *claudeRoundTripper) RoundTrip(req *http.Request) (*http.Response, erro
 				if readErr == io.EOF {
 					writeLine("data: [DONE]\n\n")
 				} else {
-					// 非 EOF 错误：写入错误事件并通知消费端
+					// English note.
 					oaiErr := map[string]interface{}{
 						"error": map[string]interface{}{
 							"message": readErr.Error(),
@@ -1049,7 +1048,7 @@ func (rt *claudeRoundTripper) RoundTrip(req *http.Request) (*http.Response, erro
 	}, nil
 }
 
-// tryConvertClaudeErrorToOpenAI 尝试把 Claude 错误格式转换为 OpenAI 错误格式 JSON。
+// English note.
 func (rt *claudeRoundTripper) tryConvertClaudeErrorToOpenAI(body []byte) []byte {
 	var ce struct {
 		Type  string `json:"type"`

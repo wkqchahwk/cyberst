@@ -1,403 +1,66 @@
-name: "shodan_search"
-command: "python3"
+name: shodan_search
+command: python3
 args:
-  - "-c"
-  - |
-    import sys
-    import json
-    import requests
-    import os
-    import math
-
-    # ==================== Shodan配置 ====================
-    # 请在此处配置您的Shodan API Key
-    # 您也可以在环境变量中设置：SHODAN_API_KEY
-    # enable 默认为 false，需开启才能调用该MCP
-    SHODAN_API_KEY = ""  # 请替换为您自己的Shodan API Key
-    # ==================================================
-
-    # Shodan API基础URL
-    base_url = "https://api.shodan.io"
-
-    # 解析参数（从JSON字符串或命令行参数）
-    def parse_args():
-        # 尝试从第一个参数读取JSON配置
-        if len(sys.argv) > 1:
-            try:
-                arg1 = str(sys.argv[1])
-                config = json.loads(arg1)
-                if isinstance(config, dict):
-                    return config
-            except (json.JSONDecodeError, TypeError, ValueError):
-                pass
-
-        # 传统位置参数方式（向后兼容）
-        # 兼容两种序列：
-        # 1) query,page,facets,minify,fields,count_only,size
-        # 2) query,page,minify,fields,count_only,size   (facets省略时执行器会压缩参数)
-        config = {}
-        if len(sys.argv) > 1:
-            config["query"] = str(sys.argv[1])
-        if len(sys.argv) > 2:
-            try:
-                config["page"] = int(sys.argv[2])
-            except (ValueError, TypeError):
-                pass
-
-        def is_bool_like(val):
-            if isinstance(val, bool):
-                return True
-            if not isinstance(val, str):
-                return False
-            return val.strip().lower() in ("true", "false", "1", "0", "yes", "no")
-
-        remaining = [str(x) for x in sys.argv[3:]]
-        if remaining:
-            # facets 省略时，第一个剩余参数通常是 minify（布尔）
-            first_is_bool = is_bool_like(remaining[0])
-            idx = 0
-            if not first_is_bool:
-                config["facets"] = remaining[idx]
-                idx += 1
-
-            if idx < len(remaining):
-                val = remaining[idx]
-                config["minify"] = val.lower() in ("true", "1", "yes")
-                idx += 1
-
-            if idx < len(remaining):
-                config["fields"] = remaining[idx]
-                idx += 1
-
-            if idx < len(remaining):
-                val = remaining[idx]
-                config["count_only"] = val.lower() in ("true", "1", "yes")
-                idx += 1
-
-            if idx < len(remaining):
-                try:
-                    config["size"] = int(remaining[idx])
-                except (ValueError, TypeError):
-                    pass
-
-        return config
-
-    def normalize_bool(value, default_value):
-        if value is None:
-            return default_value
-        if isinstance(value, bool):
-            return value
-        if isinstance(value, str):
-            return value.lower() in ("true", "1", "yes")
-        if isinstance(value, (int, float)):
-            return value != 0
-        return default_value
-
-    try:
-        config = parse_args()
-
-        if not isinstance(config, dict):
-            error_result = {
-                "status": "error",
-                "message": f"参数解析错误: 期望字典类型，但得到 {type(config).__name__}",
-                "type": "TypeError"
-            }
-            print(json.dumps(error_result, ensure_ascii=False, indent=2))
-            sys.exit(1)
-
-        api_key = os.getenv("SHODAN_API_KEY", SHODAN_API_KEY).strip()
-        query = str(config.get("query", "")).strip()
-
-        if not api_key:
-            error_result = {
-                "status": "error",
-                "message": "缺少Shodan配置: api_key（Shodan API密钥）",
-                "required_config": ["api_key"],
-                "note": "请在YAML文件的SHODAN_API_KEY配置项中填写您的API密钥，或在环境变量SHODAN_API_KEY中设置。API密钥可在Shodan账户页面查看: https://account.shodan.io/"
-            }
-            print(json.dumps(error_result, ensure_ascii=False, indent=2))
-            sys.exit(1)
-
-        if not query:
-            error_result = {
-                "status": "error",
-                "message": "缺少必需参数: query（搜索查询语句）",
-                "required_params": ["query"],
-                "examples": [
-                    "product:nginx",
-                    "apache country:DE",
-                    "port:22",
-                    "ssl.cert.subject.cn:example.com",
-                    "org:\"Amazon\" port:443"
-                ]
-            }
-            print(json.dumps(error_result, ensure_ascii=False, indent=2))
-            sys.exit(1)
-
-        count_only = normalize_bool(config.get("count_only"), False)
-        minify = normalize_bool(config.get("minify"), True)
-        requested_size = config.get("size", None)
-        if requested_size is not None:
-            try:
-                requested_size = int(requested_size)
-                if requested_size <= 0:
-                    requested_size = None
-                else:
-                    # 防止单次请求过大导致额度和响应时间问题
-                    requested_size = min(requested_size, 1000)
-            except (ValueError, TypeError):
-                requested_size = None
-
-        # 根据 count_only 选择搜索端点
-        endpoint = "/shodan/host/count" if count_only else "/shodan/host/search"
-        url = f"{base_url}{endpoint}"
-
-        params = {
-            "key": api_key,
-            "query": query
-        }
-
-        # 可选参数 facets（search 和 count 都支持）
-        if "facets" in config and config["facets"]:
-            facets_value = str(config["facets"]).strip()
-            if facets_value:
-                params["facets"] = facets_value
-
-        # search 接口的可选参数
-        if not count_only:
-            if "page" in config and config["page"] is not None:
-                try:
-                    page = int(config["page"])
-                    if page > 0:
-                        params["page"] = page
-                except (ValueError, TypeError):
-                    pass
-            minify_effective = minify
-
-            if "fields" in config and config["fields"]:
-                fields_value = str(config["fields"]).strip()
-                if fields_value:
-                    params["fields"] = fields_value
-                    # Shodan API约束：fields 与 minify=true 互斥
-                    minify_effective = False
-
-            params["minify"] = "true" if minify_effective else "false"
-
-        try:
-            if count_only:
-                response = requests.get(url, params=params, timeout=30)
-                response.raise_for_status()
-                result_data = response.json()
-
-                if isinstance(result_data, dict) and result_data.get("error"):
-                    error_result = {
-                        "status": "error",
-                        "message": f"Shodan API错误: {result_data.get('error', '未知错误')}",
-                        "suggestion": "请检查API密钥、查询语法和账户查询额度"
-                    }
-                    print(json.dumps(error_result, ensure_ascii=False, indent=2))
-                    sys.exit(1)
-
-                output = {
-                    "status": "success",
-                    "mode": "count",
-                    "query": query,
-                    "total": result_data.get("total", 0),
-                    "facets": result_data.get("facets", {}),
-                    "size": requested_size,
-                    "note": "count模式仅返回统计，不返回明细结果",
-                    "message": "统计查询完成（未返回资产明细）"
-                }
-            else:
-                start_page = int(params.get("page", 1))
-                # Shodan search 每页固定最多100条
-                # 如果未指定 size，则保持原始行为（单页）
-                target_size = requested_size if requested_size else 100
-                pages_needed = 1 if not requested_size else max(1, int(math.ceil(target_size / 100.0)))
-
-                all_matches = []
-                last_result_data = {}
-                current_page = start_page
-                pages_fetched = 0
-
-                for _ in range(pages_needed):
-                    page_params = dict(params)
-                    page_params["page"] = current_page
-
-                    response = requests.get(url, params=page_params, timeout=30)
-                    response.raise_for_status()
-                    result_data = response.json()
-                    last_result_data = result_data if isinstance(result_data, dict) else {}
-                    pages_fetched += 1
-
-                    if isinstance(last_result_data, dict) and last_result_data.get("error"):
-                        error_result = {
-                            "status": "error",
-                            "message": f"Shodan API错误: {last_result_data.get('error', '未知错误')}",
-                            "suggestion": "请检查API密钥、查询语法和账户查询额度"
-                        }
-                        print(json.dumps(error_result, ensure_ascii=False, indent=2))
-                        sys.exit(1)
-
-                    page_matches = last_result_data.get("matches", []) if isinstance(last_result_data, dict) else []
-                    if not page_matches:
-                        break
-
-                    all_matches.extend(page_matches)
-                    if len(all_matches) >= target_size:
-                        break
-                    current_page += 1
-
-                matches = all_matches[:target_size]
-                output = {
-                    "status": "success",
-                    "mode": "search",
-                    "query": query,
-                    "page": start_page,
-                    "size": target_size,
-                    "pages_fetched": pages_fetched,
-                    "total": last_result_data.get("total", 0),
-                    "results_count": len(matches),
-                    "facets": last_result_data.get("facets", {}),
-                    "results": matches,
-                    "message": f"成功获取 {len(matches)} 条结果"
-                }
-
-            print(json.dumps(output, ensure_ascii=False, indent=2))
-
-        except requests.exceptions.RequestException as e:
-            response_body = ""
-            status_code = None
-            if hasattr(e, "response") and e.response is not None:
-                status_code = e.response.status_code
-                try:
-                    response_body = e.response.text[:500]
-                except Exception:
-                    response_body = ""
-
-            error_result = {
-                "status": "error",
-                "message": f"请求失败: {str(e)}",
-                "status_code": status_code,
-                "response": response_body,
-                "suggestion": "请检查网络连接、Shodan API状态、API密钥与查询额度"
-            }
-            print(json.dumps(error_result, ensure_ascii=False, indent=2))
-            sys.exit(1)
-
-    except Exception as e:
-        error_result = {
-            "status": "error",
-            "message": f"执行出错: {str(e)}",
-            "type": type(e).__name__
-        }
-        print(json.dumps(error_result, ensure_ascii=False, indent=2))
-        sys.exit(1)
+- -c
+- "import sys\nimport json\nimport requests\nimport os\nimport math\n\n# ==================== Shodan\u914D\u7F6E ====================\n# \u8BF7\u5728\u6B64\u5904\u914D\u7F6E\u60A8\u7684Shodan API Key\n# \u60A8\u4E5F\u53EF\u4EE5\u5728\u73AF\u5883\u53D8\u91CF\u4E2D\u8BBE\u7F6E\uFF1ASHODAN_API_KEY\n# enable \u9ED8\u8BA4\u4E3A false\uFF0C\u9700\u5F00\u542F\u624D\u80FD\u8C03\u7528\u8BE5MCP\nSHODAN_API_KEY = \"\"  # \u8BF7\u66FF\u6362\u4E3A\u60A8\u81EA\u5DF1\u7684Shodan API Key\n# ==================================================\n\n# Shodan API\u57FA\u7840URL\nbase_url = \"https://api.shodan.io\"\n\n# \u89E3\u6790\u53C2\u6570\uFF08\u4ECEJSON\u5B57\u7B26\u4E32\u6216\u547D\u4EE4\u884C\u53C2\u6570\uFF09\ndef parse_args():\n    # \u5C1D\u8BD5\u4ECE\u7B2C\u4E00\u4E2A\u53C2\u6570\u8BFB\u53D6JSON\u914D\u7F6E\n    if len(sys.argv) > 1:\n        try:\n            arg1 = str(sys.argv[1])\n            config = json.loads(arg1)\n            if isinstance(config, dict):\n                return config\n \
+  \       except (json.JSONDecodeError, TypeError, ValueError):\n            pass\n\n    # \u4F20\u7EDF\u4F4D\u7F6E\u53C2\u6570\u65B9\u5F0F\uFF08\u5411\u540E\u517C\u5BB9\uFF09\n    # \u517C\u5BB9\u4E24\u79CD\u5E8F\u5217\uFF1A\n    # 1) query,page,facets,minify,fields,count_only,size\n    # 2) query,page,minify,fields,count_only,size   (facets\u7701\u7565\u65F6\u6267\u884C\u5668\u4F1A\u538B\u7F29\u53C2\u6570)\n    config = {}\n    if len(sys.argv) > 1:\n        config[\"query\"] = str(sys.argv[1])\n    if len(sys.argv) > 2:\n        try:\n            config[\"page\"] = int(sys.argv[2])\n        except (ValueError, TypeError):\n            pass\n\n    def is_bool_like(val):\n        if isinstance(val, bool):\n            return True\n        if not isinstance(val, str):\n            return False\n        return val.strip().lower() in (\"true\", \"false\", \"1\", \"0\", \"yes\", \"no\")\n\n    remaining = [str(x) for x in sys.argv[3:]]\n    if remaining:\n        # facets \u7701\u7565\u65F6\
+  \uFF0C\u7B2C\u4E00\u4E2A\u5269\u4F59\u53C2\u6570\u901A\u5E38\u662F minify\uFF08\u5E03\u5C14\uFF09\n        first_is_bool = is_bool_like(remaining[0])\n        idx = 0\n        if not first_is_bool:\n            config[\"facets\"] = remaining[idx]\n            idx += 1\n\n        if idx < len(remaining):\n            val = remaining[idx]\n            config[\"minify\"] = val.lower() in (\"true\", \"1\", \"yes\")\n            idx += 1\n\n        if idx < len(remaining):\n            config[\"fields\"] = remaining[idx]\n            idx += 1\n\n        if idx < len(remaining):\n            val = remaining[idx]\n            config[\"count_only\"] = val.lower() in (\"true\", \"1\", \"yes\")\n            idx += 1\n\n        if idx < len(remaining):\n            try:\n                config[\"size\"] = int(remaining[idx])\n            except (ValueError, TypeError):\n                pass\n\n    return config\n\ndef normalize_bool(value, default_value):\n    if value is None:\n        return default_value\n\
+  \    if isinstance(value, bool):\n        return value\n    if isinstance(value, str):\n        return value.lower() in (\"true\", \"1\", \"yes\")\n    if isinstance(value, (int, float)):\n        return value != 0\n    return default_value\n\ntry:\n    config = parse_args()\n\n    if not isinstance(config, dict):\n        error_result = {\n            \"status\": \"error\",\n            \"message\": f\"\u53C2\u6570\u89E3\u6790\u9519\u8BEF: \u671F\u671B\u5B57\u5178\u7C7B\u578B\uFF0C\u4F46\u5F97\u5230 {type(config).__name__}\",\n            \"type\": \"TypeError\"\n        }\n        print(json.dumps(error_result, ensure_ascii=False, indent=2))\n        sys.exit(1)\n\n    api_key = os.getenv(\"SHODAN_API_KEY\", SHODAN_API_KEY).strip()\n    query = str(config.get(\"query\", \"\")).strip()\n\n    if not api_key:\n        error_result = {\n            \"status\": \"error\",\n            \"message\": \"\u7F3A\u5C11Shodan\u914D\u7F6E: api_key\uFF08Shodan API\u5BC6\u94A5\uFF09\",\n          \
+  \  \"required_config\": [\"api_key\"],\n            \"note\": \"\u8BF7\u5728YAML\u6587\u4EF6\u7684SHODAN_API_KEY\u914D\u7F6E\u9879\u4E2D\u586B\u5199\u60A8\u7684API\u5BC6\u94A5\uFF0C\u6216\u5728\u73AF\u5883\u53D8\u91CFSHODAN_API_KEY\u4E2D\u8BBE\u7F6E\u3002API\u5BC6\u94A5\u53EF\u5728Shodan\u8D26\u6237\u9875\u9762\u67E5\u770B: https://account.shodan.io/\"\n        }\n        print(json.dumps(error_result, ensure_ascii=False, indent=2))\n        sys.exit(1)\n\n    if not query:\n        error_result = {\n            \"status\": \"error\",\n            \"message\": \"\u7F3A\u5C11\u5FC5\u9700\u53C2\u6570: query\uFF08\u641C\u7D22\u67E5\u8BE2\u8BED\u53E5\uFF09\",\n            \"required_params\": [\"query\"],\n            \"examples\": [\n                \"product:nginx\",\n                \"apache country:DE\",\n                \"port:22\",\n                \"ssl.cert.subject.cn:example.com\",\n                \"org:\\\"Amazon\\\" port:443\"\n            ]\n        }\n        print(json.dumps(error_result,\
+  \ ensure_ascii=False, indent=2))\n        sys.exit(1)\n\n    count_only = normalize_bool(config.get(\"count_only\"), False)\n    minify = normalize_bool(config.get(\"minify\"), True)\n    requested_size = config.get(\"size\", None)\n    if requested_size is not None:\n        try:\n            requested_size = int(requested_size)\n            if requested_size <= 0:\n                requested_size = None\n            else:\n                # \u9632\u6B62\u5355\u6B21\u8BF7\u6C42\u8FC7\u5927\u5BFC\u81F4\u989D\u5EA6\u548C\u54CD\u5E94\u65F6\u95F4\u95EE\u9898\n                requested_size = min(requested_size, 1000)\n        except (ValueError, TypeError):\n            requested_size = None\n\n    # \u6839\u636E count_only \u9009\u62E9\u641C\u7D22\u7AEF\u70B9\n    endpoint = \"/shodan/host/count\" if count_only else \"/shodan/host/search\"\n    url = f\"{base_url}{endpoint}\"\n\n    params = {\n        \"key\": api_key,\n        \"query\": query\n    }\n\n    # \u53EF\u9009\u53C2\u6570 facets\uFF08\
+  search \u548C count \u90FD\u652F\u6301\uFF09\n    if \"facets\" in config and config[\"facets\"]:\n        facets_value = str(config[\"facets\"]).strip()\n        if facets_value:\n            params[\"facets\"] = facets_value\n\n    # search \u63A5\u53E3\u7684\u53EF\u9009\u53C2\u6570\n    if not count_only:\n        if \"page\" in config and config[\"page\"] is not None:\n            try:\n                page = int(config[\"page\"])\n                if page > 0:\n                    params[\"page\"] = page\n            except (ValueError, TypeError):\n                pass\n        minify_effective = minify\n\n        if \"fields\" in config and config[\"fields\"]:\n            fields_value = str(config[\"fields\"]).strip()\n            if fields_value:\n                params[\"fields\"] = fields_value\n                # Shodan API\u7EA6\u675F\uFF1Afields \u4E0E minify=true \u4E92\u65A5\n                minify_effective = False\n\n        params[\"minify\"] = \"true\" if minify_effective\
+  \ else \"false\"\n\n    try:\n        if count_only:\n            response = requests.get(url, params=params, timeout=30)\n            response.raise_for_status()\n            result_data = response.json()\n\n            if isinstance(result_data, dict) and result_data.get(\"error\"):\n                error_result = {\n                    \"status\": \"error\",\n                    \"message\": f\"Shodan API\u9519\u8BEF: {result_data.get('error', '\u672A\u77E5\u9519\u8BEF')}\",\n                    \"suggestion\": \"\u8BF7\u68C0\u67E5API\u5BC6\u94A5\u3001\u67E5\u8BE2\u8BED\u6CD5\u548C\u8D26\u6237\u67E5\u8BE2\u989D\u5EA6\"\n                }\n                print(json.dumps(error_result, ensure_ascii=False, indent=2))\n                sys.exit(1)\n\n            output = {\n                \"status\": \"success\",\n                \"mode\": \"count\",\n                \"query\": query,\n                \"total\": result_data.get(\"total\", 0),\n                \"facets\": result_data.get(\"\
+  facets\", {}),\n                \"size\": requested_size,\n                \"note\": \"count\u6A21\u5F0F\u4EC5\u8FD4\u56DE\u7EDF\u8BA1\uFF0C\u4E0D\u8FD4\u56DE\u660E\u7EC6\u7ED3\u679C\",\n                \"message\": \"\u7EDF\u8BA1\u67E5\u8BE2\u5B8C\u6210\uFF08\u672A\u8FD4\u56DE\u8D44\u4EA7\u660E\u7EC6\uFF09\"\n            }\n        else:\n            start_page = int(params.get(\"page\", 1))\n            # Shodan search \u6BCF\u9875\u56FA\u5B9A\u6700\u591A100\u6761\n            # \u5982\u679C\u672A\u6307\u5B9A size\uFF0C\u5219\u4FDD\u6301\u539F\u59CB\u884C\u4E3A\uFF08\u5355\u9875\uFF09\n            target_size = requested_size if requested_size else 100\n            pages_needed = 1 if not requested_size else max(1, int(math.ceil(target_size / 100.0)))\n\n            all_matches = []\n            last_result_data = {}\n            current_page = start_page\n            pages_fetched = 0\n\n            for _ in range(pages_needed):\n                page_params = dict(params)\n        \
+  \        page_params[\"page\"] = current_page\n\n                response = requests.get(url, params=page_params, timeout=30)\n                response.raise_for_status()\n                result_data = response.json()\n                last_result_data = result_data if isinstance(result_data, dict) else {}\n                pages_fetched += 1\n\n                if isinstance(last_result_data, dict) and last_result_data.get(\"error\"):\n                    error_result = {\n                        \"status\": \"error\",\n                        \"message\": f\"Shodan API\u9519\u8BEF: {last_result_data.get('error', '\u672A\u77E5\u9519\u8BEF')}\",\n                        \"suggestion\": \"\u8BF7\u68C0\u67E5API\u5BC6\u94A5\u3001\u67E5\u8BE2\u8BED\u6CD5\u548C\u8D26\u6237\u67E5\u8BE2\u989D\u5EA6\"\n                    }\n                    print(json.dumps(error_result, ensure_ascii=False, indent=2))\n                    sys.exit(1)\n\n                page_matches = last_result_data.get(\"matches\"\
+  , []) if isinstance(last_result_data, dict) else []\n                if not page_matches:\n                    break\n\n                all_matches.extend(page_matches)\n                if len(all_matches) >= target_size:\n                    break\n                current_page += 1\n\n            matches = all_matches[:target_size]\n            output = {\n                \"status\": \"success\",\n                \"mode\": \"search\",\n                \"query\": query,\n                \"page\": start_page,\n                \"size\": target_size,\n                \"pages_fetched\": pages_fetched,\n                \"total\": last_result_data.get(\"total\", 0),\n                \"results_count\": len(matches),\n                \"facets\": last_result_data.get(\"facets\", {}),\n                \"results\": matches,\n                \"message\": f\"\u6210\u529F\u83B7\u53D6 {len(matches)} \u6761\u7ED3\u679C\"\n            }\n\n        print(json.dumps(output, ensure_ascii=False, indent=2))\n\
+  \n    except requests.exceptions.RequestException as e:\n        response_body = \"\"\n        status_code = None\n        if hasattr(e, \"response\") and e.response is not None:\n            status_code = e.response.status_code\n            try:\n                response_body = e.response.text[:500]\n            except Exception:\n                response_body = \"\"\n\n        error_result = {\n            \"status\": \"error\",\n            \"message\": f\"\u8BF7\u6C42\u5931\u8D25: {str(e)}\",\n            \"status_code\": status_code,\n            \"response\": response_body,\n            \"suggestion\": \"\u8BF7\u68C0\u67E5\u7F51\u7EDC\u8FDE\u63A5\u3001Shodan API\u72B6\u6001\u3001API\u5BC6\u94A5\u4E0E\u67E5\u8BE2\u989D\u5EA6\"\n        }\n        print(json.dumps(error_result, ensure_ascii=False, indent=2))\n        sys.exit(1)\n\nexcept Exception as e:\n    error_result = {\n        \"status\": \"error\",\n        \"message\": f\"\u6267\u884C\u51FA\u9519: {str(e)}\",\n        \"\
+  type\": type(e).__name__\n    }\n    print(json.dumps(error_result, ensure_ascii=False, indent=2))\n    sys.exit(1)\n"
 enabled: false
-short_description: "Shodan网络空间搜索，支持search与count模式"
-description: |
-  Shodan 资产搜索工具，基于官方 Developer API 实现，支持快速检索和统计分析。
-
-  **主要功能：**
-  - 使用 `/shodan/host/search` 进行资产搜索
-  - 使用 `/shodan/host/count` 进行无明细统计（节省查询信用）
-  - 支持按 `size` 控制返回条数（自动翻页聚合）
-  - 支持分页（page）
-  - 支持分面统计（facets）
-  - 支持结果字段裁剪（fields）
-  - 支持 `minify` 控制返回数据体积
-
-  **鉴权方式：**
-  - Query 参数使用 `key`
-  - 可在本文件中填写 `SHODAN_API_KEY`，或通过环境变量 `SHODAN_API_KEY` 注入
-
-  **查询语法示例：**
-  - `product:nginx`
-  - `apache country:DE`
-  - `port:22`
-  - `org:"Amazon" port:443`
-  - `ssl.cert.subject.cn:example.com`
-
-  **注意事项：**
-  - 带过滤器的查询通常会消耗 query credits
-  - 翻页（超过第1页）会额外消耗额度
-  - `size` 大于 100 时会自动请求更多页（每页最多 100）
-  - `size` 最大限制为 1000（防止过量请求）
-  - `count_only=true` 使用统计接口，不返回 matches 明细
+short_description: Run the shodan_search security tool.
+description: 'CyberStrikeAI wrapper for `shodan_search`. Command: `python3`. Review scope and arguments before execution.'
 parameters:
-  - name: "query"
-    type: "string"
-    description: |
-      Shodan 搜索语句（必需）。
-
-      支持 Shodan filter 语法（`filter:value`）与关键字组合。
-      示例：
-      - `product:nginx`
-      - `apache country:DE`
-      - `port:22`
-      - `org:"Amazon" port:443`
-    required: true
-    position: 1
-    format: "positional"
-  - name: "page"
-    type: "int"
-    description: |
-      页码（可选，仅 search 模式生效），从 1 开始，默认 1。
-    required: false
-    position: 2
-    format: "positional"
-    default: 1
-  - name: "facets"
-    type: "string"
-    description: |
-      分面统计字段（可选）。
-
-      多个字段用英文逗号分隔，也可指定数量：
-      - `org,os`
-      - `country:20,org:10`
-    required: false
-    position: 3
-    format: "positional"
-  - name: "minify"
-    type: "bool"
-    description: |
-      是否精简返回字段（可选，仅 search 模式生效）。
-      默认 `true`。
-    required: false
-    position: 4
-    format: "positional"
-    default: true
-  - name: "fields"
-    type: "string"
-    description: |
-      指定返回字段（可选，仅 search 模式生效）。
-
-      多个字段用英文逗号分隔，例如：
-      - `ip_str,port,org,hostnames,http.title`
-      - `tags,http.title,http.favicon.hash`
-    required: false
-    position: 5
-    format: "positional"
-  - name: "count_only"
-    type: "bool"
-    description: |
-      是否仅统计总数（可选）。
-
-      - `false`（默认）：调用 `/shodan/host/search` 返回明细
-      - `true`：调用 `/shodan/host/count` 仅返回 total 和 facets
-    required: false
-    position: 6
-    format: "positional"
-    default: false
-  - name: "size"
-    type: "int"
-    description: |
-      返回结果数量（可选，仅 search 模式生效）。
-
-      - 支持 `10 / 20 / 100 / n`
-      - Shodan 单页最多 100，超过 100 时会自动翻页拼接
-      - 为避免额度和时延问题，最大值限制为 1000
-      - 未传时默认返回单页结果（最多 100 条）
-    required: false
-    position: 7
-    format: "positional"
+- name: query
+  type: string
+  description: Value for `query`.
+  required: true
+  position: 1
+  format: positional
+- name: page
+  type: int
+  description: Value for `page`.
+  required: false
+  position: 2
+  format: positional
+  default: 1
+- name: facets
+  type: string
+  description: Value for `facets`.
+  required: false
+  position: 3
+  format: positional
+- name: minify
+  type: bool
+  description: Value for `minify`.
+  required: false
+  position: 4
+  format: positional
+  default: true
+- name: fields
+  type: string
+  description: Value for `fields`.
+  required: false
+  position: 5
+  format: positional
+- name: count_only
+  type: bool
+  description: Value for `count_only`.
+  required: false
+  position: 6
+  format: positional
+  default: false
+- name: size
+  type: int
+  description: Value for `size`.
+  required: false
+  position: 7
+  format: positional

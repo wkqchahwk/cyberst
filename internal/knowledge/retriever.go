@@ -17,8 +17,8 @@ import (
 	"go.uber.org/zap"
 )
 
-// Retriever 检索器：SQLite 存向量 + Eino 嵌入，**纯向量检索**（余弦相似度、TopK、阈值），
-// 实现语义与 [retriever.Retriever] 适配层 [VectorEinoRetriever] 一致。
+// English note.
+// English note.
 type Retriever struct {
 	db       *sql.DB
 	embedder *Embedder
@@ -29,16 +29,16 @@ type Retriever struct {
 	reranker DocumentReranker
 }
 
-// RetrievalConfig 检索配置
+// English note.
 type RetrievalConfig struct {
 	TopK                int
 	SimilarityThreshold float64
-	// SubIndexFilter 非空时仅检索 sub_indexes 包含该标签（逗号分隔之一）的行；空 sub_indexes 的旧行仍保留以兼容。
+	// English note.
 	SubIndexFilter string
 	PostRetrieve   config.PostRetrieveConfig
 }
 
-// NewRetriever 创建新的检索器
+// English note.
 func NewRetriever(db *sql.DB, embedder *Embedder, config *RetrievalConfig, logger *zap.Logger) *Retriever {
 	return &Retriever{
 		db:       db,
@@ -48,7 +48,7 @@ func NewRetriever(db *sql.DB, embedder *Embedder, config *RetrievalConfig, logge
 	}
 }
 
-// UpdateConfig 更新检索配置
+// English note.
 func (r *Retriever) UpdateConfig(cfg *RetrievalConfig) {
 	if cfg != nil {
 		r.config = cfg
@@ -65,7 +65,7 @@ func (r *Retriever) UpdateConfig(cfg *RetrievalConfig) {
 	}
 }
 
-// SetDocumentReranker 注入可选重排器（并发安全）；nil 表示禁用。
+// English note.
 func (r *Retriever) SetDocumentReranker(rr DocumentReranker) {
 	if r == nil {
 		return
@@ -103,7 +103,7 @@ func cosineSimilarity(a, b []float32) float64 {
 	return dotProduct / (math.Sqrt(normA) * math.Sqrt(normB))
 }
 
-// Search 搜索知识库。统一经 [VectorEinoRetriever]（Eino retriever.Retriever 边界）。
+// English note.
 func (r *Retriever) Search(ctx context.Context, req *SearchRequest) ([]*RetrievalResult, error) {
 	if req == nil {
 		return nil, fmt.Errorf("请求不能为空")
@@ -141,7 +141,7 @@ func (r *Retriever) einoRetrieverOptions(req *SearchRequest) []retriever.Option 
 	return opts
 }
 
-// EinoRetrieve 直接返回 [schema.Document]，供 Eino Graph / Chain 使用。
+// English note.
 func (r *Retriever) EinoRetrieve(ctx context.Context, query string, opts ...retriever.Option) ([]*schema.Document, error) {
 	return NewVectorEinoRetriever(r).Retrieve(ctx, query, opts...)
 }
@@ -164,7 +164,7 @@ WHERE 1=1`
 	return q, args
 }
 
-// vectorSearch 纯向量检索：余弦相似度排序，按相似度阈值与 TopK 截断（无 BM25、无混合分、无邻块扩展）。
+// English note.
 func (r *Retriever) vectorSearch(ctx context.Context, req *SearchRequest) ([]*RetrievalResult, error) {
 	if req.Query == "" {
 		return nil, fmt.Errorf("查询不能为空")
@@ -299,7 +299,7 @@ func (r *Retriever) vectorSearch(ctx context.Context, req *SearchRequest) ([]*Re
 	return results, nil
 }
 
-// AsEinoRetriever 将纯向量检索暴露为 Eino [retriever.Retriever]。
+// English note.
 func (r *Retriever) AsEinoRetriever() retriever.Retriever {
 	return NewVectorEinoRetriever(r)
 }

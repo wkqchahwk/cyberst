@@ -10,13 +10,13 @@ import (
 	"go.uber.org/zap"
 )
 
-// ConversationHandler 对话处理器
+// English note.
 type ConversationHandler struct {
 	db     *database.DB
 	logger *zap.Logger
 }
 
-// NewConversationHandler 创建新的对话处理器
+// English note.
 func NewConversationHandler(db *database.DB, logger *zap.Logger) *ConversationHandler {
 	return &ConversationHandler{
 		db:     db,
@@ -24,12 +24,12 @@ func NewConversationHandler(db *database.DB, logger *zap.Logger) *ConversationHa
 	}
 }
 
-// CreateConversationRequest 创建对话请求
+// English note.
 type CreateConversationRequest struct {
 	Title string `json:"title"`
 }
 
-// CreateConversation 创建新对话
+// English note.
 func (h *ConversationHandler) CreateConversation(c *gin.Context) {
 	var req CreateConversationRequest
 	if err := c.ShouldBindJSON(&req); err != nil {
@@ -52,7 +52,7 @@ func (h *ConversationHandler) CreateConversation(c *gin.Context) {
 	c.JSON(http.StatusOK, conv)
 }
 
-// ListConversations 列出对话
+// English note.
 func (h *ConversationHandler) ListConversations(c *gin.Context) {
 	limitStr := c.DefaultQuery("limit", "50")
 	offsetStr := c.DefaultQuery("offset", "0")
@@ -75,12 +75,12 @@ func (h *ConversationHandler) ListConversations(c *gin.Context) {
 	c.JSON(http.StatusOK, conversations)
 }
 
-// GetConversation 获取对话
+// English note.
 func (h *ConversationHandler) GetConversation(c *gin.Context) {
 	id := c.Param("id")
 
-	// 默认轻量加载，只有用户需要展开详情时再按需拉取
-	// include_process_details=1/true 时返回全量 processDetails（兼容旧行为）
+	// English note.
+	// English note.
 	includeStr := c.DefaultQuery("include_process_details", "0")
 	include := includeStr == "1" || includeStr == "true" || includeStr == "yes"
 
@@ -102,7 +102,7 @@ func (h *ConversationHandler) GetConversation(c *gin.Context) {
 	c.JSON(http.StatusOK, conv)
 }
 
-// GetMessageProcessDetails 获取指定消息的过程详情（按需加载）
+// English note.
 func (h *ConversationHandler) GetMessageProcessDetails(c *gin.Context) {
 	messageID := c.Param("id")
 	if messageID == "" {
@@ -117,7 +117,7 @@ func (h *ConversationHandler) GetMessageProcessDetails(c *gin.Context) {
 		return
 	}
 
-	// 转换为前端期望的 JSON 结构（与 GetConversation 中 processDetails 结构一致）
+	// English note.
 	out := make([]map[string]interface{}, 0, len(details))
 	for _, d := range details {
 		var data interface{}
@@ -140,12 +140,12 @@ func (h *ConversationHandler) GetMessageProcessDetails(c *gin.Context) {
 	c.JSON(http.StatusOK, gin.H{"processDetails": out})
 }
 
-// UpdateConversationRequest 更新对话请求
+// English note.
 type UpdateConversationRequest struct {
 	Title string `json:"title"`
 }
 
-// UpdateConversation 更新对话
+// English note.
 func (h *ConversationHandler) UpdateConversation(c *gin.Context) {
 	id := c.Param("id")
 
@@ -166,7 +166,7 @@ func (h *ConversationHandler) UpdateConversation(c *gin.Context) {
 		return
 	}
 
-	// 返回更新后的对话
+	// English note.
 	conv, err := h.db.GetConversation(id)
 	if err != nil {
 		h.logger.Error("获取更新后的对话失败", zap.Error(err))
@@ -177,7 +177,7 @@ func (h *ConversationHandler) UpdateConversation(c *gin.Context) {
 	c.JSON(http.StatusOK, conv)
 }
 
-// DeleteConversation 删除对话
+// English note.
 func (h *ConversationHandler) DeleteConversation(c *gin.Context) {
 	id := c.Param("id")
 
@@ -190,12 +190,12 @@ func (h *ConversationHandler) DeleteConversation(c *gin.Context) {
 	c.JSON(http.StatusOK, gin.H{"message": "删除成功"})
 }
 
-// DeleteTurnRequest 删除一轮对话（POST /api/conversations/:id/delete-turn）
+// English note.
 type DeleteTurnRequest struct {
 	MessageID string `json:"messageId"`
 }
 
-// DeleteConversationTurn 删除锚点消息所在轮次（从该轮 user 到下一轮 user 之前），并清空 last_react_*。
+// English note.
 func (h *ConversationHandler) DeleteConversationTurn(c *gin.Context) {
 	conversationID := c.Param("id")
 	if conversationID == "" {

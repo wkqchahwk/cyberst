@@ -5,7 +5,6 @@ import (
 	"fmt"
 	"net"
 	"net/http"
-	"strings"
 	"sync"
 	"time"
 
@@ -21,11 +20,11 @@ import (
 	"go.uber.org/zap"
 )
 
-// einoSingleAgentName 与 ChatModelAgent.Name 一致，供流式事件映射主对话区。
+// English note.
 const einoSingleAgentName = "cyberstrike-eino-single"
 
-// RunEinoSingleChatModelAgent 使用 Eino adk.NewChatModelAgent + adk.NewRunner.Run（官方 Quick Start 的 Query 同属 Runner API；此处用历史 + 用户消息切片等价于多轮 Query）。
-// 不替代既有原生 ReAct；与 RunDeepAgent 共享 runEinoADKAgentLoop 的 SSE 映射与 MCP 桥。
+// English note.
+// English note.
 func RunEinoSingleChatModelAgent(
 	ctx context.Context,
 	appCfg *config.Config,
@@ -116,7 +115,7 @@ func RunEinoSingleChatModelAgent(
 
 	baseModelCfg := &einoopenai.ChatModelConfig{
 		APIKey:     appCfg.OpenAI.APIKey,
-		BaseURL:    strings.TrimSuffix(appCfg.OpenAI.BaseURL, "/"),
+		BaseURL:    openai.ResolveBaseURL(&appCfg.OpenAI),
 		Model:      appCfg.OpenAI.Model,
 		HTTPClient: httpClient,
 	}

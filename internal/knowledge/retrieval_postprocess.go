@@ -16,15 +16,15 @@ import (
 	"github.com/pkoukk/tiktoken-go"
 )
 
-// postRetrieveMaxPrefetchCap 限制单次向量候选上限，避免误配置导致全表扫压力过大。
+// English note.
 const postRetrieveMaxPrefetchCap = 200
 
-// DocumentReranker 可选重排（如交叉编码器 / 第三方 Rerank API），由 [Retriever.SetDocumentReranker] 注入；失败时在适配层降级为向量序。
+// English note.
 type DocumentReranker interface {
 	Rerank(ctx context.Context, query string, docs []*schema.Document) ([]*schema.Document, error)
 }
 
-// NopDocumentReranker 占位实现，便于测试或未启用重排时显式注入。
+// English note.
 type NopDocumentReranker struct{}
 
 // Rerank implements [DocumentReranker] as no-op.
@@ -65,7 +65,7 @@ func countDocTokens(text, model string) (int, error) {
 	return len(toks), nil
 }
 
-// normalizeContentFingerprintKey 去重键：trim + 空白折叠（不改动大小写，避免合并仅大小写不同的代码片段）。
+// English note.
 func normalizeContentFingerprintKey(s string) string {
 	s = strings.TrimSpace(s)
 	var b strings.Builder
@@ -97,7 +97,7 @@ func contentNormKey(d *schema.Document) string {
 	return hex.EncodeToString(sum[:])
 }
 
-// dedupeByNormalizedContent 按规范化正文去重，保留向量检索顺序中首次出现的文档（同正文仅保留一条）。
+// English note.
 func dedupeByNormalizedContent(docs []*schema.Document) []*schema.Document {
 	if len(docs) < 2 {
 		return docs
@@ -122,7 +122,7 @@ func dedupeByNormalizedContent(docs []*schema.Document) []*schema.Document {
 	return out
 }
 
-// truncateDocumentsByBudget 按检索顺序整段保留文档，直至字符数或 token 数（任一启用）超限则停止。
+// English note.
 func truncateDocumentsByBudget(docs []*schema.Document, maxRunes, maxTokens int, tokenModel string) ([]*schema.Document, error) {
 	if len(docs) == 0 {
 		return docs, nil
@@ -167,7 +167,7 @@ func truncateDocumentsByBudget(docs []*schema.Document, maxRunes, maxTokens int,
 	return out, nil
 }
 
-// EffectivePrefetchTopK 计算向量检索应拉取的候选条数（供粗排 / 去重 / 重排）。
+// English note.
 func EffectivePrefetchTopK(topK int, po *config.PostRetrieveConfig) int {
 	if topK < 1 {
 		topK = 5
@@ -182,7 +182,7 @@ func EffectivePrefetchTopK(topK int, po *config.PostRetrieveConfig) int {
 	return fetch
 }
 
-// ApplyPostRetrieve 检索后处理：规范化正文去重 → 预算截断 → 最终 TopK。重排在 [VectorEinoRetriever] 中单独调用以便失败时降级。
+// English note.
 func ApplyPostRetrieve(docs []*schema.Document, po *config.PostRetrieveConfig, tokenModel string, finalTopK int) ([]*schema.Document, error) {
 	if finalTopK < 1 {
 		finalTopK = 5

@@ -7,7 +7,7 @@ import (
 	"go.uber.org/zap"
 )
 
-// WebShellConnection WebShell 连接配置
+// English note.
 type WebShellConnection struct {
 	ID        string    `json:"id"`
 	URL       string    `json:"url"`
@@ -19,7 +19,7 @@ type WebShellConnection struct {
 	CreatedAt time.Time `json:"createdAt"`
 }
 
-// GetWebshellConnectionState 获取连接关联的持久化状态 JSON，不存在时返回 "{}"
+// English note.
 func (db *DB) GetWebshellConnectionState(connectionID string) (string, error) {
 	var stateJSON string
 	err := db.QueryRow(`SELECT state_json FROM webshell_connection_states WHERE connection_id = ?`, connectionID).Scan(&stateJSON)
@@ -36,7 +36,7 @@ func (db *DB) GetWebshellConnectionState(connectionID string) (string, error) {
 	return stateJSON, nil
 }
 
-// UpsertWebshellConnectionState 保存连接关联的持久化状态 JSON
+// English note.
 func (db *DB) UpsertWebshellConnectionState(connectionID, stateJSON string) error {
 	if stateJSON == "" {
 		stateJSON = "{}"
@@ -55,7 +55,7 @@ func (db *DB) UpsertWebshellConnectionState(connectionID, stateJSON string) erro
 	return nil
 }
 
-// ListWebshellConnections 列出所有 WebShell 连接，按创建时间倒序
+// English note.
 func (db *DB) ListWebshellConnections() ([]WebShellConnection, error) {
 	query := `
 		SELECT id, url, password, type, method, cmd_param, remark, created_at
@@ -82,7 +82,7 @@ func (db *DB) ListWebshellConnections() ([]WebShellConnection, error) {
 	return list, rows.Err()
 }
 
-// GetWebshellConnection 根据 ID 获取一条连接
+// English note.
 func (db *DB) GetWebshellConnection(id string) (*WebShellConnection, error) {
 	query := `
 		SELECT id, url, password, type, method, cmd_param, remark, created_at
@@ -100,7 +100,7 @@ func (db *DB) GetWebshellConnection(id string) (*WebShellConnection, error) {
 	return &c, nil
 }
 
-// CreateWebshellConnection 创建 WebShell 连接
+// English note.
 func (db *DB) CreateWebshellConnection(c *WebShellConnection) error {
 	query := `
 		INSERT INTO webshell_connections (id, url, password, type, method, cmd_param, remark, created_at)
@@ -114,7 +114,7 @@ func (db *DB) CreateWebshellConnection(c *WebShellConnection) error {
 	return nil
 }
 
-// UpdateWebshellConnection 更新 WebShell 连接
+// English note.
 func (db *DB) UpdateWebshellConnection(c *WebShellConnection) error {
 	query := `
 		UPDATE webshell_connections
@@ -133,7 +133,7 @@ func (db *DB) UpdateWebshellConnection(c *WebShellConnection) error {
 	return nil
 }
 
-// DeleteWebshellConnection 删除 WebShell 连接
+// English note.
 func (db *DB) DeleteWebshellConnection(id string) error {
 	result, err := db.Exec(`DELETE FROM webshell_connections WHERE id = ?`, id)
 	if err != nil {

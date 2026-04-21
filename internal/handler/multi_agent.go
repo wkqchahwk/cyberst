@@ -17,7 +17,7 @@ import (
 	"go.uber.org/zap"
 )
 
-// MultiAgentLoopStream Eino DeepAgent 流式对话（需 config.multi_agent.enabled）。
+// English note.
 func (h *AgentHandler) MultiAgentLoopStream(c *gin.Context) {
 	c.Header("Content-Type", "text/event-stream")
 	c.Header("Cache-Control", "no-cache")
@@ -46,19 +46,19 @@ func (h *AgentHandler) MultiAgentLoopStream(c *gin.Context) {
 
 	c.Header("X-Accel-Buffering", "no")
 
-	// 用于在 sendEvent 中判断是否为用户主动停止导致的取消。
-	// 注意：baseCtx 会在后面创建；该变量用于闭包提前捕获引用。
+	// English note.
+	// English note.
 	var baseCtx context.Context
 
 	clientDisconnected := false
-	// 与 sseKeepalive 共用：禁止并发写 ResponseWriter，否则会破坏 chunked 编码（ERR_INVALID_CHUNKED_ENCODING）。
+	// English note.
 	var sseWriteMu sync.Mutex
 	sendEvent := func(eventType, message string, data interface{}) {
 		if clientDisconnected {
 			return
 		}
-		// 用户主动停止时，Eino 可能仍会并发上报 eventType=="error"。
-		// 为避免 UI 看到“取消错误 + cancelled 文案”两条回复，这里直接丢弃取消对应的 error。
+		// English note.
+		// English note.
 		if eventType == "error" && baseCtx != nil && errors.Is(context.Cause(baseCtx), ErrTaskCancelled) {
 			return
 		}
@@ -230,7 +230,7 @@ func (h *AgentHandler) MultiAgentLoopStream(c *gin.Context) {
 	sendEvent("done", "", map[string]interface{}{"conversationId": conversationID})
 }
 
-// MultiAgentLoop Eino DeepAgent 非流式对话（与 POST /api/agent-loop 对齐，需 multi_agent.enabled）。
+// English note.
 func (h *AgentHandler) MultiAgentLoop(c *gin.Context) {
 	if h.config == nil || !h.config.MultiAgent.Enabled {
 		c.JSON(http.StatusNotFound, gin.H{"error": "多代理未启用，请在 config.yaml 中设置 multi_agent.enabled: true"})

@@ -1,4 +1,4 @@
-// Package multiagent 使用 CloudWeGo Eino adk/prebuilt（deep / plan_execute / supervisor）编排多代理，MCP 工具经 einomcp 桥接到现有 Agent。
+// English note.
 package multiagent
 
 import (
@@ -28,7 +28,7 @@ import (
 	"go.uber.org/zap"
 )
 
-// RunResult 与单 Agent 循环结果字段对齐，便于复用存储与 SSE 收尾逻辑。
+// English note.
 type RunResult struct {
 	Response        string
 	MCPExecutionIDs []string
@@ -46,8 +46,8 @@ type toolCallPendingInfo struct {
 	EinoRole   string
 }
 
-// RunDeepAgent 使用 Eino 多代理预置编排执行一轮对话（deep / plan_execute / supervisor；流式事件通过 progress 回调输出）。
-// orchestrationOverride 非空时优先（如聊天/WebShell 请求体）；否则用 multi_agent.orchestration（遗留 yaml）；皆空则按 deep。
+// English note.
+// English note.
 func RunDeepAgent(
 	ctx context.Context,
 	appCfg *config.Config,
@@ -111,7 +111,7 @@ func RunDeepAgent(
 		mcpIDsMu.Unlock()
 	}
 
-	// 与单代理流式一致：在 response_start / response_delta 的 data 中带当前 mcpExecutionIds，供主聊天绑定复制与展示。
+	// English note.
 	snapshotMCPIDs := func() []string {
 		mcpIDsMu.Lock()
 		defer mcpIDsMu.Unlock()
@@ -162,12 +162,12 @@ func RunDeepAgent(
 		},
 	}
 
-	// 若配置为 Claude provider，注入自动桥接 transport，对 Eino 透明走 Anthropic Messages API
+	// English note.
 	httpClient = openai.NewEinoHTTPClient(&appCfg.OpenAI, httpClient)
 
 	baseModelCfg := &einoopenai.ChatModelConfig{
 		APIKey:     appCfg.OpenAI.APIKey,
-		BaseURL:    strings.TrimSuffix(appCfg.OpenAI.BaseURL, "/"),
+		BaseURL:    openai.ResolveBaseURL(&appCfg.OpenAI),
 		Model:      appCfg.OpenAI.Model,
 		HTTPClient: httpClient,
 	}
@@ -306,7 +306,7 @@ func RunDeepAgent(
 		return nil, fmt.Errorf("多代理主 summarization 中间件: %w", err)
 	}
 
-	// 与 deep.Config.Name / supervisor 主代理 Name 一致。
+	// English note.
 	orchestratorName := "cyberstrike-deep"
 	orchDescription := "Coordinates specialist agents and MCP tools for authorized security testing."
 	orchInstruction, orchMeta := resolveMainOrchestratorInstruction(orchMode, ma, markdownLoad)
@@ -352,7 +352,7 @@ func RunDeepAgent(
 		deepShell = einoLoc
 	}
 
-	// noNestedTaskMiddleware 必须在最外层（最先拦截），防止 skill 或其他中间件内部触发 task 调用绕过检测。
+	// English note.
 	deepHandlers := []adk.ChatModelAgentMiddleware{newNoNestedTaskMiddleware()}
 	if len(mainOrchestratorPre) > 0 {
 		deepHandlers = append(deepHandlers, mainOrchestratorPre...)
@@ -391,7 +391,7 @@ func RunDeepAgent(
 		if perr != nil {
 			return nil, fmt.Errorf("plan_execute 执行器模型: %w", perr)
 		}
-		// 构建 filesystem 中间件（与 Deep sub-agent 一致）
+		// English note.
 		var peFsMw adk.ChatModelAgentMiddleware
 		if einoSkillMW != nil && einoFSTools && einoLoc != nil {
 			peFsMw, err = subAgentFilesystemMiddleware(ctx, einoLoc)
@@ -517,7 +517,7 @@ func historyToMessages(history []agent.ChatMessage) []adk.Message {
 	if len(history) == 0 {
 		return nil
 	}
-	// 放宽条数上限：跨轮历史交给 Eino Summarization（阈值对齐 openai.max_total_tokens）在调用模型前压缩，避免在入队前硬截断为 40 条。
+	// English note.
 	const maxHistoryMessages = 300
 	start := 0
 	if len(history) > maxHistoryMessages {
@@ -544,7 +544,7 @@ func historyToMessages(history []agent.ChatMessage) []adk.Message {
 	return out
 }
 
-// mergeStreamingToolCallFragments 将流式多帧的 ToolCall 按 index 合并 arguments（与 schema.concatToolCalls 行为一致）。
+// English note.
 func mergeStreamingToolCallFragments(fragments []schema.ToolCall) []schema.ToolCall {
 	if len(fragments) == 0 {
 		return nil
@@ -556,7 +556,7 @@ func mergeStreamingToolCallFragments(fragments []schema.ToolCall) []schema.ToolC
 	return m.ToolCalls
 }
 
-// mergeMessageToolCalls 非流式路径上若仍带分片式 tool_calls，合并后再上报 UI。
+// English note.
 func mergeMessageToolCalls(msg *schema.Message) *schema.Message {
 	if msg == nil || len(msg.ToolCalls) == 0 {
 		return msg
@@ -570,7 +570,7 @@ func mergeMessageToolCalls(msg *schema.Message) *schema.Message {
 	return &out
 }
 
-// toolCallStableID 用于流式阶段去重；OpenAI 流式常先给 index 后补 id。
+// English note.
 func toolCallStableID(tc schema.ToolCall) string {
 	if tc.ID != "" {
 		return tc.ID
@@ -581,7 +581,7 @@ func toolCallStableID(tc schema.ToolCall) string {
 	return ""
 }
 
-// toolCallDisplayName 避免前端「未知工具」：DeepAgent 内置 task 等可能延迟写入 function.name。
+// English note.
 func toolCallDisplayName(tc schema.ToolCall) string {
 	if n := strings.TrimSpace(tc.Function.Name); n != "" {
 		return n
@@ -592,7 +592,7 @@ func toolCallDisplayName(tc schema.ToolCall) string {
 	return "task"
 }
 
-// toolCallsSignatureFlush 用于去重键；无 id/index 时用占位 pos，避免流末帧缺 id 时整条工具事件丢失。
+// English note.
 func toolCallsSignatureFlush(msg *schema.Message) string {
 	if msg == nil || len(msg.ToolCalls) == 0 {
 		return ""
@@ -609,7 +609,7 @@ func toolCallsSignatureFlush(msg *schema.Message) string {
 	return strings.Join(parts, ";")
 }
 
-// toolCallsRichSignature 用于去重：同一次流式已上报后，紧随其后的非流式消息常带相同 tool_calls。
+// English note.
 func toolCallsRichSignature(msg *schema.Message) string {
 	base := toolCallsSignatureFlush(msg)
 	if base == "" {
@@ -730,7 +730,7 @@ func emitToolCallsFromMessage(
 	}
 }
 
-// dedupeRepeatedParagraphs 去掉完全相同的连续/重复段落，缓解多代理各自复述同一列表。
+// English note.
 func dedupeRepeatedParagraphs(s string, minLen int) string {
 	if s == "" || minLen <= 0 {
 		return s
@@ -753,7 +753,7 @@ func dedupeRepeatedParagraphs(s string, minLen int) string {
 	return strings.TrimSpace(strings.Join(out, "\n\n"))
 }
 
-// dedupeParagraphsByLineFingerprint 去掉「正文行集合相同」的重复段落（开场白略不同也会合并），缓解多代理各写一遍目录清单。
+// English note.
 func dedupeParagraphsByLineFingerprint(s string, minParaLen int) string {
 	if s == "" || minParaLen <= 0 {
 		return s
@@ -768,7 +768,7 @@ func dedupeParagraphsByLineFingerprint(s string, minParaLen int) string {
 			continue
 		}
 		fp := paragraphLineFingerprint(t)
-		// 指纹仅在「≥4 条非空行」时有效；单行/短段落长回复（如自我介绍）fp 为空，必须保留，否则会误删全文并触发「未捕获到助手文本」占位。
+		// English note.
 		if fp == "" {
 			out = append(out, p)
 			continue

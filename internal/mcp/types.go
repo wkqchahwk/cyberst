@@ -7,7 +7,7 @@ import (
 	"time"
 )
 
-// ExternalMCPClient 外部 MCP 客户端接口（由 client_sdk.go 基于官方 SDK 实现）
+// English note.
 type ExternalMCPClient interface {
 	Initialize(ctx context.Context) error
 	ListTools(ctx context.Context) ([]Tool, error)
@@ -17,7 +17,7 @@ type ExternalMCPClient interface {
 	GetStatus() string
 }
 
-// MCP消息类型
+// English note.
 const (
 	MessageTypeRequest  = "request"
 	MessageTypeResponse = "response"
@@ -25,30 +25,30 @@ const (
 	MessageTypeNotify   = "notify"
 )
 
-// MCP协议版本
+// English note.
 const ProtocolVersion = "2024-11-05"
 
-// MessageID 表示JSON-RPC 2.0的id字段，可以是字符串、数字或null
+// English note.
 type MessageID struct {
 	value interface{}
 }
 
-// UnmarshalJSON 自定义反序列化，支持字符串、数字和null
+// English note.
 func (m *MessageID) UnmarshalJSON(data []byte) error {
-	// 尝试解析为null
+	// English note.
 	if string(data) == "null" {
 		m.value = nil
 		return nil
 	}
 
-	// 尝试解析为字符串
+	// English note.
 	var str string
 	if err := json.Unmarshal(data, &str); err == nil {
 		m.value = str
 		return nil
 	}
 
-	// 尝试解析为数字
+	// English note.
 	var num json.Number
 	if err := json.Unmarshal(data, &num); err == nil {
 		m.value = num
@@ -58,7 +58,7 @@ func (m *MessageID) UnmarshalJSON(data []byte) error {
 	return fmt.Errorf("invalid id type")
 }
 
-// MarshalJSON 自定义序列化
+// English note.
 func (m MessageID) MarshalJSON() ([]byte, error) {
 	if m.value == nil {
 		return []byte("null"), nil
@@ -66,7 +66,7 @@ func (m MessageID) MarshalJSON() ([]byte, error) {
 	return json.Marshal(m.value)
 }
 
-// String 返回字符串表示
+// English note.
 func (m MessageID) String() string {
 	if m.value == nil {
 		return ""
@@ -74,12 +74,12 @@ func (m MessageID) String() string {
 	return fmt.Sprintf("%v", m.value)
 }
 
-// Value 返回原始值
+// English note.
 func (m MessageID) Value() interface{} {
 	return m.value
 }
 
-// Message 表示MCP消息（符合JSON-RPC 2.0规范）
+// English note.
 type Message struct {
 	ID      MessageID       `json:"id,omitempty"`
 	Type    string          `json:"-"` // 内部使用，不序列化到JSON
@@ -90,14 +90,14 @@ type Message struct {
 	Version string          `json:"jsonrpc,omitempty"` // JSON-RPC 2.0 版本标识
 }
 
-// Error 表示MCP错误
+// English note.
 type Error struct {
 	Code    int         `json:"code"`
 	Message string      `json:"message"`
 	Data    interface{} `json:"data,omitempty"`
 }
 
-// Tool 表示MCP工具定义
+// English note.
 type Tool struct {
 	Name             string                 `json:"name"`
 	Description      string                 `json:"description"`                // 详细描述
@@ -105,45 +105,45 @@ type Tool struct {
 	InputSchema      map[string]interface{} `json:"inputSchema"`
 }
 
-// ToolCall 表示工具调用
+// English note.
 type ToolCall struct {
 	Name      string                 `json:"name"`
 	Arguments map[string]interface{} `json:"arguments"`
 }
 
-// ToolResult 表示工具执行结果
+// English note.
 type ToolResult struct {
 	Content []Content `json:"content"`
 	IsError bool      `json:"isError,omitempty"`
 }
 
-// Content 表示内容
+// English note.
 type Content struct {
 	Type string `json:"type"`
 	Text string `json:"text"`
 }
 
-// InitializeRequest 初始化请求
+// English note.
 type InitializeRequest struct {
 	ProtocolVersion string                 `json:"protocolVersion"`
 	Capabilities    map[string]interface{} `json:"capabilities"`
 	ClientInfo      ClientInfo             `json:"clientInfo"`
 }
 
-// ClientInfo 客户端信息
+// English note.
 type ClientInfo struct {
 	Name    string `json:"name"`
 	Version string `json:"version"`
 }
 
-// InitializeResponse 初始化响应
+// English note.
 type InitializeResponse struct {
 	ProtocolVersion string             `json:"protocolVersion"`
 	Capabilities    ServerCapabilities `json:"capabilities"`
 	ServerInfo      ServerInfo         `json:"serverInfo"`
 }
 
-// ServerCapabilities 服务器能力
+// English note.
 type ServerCapabilities struct {
 	Tools     map[string]interface{} `json:"tools,omitempty"`
 	Prompts   map[string]interface{} `json:"prompts,omitempty"`
@@ -151,43 +151,43 @@ type ServerCapabilities struct {
 	Sampling  map[string]interface{} `json:"sampling,omitempty"`
 }
 
-// ServerInfo 服务器信息
+// English note.
 type ServerInfo struct {
 	Name    string `json:"name"`
 	Version string `json:"version"`
 }
 
-// ListToolsRequest 列出工具请求
+// English note.
 type ListToolsRequest struct{}
 
-// ListToolsResponse 列出工具响应
+// English note.
 type ListToolsResponse struct {
 	Tools []Tool `json:"tools"`
 }
 
-// ListPromptsResponse 列出提示词响应
+// English note.
 type ListPromptsResponse struct {
 	Prompts []Prompt `json:"prompts"`
 }
 
-// ListResourcesResponse 列出资源响应
+// English note.
 type ListResourcesResponse struct {
 	Resources []Resource `json:"resources"`
 }
 
-// CallToolRequest 调用工具请求
+// English note.
 type CallToolRequest struct {
 	Name      string                 `json:"name"`
 	Arguments map[string]interface{} `json:"arguments"`
 }
 
-// CallToolResponse 调用工具响应
+// English note.
 type CallToolResponse struct {
 	Content []Content `json:"content"`
 	IsError bool      `json:"isError,omitempty"`
 }
 
-// ToolExecution 工具执行记录
+// English note.
 type ToolExecution struct {
 	ID        string                 `json:"id"`
 	ToolName  string                 `json:"toolName"`
@@ -200,7 +200,7 @@ type ToolExecution struct {
 	Duration  time.Duration          `json:"duration,omitempty"`
 }
 
-// ToolStats 工具统计信息
+// English note.
 type ToolStats struct {
 	ToolName     string     `json:"toolName"`
 	TotalCalls   int        `json:"totalCalls"`
@@ -209,38 +209,38 @@ type ToolStats struct {
 	LastCallTime *time.Time `json:"lastCallTime,omitempty"`
 }
 
-// Prompt 提示词模板
+// English note.
 type Prompt struct {
 	Name        string           `json:"name"`
 	Description string           `json:"description,omitempty"`
 	Arguments   []PromptArgument `json:"arguments,omitempty"`
 }
 
-// PromptArgument 提示词参数
+// English note.
 type PromptArgument struct {
 	Name        string `json:"name"`
 	Description string `json:"description,omitempty"`
 	Required    bool   `json:"required,omitempty"`
 }
 
-// GetPromptRequest 获取提示词请求
+// English note.
 type GetPromptRequest struct {
 	Name      string                 `json:"name"`
 	Arguments map[string]interface{} `json:"arguments,omitempty"`
 }
 
-// GetPromptResponse 获取提示词响应
+// English note.
 type GetPromptResponse struct {
 	Messages []PromptMessage `json:"messages"`
 }
 
-// PromptMessage 提示词消息
+// English note.
 type PromptMessage struct {
 	Role    string `json:"role"`
 	Content string `json:"content"`
 }
 
-// Resource 资源
+// English note.
 type Resource struct {
 	URI         string `json:"uri"`
 	Name        string `json:"name"`
@@ -248,17 +248,17 @@ type Resource struct {
 	MimeType    string `json:"mimeType,omitempty"`
 }
 
-// ReadResourceRequest 读取资源请求
+// English note.
 type ReadResourceRequest struct {
 	URI string `json:"uri"`
 }
 
-// ReadResourceResponse 读取资源响应
+// English note.
 type ReadResourceResponse struct {
 	Contents []ResourceContent `json:"contents"`
 }
 
-// ResourceContent 资源内容
+// English note.
 type ResourceContent struct {
 	URI      string `json:"uri"`
 	MimeType string `json:"mimeType,omitempty"`
@@ -266,7 +266,7 @@ type ResourceContent struct {
 	Blob     string `json:"blob,omitempty"`
 }
 
-// SamplingRequest 采样请求
+// English note.
 type SamplingRequest struct {
 	Messages    []SamplingMessage `json:"messages"`
 	Model       string            `json:"model,omitempty"`
@@ -275,20 +275,20 @@ type SamplingRequest struct {
 	TopP        float64           `json:"topP,omitempty"`
 }
 
-// SamplingMessage 采样消息
+// English note.
 type SamplingMessage struct {
 	Role    string `json:"role"`
 	Content string `json:"content"`
 }
 
-// SamplingResponse 采样响应
+// English note.
 type SamplingResponse struct {
 	Content    []SamplingContent `json:"content"`
 	Model      string            `json:"model,omitempty"`
 	StopReason string            `json:"stopReason,omitempty"`
 }
 
-// SamplingContent 采样内容
+// English note.
 type SamplingContent struct {
 	Type string `json:"type"`
 	Text string `json:"text,omitempty"`

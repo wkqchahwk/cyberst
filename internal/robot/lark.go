@@ -25,8 +25,8 @@ type larkTextContent struct {
 	Text string `json:"text"`
 }
 
-// StartLark 启动飞书长连接（无需公网），收到消息后调用 handler 并回复。
-// 断线（如笔记本睡眠、网络中断）后会自动重连；ctx 被取消时退出，便于配置变更时重启。
+// English note.
+// English note.
 func StartLark(ctx context.Context, cfg config.RobotLarkConfig, h MessageHandler, logger *zap.Logger) {
 	if !cfg.Enabled || cfg.AppID == "" || cfg.AppSecret == "" {
 		return
@@ -34,7 +34,7 @@ func StartLark(ctx context.Context, cfg config.RobotLarkConfig, h MessageHandler
 	go runLarkLoop(ctx, cfg, h, logger)
 }
 
-// runLarkLoop 循环维持飞书长连接：断开且 ctx 未取消时按退避间隔重连。
+// English note.
 func runLarkLoop(ctx context.Context, cfg config.RobotLarkConfig, h MessageHandler, logger *zap.Logger) {
 	backoff := larkReconnectInitial
 	for {

@@ -27,7 +27,7 @@ type FofaHandler struct {
 }
 
 func NewFofaHandler(cfg *config.Config, logger *zap.Logger) *FofaHandler {
-	// LLM 请求通常比 FOFA 查询更慢一点，单独给一个更宽松的超时。
+	// English note.
 	llmHTTPClient := &http.Client{Timeout: 2 * time.Minute}
 	var llmCfg *config.OpenAIConfig
 	if cfg != nil {
@@ -81,7 +81,7 @@ type fofaSearchResponse struct {
 }
 
 func (h *FofaHandler) resolveCredentials() (email, apiKey string) {
-	// 优先环境变量（便于容器部署），其次配置文件
+	// English note.
 	email = strings.TrimSpace(os.Getenv("FOFA_EMAIL"))
 	apiKey = strings.TrimSpace(os.Getenv("FOFA_API_KEY"))
 	if email != "" && apiKey != "" {
@@ -107,7 +107,7 @@ func (h *FofaHandler) resolveBaseURL() string {
 	return "https://fofa.info/api/v1/search/all"
 }
 
-// ParseNaturalLanguage 将自然语言解析为 FOFA 查询语法（仅生成，不执行查询）
+// English note.
 func (h *FofaHandler) ParseNaturalLanguage(c *gin.Context) {
 	var req fofaParseRequest
 	if err := c.ShouldBindJSON(&req); err != nil {
@@ -272,7 +272,7 @@ func (h *FofaHandler) ParseNaturalLanguage(c *gin.Context) {
 		"max_tokens":  1200,
 	}
 
-	// OpenAI 返回结构：只需要 choices[0].message.content
+	// English note.
 	var apiResponse struct {
 		Choices []struct {
 			Message struct {
@@ -300,7 +300,7 @@ func (h *FofaHandler) ParseNaturalLanguage(c *gin.Context) {
 	}
 
 	content := strings.TrimSpace(apiResponse.Choices[0].Message.Content)
-	// 兼容模型偶尔返回 ```json ... ``` 的情况
+	// English note.
 	content = strings.TrimPrefix(content, "```json")
 	content = strings.TrimPrefix(content, "```")
 	content = strings.TrimSuffix(content, "```")
@@ -308,7 +308,7 @@ func (h *FofaHandler) ParseNaturalLanguage(c *gin.Context) {
 
 	var parsed fofaParseResponse
 	if err := json.Unmarshal([]byte(content), &parsed); err != nil {
-		// 直接回传一部分原文，方便排查，但避免太大
+		// English note.
 		snippet := content
 		if len(snippet) > 1200 {
 			snippet = snippet[:1200]
@@ -321,7 +321,7 @@ func (h *FofaHandler) ParseNaturalLanguage(c *gin.Context) {
 	}
 	parsed.Query = strings.TrimSpace(parsed.Query)
 	if parsed.Query == "" {
-		// query 允许为空（表示需求不明确），但前端需要明确提示
+		// English note.
 		if len(parsed.Warnings) == 0 {
 			parsed.Warnings = []string{"需求信息不足，未能生成可用的 FOFA 查询语法，请补充关键条件（如国家/端口/产品/域名等）。"}
 		}
@@ -330,7 +330,7 @@ func (h *FofaHandler) ParseNaturalLanguage(c *gin.Context) {
 	c.JSON(http.StatusOK, parsed)
 }
 
-// Search FOFA 查询（后端代理，避免前端暴露 key）
+// English note.
 func (h *FofaHandler) Search(c *gin.Context) {
 	var req fofaSearchRequest
 	if err := c.ShouldBindJSON(&req); err != nil {
@@ -349,7 +349,7 @@ func (h *FofaHandler) Search(c *gin.Context) {
 	if req.Page <= 0 {
 		req.Page = 1
 	}
-	// FOFA 接口 size 上限和账户权限相关，这里只做一个合理的保护
+	// English note.
 	if req.Size > 10000 {
 		req.Size = 10000
 	}
@@ -386,7 +386,7 @@ func (h *FofaHandler) Search(c *gin.Context) {
 	if req.Full {
 		params.Set("full", "true")
 	} else {
-		// 明确传 false，便于排查
+		// English note.
 		params.Set("full", "false")
 	}
 	u.RawQuery = params.Encode()

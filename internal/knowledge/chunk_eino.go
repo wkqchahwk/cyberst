@@ -53,7 +53,7 @@ func newKnowledgeSplitter(chunkSize, overlap int, embeddingModel string) (docume
 	})
 }
 
-// newMarkdownHeaderSplitter Eino-ext Markdown 按标题切分（#～####），适合技术/Markdown 知识库。
+// English note.
 func newMarkdownHeaderSplitter(ctx context.Context) (document.Transformer, error) {
 	return markdown.NewHeaderSplitter(ctx, &markdown.HeaderConfig{
 		Headers: map[string]string{

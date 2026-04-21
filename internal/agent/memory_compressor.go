@@ -17,13 +17,13 @@ import (
 )
 
 const (
-	// DefaultMinRecentMessage 压缩历史消息时保留的最近消息数量，确保最近的对话上下文不被压缩
+	// English note.
 	DefaultMinRecentMessage = 5
-	// defaultChunkSize 压缩历史消息时每次处理的消息块大小，将旧消息分成多个块进行摘要
+	// English note.
 	defaultChunkSize = 10
-	// defaultMaxImages 压缩时最多保留的图片数量，超过此数量的图片会被移除以节省上下文空间
+	// English note.
 	defaultMaxImages = 3
-	// defaultSummaryTimeout 生成消息摘要时的超时时间
+	// English note.
 	defaultSummaryTimeout = 10 * time.Minute
 
 	summaryPromptTemplate = `你是一名负责为安全代理执行上下文压缩的助手，任务是在保持所有关键渗透信息完整的前提下压缩扫描数据。
@@ -52,7 +52,7 @@ const (
 请给出技术精准且简明扼要的摘要，覆盖全部与安全评估相关的上下文。`
 )
 
-// MemoryCompressor 负责在调用LLM前压缩历史上下文，以避免Token爆炸。
+// English note.
 type MemoryCompressor struct {
 	maxTotalTokens   int
 	minRecentMessage int
@@ -66,7 +66,7 @@ type MemoryCompressor struct {
 	logger           *zap.Logger
 }
 
-// MemoryCompressorConfig 用于初始化 MemoryCompressor。
+// English note.
 type MemoryCompressorConfig struct {
 	MaxTotalTokens   int
 	MinRecentMessage int
@@ -78,19 +78,19 @@ type MemoryCompressorConfig struct {
 	CompletionClient CompletionClient
 	Logger           *zap.Logger
 
-	// 当 CompletionClient 为空时，可以通过 OpenAIConfig + HTTPClient 构造默认的客户端。
+	// English note.
 	OpenAIConfig *config.OpenAIConfig
 	HTTPClient   *http.Client
 }
 
-// NewMemoryCompressor 创建新的 MemoryCompressor。
+// English note.
 func NewMemoryCompressor(cfg MemoryCompressorConfig) (*MemoryCompressor, error) {
 	if cfg.Logger == nil {
 		cfg.Logger = zap.NewNop()
 	}
 
-	// 如果没有显式配置 MaxTotalTokens，则后续逻辑会根据模型的最大上下文长度进行控制；
-	// 优先推荐在 config.yaml 的 openai.max_total_tokens 中统一配置。
+	// English note.
+	// English note.
 	if cfg.MinRecentMessage <= 0 {
 		cfg.MinRecentMessage = DefaultMinRecentMessage
 	}
@@ -138,18 +138,18 @@ func NewMemoryCompressor(cfg MemoryCompressorConfig) (*MemoryCompressor, error) 
 	}, nil
 }
 
-// UpdateConfig 更新OpenAI配置（用于动态更新模型配置）
+// English note.
 func (mc *MemoryCompressor) UpdateConfig(cfg *config.OpenAIConfig) {
 	if cfg == nil {
 		return
 	}
 
-	// 更新summaryModel字段
+	// English note.
 	if cfg.Model != "" {
 		mc.summaryModel = cfg.Model
 	}
 
-	// 更新completionClient中的配置（如果是OpenAICompletionClient）
+	// English note.
 	if openAIClient, ok := mc.completionClient.(*OpenAICompletionClient); ok {
 		openAIClient.UpdateConfig(cfg)
 		mc.logger.Info("MemoryCompressor配置已更新",
@@ -158,7 +158,7 @@ func (mc *MemoryCompressor) UpdateConfig(cfg *config.OpenAIConfig) {
 	}
 }
 
-// CompressHistory 根据 Token 限制压缩历史消息。reservedTokens 为预留给 tools 等非消息内容的 token 数，压缩时使用 (maxTotalTokens - reservedTokens) 作为消息上限。
+// English note.
 func (mc *MemoryCompressor) CompressHistory(ctx context.Context, messages []ChatMessage, reservedTokens int) ([]ChatMessage, bool, error) {
 	if len(messages) == 0 {
 		return messages, false, nil
@@ -265,15 +265,15 @@ func (mc *MemoryCompressor) countTotalTokens(systemMsgs, regularMsgs []ChatMessa
 	return total
 }
 
-// getModelName 获取当前使用的模型名称（优先从completionClient获取最新配置）
+// English note.
 func (mc *MemoryCompressor) getModelName() string {
-	// 如果completionClient是OpenAICompletionClient，从它获取最新的模型名称
+	// English note.
 	if openAIClient, ok := mc.completionClient.(*OpenAICompletionClient); ok {
 		if openAIClient.config != nil && openAIClient.config.Model != "" {
 			return openAIClient.config.Model
 		}
 	}
-	// 否则使用保存的summaryModel
+	// English note.
 	return mc.summaryModel
 }
 
@@ -289,7 +289,7 @@ func (mc *MemoryCompressor) countTokens(text string) int {
 	return count
 }
 
-// CountTextTokens 对外暴露的文本 Token 计数，用于统计 tools 等非消息内容的 token（如 agent 侧序列化 tools 后计数）。
+// English note.
 func (mc *MemoryCompressor) CountTextTokens(text string) int {
 	return mc.countTokens(text)
 }
@@ -314,7 +314,7 @@ func (mc *MemoryCompressor) summarizeChunk(ctx context.Context, chunk []ChatMess
 	conversation := strings.Join(formatted, "\n")
 	prompt := fmt.Sprintf(summaryPromptTemplate, conversation)
 
-	// 使用动态获取的模型名称，而不是保存的summaryModel
+	// English note.
 	modelName := mc.getModelName()
 	summary, err := mc.completionClient.Complete(ctx, modelName, prompt, mc.timeout)
 	if err != nil {
@@ -355,26 +355,26 @@ func (mc *MemoryCompressor) adjustRecentStartForToolCalls(msgs []ChatMessage, re
 	return adjusted
 }
 
-// TokenCounter 用于计算文本Token数量。
+// English note.
 type TokenCounter interface {
 	Count(model, text string) (int, error)
 }
 
-// TikTokenCounter 基于 tiktoken 的 Token 统计器。
+// English note.
 type TikTokenCounter struct {
 	mu               sync.RWMutex
 	cache            map[string]*tiktoken.Tiktoken
 	fallbackEncoding *tiktoken.Tiktoken
 }
 
-// NewTikTokenCounter 创建新的 TikTokenCounter。
+// English note.
 func NewTikTokenCounter() *TikTokenCounter {
 	return &TikTokenCounter{
 		cache: make(map[string]*tiktoken.Tiktoken),
 	}
 }
 
-// Count 实现 TokenCounter 接口。
+// English note.
 func (tc *TikTokenCounter) Count(model, text string) (int, error) {
 	enc, err := tc.encodingForModel(model)
 	if err != nil {
@@ -415,19 +415,19 @@ func (tc *TikTokenCounter) encodingForModel(model string) (*tiktoken.Tiktoken, e
 	return enc, nil
 }
 
-// CompletionClient 对话压缩时使用的补全接口。
+// English note.
 type CompletionClient interface {
 	Complete(ctx context.Context, model string, prompt string, timeout time.Duration) (string, error)
 }
 
-// OpenAICompletionClient 基于 OpenAI Chat Completion。
+// English note.
 type OpenAICompletionClient struct {
 	config *config.OpenAIConfig
 	client *openai.Client
 	logger *zap.Logger
 }
 
-// NewOpenAICompletionClient 创建 OpenAICompletionClient。
+// English note.
 func NewOpenAICompletionClient(cfg *config.OpenAIConfig, client *http.Client, logger *zap.Logger) *OpenAICompletionClient {
 	if logger == nil {
 		logger = zap.NewNop()
@@ -439,7 +439,7 @@ func NewOpenAICompletionClient(cfg *config.OpenAIConfig, client *http.Client, lo
 	}
 }
 
-// UpdateConfig 更新底层配置。
+// English note.
 func (c *OpenAICompletionClient) UpdateConfig(cfg *config.OpenAIConfig) {
 	c.config = cfg
 	if c.client != nil {
@@ -447,7 +447,7 @@ func (c *OpenAICompletionClient) UpdateConfig(cfg *config.OpenAIConfig) {
 	}
 }
 
-// Complete 调用OpenAI获取摘要。
+// English note.
 func (c *OpenAICompletionClient) Complete(ctx context.Context, model string, prompt string, timeout time.Duration) (string, error) {
 	if c.config == nil {
 		return "", errors.New("openai config is required")

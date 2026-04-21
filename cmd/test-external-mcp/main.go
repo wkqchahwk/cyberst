@@ -31,14 +31,14 @@ func main() {
 
 	fmt.Printf("Found %d external MCP server(s)\n\n", len(cfg.ExternalMCP.Servers))
 
-	// 创建日志
+	// English note.
 	log := logger.New("info", "stdout")
 
-	// 创建外部MCP管理器
+	// English note.
 	manager := mcp.NewExternalMCPManager(log.Logger)
 	manager.LoadConfigs(&cfg.ExternalMCP)
 
-	// 显示配置
+	// English note.
 	fmt.Println("=== 配置信息 ===")
 	for name, srv := range cfg.ExternalMCP.Servers {
 		fmt.Printf("\n%s:\n", name)
@@ -56,7 +56,7 @@ func main() {
 		fmt.Printf("  Disabled: %v\n", srv.Disabled)
 	}
 
-	// 获取统计信息
+	// English note.
 	fmt.Println("\n=== 统计信息 ===")
 	stats := manager.GetStats()
 	fmt.Printf("总数: %d\n", stats["total"])
@@ -64,18 +64,18 @@ func main() {
 	fmt.Printf("已停用: %d\n", stats["disabled"])
 	fmt.Printf("已连接: %d\n", stats["connected"])
 
-	// 测试启动（仅测试启用的）
+	// English note.
 	fmt.Println("\n=== 测试启动 ===")
 	for name, srv := range cfg.ExternalMCP.Servers {
 		if srv.Enabled && !srv.Disabled {
 			fmt.Printf("\n尝试启动 %s...\n", name)
-			// 注意：实际启动可能会失败，因为需要真实的MCP服务器
+			// English note.
 			err := manager.StartClient(name)
 			if err != nil {
 				fmt.Printf("  启动失败（这是正常的，如果没有真实的MCP服务器）: %v\n", err)
 			} else {
 				fmt.Printf("  启动成功\n")
-				// 获取客户端状态
+				// English note.
 				if client, exists := manager.GetClient(name); exists {
 					fmt.Printf("  状态: %s\n", client.GetStatus())
 					fmt.Printf("  已连接: %v\n", client.IsConnected())
@@ -84,10 +84,10 @@ func main() {
 		}
 	}
 
-	// 等待一下
+	// English note.
 	time.Sleep(2 * time.Second)
 
-	// 测试获取工具列表
+	// English note.
 	fmt.Println("\n=== 测试获取工具列表 ===")
 	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
 	defer cancel()
@@ -107,7 +107,7 @@ func main() {
 		}
 	}
 
-	// 测试停止
+	// English note.
 	fmt.Println("\n=== 测试停止 ===")
 	for name := range cfg.ExternalMCP.Servers {
 		fmt.Printf("\n停止 %s...\n", name)
@@ -119,7 +119,7 @@ func main() {
 		}
 	}
 
-	// 最终统计
+	// English note.
 	fmt.Println("\n=== 最终统计 ===")
 	stats = manager.GetStats()
 	fmt.Printf("总数: %d\n", stats["total"])

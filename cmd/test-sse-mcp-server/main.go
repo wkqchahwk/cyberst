@@ -13,7 +13,7 @@ import (
 
 const ProtocolVersion = "2024-11-05"
 
-// Message MCP消息
+// English note.
 type Message struct {
 	ID      interface{}       `json:"id,omitempty"`
 	Method  string            `json:"method,omitempty"`
@@ -23,75 +23,75 @@ type Message struct {
 	Version string            `json:"jsonrpc,omitempty"`
 }
 
-// Error MCP错误
+// English note.
 type Error struct {
 	Code    int    `json:"code"`
 	Message string `json:"message"`
 	Data    interface{} `json:"data,omitempty"`
 }
 
-// InitializeRequest 初始化请求
+// English note.
 type InitializeRequest struct {
 	ProtocolVersion string                 `json:"protocolVersion"`
 	Capabilities    map[string]interface{} `json:"capabilities"`
 	ClientInfo      ClientInfo             `json:"clientInfo"`
 }
 
-// ClientInfo 客户端信息
+// English note.
 type ClientInfo struct {
 	Name    string `json:"name"`
 	Version string `json:"version"`
 }
 
-// InitializeResponse 初始化响应
+// English note.
 type InitializeResponse struct {
 	ProtocolVersion string                 `json:"protocolVersion"`
 	Capabilities    ServerCapabilities     `json:"capabilities"`
 	ServerInfo      ServerInfo             `json:"serverInfo"`
 }
 
-// ServerCapabilities 服务器能力
+// English note.
 type ServerCapabilities struct {
 	Tools map[string]interface{} `json:"tools,omitempty"`
 }
 
-// ServerInfo 服务器信息
+// English note.
 type ServerInfo struct {
 	Name    string `json:"name"`
 	Version string `json:"version"`
 }
 
-// Tool 工具定义
+// English note.
 type Tool struct {
 	Name        string                 `json:"name"`
 	Description string                 `json:"description"`
 	InputSchema map[string]interface{} `json:"inputSchema"`
 }
 
-// ListToolsResponse 列出工具响应
+// English note.
 type ListToolsResponse struct {
 	Tools []Tool `json:"tools"`
 }
 
-// CallToolRequest 调用工具请求
+// English note.
 type CallToolRequest struct {
 	Name      string                 `json:"name"`
 	Arguments map[string]interface{} `json:"arguments"`
 }
 
-// CallToolResponse 调用工具响应
+// English note.
 type CallToolResponse struct {
 	Content []Content `json:"content"`
 	IsError bool      `json:"isError,omitempty"`
 }
 
-// Content 内容
+// English note.
 type Content struct {
 	Type string `json:"type"`
 	Text string `json:"text"`
 }
 
-// SSEServer SSE MCP服务器
+// English note.
 type SSEServer struct {
 	sseClients map[string]chan []byte
 	mu         sync.RWMutex
@@ -103,7 +103,7 @@ func NewSSEServer() *SSEServer {
 	}
 }
 
-// handleSSE 处理SSE连接
+// English note.
 func (s *SSEServer) handleSSE(w http.ResponseWriter, r *http.Request) {
 	flusher, ok := w.(http.Flusher)
 	if !ok {
@@ -130,13 +130,13 @@ func (s *SSEServer) handleSSE(w http.ResponseWriter, r *http.Request) {
 		s.mu.Unlock()
 	}()
 
-	// 发送初始ready事件
+	// English note.
 	fmt.Fprintf(w, "event: message\ndata: {\"type\":\"ready\",\"status\":\"ok\"}\n\n")
 	flusher.Flush()
 
 	log.Printf("SSE客户端连接: %s", clientID)
 
-	// 心跳
+	// English note.
 	ticker := time.NewTicker(15 * time.Second)
 	defer ticker.Stop()
 
@@ -152,14 +152,14 @@ func (s *SSEServer) handleSSE(w http.ResponseWriter, r *http.Request) {
 			fmt.Fprintf(w, "event: message\ndata: %s\n\n", msg)
 			flusher.Flush()
 		case <-ticker.C:
-			// 心跳
+			// English note.
 			fmt.Fprintf(w, ": ping\n\n")
 			flusher.Flush()
 		}
 	}
 }
 
-// handleMessage 处理POST消息
+// English note.
 func (s *SSEServer) handleMessage(w http.ResponseWriter, r *http.Request) {
 	if r.Method != http.MethodPost {
 		http.Error(w, "Method not allowed", http.StatusMethodNotAllowed)
@@ -174,14 +174,14 @@ func (s *SSEServer) handleMessage(w http.ResponseWriter, r *http.Request) {
 
 	log.Printf("收到请求: method=%s, id=%v", msg.Method, msg.ID)
 
-	// 处理消息
+	// English note.
 	response := s.processMessage(&msg)
 
-	// 如果有SSE客户端，通过SSE推送响应
+	// English note.
 	if response != nil {
 		responseJSON, _ := json.Marshal(response)
 		s.mu.RLock()
-		// 发送给所有SSE客户端
+		// English note.
 		for _, ch := range s.sseClients {
 			select {
 			case ch <- responseJSON:
@@ -191,7 +191,7 @@ func (s *SSEServer) handleMessage(w http.ResponseWriter, r *http.Request) {
 		s.mu.RUnlock()
 	}
 
-	// 也直接返回响应（兼容非SSE模式）
+	// English note.
 	if response != nil {
 		w.Header().Set("Content-Type", "application/json")
 		json.NewEncoder(w).Encode(response)
@@ -200,7 +200,7 @@ func (s *SSEServer) handleMessage(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
-// processMessage 处理MCP消息
+// English note.
 func (s *SSEServer) processMessage(msg *Message) *Message {
 	switch msg.Method {
 	case "initialize":
@@ -221,7 +221,7 @@ func (s *SSEServer) processMessage(msg *Message) *Message {
 	}
 }
 
-// handleInitialize 处理初始化
+// English note.
 func (s *SSEServer) handleInitialize(msg *Message) *Message {
 	var req InitializeRequest
 	if err := json.Unmarshal(msg.Params, &req); err != nil {
@@ -258,7 +258,7 @@ func (s *SSEServer) handleInitialize(msg *Message) *Message {
 	}
 }
 
-// handleListTools 处理列出工具
+// English note.
 func (s *SSEServer) handleListTools(msg *Message) *Message {
 	tools := []Tool{
 		{
@@ -304,7 +304,7 @@ func (s *SSEServer) handleListTools(msg *Message) *Message {
 	}
 }
 
-// handleCallTool 处理工具调用
+// English note.
 func (s *SSEServer) handleCallTool(msg *Message) *Message {
 	var req CallToolRequest
 	if err := json.Unmarshal(msg.Params, &req); err != nil {

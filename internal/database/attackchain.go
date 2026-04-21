@@ -8,7 +8,7 @@ import (
 	"go.uber.org/zap"
 )
 
-// AttackChainNode 攻击链节点
+// English note.
 type AttackChainNode struct {
 	ID              string                 `json:"id"`
 	Type            string                 `json:"type"` // tool, vulnerability, target, exploit
@@ -18,7 +18,7 @@ type AttackChainNode struct {
 	RiskScore       int                    `json:"risk_score"`
 }
 
-// AttackChainEdge 攻击链边
+// English note.
 type AttackChainEdge struct {
 	ID     string `json:"id"`
 	Source string `json:"source"`
@@ -27,7 +27,7 @@ type AttackChainEdge struct {
 	Weight int    `json:"weight"`
 }
 
-// SaveAttackChainNode 保存攻击链节点
+// English note.
 func (db *DB) SaveAttackChainNode(conversationID, nodeID, nodeType, nodeName, toolExecutionID, metadata string, riskScore int) error {
 	var toolExecID sql.NullString
 	if toolExecutionID != "" {
@@ -54,7 +54,7 @@ func (db *DB) SaveAttackChainNode(conversationID, nodeID, nodeType, nodeName, to
 	return nil
 }
 
-// SaveAttackChainEdge 保存攻击链边
+// English note.
 func (db *DB) SaveAttackChainEdge(conversationID, edgeID, sourceNodeID, targetNodeID, edgeType string, weight int) error {
 	query := `
 		INSERT OR REPLACE INTO attack_chain_edges 
@@ -71,7 +71,7 @@ func (db *DB) SaveAttackChainEdge(conversationID, edgeID, sourceNodeID, targetNo
 	return nil
 }
 
-// LoadAttackChainNodes 加载攻击链节点
+// English note.
 func (db *DB) LoadAttackChainNodes(conversationID string) ([]AttackChainNode, error) {
 	query := `
 		SELECT id, node_type, node_name, tool_execution_id, metadata, risk_score
@@ -117,7 +117,7 @@ func (db *DB) LoadAttackChainNodes(conversationID string) ([]AttackChainNode, er
 	return nodes, nil
 }
 
-// LoadAttackChainEdges 加载攻击链边
+// English note.
 func (db *DB) LoadAttackChainEdges(conversationID string) ([]AttackChainEdge, error) {
 	query := `
 		SELECT id, source_node_id, target_node_id, edge_type, weight
@@ -148,15 +148,15 @@ func (db *DB) LoadAttackChainEdges(conversationID string) ([]AttackChainEdge, er
 	return edges, nil
 }
 
-// DeleteAttackChain 删除对话的攻击链数据
+// English note.
 func (db *DB) DeleteAttackChain(conversationID string) error {
-	// 先删除边（因为有外键约束）
+	// English note.
 	_, err := db.Exec("DELETE FROM attack_chain_edges WHERE conversation_id = ?", conversationID)
 	if err != nil {
 		db.logger.Warn("删除攻击链边失败", zap.Error(err))
 	}
 
-	// 再删除节点
+	// English note.
 	_, err = db.Exec("DELETE FROM attack_chain_nodes WHERE conversation_id = ?", conversationID)
 	if err != nil {
 		db.logger.Error("删除攻击链节点失败", zap.Error(err), zap.String("conversationId", conversationID))

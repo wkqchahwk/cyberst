@@ -1,29 +1,29 @@
 package builtin
 
-// 内置工具名称常量
-// 所有代码中使用内置工具名称的地方都应该使用这些常量，而不是硬编码字符串
+// English note.
+// English note.
 const (
-	// 漏洞管理工具
+	// English note.
 	ToolRecordVulnerability = "record_vulnerability"
 
-	// 知识库工具
+	// English note.
 	ToolListKnowledgeRiskTypes = "list_knowledge_risk_types"
 	ToolSearchKnowledgeBase    = "search_knowledge_base"
 
-	// WebShell 助手工具（AI 在 WebShell 管理 - AI 助手 中使用）
+	// English note.
 	ToolWebshellExec      = "webshell_exec"
 	ToolWebshellFileList  = "webshell_file_list"
 	ToolWebshellFileRead  = "webshell_file_read"
 	ToolWebshellFileWrite = "webshell_file_write"
 
-	// WebShell 连接管理工具（用于通过 MCP 管理 webshell 连接）
+	// English note.
 	ToolManageWebshellList   = "manage_webshell_list"
 	ToolManageWebshellAdd    = "manage_webshell_add"
 	ToolManageWebshellUpdate = "manage_webshell_update"
 	ToolManageWebshellDelete = "manage_webshell_delete"
 	ToolManageWebshellTest   = "manage_webshell_test"
 
-	// 批量任务队列（与 Web 端批量任务一致，供模型创建/启停/查询队列）
+	// English note.
 	ToolBatchTaskList            = "batch_task_list"
 	ToolBatchTaskGet             = "batch_task_get"
 	ToolBatchTaskCreate          = "batch_task_create"
@@ -39,7 +39,7 @@ const (
 	ToolBatchTaskRemove          = "batch_task_remove_task"
 )
 
-// IsBuiltinTool 检查工具名称是否是内置工具
+// English note.
 func IsBuiltinTool(toolName string) bool {
 	switch toolName {
 	case ToolRecordVulnerability,
@@ -73,7 +73,7 @@ func IsBuiltinTool(toolName string) bool {
 	}
 }
 
-// GetAllBuiltinTools 返回所有内置工具名称列表
+// English note.
 func GetAllBuiltinTools() []string {
 	return []string{
 		ToolRecordVulnerability,

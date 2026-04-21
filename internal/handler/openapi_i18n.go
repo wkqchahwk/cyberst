@@ -1,106 +1,106 @@
 package handler
 
-// apiDocI18n 为 OpenAPI 文档提供 x-i18n-* 扩展键，供前端 apiDocs 国际化使用。
-// 前端通过 apiDocs.tags.* / apiDocs.summary.* / apiDocs.response.* 翻译。
+// English note.
+// English note.
 
 var apiDocI18nTagToKey = map[string]string{
-	"认证": "auth", "对话管理": "conversationManagement", "对话交互": "conversationInteraction",
-	"批量任务": "batchTasks", "对话分组": "conversationGroups", "漏洞管理": "vulnerabilityManagement",
-	"角色管理": "roleManagement", "Skills管理": "skillsManagement", "监控": "monitoring",
-	"配置管理": "configManagement", "外部MCP管理": "externalMCPManagement", "攻击链": "attackChain",
-	"知识库": "knowledgeBase", "MCP": "mcp",
-	"FOFA信息收集": "fofaRecon", "终端": "terminal", "WebShell管理": "webshellManagement",
-	"对话附件": "chatUploads", "机器人集成": "robotIntegration", "多代理Markdown": "markdownAgents",
+	"Auth": "auth", "Conversation Management": "conversationManagement", "Conversation Interaction": "conversationInteraction",
+	"Batch Tasks": "batchTasks", "Conversation Groups": "conversationGroups", "Vulnerability Management": "vulnerabilityManagement",
+	"Role Management": "roleManagement", "Skills Management": "skillsManagement", "Monitoring": "monitoring",
+	"Config Management": "configManagement", "External MCP Management": "externalMCPManagement", "Attack Chain": "attackChain",
+	"Knowledge Base": "knowledgeBase", "MCP": "mcp",
+	"Fofa Recon": "fofaRecon", "Terminal": "terminal", "Webshell Management": "webshellManagement",
+	"Chat Uploads": "chatUploads", "Robot Integration": "robotIntegration", "Markdown Agents": "markdownAgents",
 }
 
 var apiDocI18nSummaryToKey = map[string]string{
-	"用户登录": "login", "用户登出": "logout", "修改密码": "changePassword", "验证Token": "validateToken",
-	"创建对话": "createConversation", "列出对话": "listConversations", "查看对话详情": "getConversationDetail",
-	"更新对话": "updateConversation", "删除对话": "deleteConversation", "获取对话结果": "getConversationResult",
-	"发送消息并获取AI回复（非流式）": "sendMessageNonStream", "发送消息并获取AI回复（流式）": "sendMessageStream",
-	"取消任务": "cancelTask", "列出运行中的任务": "listRunningTasks", "列出已完成的任务": "listCompletedTasks",
-	"创建批量任务队列": "createBatchQueue", "列出批量任务队列": "listBatchQueues", "获取批量任务队列": "getBatchQueue",
-	"删除批量任务队列": "deleteBatchQueue", "启动批量任务队列": "startBatchQueue", "暂停批量任务队列": "pauseBatchQueue",
-	"添加任务到队列": "addTaskToQueue", "SQL注入扫描": "sqlInjectionScan", "端口扫描": "portScan",
-	"更新批量任务": "updateBatchTask", "删除批量任务": "deleteBatchTask",
-	"创建分组": "createGroup", "列出分组": "listGroups", "获取分组": "getGroup", "更新分组": "updateGroup",
-	"删除分组": "deleteGroup", "获取分组中的对话": "getGroupConversations", "添加对话到分组": "addConversationToGroup",
-	"从分组移除对话": "removeConversationFromGroup",
-	"列出漏洞": "listVulnerabilities", "创建漏洞": "createVulnerability", "获取漏洞统计": "getVulnerabilityStats",
-	"获取漏洞": "getVulnerability", "更新漏洞": "updateVulnerability", "删除漏洞": "deleteVulnerability",
-	"列出角色": "listRoles", "创建角色": "createRole", "获取角色": "getRole", "更新角色": "updateRole", "删除角色": "deleteRole",
-	"获取可用Skills列表": "getAvailableSkills", "列出Skills": "listSkills", "创建Skill": "createSkill",
-	"获取Skill统计": "getSkillStats", "清空Skill统计": "clearSkillStats", "获取Skill": "getSkill",
-	"更新Skill": "updateSkill", "删除Skill": "deleteSkill", "获取绑定角色": "getBoundRoles",
-	"获取监控信息": "getMonitorInfo", "获取执行记录": "getExecutionRecords", "删除执行记录": "deleteExecutionRecord",
-	"批量删除执行记录": "batchDeleteExecutionRecords", "获取统计信息": "getStats",
-	"获取配置": "getConfig", "更新配置": "updateConfig", "获取工具配置": "getToolConfig", "应用配置": "applyConfig",
-	"列出外部MCP": "listExternalMCP", "获取外部MCP统计": "getExternalMCPStats", "获取外部MCP": "getExternalMCP",
-	"添加或更新外部MCP": "addOrUpdateExternalMCP", "stdio模式配置": "stdioModeConfig", "SSE模式配置": "sseModeConfig",
-	"删除外部MCP": "deleteExternalMCP", "启动外部MCP": "startExternalMCP", "停止外部MCP": "stopExternalMCP",
-	"获取攻击链": "getAttackChain", "重新生成攻击链": "regenerateAttackChain",
-	"设置对话置顶": "pinConversation", "设置分组置顶": "pinGroup", "设置分组中对话的置顶": "pinGroupConversation",
-	"获取分类": "getCategories", "列出知识项": "listKnowledgeItems", "创建知识项": "createKnowledgeItem",
-	"获取知识项": "getKnowledgeItem", "更新知识项": "updateKnowledgeItem", "删除知识项": "deleteKnowledgeItem",
-	"获取索引状态": "getIndexStatus", "重建索引": "rebuildIndex", "扫描知识库": "scanKnowledgeBase",
-	"搜索知识库": "searchKnowledgeBase", "基础搜索": "basicSearch", "按风险类型搜索": "searchByRiskType",
-	"获取检索日志": "getRetrievalLogs", "删除检索日志": "deleteRetrievalLog",
-	"MCP端点": "mcpEndpoint", "列出所有工具": "listAllTools", "调用工具": "invokeTool", "初始化连接": "initConnection",
-	"成功响应": "successResponse", "错误响应": "errorResponse",
-	// 新增缺失端点
-	"删除对话轮次": "deleteConversationTurn", "获取消息过程详情": "getMessageProcessDetails",
-	"重跑批量任务队列": "rerunBatchQueue", "修改队列元数据": "updateBatchQueueMetadata",
-	"修改队列调度配置": "updateBatchQueueSchedule", "开关Cron自动调度": "setBatchQueueScheduleEnabled",
-	"获取所有分组映射": "getAllGroupMappings",
-	"FOFA搜索": "fofaSearch", "自然语言解析为FOFA语法": "fofaParse",
-	"测试OpenAI API连接": "testOpenAI",
-	"执行终端命令": "terminalRun", "流式执行终端命令": "terminalRunStream", "WebSocket终端": "terminalWS",
-	"列出WebShell连接": "listWebshellConnections", "创建WebShell连接": "createWebshellConnection",
-	"更新WebShell连接": "updateWebshellConnection", "删除WebShell连接": "deleteWebshellConnection",
-	"获取连接状态": "getWebshellConnectionState", "保存连接状态": "saveWebshellConnectionState",
-	"获取AI对话历史": "getWebshellAIHistory", "列出AI对话": "listWebshellAIConversations",
-	"执行WebShell命令": "webshellExec", "WebShell文件操作": "webshellFileOp",
-	"列出附件": "listChatUploads", "上传附件": "uploadChatFile", "删除附件": "deleteChatUpload",
-	"下载附件": "downloadChatUpload", "获取附件文本内容": "getChatUploadContent",
-	"写入附件文本内容": "putChatUploadContent", "创建附件目录": "mkdirChatUpload", "重命名附件": "renameChatUpload",
-	"企业微信回调验证": "wecomCallbackVerify", "企业微信消息回调": "wecomCallbackMessage",
-	"钉钉消息回调": "dingtalkCallback", "飞书消息回调": "larkCallback", "测试机器人消息处理": "testRobot",
-	"列出Markdown代理": "listMarkdownAgents", "创建Markdown代理": "createMarkdownAgent",
-	"获取Markdown代理详情": "getMarkdownAgent", "更新Markdown代理": "updateMarkdownAgent", "删除Markdown代理": "deleteMarkdownAgent",
-	"列出技能包文件": "listSkillPackageFiles", "获取技能包文件内容": "getSkillPackageFile", "写入技能包文件": "putSkillPackageFile",
-	"批量获取工具名称": "batchGetToolNames",
-	"获取知识库统计": "getKnowledgeStats",
+	"Login": "login", "Logout": "logout", "Change Password": "changePassword", "Validate Token": "validateToken",
+	"Create Conversation": "createConversation", "List Conversations": "listConversations", "Get Conversation Detail": "getConversationDetail",
+	"Update Conversation": "updateConversation", "Delete Conversation": "deleteConversation", "Get Conversation Result": "getConversationResult",
+	"Send Message Non Stream": "sendMessageNonStream", "Send Message Stream": "sendMessageStream",
+	"Cancel Task": "cancelTask", "List Running Tasks": "listRunningTasks", "List Completed Tasks": "listCompletedTasks",
+	"Create Batch Queue": "createBatchQueue", "List Batch Queues": "listBatchQueues", "Get Batch Queue": "getBatchQueue",
+	"Delete Batch Queue": "deleteBatchQueue", "Start Batch Queue": "startBatchQueue", "Pause Batch Queue": "pauseBatchQueue",
+	"Add Task To Queue": "addTaskToQueue", "Sql Injection Scan": "sqlInjectionScan", "Port Scan": "portScan",
+	"Update Batch Task": "updateBatchTask", "Delete Batch Task": "deleteBatchTask",
+	"Create Group": "createGroup", "List Groups": "listGroups", "Get Group": "getGroup", "Update Group": "updateGroup",
+	"Delete Group": "deleteGroup", "Get Group Conversations": "getGroupConversations", "Add Conversation To Group": "addConversationToGroup",
+	"Remove Conversation From Group": "removeConversationFromGroup",
+	"List Vulnerabilities": "listVulnerabilities", "Create Vulnerability": "createVulnerability", "Get Vulnerability Stats": "getVulnerabilityStats",
+	"Get Vulnerability": "getVulnerability", "Update Vulnerability": "updateVulnerability", "Delete Vulnerability": "deleteVulnerability",
+	"List Roles": "listRoles", "Create Role": "createRole", "Get Role": "getRole", "Update Role": "updateRole", "Delete Role": "deleteRole",
+	"Get Available Skills": "getAvailableSkills", "List Skills": "listSkills", "Create Skill": "createSkill",
+	"Get Skill Stats": "getSkillStats", "Clear Skill Stats": "clearSkillStats", "Get Skill": "getSkill",
+	"Update Skill": "updateSkill", "Delete Skill": "deleteSkill", "Get Bound Roles": "getBoundRoles",
+	"Get Monitor Info": "getMonitorInfo", "Get Execution Records": "getExecutionRecords", "Delete Execution Record": "deleteExecutionRecord",
+	"Batch Delete Execution Records": "batchDeleteExecutionRecords", "Get Stats": "getStats",
+	"Get Config": "getConfig", "Update Config": "updateConfig", "Get Tool Config": "getToolConfig", "Apply Config": "applyConfig",
+	"List External MCP": "listExternalMCP", "Get External MCP Stats": "getExternalMCPStats", "Get External MCP": "getExternalMCP",
+	"Add Or Update External MCP": "addOrUpdateExternalMCP", "Stdio Mode Config": "stdioModeConfig", "Sse Mode Config": "sseModeConfig",
+	"Delete External MCP": "deleteExternalMCP", "Start External MCP": "startExternalMCP", "Stop External MCP": "stopExternalMCP",
+	"Get Attack Chain": "getAttackChain", "Regenerate Attack Chain": "regenerateAttackChain",
+	"Pin Conversation": "pinConversation", "Pin Group": "pinGroup", "Pin Group Conversation": "pinGroupConversation",
+	"Get Categories": "getCategories", "List Knowledge Items": "listKnowledgeItems", "Create Knowledge Item": "createKnowledgeItem",
+	"Get Knowledge Item": "getKnowledgeItem", "Update Knowledge Item": "updateKnowledgeItem", "Delete Knowledge Item": "deleteKnowledgeItem",
+	"Get Index Status": "getIndexStatus", "Rebuild Index": "rebuildIndex", "Scan Knowledge Base": "scanKnowledgeBase",
+	"Search Knowledge Base": "searchKnowledgeBase", "Basic Search": "basicSearch", "Search By Risk Type": "searchByRiskType",
+	"Get Retrieval Logs": "getRetrievalLogs", "Delete Retrieval Log": "deleteRetrievalLog",
+	"Mcp Endpoint": "mcpEndpoint", "List All Tools": "listAllTools", "Invoke Tool": "invokeTool", "Init Connection": "initConnection",
+	"Success Response": "successResponse", "Error Response": "errorResponse",
+	// English note.
+	"Delete Conversation Turn": "deleteConversationTurn", "Get Message Process Details": "getMessageProcessDetails",
+	"Rerun Batch Queue": "rerunBatchQueue", "Update Batch Queue Metadata": "updateBatchQueueMetadata",
+	"Update Batch Queue Schedule": "updateBatchQueueSchedule", "Set Batch Queue Schedule Enabled": "setBatchQueueScheduleEnabled",
+	"Get All Group Mappings": "getAllGroupMappings",
+	"Fofa Search": "fofaSearch", "Fofa Parse": "fofaParse",
+	"Test Open AI": "testOpenAI",
+	"Terminal Run": "terminalRun", "Terminal Run Stream": "terminalRunStream", "Terminal WS": "terminalWS",
+	"List Webshell Connections": "listWebshellConnections", "Create Webshell Connection": "createWebshellConnection",
+	"Update Webshell Connection": "updateWebshellConnection", "Delete Webshell Connection": "deleteWebshellConnection",
+	"Get Webshell Connection State": "getWebshellConnectionState", "Save Webshell Connection State": "saveWebshellConnectionState",
+	"Get Webshell AIHistory": "getWebshellAIHistory", "List Webshell AIConversations": "listWebshellAIConversations",
+	"Webshell Exec": "webshellExec", "Webshell File Op": "webshellFileOp",
+	"List Chat Uploads": "listChatUploads", "Upload Chat File": "uploadChatFile", "Delete Chat Upload": "deleteChatUpload",
+	"Download Chat Upload": "downloadChatUpload", "Get Chat Upload Content": "getChatUploadContent",
+	"Put Chat Upload Content": "putChatUploadContent", "Mkdir Chat Upload": "mkdirChatUpload", "Rename Chat Upload": "renameChatUpload",
+	"Wecom Callback Verify": "wecomCallbackVerify", "Wecom Callback Message": "wecomCallbackMessage",
+	"Dingtalk Callback": "dingtalkCallback", "Lark Callback": "larkCallback", "Test Robot": "testRobot",
+	"List Markdown Agents": "listMarkdownAgents", "Create Markdown Agent": "createMarkdownAgent",
+	"Get Markdown Agent": "getMarkdownAgent", "Update Markdown Agent": "updateMarkdownAgent", "Delete Markdown Agent": "deleteMarkdownAgent",
+	"List Skill Package Files": "listSkillPackageFiles", "Get Skill Package File": "getSkillPackageFile", "Put Skill Package File": "putSkillPackageFile",
+	"Batch Get Tool Names": "batchGetToolNames",
+	"Get Knowledge Stats": "getKnowledgeStats",
 }
 
 var apiDocI18nResponseDescToKey = map[string]string{
-	"获取成功": "getSuccess", "未授权": "unauthorized", "未授权，需要有效的Token": "unauthorizedToken",
-	"创建成功": "createSuccess", "请求参数错误": "badRequest", "对话不存在": "conversationNotFound",
-	"对话不存在或结果不存在": "conversationOrResultNotFound", "请求参数错误（如task为空）": "badRequestTaskEmpty",
-	"请求参数错误或分组名称已存在": "badRequestGroupNameExists", "分组不存在": "groupNotFound",
-	"请求参数错误（如配置格式不正确、缺少必需字段等）": "badRequestConfig",
-	"请求参数错误（如query为空）": "badRequestQueryEmpty", "方法不允许（仅支持POST请求）": "methodNotAllowed",
-	"登录成功": "loginSuccess", "密码错误": "invalidPassword", "登出成功": "logoutSuccess",
-	"密码修改成功": "passwordChanged", "Token有效": "tokenValid", "Token无效或已过期": "tokenInvalid",
-	"对话创建成功": "conversationCreated", "服务器内部错误": "internalError", "更新成功": "updateSuccess",
-	"删除成功": "deleteSuccess", "队列不存在": "queueNotFound", "启动成功": "startSuccess",
-	"暂停成功": "pauseSuccess", "添加成功": "addSuccess",
-	"任务不存在": "taskNotFound", "对话或分组不存在": "conversationOrGroupNotFound",
-	"取消请求已提交": "cancelSubmitted", "未找到正在执行的任务": "noRunningTask",
-	"消息发送成功，返回AI回复": "messageSent", "流式响应（Server-Sent Events）": "streamResponse",
-	// 新增缺失端点响应
-	"参数错误或删除失败": "badRequestOrDeleteFailed",
-	"参数错误": "paramError", "仅已完成或已取消的队列可以重跑": "onlyCompletedOrCancelledCanRerun",
-	"参数错误或队列正在运行中": "badRequestOrQueueRunning", "设置成功": "setSuccess",
-	"搜索成功": "searchSuccess", "解析成功": "parseSuccess", "测试结果": "testResult",
-	"执行完成": "executionDone", "SSE事件流": "sseEventStream", "WebSocket连接已建立": "wsEstablished",
-	"文件下载": "fileDownload", "文件不存在": "fileNotFound", "写入成功": "writeSuccess",
-	"重命名成功": "renameSuccess", "验证成功，返回解密后的echostr": "wecomVerifySuccess",
-	"处理成功": "processSuccess", "代理不存在": "agentNotFound", "保存成功": "saveSuccess",
-	"操作结果": "operationResult", "执行结果": "executionResult", "连接不存在": "connectionNotFound",
+	"Get Success": "getSuccess", "Unauthorized": "unauthorized", "Unauthorized Token": "unauthorizedToken",
+	"Create Success": "createSuccess", "Bad Request": "badRequest", "Conversation Not Found": "conversationNotFound",
+	"Conversation Or Result Not Found": "conversationOrResultNotFound", "Bad Request Task Empty": "badRequestTaskEmpty",
+	"Bad Request Group Name Exists": "badRequestGroupNameExists", "Group Not Found": "groupNotFound",
+	"Bad Request Config": "badRequestConfig",
+	"Bad Request Query Empty": "badRequestQueryEmpty", "Method Not Allowed": "methodNotAllowed",
+	"Login Success": "loginSuccess", "Invalid Password": "invalidPassword", "Logout Success": "logoutSuccess",
+	"Password Changed": "passwordChanged", "Token Valid": "tokenValid", "Token Invalid": "tokenInvalid",
+	"Conversation Created": "conversationCreated", "Internal Error": "internalError", "Update Success": "updateSuccess",
+	"Delete Success": "deleteSuccess", "Queue Not Found": "queueNotFound", "Start Success": "startSuccess",
+	"Pause Success": "pauseSuccess", "Add Success": "addSuccess",
+	"Task Not Found": "taskNotFound", "Conversation Or Group Not Found": "conversationOrGroupNotFound",
+	"Cancel Submitted": "cancelSubmitted", "No Running Task": "noRunningTask",
+	"Message Sent": "messageSent", "Stream Response": "streamResponse",
+	// English note.
+	"Bad Request Or Delete Failed": "badRequestOrDeleteFailed",
+	"Param Error": "paramError", "Only Completed Or Cancelled Can Rerun": "onlyCompletedOrCancelledCanRerun",
+	"Bad Request Or Queue Running": "badRequestOrQueueRunning", "Set Success": "setSuccess",
+	"Search Success": "searchSuccess", "Parse Success": "parseSuccess", "Test Result": "testResult",
+	"Execution Done": "executionDone", "Sse Event Stream": "sseEventStream", "Ws Established": "wsEstablished",
+	"File Download": "fileDownload", "File Not Found": "fileNotFound", "Write Success": "writeSuccess",
+	"Rename Success": "renameSuccess", "Wecom Verify Success": "wecomVerifySuccess",
+	"Process Success": "processSuccess", "Agent Not Found": "agentNotFound", "Save Success": "saveSuccess",
+	"Operation Result": "operationResult", "Execution Result": "executionResult", "Connection Not Found": "connectionNotFound",
 }
 
-// enrichSpecWithI18nKeys 在 spec 的每个 operation 上写入 x-i18n-tags、x-i18n-summary，
-// 在每个 response 上写入 x-i18n-description，供前端按 key 做国际化。
+// English note.
+// English note.
 func enrichSpecWithI18nKeys(spec map[string]interface{}) {
 	paths, _ := spec["paths"].(map[string]interface{})
 	if paths == nil {
@@ -120,7 +120,7 @@ func enrichSpecWithI18nKeys(spec map[string]interface{}) {
 			if op == nil {
 				continue
 			}
-			// x-i18n-tags: 与 tags 一一对应的 i18n 键数组（spec 中 tags 为 []string）
+			// English note.
 			switch tags := op["tags"].(type) {
 			case []string:
 				if len(tags) > 0 {
@@ -157,7 +157,7 @@ func enrichSpecWithI18nKeys(spec map[string]interface{}) {
 					op["x-i18n-summary"] = k
 				}
 			}
-			// responses -> 每个 status -> x-i18n-description
+			// English note.
 			if respMap, _ := op["responses"].(map[string]interface{}); respMap != nil {
 				for _, rv := range respMap {
 					if r, _ := rv.(map[string]interface{}); r != nil {

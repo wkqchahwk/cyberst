@@ -22,12 +22,12 @@ const (
 	terminalTimeout       = 30 * time.Minute
 )
 
-// TerminalHandler 处理系统设置中的终端命令执行
+// English note.
 type TerminalHandler struct {
 	logger *zap.Logger
 }
 
-// maskTerminalCommand 对可能包含敏感信息的终端命令做脱敏，避免在日志中直接记录密码等内容
+// English note.
 func maskTerminalCommand(cmd string) string {
 	trimmed := strings.TrimSpace(cmd)
 	lower := strings.ToLower(trimmed)
@@ -40,19 +40,19 @@ func maskTerminalCommand(cmd string) string {
 	return trimmed
 }
 
-// NewTerminalHandler 创建终端处理器
+// English note.
 func NewTerminalHandler(logger *zap.Logger) *TerminalHandler {
 	return &TerminalHandler{logger: logger}
 }
 
-// RunCommandRequest 执行命令请求
+// English note.
 type RunCommandRequest struct {
 	Command string `json:"command"`
 	Shell   string `json:"shell,omitempty"`
 	Cwd     string `json:"cwd,omitempty"`
 }
 
-// RunCommandResponse 执行命令响应
+// English note.
 type RunCommandResponse struct {
 	Stdout   string `json:"stdout"`
 	Stderr   string `json:"stderr"`
@@ -60,7 +60,7 @@ type RunCommandResponse struct {
 	Error    string `json:"error,omitempty"`
 }
 
-// RunCommand 执行终端命令（需登录）
+// English note.
 func (h *TerminalHandler) RunCommand(c *gin.Context) {
 	var req RunCommandRequest
 	if err := c.ShouldBindJSON(&req); err != nil {
@@ -95,7 +95,7 @@ func (h *TerminalHandler) RunCommand(c *gin.Context) {
 		cmd = exec.CommandContext(ctx, "cmd", "/c", cmdStr)
 	} else {
 		cmd = exec.CommandContext(ctx, shell, "-c", cmdStr)
-		// 无 TTY 时设置 COLUMNS/TERM，使 ping 等工具的 usage 排版与真实终端一致
+		// English note.
 		cmd.Env = append(os.Environ(), "COLUMNS=256", "LINES=40", "TERM=xterm-256color")
 	}
 
@@ -123,7 +123,7 @@ func (h *TerminalHandler) RunCommand(c *gin.Context) {
 	stdoutBytes := stdout.Bytes()
 	stderrBytes := stderr.Bytes()
 
-	// 限制输出长度，防止内存占用过大（复制后截断，避免修改原 buffer）
+	// English note.
 	truncSuffix := []byte("\n...(输出已截断)\n")
 	if len(stdoutBytes) > terminalMaxOutputLen {
 		tmp := make([]byte, terminalMaxOutputLen+len(truncSuffix))
@@ -162,7 +162,7 @@ func (h *TerminalHandler) RunCommand(c *gin.Context) {
 		h.logger.Debug("终端命令执行异常", zap.String("command", maskTerminalCommand(cmdStr)), zap.Error(err))
 	}
 
-	// 统一为 \n，避免前端因 \r 出现错位/对角线排版
+	// English note.
 	stdoutStr := strings.ReplaceAll(string(stdoutBytes), "\r\n", "\n")
 	stdoutStr = strings.ReplaceAll(stdoutStr, "\r", "\n")
 	stderrStr := strings.ReplaceAll(string(stderrBytes), "\r\n", "\n")
@@ -179,14 +179,14 @@ func (h *TerminalHandler) RunCommand(c *gin.Context) {
 	c.JSON(http.StatusOK, resp)
 }
 
-// streamEvent SSE 事件
+// English note.
 type streamEvent struct {
 	T string `json:"t"` // "out" | "err" | "exit"
 	D string `json:"d,omitempty"`
 	C int    `json:"c"` // exit code（不用 omitempty，否则 0 不序列化导致前端显示 [exit undefined]）
 }
 
-// RunCommandStream 流式执行命令，输出实时推送到前端（SSE）
+// English note.
 func (h *TerminalHandler) RunCommandStream(c *gin.Context) {
 	var req RunCommandRequest
 	if err := c.ShouldBindJSON(&req); err != nil {

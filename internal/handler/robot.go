@@ -44,7 +44,7 @@ const (
 	robotCmdVersion     = "版本"
 )
 
-// RobotHandler 企业微信/钉钉/飞书等机器人回调处理
+// English note.
 type RobotHandler struct {
 	config         *config.Config
 	db             *database.DB
@@ -57,7 +57,7 @@ type RobotHandler struct {
 	runningCancels map[string]context.CancelFunc // key: "platform_userID", 用于停止命令中断任务
 }
 
-// NewRobotHandler 创建机器人处理器
+// English note.
 func NewRobotHandler(cfg *config.Config, db *database.DB, agentHandler *AgentHandler, logger *zap.Logger) *RobotHandler {
 	return &RobotHandler{
 		config:         cfg,
@@ -70,12 +70,12 @@ func NewRobotHandler(cfg *config.Config, db *database.DB, agentHandler *AgentHan
 	}
 }
 
-// sessionKey 生成会话 key
+// English note.
 func (h *RobotHandler) sessionKey(platform, userID string) string {
 	return platform + "_" + userID
 }
 
-// getOrCreateConversation 获取或创建当前会话，title 用于新对话的标题（取用户首条消息前50字）
+// English note.
 func (h *RobotHandler) getOrCreateConversation(platform, userID, title string) (convID string, isNew bool) {
 	h.mu.RLock()
 	convID = h.sessions[h.sessionKey(platform, userID)]
@@ -101,14 +101,14 @@ func (h *RobotHandler) getOrCreateConversation(platform, userID, title string) (
 	return convID, true
 }
 
-// setConversation 切换当前会话
+// English note.
 func (h *RobotHandler) setConversation(platform, userID, convID string) {
 	h.mu.Lock()
 	h.sessions[h.sessionKey(platform, userID)] = convID
 	h.mu.Unlock()
 }
 
-// getRole 获取当前用户使用的角色，未设置时返回"默认"
+// English note.
 func (h *RobotHandler) getRole(platform, userID string) string {
 	h.mu.RLock()
 	role := h.sessionRoles[h.sessionKey(platform, userID)]
@@ -119,14 +119,14 @@ func (h *RobotHandler) getRole(platform, userID string) string {
 	return role
 }
 
-// setRole 设置当前用户使用的角色
+// English note.
 func (h *RobotHandler) setRole(platform, userID, roleName string) {
 	h.mu.Lock()
 	h.sessionRoles[h.sessionKey(platform, userID)] = roleName
 	h.mu.Unlock()
 }
 
-// clearConversation 清空当前会话（切换到新对话）
+// English note.
 func (h *RobotHandler) clearConversation(platform, userID string) (newConvID string) {
 	title := "新对话 " + time.Now().Format("01-02 15:04")
 	conv, err := h.db.CreateConversation(title)
@@ -138,24 +138,24 @@ func (h *RobotHandler) clearConversation(platform, userID string) (newConvID str
 	return conv.ID
 }
 
-// HandleMessage 处理用户输入，返回回复文本（供各平台 webhook 调用）
+// English note.
 func (h *RobotHandler) HandleMessage(platform, userID, text string) (reply string) {
 	text = strings.TrimSpace(text)
 	if text == "" {
 		return "请输入内容或发送「帮助」/ help 查看命令。"
 	}
 
-	// 先尝试作为命令处理（支持中英文）
+	// English note.
 	if cmdReply, ok := h.handleRobotCommand(platform, userID, text); ok {
 		return cmdReply
 	}
 
-	// 普通消息：走 Agent
+	// English note.
 	convID, _ := h.getOrCreateConversation(platform, userID, text)
 	if convID == "" {
 		return "无法创建或获取对话，请稍后再试。"
 	}
-	// 若对话标题为「新对话 xx:xx」格式（由「新对话」命令创建），将标题更新为首条消息内容，与 Web 端体验一致
+	// English note.
 	if conv, err := h.db.GetConversation(convID); err == nil && strings.HasPrefix(conv.Title, "新对话 ") {
 		newTitle := safeTruncateString(text, 50)
 		if newTitle != "" {
@@ -342,7 +342,7 @@ func (h *RobotHandler) cmdDelete(platform, userID, convID string) string {
 	currentConvID := h.sessions[sk]
 	h.mu.RUnlock()
 	if convID == currentConvID {
-		// 删除当前对话时，先清空会话绑定
+		// English note.
 		h.mu.Lock()
 		delete(h.sessions, sk)
 		h.mu.Unlock()
@@ -361,7 +361,7 @@ func (h *RobotHandler) cmdVersion() string {
 	return "CyberStrikeAI " + v
 }
 
-// handleRobotCommand 处理机器人内置命令；若匹配到命令返回 (回复内容, true)，否则返回 ("", false)
+// English note.
 func (h *RobotHandler) handleRobotCommand(platform, userID, text string) (string, bool) {
 	switch {
 	case text == robotCmdHelp || text == "help" || text == "？" || text == "?":
@@ -417,9 +417,9 @@ func (h *RobotHandler) handleRobotCommand(platform, userID, text string) (string
 	}
 }
 
-// —————— 企业微信 ——————
+// English note.
 
-// wecomXML 企业微信回调 XML（明文模式下的简化结构；加密模式需先解密再解析）
+// English note.
 type wecomXML struct {
 	ToUserName   string `xml:"ToUserName"`
 	FromUserName string `xml:"FromUserName"`
@@ -431,7 +431,7 @@ type wecomXML struct {
 	Encrypt      string `xml:"Encrypt"` // 加密模式下消息在此
 }
 
-// wecomReplyXML 被动回复 XML（仅用于兼容，当前使用手动构造 XML）
+// English note.
 type wecomReplyXML struct {
 	XMLName      xml.Name `xml:"xml"`
 	ToUserName   string   `xml:"ToUserName"`
@@ -441,19 +441,19 @@ type wecomReplyXML struct {
 	Content      string   `xml:"Content"`
 }
 
-// HandleWecomGET 企业微信 URL 校验（GET）
+// English note.
 func (h *RobotHandler) HandleWecomGET(c *gin.Context) {
 	if !h.config.Robots.Wecom.Enabled {
 		c.String(http.StatusNotFound, "")
 		return
 	}
-	// Gin 的 Query() 会自动 URL 解码，拿到的就是正确的 base64 字符串
+	// English note.
 	echostr := c.Query("echostr")
 	msgSignature := c.Query("msg_signature")
 	timestamp := c.Query("timestamp")
 	nonce := c.Query("nonce")
 
-	// 验证签名：将 token、timestamp、nonce、echostr 四个参数排序后拼接计算 SHA1
+	// English note.
 	signature := h.signWecomRequest(h.config.Robots.Wecom.Token, timestamp, nonce, echostr)
 	if signature != msgSignature {
 		h.logger.Warn("企业微信 URL 验证签名失败", zap.String("expected", msgSignature), zap.String("got", signature))
@@ -466,7 +466,7 @@ func (h *RobotHandler) HandleWecomGET(c *gin.Context) {
 		return
 	}
 
-	// 如果配置了 EncodingAESKey，说明是加密模式，需要解密 echostr
+	// English note.
 	if h.config.Robots.Wecom.EncodingAESKey != "" {
 		decrypted, err := wecomDecrypt(h.config.Robots.Wecom.EncodingAESKey, echostr)
 		if err != nil {
@@ -478,12 +478,12 @@ func (h *RobotHandler) HandleWecomGET(c *gin.Context) {
 		return
 	}
 
-	// 明文模式直接返回 echostr
+	// English note.
 	c.String(http.StatusOK, echostr)
 }
 
-// signWecomRequest 生成企业微信请求签名
-// 企业微信签名算法：将 token、timestamp、nonce、echostr 四个值排序后拼接成字符串，再计算 SHA1
+// English note.
+// English note.
 func (h *RobotHandler) signWecomRequest(token, timestamp, nonce, echostr string) string {
 	strs := []string{token, timestamp, nonce, echostr}
 	sort.Strings(strs)
@@ -492,7 +492,7 @@ func (h *RobotHandler) signWecomRequest(token, timestamp, nonce, echostr string)
 	return fmt.Sprintf("%x", hash)
 }
 
-// wecomDecrypt 企业微信消息解密（AES-256-CBC，PKCS7，明文格式：16字节随机+4字节长度+消息+corpID）
+// English note.
 func wecomDecrypt(encodingAESKey, encryptedB64 string) ([]byte, error) {
 	key, err := base64.StdEncoding.DecodeString(encodingAESKey + "=")
 	if err != nil {
@@ -516,13 +516,13 @@ func wecomDecrypt(encodingAESKey, encryptedB64 string) ([]byte, error) {
 	}
 	plain := make([]byte, len(ciphertext))
 	mode.CryptBlocks(plain, ciphertext)
-	// 去除 PKCS7 填充
+	// English note.
 	n := int(plain[len(plain)-1])
 	if n < 1 || n > 32 {
 		return nil, fmt.Errorf("无效的 PKCS7 填充")
 	}
 	plain = plain[:len(plain)-n]
-	// 企业微信格式：16 字节随机 + 4 字节长度(大端) + 消息 + corpID
+	// English note.
 	if len(plain) < 20 {
 		return nil, fmt.Errorf("明文过短")
 	}
@@ -533,7 +533,7 @@ func wecomDecrypt(encodingAESKey, encryptedB64 string) ([]byte, error) {
 	return plain[20 : 20+msgLen], nil
 }
 
-// wecomEncrypt 企业微信消息加密（AES-256-CBC，PKCS7，明文格式：16字节随机+4字节长度+消息+corpID）
+// English note.
 func wecomEncrypt(encodingAESKey, message, corpID string) (string, error) {
 	key, err := base64.StdEncoding.DecodeString(encodingAESKey + "=")
 	if err != nil {
@@ -542,10 +542,10 @@ func wecomEncrypt(encodingAESKey, message, corpID string) (string, error) {
 	if len(key) != 32 {
 		return "", fmt.Errorf("encoding_aes_key 解码后应为 32 字节")
 	}
-	// 构造明文：16 字节随机 + 4 字节长度 (大端) + 消息 + corpID
+	// English note.
 	random := make([]byte, 16)
 	if _, err := rand.Read(random); err != nil {
-		// 降级方案：使用时间戳生成随机数
+		// English note.
 		for i := range random {
 			random[i] = byte(time.Now().UnixNano() % 256)
 		}
@@ -558,11 +558,11 @@ func wecomEncrypt(encodingAESKey, message, corpID string) (string, error) {
 	binary.BigEndian.PutUint32(plain[16:20], uint32(msgLen))
 	copy(plain[20:20+msgLen], msgBytes)
 	copy(plain[20+msgLen:], corpBytes)
-	// PKCS7 填充
+	// English note.
 	padding := aes.BlockSize - len(plain)%aes.BlockSize
 	pad := bytes.Repeat([]byte{byte(padding)}, padding)
 	plain = append(plain, pad...)
-	// AES-256-CBC 加密
+	// English note.
 	block, err := aes.NewCipher(key)
 	if err != nil {
 		return "", err
@@ -574,19 +574,19 @@ func wecomEncrypt(encodingAESKey, message, corpID string) (string, error) {
 	return base64.StdEncoding.EncodeToString(ciphertext), nil
 }
 
-// HandleWecomPOST 企业微信消息回调（POST），支持明文与加密模式
+// English note.
 func (h *RobotHandler) HandleWecomPOST(c *gin.Context) {
 	if !h.config.Robots.Wecom.Enabled {
 		h.logger.Debug("企业微信机器人未启用，跳过请求")
 		c.String(http.StatusOK, "")
 		return
 	}
-	// 从 URL 获取签名参数（加密模式回复时需要用到）
+	// English note.
 	timestamp := c.Query("timestamp")
 	nonce := c.Query("nonce")
 	msgSignature := c.Query("msg_signature")
 
-	// 先读取请求体，后续解析/签名验证都会用到
+	// English note.
 	bodyRaw, err := io.ReadAll(c.Request.Body)
 	if err != nil {
 		h.logger.Warn("企业微信 POST 读取请求体失败", zap.Error(err))
@@ -595,8 +595,8 @@ func (h *RobotHandler) HandleWecomPOST(c *gin.Context) {
 	}
 	h.logger.Debug("企业微信 POST 收到请求", zap.String("body", string(bodyRaw)))
 
-	// 验证请求签名防止伪造。企业微信签名算法同 URL 验证，使用 token、timestamp、nonce、 Encrypt 四个字段
-	// 若配置了 Token 则必须校验签名，避免未授权请求触发 Agent（防止平台被接管）
+	// English note.
+	// English note.
 	token := h.config.Robots.Wecom.Token
 	if token != "" {
 		if msgSignature == "" {
@@ -626,10 +626,10 @@ func (h *RobotHandler) HandleWecomPOST(c *gin.Context) {
 	}
 	h.logger.Debug("企业微信 XML 解析成功", zap.String("ToUserName", body.ToUserName), zap.String("FromUserName", body.FromUserName), zap.String("MsgType", body.MsgType), zap.String("Content", body.Content), zap.String("Encrypt", body.Encrypt))
 
-	// 保存企业 ID（用于明文模式回复）
+	// English note.
 	enterpriseID := body.ToUserName
 
-	// 加密模式：先解密再解析内层 XML
+	// English note.
 	if body.Encrypt != "" && h.config.Robots.Wecom.EncodingAESKey != "" {
 		h.logger.Debug("企业微信进入加密模式解密流程")
 		decrypted, err := wecomDecrypt(h.config.Robots.Wecom.EncodingAESKey, body.Encrypt)
@@ -650,7 +650,7 @@ func (h *RobotHandler) HandleWecomPOST(c *gin.Context) {
 	userID := body.FromUserName
 	text := strings.TrimSpace(body.Content)
 
-	// 限制回复内容长度（企业微信限制 2048 字节）
+	// English note.
 	maxReplyLen := 2000
 	limitReply := func(s string) string {
 		if len(s) > maxReplyLen {
@@ -665,7 +665,7 @@ func (h *RobotHandler) HandleWecomPOST(c *gin.Context) {
 		return
 	}
 
-	// 文本消息：先判断是否为内置命令（如 帮助/列表/新对话 等），这类命令处理很快，可以直接走被动回复，避免依赖主动发送 API。
+	// English note.
 	if cmdReply, ok := h.handleRobotCommand("wecom", userID, text); ok {
 		h.logger.Debug("企业微信收到命令消息，走被动回复", zap.String("userID", userID), zap.String("text", text))
 		h.sendWecomReply(c, userID, enterpriseID, limitReply(cmdReply), timestamp, nonce)
@@ -674,26 +674,26 @@ func (h *RobotHandler) HandleWecomPOST(c *gin.Context) {
 
 	h.logger.Debug("企业微信开始处理消息（异步 AI）", zap.String("userID", userID), zap.String("text", text))
 
-	// 企业微信被动回复有 5 秒超时限制，而 AI 调用通常超过该时长。
-	// 这里采用推荐做法：立即返回 success（或空串），然后通过主动发送接口推送完整回复。
+	// English note.
+	// English note.
 	c.String(http.StatusOK, "success")
 
-	// 异步处理消息并通过企业微信主动消息接口发送结果
+	// English note.
 	go func() {
 		reply := h.HandleMessage("wecom", userID, text)
 		reply = limitReply(reply)
 		h.logger.Debug("企业微信消息处理完成", zap.String("userID", userID), zap.String("reply", reply))
-		// 调用企业微信 API 主动发送消息
+		// English note.
 		h.sendWecomMessageViaAPI(userID, enterpriseID, reply)
 	}()
 }
 
-// sendWecomReply 发送企业微信回复（加密模式自动加密）
-// 参数：toUser=用户 ID, fromUser=企业 ID（明文模式）/CorpID（加密模式）, content=回复内容，timestamp/nonce=请求参数
+// English note.
+// English note.
 func (h *RobotHandler) sendWecomReply(c *gin.Context, toUser, fromUser, content, timestamp, nonce string) {
-	// 加密模式：判断 EncodingAESKey 是否配置
+	// English note.
 	if h.config.Robots.Wecom.EncodingAESKey != "" {
-		// 加密模式使用 CorpID 进行加密
+		// English note.
 		corpID := h.config.Robots.Wecom.CorpID
 		if corpID == "" {
 			h.logger.Warn("企业微信加密模式缺少 CorpID 配置")
@@ -701,7 +701,7 @@ func (h *RobotHandler) sendWecomReply(c *gin.Context, toUser, fromUser, content,
 			return
 		}
 
-		// 构造完整的明文 XML 回复（格式严格按企业微信文档要求）
+		// English note.
 		plainResp := fmt.Sprintf(`<xml>
 <ToUserName><![CDATA[%s]]></ToUserName>
 <FromUserName><![CDATA[%s]]></FromUserName>
@@ -716,7 +716,7 @@ func (h *RobotHandler) sendWecomReply(c *gin.Context, toUser, fromUser, content,
 			c.String(http.StatusOK, "")
 			return
 		}
-		// 使用请求中的 timestamp/nonce 生成签名（企业微信要求回复时使用与请求相同的 timestamp 和 nonce）
+		// English note.
 		msgSignature := h.signWecomRequest(h.config.Robots.Wecom.Token, timestamp, nonce, encrypted)
 
 		h.logger.Debug("企业微信发送加密回复",
@@ -725,7 +725,7 @@ func (h *RobotHandler) sendWecomReply(c *gin.Context, toUser, fromUser, content,
 			zap.String("TimeStamp", timestamp),
 			zap.String("Nonce", nonce))
 
-		// 加密模式仅返回 4 个核心字段（企业微信官方要求）
+		// English note.
 		xmlResp := fmt.Sprintf(`<xml><Encrypt><![CDATA[%s]]></Encrypt><MsgSignature><![CDATA[%s]]></MsgSignature><TimeStamp><![CDATA[%s]]></TimeStamp><Nonce><![CDATA[%s]]></Nonce></xml>`, encrypted, msgSignature, timestamp, nonce)
 		// also log the final response body so we can cross-check with the
 		// network traffic or developer console
@@ -737,7 +737,7 @@ func (h *RobotHandler) sendWecomReply(c *gin.Context, toUser, fromUser, content,
 			h.logger.Warn("企业微信加密回复解密检查失败", zap.Error(err2))
 		}
 
-		// 使用 c.Writer.Write 直接写入响应，避免 c.String 的转义问题
+		// English note.
 		c.Writer.WriteHeader(http.StatusOK)
 		// use text/xml as that's what WeCom examples show
 		c.Writer.Header().Set("Content-Type", "text/xml; charset=utf-8")
@@ -746,10 +746,10 @@ func (h *RobotHandler) sendWecomReply(c *gin.Context, toUser, fromUser, content,
 		return
 	}
 
-	// 明文模式
+	// English note.
 	h.logger.Debug("企业微信发送明文回复", zap.String("ToUserName", toUser), zap.String("FromUserName", fromUser), zap.String("Content", content[:50]+"..."))
 
-	// 手动构造 XML 响应（使用 CDATA 包裹所有字段，并包含 AgentID）
+	// English note.
 	xmlResp := fmt.Sprintf(`<xml>
 <ToUserName><![CDATA[%s]]></ToUserName>
 <FromUserName><![CDATA[%s]]></FromUserName>
@@ -767,16 +767,16 @@ func (h *RobotHandler) sendWecomReply(c *gin.Context, toUser, fromUser, content,
 	h.logger.Debug("企业微信明文回复已发送")
 }
 
-// —————— 测试接口（需登录，用于验证机器人逻辑，无需钉钉/飞书客户端） ——————
+// English note.
 
-// RobotTestRequest 模拟机器人消息请求
+// English note.
 type RobotTestRequest struct {
 	Platform string `json:"platform"` // 如 "dingtalk"、"lark"、"wecom"
 	UserID   string `json:"user_id"`
 	Text     string `json:"text"`
 }
 
-// HandleRobotTest 供本地验证：POST JSON { "platform", "user_id", "text" }，返回 { "reply": "..." }
+// English note.
 func (h *RobotHandler) HandleRobotTest(c *gin.Context) {
 	var req RobotTestRequest
 	if err := c.ShouldBindJSON(&req); err != nil {
@@ -795,7 +795,7 @@ func (h *RobotHandler) HandleRobotTest(c *gin.Context) {
 	c.JSON(http.StatusOK, gin.H{"reply": reply})
 }
 
-// sendWecomMessageViaAPI 通过企业微信 API 主动发送消息（用于异步处理后的结果发送）
+// English note.
 func (h *RobotHandler) sendWecomMessageViaAPI(toUser, toParty, content string) {
 	if !h.config.Robots.Wecom.Enabled {
 		return
@@ -810,7 +810,7 @@ func (h *RobotHandler) sendWecomMessageViaAPI(toUser, toParty, content string) {
 		return
 	}
 
-	// 第 1 步：获取 access_token
+	// English note.
 	tokenURL := fmt.Sprintf("https://qyapi.weixin.qq.com/cgi-bin/gettoken?corpid=%s&corpsecret=%s", corpID, secret)
 	resp, err := http.Get(tokenURL)
 	if err != nil {
@@ -833,7 +833,7 @@ func (h *RobotHandler) sendWecomMessageViaAPI(toUser, toParty, content string) {
 		return
 	}
 
-	// 第 2 步：构造发送消息请求
+	// English note.
 	msgReq := map[string]interface{}{
 		"touser":  toUser,
 		"msgtype": "text",
@@ -849,7 +849,7 @@ func (h *RobotHandler) sendWecomMessageViaAPI(toUser, toParty, content string) {
 		return
 	}
 
-	// 第 3 步：发送消息
+	// English note.
 	sendURL := fmt.Sprintf("https://qyapi.weixin.qq.com/cgi-bin/message/send?access_token=%s", tokenResp.AccessToken)
 	msgResp, err := http.Post(sendURL, "application/json", bytes.NewReader(msgBody))
 	if err != nil {
@@ -876,21 +876,21 @@ func (h *RobotHandler) sendWecomMessageViaAPI(toUser, toParty, content string) {
 	}
 }
 
-// —————— 钉钉 ——————
+// English note.
 
-// HandleDingtalkPOST 钉钉事件回调（流式接入等）；当前为占位，返回 200
+// English note.
 func (h *RobotHandler) HandleDingtalkPOST(c *gin.Context) {
 	if !h.config.Robots.Dingtalk.Enabled {
 		c.JSON(http.StatusOK, gin.H{})
 		return
 	}
-	// 钉钉流式/事件回调格式需按官方文档解析并异步回复，此处仅返回 200
+	// English note.
 	c.JSON(http.StatusOK, gin.H{"message": "ok"})
 }
 
-// —————— 飞书 ——————
+// English note.
 
-// HandleLarkPOST 飞书事件回调；当前为占位，返回 200；验证时需返回 challenge
+// English note.
 func (h *RobotHandler) HandleLarkPOST(c *gin.Context) {
 	if !h.config.Robots.Lark.Enabled {
 		c.JSON(http.StatusOK, gin.H{})

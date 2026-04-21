@@ -1,9 +1,9 @@
-// 知识库管理相关功能
+// English note.
 function _t(key, opts) {
     return typeof window.t === 'function' ? window.t(key, opts) : key;
 }
 
-// 返回「知识库未启用」提示区块的 HTML（使用 data-i18n 以便语言切换时自动更新）
+// English note.
 function getKnowledgeNotEnabledHTML() {
     return `
         <div class="empty-state" style="text-align: center; padding: 40px 20px;">
@@ -23,7 +23,7 @@ function getKnowledgeNotEnabledHTML() {
     `;
 }
 
-// 渲染「知识库未启用」状态到容器，并应用当前语言
+// English note.
 function renderKnowledgeNotEnabledState(container) {
     if (!container) return;
     container.innerHTML = getKnowledgeNotEnabledHTML();
@@ -45,10 +45,10 @@ let knowledgePagination = {
 };
 let knowledgeSearchTimeout = null; // 搜索防抖定时器
 
-// 加载知识分类
+// English note.
 async function loadKnowledgeCategories() {
     try {
-        // 添加时间戳参数避免缓存
+        // English note.
         const timestamp = Date.now();
         const response = await apiFetch(`/api/knowledge/categories?_t=${timestamp}`, {
             method: 'GET',
@@ -63,16 +63,16 @@ async function loadKnowledgeCategories() {
         }
         const data = await response.json();
         
-        // 检查知识库功能是否启用
+        // English note.
         if (data.enabled === false) {
-            // 功能未启用，显示友好提示（使用 data-i18n，切换语言时会自动更新）
+            // English note.
             renderKnowledgeNotEnabledState(document.getElementById('knowledge-items-list'));
             return [];
         }
         
         knowledgeCategories = data.categories || [];
         
-        // 更新分类筛选下拉框
+        // English note.
         const filterDropdown = document.getElementById('knowledge-category-filter-dropdown');
         if (filterDropdown) {
             filterDropdown.innerHTML = '<div class="custom-select-option" data-value="" onclick="selectKnowledgeCategory(\'\')">全部</div>';
@@ -91,7 +91,7 @@ async function loadKnowledgeCategories() {
         return knowledgeCategories;
     } catch (error) {
         console.error('加载分类失败:', error);
-        // 只在非功能未启用的情况下显示错误
+        // English note.
         if (!error.message.includes('知识库功能未启用')) {
             showNotification('加载分类失败: ' + error.message, 'error');
         }
@@ -99,15 +99,15 @@ async function loadKnowledgeCategories() {
     }
 }
 
-// 加载知识项列表（支持按分类分页，默认不加载完整内容）
+// English note.
 async function loadKnowledgeItems(category = '', page = 1, pageSize = 10) {
     try {
-        // 更新分页状态
+        // English note.
         knowledgePagination.currentCategory = category;
         knowledgePagination.currentPage = page;
         knowledgePagination.pageSize = pageSize;
         
-        // 构建URL（按分类分页模式，不包含完整内容）
+        // English note.
         const timestamp = Date.now();
         const offset = (page - 1) * pageSize;
         let url = `/api/knowledge/items?categoryPage=true&limit=${pageSize}&offset=${offset}&_t=${timestamp}`;
@@ -129,9 +129,9 @@ async function loadKnowledgeItems(category = '', page = 1, pageSize = 10) {
         }
         const data = await response.json();
         
-        // 检查知识库功能是否启用
+        // English note.
         if (data.enabled === false) {
-            // 功能未启用，显示友好提示（如果还没有显示的话；使用 data-i18n，切换语言时会自动更新）
+            // English note.
             const container = document.getElementById('knowledge-items-list');
             if (container && !container.querySelector('.empty-state')) {
                 renderKnowledgeNotEnabledState(container);
@@ -142,13 +142,13 @@ async function loadKnowledgeItems(category = '', page = 1, pageSize = 10) {
             return [];
         }
         
-        // 处理按分类分页的响应数据
+        // English note.
         const categoriesWithItems = data.categories || [];
         knowledgePagination.total = data.total || 0; // 总分类数
         
         renderKnowledgeItemsByCategories(categoriesWithItems);
         
-        // 如果选择了单个分类，不显示分页（因为只显示一个分类）
+        // English note.
         if (category) {
             const paginationContainer = document.getElementById('knowledge-pagination');
             if (paginationContainer) {
@@ -160,7 +160,7 @@ async function loadKnowledgeItems(category = '', page = 1, pageSize = 10) {
         return categoriesWithItems;
     } catch (error) {
         console.error('加载知识项失败:', error);
-        // 只在非功能未启用的情况下显示错误
+        // English note.
         if (!error.message.includes('知识库功能未启用')) {
             showNotification('加载知识项失败: ' + error.message, 'error');
         }
@@ -168,7 +168,7 @@ async function loadKnowledgeItems(category = '', page = 1, pageSize = 10) {
     }
 }
 
-// 渲染知识项列表（按分类分页的数据结构）
+// English note.
 function renderKnowledgeItemsByCategories(categoriesWithItems) {
     const container = document.getElementById('knowledge-items-list');
     if (!container) return;
@@ -178,14 +178,14 @@ function renderKnowledgeItemsByCategories(categoriesWithItems) {
         return;
     }
     
-    // 计算总项数和分类数
+    // English note.
     const totalItems = categoriesWithItems.reduce((sum, cat) => sum + (cat.items?.length || 0), 0);
     const categoryCount = categoriesWithItems.length;
     
-    // 更新统计信息
+    // English note.
     updateKnowledgeStats(categoriesWithItems, categoryCount);
     
-    // 渲染分类及知识项
+    // English note.
     let html = '<div class="knowledge-categories-container">';
     
     categoriesWithItems.forEach(categoryData => {
@@ -212,7 +212,7 @@ function renderKnowledgeItemsByCategories(categoriesWithItems) {
     container.innerHTML = html;
 }
 
-// 渲染知识项列表（向后兼容，用于按项分页的旧代码）
+// English note.
 function renderKnowledgeItems(items) {
     const container = document.getElementById('knowledge-items-list');
     if (!container) return;
@@ -222,7 +222,7 @@ function renderKnowledgeItems(items) {
         return;
     }
     
-    // 按分类分组
+    // English note.
     const groupedByCategory = {};
     items.forEach(item => {
         const category = item.category || '未分类';
@@ -232,10 +232,10 @@ function renderKnowledgeItems(items) {
         groupedByCategory[category].push(item);
     });
     
-    // 更新统计信息
+    // English note.
     updateKnowledgeStats(items, Object.keys(groupedByCategory).length);
     
-    // 渲染分组后的内容
+    // English note.
     const categories = Object.keys(groupedByCategory).sort();
     let html = '<div class="knowledge-categories-container">';
     
@@ -262,7 +262,7 @@ function renderKnowledgeItems(items) {
     container.innerHTML = html;
 }
 
-// 渲染分页控件（按分类分页）
+// English note.
 function renderKnowledgePagination() {
     const container = document.getElementById('knowledge-pagination');
     if (!container) return;
@@ -277,20 +277,20 @@ function renderKnowledgePagination() {
     
     let html = '<div class="knowledge-pagination" style="display: flex; justify-content: center; align-items: center; gap: 8px; padding: 20px; flex-wrap: wrap;">';
     
-    // 上一页按钮
+    // English note.
     html += `<button class="pagination-btn" onclick="loadKnowledgePage(${currentPage - 1})" ${currentPage <= 1 ? 'disabled style="opacity: 0.5; cursor: not-allowed;"' : ''}>上一页</button>`;
     
-    // 页码显示（显示分类数）
+    // English note.
     html += `<span style="padding: 0 12px;">第 ${currentPage} 页，共 ${totalPages} 页（共 ${total} 个分类）</span>`;
     
-    // 下一页按钮
+    // English note.
     html += `<button class="pagination-btn" onclick="loadKnowledgePage(${currentPage + 1})" ${currentPage >= totalPages ? 'disabled style="opacity: 0.5; cursor: not-allowed;"' : ''}>下一页</button>`;
     
     html += '</div>';
     container.innerHTML = html;
 }
 
-// 加载指定页码的知识项
+// English note.
 function loadKnowledgePage(page) {
     const { currentCategory, pageSize, total } = knowledgePagination;
     const totalPages = Math.ceil(total / pageSize);
@@ -302,40 +302,40 @@ function loadKnowledgePage(page) {
     loadKnowledgeItems(currentCategory, page, pageSize);
 }
 
-// 渲染单个知识项卡片
+// English note.
 function renderKnowledgeItemCard(item) {
-    // 提取内容预览（如果item没有content字段，说明是摘要，不显示预览）
+    // English note.
     let previewText = '';
     if (item.content) {
-        // 去除markdown格式，取前150字符
+        // English note.
         let preview = item.content;
-        // 移除markdown标题标记
+        // English note.
         preview = preview.replace(/^#+\s+/gm, '');
-        // 移除代码块
+        // English note.
         preview = preview.replace(/```[\s\S]*?```/g, '');
-        // 移除行内代码
+        // English note.
         preview = preview.replace(/`[^`]+`/g, '');
-        // 移除链接
+        // English note.
         preview = preview.replace(/\[([^\]]+)\]\([^\)]+\)/g, '$1');
-        // 清理多余空白
+        // English note.
         preview = preview.replace(/\n+/g, ' ').replace(/\s+/g, ' ').trim();
         
         previewText = preview.length > 150 ? preview.substring(0, 150) + '...' : preview;
     }
     
-    // 提取文件路径显示
+    // English note.
     const filePath = item.filePath || '';
     const relativePath = filePath.split(/[/\\]/).slice(-2).join('/'); // 显示最后两级路径
     
-    // 格式化时间
+    // English note.
     const createdTime = formatTime(item.createdAt);
     const updatedTime = formatTime(item.updatedAt);
     
-    // 优先显示更新时间，如果没有更新时间则显示创建时间
+    // English note.
     const displayTime = updatedTime || createdTime;
     const timeLabel = updatedTime ? '更新时间' : '创建时间';
     
-    // 判断是否为最近更新（7天内）
+    // English note.
     let isRecent = false;
     if (item.updatedAt && updatedTime) {
         const updateDate = new Date(item.updatedAt);
@@ -380,25 +380,25 @@ function renderKnowledgeItemCard(item) {
     `;
 }
 
-// 更新统计信息（支持按分类分页的数据结构）
+// English note.
 function updateKnowledgeStats(data, categoryCount) {
     const statsContainer = document.getElementById('knowledge-stats');
     if (!statsContainer) return;
     
-    // 计算当前页的知识项数
+    // English note.
     let currentPageItemCount = 0;
     if (Array.isArray(data) && data.length > 0) {
-        // 判断是categoriesWithItems还是items数组
+        // English note.
         if (data[0].category !== undefined && data[0].items !== undefined) {
-            // 是按分类分页的数据结构
+            // English note.
             currentPageItemCount = data.reduce((sum, cat) => sum + (cat.items?.length || 0), 0);
         } else {
-            // 是按项分页的数据结构（向后兼容）
+            // English note.
             currentPageItemCount = data.length;
         }
     }
     
-    // 总分类数（来自分页信息，只有在未定义时才使用当前页分类数作为后备值）
+    // English note.
     const totalCategories = (knowledgePagination.total != null) ? knowledgePagination.total : categoryCount;
     
     statsContainer.innerHTML = `
@@ -416,11 +416,11 @@ function updateKnowledgeStats(data, categoryCount) {
         </div>
     `;
     
-    // 更新索引进度
+    // English note.
     updateIndexProgress();
 }
 
-// 更新索引进度
+// English note.
 let indexProgressInterval = null;
 
 async function updateIndexProgress() {
@@ -442,9 +442,9 @@ async function updateIndexProgress() {
         const progressContainer = document.getElementById('knowledge-index-progress');
         if (!progressContainer) return;
         
-        // 检查知识库功能是否启用
+        // English note.
         if (status.enabled === false) {
-            // 功能未启用，隐藏进度条
+            // English note.
             progressContainer.style.display = 'none';
             if (indexProgressInterval) {
                 clearInterval(indexProgressInterval);
@@ -459,11 +459,11 @@ async function updateIndexProgress() {
         const isComplete = status.is_complete || false;
         const lastError = status.last_error || '';
         
-        // 检查是否正在重建索引（优先使用重建状态）
+        // English note.
         const isRebuilding = status.is_rebuilding || false;
         
         if (totalItems === 0) {
-            // 没有知识项，隐藏进度条
+            // English note.
             progressContainer.style.display = 'none';
             if (indexProgressInterval) {
                 clearInterval(indexProgressInterval);
@@ -472,10 +472,10 @@ async function updateIndexProgress() {
             return;
         }
         
-        // 显示进度条
+        // English note.
         progressContainer.style.display = 'block';
         
-        // 如果有错误信息，显示错误
+        // English note.
         if (lastError) {
             progressContainer.innerHTML = `
                 <div class="knowledge-index-progress-error" style="
@@ -517,18 +517,18 @@ async function updateIndexProgress() {
                     </div>
                 </div>
             `;
-            // 停止轮询
+            // English note.
             if (indexProgressInterval) {
                 clearInterval(indexProgressInterval);
                 indexProgressInterval = null;
             }
-            // 显示错误通知
+            // English note.
             showNotification('索引构建失败: ' + lastError.substring(0, 100), 'error');
             return;
         }
         
 
-        // 优先处理重建状态
+        // English note.
         if (isRebuilding) {
             const rebuildTotal = status.rebuild_total || totalItems;
             const rebuildCurrent = status.rebuild_current || 0;
@@ -537,7 +537,7 @@ async function updateIndexProgress() {
             const rebuildLastChunks = status.rebuild_last_chunks || 0;
             const rebuildStartTime = status.rebuild_start_time || '';
 
-            // 计算进度百分比（使用重建进度）
+            // English note.
             let rebuildProgress = progressPercent;
             if (rebuildTotal > 0) {
                 rebuildProgress = (rebuildCurrent / rebuildTotal) * 100;
@@ -559,7 +559,7 @@ async function updateIndexProgress() {
                 </div>
             `;
 
-            // 重建中时继续轮询
+            // English note.
             if (!indexProgressInterval) {
                 indexProgressInterval = setInterval(updateIndexProgress, 2000);
             }
@@ -573,7 +573,7 @@ async function updateIndexProgress() {
                     <span class="progress-text">索引构建完成 (${indexedItems}/${totalItems})</span>
                 </div>
             `;
-            // 完成后停止轮询
+            // English note.
             if (indexProgressInterval) {
                 clearInterval(indexProgressInterval);
                 indexProgressInterval = null;
@@ -592,13 +592,13 @@ async function updateIndexProgress() {
                 </div>
             `;
             
-            // 如果还没有开始轮询，开始轮询
+            // English note.
             if (!indexProgressInterval) {
                 indexProgressInterval = setInterval(updateIndexProgress, 3000); // 每3秒刷新一次
             }
         }
     } catch (error) {
-        // 显示错误信息
+        // English note.
         console.error('获取索引状态失败:', error);
         const progressContainer = document.getElementById('knowledge-index-progress');
         if (progressContainer) {
@@ -621,7 +621,7 @@ async function updateIndexProgress() {
                 </div>
             `;
         }
-        // 停止轮询
+        // English note.
         if (indexProgressInterval) {
             clearInterval(indexProgressInterval);
             indexProgressInterval = null;
@@ -629,7 +629,7 @@ async function updateIndexProgress() {
     }
 }
 
-// 停止索引进度轮询
+// English note.
 function stopIndexProgressPolling() {
     if (indexProgressInterval) {
         clearInterval(indexProgressInterval);
@@ -641,7 +641,7 @@ function stopIndexProgressPolling() {
     }
 }
 
-// 选择知识分类
+// English note.
 function selectKnowledgeCategory(category) {
     const trigger = document.getElementById('knowledge-category-filter-trigger');
     const wrapper = document.getElementById('knowledge-category-filter-wrapper');
@@ -652,7 +652,7 @@ function selectKnowledgeCategory(category) {
         trigger.querySelector('span').textContent = displayText;
         wrapper.classList.remove('open');
         
-        // 更新选中状态
+        // English note.
         dropdown.querySelectorAll('.custom-select-option').forEach(opt => {
             opt.classList.remove('selected');
             if (opt.getAttribute('data-value') === category) {
@@ -660,32 +660,32 @@ function selectKnowledgeCategory(category) {
             }
         });
     }
-    // 切换分类时重置到第一页（如果选择了分类，API会返回该分类的所有项）
+    // English note.
     loadKnowledgeItems(category, 1, knowledgePagination.pageSize);
 }
 
-// 筛选知识项
+// English note.
 function filterKnowledgeItems() {
     const wrapper = document.getElementById('knowledge-category-filter-wrapper');
     if (wrapper) {
         const selectedOption = wrapper.querySelector('.custom-select-option.selected');
         const category = selectedOption ? selectedOption.getAttribute('data-value') : '';
-        // 重置到第一页
+        // English note.
         loadKnowledgeItems(category, 1, knowledgePagination.pageSize);
     }
 }
 
-// 处理搜索输入（带防抖）
+// English note.
 function handleKnowledgeSearchInput() {
     const searchInput = document.getElementById('knowledge-search');
     const searchTerm = searchInput?.value.trim() || '';
     
-    // 清除之前的定时器
+    // English note.
     if (knowledgeSearchTimeout) {
         clearTimeout(knowledgeSearchTimeout);
     }
     
-    // 如果搜索框为空，立即恢复列表
+    // English note.
     if (!searchTerm) {
         const wrapper = document.getElementById('knowledge-category-filter-wrapper');
         let category = '';
@@ -697,19 +697,19 @@ function handleKnowledgeSearchInput() {
         return;
     }
     
-    // 有搜索词时，延迟500ms后执行搜索（防抖）
+    // English note.
     knowledgeSearchTimeout = setTimeout(() => {
         searchKnowledgeItems();
     }, 500);
 }
 
-// 搜索知识项（后端关键字匹配，在所有数据中搜索）
+// English note.
 async function searchKnowledgeItems() {
     const searchInput = document.getElementById('knowledge-search');
     const searchTerm = searchInput?.value.trim() || '';
     
     if (!searchTerm) {
-        // 恢复原始列表（重置到第一页）
+        // English note.
         const wrapper = document.getElementById('knowledge-category-filter-wrapper');
         let category = '';
         if (wrapper) {
@@ -721,7 +721,7 @@ async function searchKnowledgeItems() {
     }
     
     try {
-        // 获取当前选择的分类
+        // English note.
         const wrapper = document.getElementById('knowledge-category-filter-wrapper');
         let category = '';
         if (wrapper) {
@@ -729,7 +729,7 @@ async function searchKnowledgeItems() {
             category = selectedOption ? selectedOption.getAttribute('data-value') : '';
         }
         
-        // 调用后端API进行全量搜索
+        // English note.
         const timestamp = Date.now();
         let url = `/api/knowledge/items?search=${encodeURIComponent(searchTerm)}&_t=${timestamp}`;
         if (category) {
@@ -751,16 +751,16 @@ async function searchKnowledgeItems() {
         
         const data = await response.json();
         
-        // 检查知识库功能是否启用
+        // English note.
         if (data.enabled === false) {
             renderKnowledgeNotEnabledState(document.getElementById('knowledge-items-list'));
             return;
         }
         
-        // 处理搜索结果
+        // English note.
         const categoriesWithItems = data.categories || [];
         
-        // 渲染搜索结果
+        // English note.
         const container = document.getElementById('knowledge-items-list');
         if (!container) return;
         
@@ -774,18 +774,18 @@ async function searchKnowledgeItems() {
                 </div>
             `;
         } else {
-            // 计算总项数和分类数
+            // English note.
             const totalItems = categoriesWithItems.reduce((sum, cat) => sum + (cat.items?.length || 0), 0);
             const categoryCount = categoriesWithItems.length;
             
-            // 更新统计信息
+            // English note.
             updateKnowledgeStats(categoriesWithItems, categoryCount);
             
-            // 渲染搜索结果
+            // English note.
             renderKnowledgeItemsByCategories(categoriesWithItems);
         }
         
-        // 搜索时隐藏分页（因为搜索结果显示所有匹配结果）
+        // English note.
         const paginationContainer = document.getElementById('knowledge-pagination');
         if (paginationContainer) {
             paginationContainer.innerHTML = '';
@@ -797,7 +797,7 @@ async function searchKnowledgeItems() {
     }
 }
 
-// 刷新知识库
+// English note.
 async function refreshKnowledgeBase() {
     try {
         showNotification('正在扫描知识库...', 'info');
@@ -808,32 +808,32 @@ async function refreshKnowledgeBase() {
             throw new Error('扫描知识库失败');
         }
         const data = await response.json();
-        // 根据返回的消息显示不同的提示
+        // English note.
         if (data.items_to_index && data.items_to_index > 0) {
             showNotification(`扫描完成，开始索引 ${data.items_to_index} 个新添加或更新的知识项`, 'success');
         } else {
             showNotification(data.message || '扫描完成，没有需要索引的新项或更新项', 'success');
         }
-        // 重新加载知识项（重置到第一页）
+        // English note.
         await loadKnowledgeCategories();
         await loadKnowledgeItems(knowledgePagination.currentCategory, 1, knowledgePagination.pageSize);
         
-        // 停止现有的轮询
+        // English note.
         if (indexProgressInterval) {
             clearInterval(indexProgressInterval);
             indexProgressInterval = null;
         }
         
-        // 如果有需要索引的项，等待一小段时间后立即更新进度
+        // English note.
         if (data.items_to_index && data.items_to_index > 0) {
             await new Promise(resolve => setTimeout(resolve, 500));
             updateIndexProgress();
-            // 开始轮询进度（每2秒刷新一次）
+            // English note.
             if (!indexProgressInterval) {
                 indexProgressInterval = setInterval(updateIndexProgress, 2000);
             }
         } else {
-            // 没有需要索引的项，也更新一次以显示当前状态
+            // English note.
             updateIndexProgress();
         }
     } catch (error) {
@@ -842,7 +842,7 @@ async function refreshKnowledgeBase() {
     }
 }
 
-// 重建索引
+// English note.
 async function rebuildKnowledgeIndex() {
     try {
         if (!confirm('确定要重建索引吗？这可能需要一些时间。')) {
@@ -850,13 +850,13 @@ async function rebuildKnowledgeIndex() {
         }
         showNotification('正在重建索引...', 'info');
         
-        // 先停止现有的轮询
+        // English note.
         if (indexProgressInterval) {
             clearInterval(indexProgressInterval);
             indexProgressInterval = null;
         }
         
-        // 立即显示"正在重建"状态，因为重建开始时会清空旧索引
+        // English note.
         const progressContainer = document.getElementById('knowledge-index-progress');
         if (progressContainer) {
             progressContainer.style.display = 'block';
@@ -882,13 +882,13 @@ async function rebuildKnowledgeIndex() {
         }
         showNotification('索引重建已开始，将在后台进行', 'success');
         
-        // 等待一小段时间，确保后端已经开始处理并清空了旧索引
+        // English note.
         await new Promise(resolve => setTimeout(resolve, 500));
         
-        // 立即更新一次进度
+        // English note.
         updateIndexProgress();
         
-        // 开始轮询进度（每2秒刷新一次，比默认的3秒更频繁）
+        // English note.
         if (!indexProgressInterval) {
             indexProgressInterval = setInterval(updateIndexProgress, 2000);
         }
@@ -898,7 +898,7 @@ async function rebuildKnowledgeIndex() {
     }
 }
 
-// 显示添加知识项模态框
+// English note.
 function showAddKnowledgeItemModal() {
     currentEditingItemId = null;
     document.getElementById('knowledge-item-modal-title').textContent = '添加知识';
@@ -908,7 +908,7 @@ function showAddKnowledgeItemModal() {
     document.getElementById('knowledge-item-modal').style.display = 'block';
 }
 
-// 编辑知识项
+// English note.
 async function editKnowledgeItem(id) {
     try {
         const response = await apiFetch(`/api/knowledge/items/${id}`);
@@ -929,9 +929,9 @@ async function editKnowledgeItem(id) {
     }
 }
 
-// 保存知识项
+// English note.
 async function saveKnowledgeItem() {
-    // 防止重复提交
+    // English note.
     if (isSavingKnowledgeItem) {
         showNotification('正在保存中，请勿重复点击...', 'warning');
         return;
@@ -946,10 +946,10 @@ async function saveKnowledgeItem() {
         return;
     }
     
-    // 设置保存中标志
+    // English note.
     isSavingKnowledgeItem = true;
     
-    // 获取保存按钮和取消按钮
+    // English note.
     const saveButton = document.querySelector('#knowledge-item-modal .modal-footer .btn-primary');
     const cancelButton = document.querySelector('#knowledge-item-modal .modal-footer .btn-secondary');
     const modal = document.getElementById('knowledge-item-modal');
@@ -957,7 +957,7 @@ async function saveKnowledgeItem() {
     const originalButtonText = saveButton ? saveButton.textContent : '保存';
     const originalButtonDisabled = saveButton ? saveButton.disabled : false;
     
-    // 禁用所有输入字段和按钮
+    // English note.
     const categoryInput = document.getElementById('knowledge-item-category');
     const titleInput = document.getElementById('knowledge-item-title');
     const contentInput = document.getElementById('knowledge-item-content');
@@ -967,7 +967,7 @@ async function saveKnowledgeItem() {
     if (contentInput) contentInput.disabled = true;
     if (cancelButton) cancelButton.disabled = true;
     
-    // 设置保存按钮加载状态
+    // English note.
     if (saveButton) {
         saveButton.disabled = true;
         saveButton.style.opacity = '0.6';
@@ -1002,7 +1002,7 @@ async function saveKnowledgeItem() {
         const action = currentEditingItemId ? '更新' : '创建';
         const newItemCategory = item.category || category; // 保存新添加的知识项分类
         
-        // 获取当前筛选状态，以便刷新后保持
+        // English note.
         const currentCategory = document.getElementById('knowledge-category-filter-wrapper');
         let selectedCategory = '';
         if (currentCategory) {
@@ -1012,10 +1012,10 @@ async function saveKnowledgeItem() {
             }
         }
         
-        // 立即关闭模态框，给用户明确的反馈
+        // English note.
         closeKnowledgeItemModal();
         
-        // 显示加载状态并刷新数据（等待完成以确保数据同步）
+        // English note.
         const itemsListContainer = document.getElementById('knowledge-items-list');
         const originalContent = itemsListContainer ? itemsListContainer.innerHTML : '';
         
@@ -1024,17 +1024,17 @@ async function saveKnowledgeItem() {
         }
         
         try {
-            // 先刷新分类，再刷新知识项
+            // English note.
             console.log('开始刷新知识库数据...');
             await loadKnowledgeCategories();
             console.log('分类刷新完成，开始刷新知识项...');
             
-            // 如果新添加的知识项不在当前筛选的分类中，切换到该分类显示
+            // English note.
             let categoryToShow = selectedCategory;
             if (!currentEditingItemId && selectedCategory && selectedCategory !== '' && newItemCategory !== selectedCategory) {
-                // 新添加的知识项，如果当前筛选的不是该分类，切换到新知识项的分类
+                // English note.
                 categoryToShow = newItemCategory;
-                // 更新筛选器显示（不触发加载，因为我们下面会手动加载）
+                // English note.
                 const trigger = document.getElementById('knowledge-category-filter-trigger');
                 const wrapper = document.getElementById('knowledge-category-filter-wrapper');
                 const dropdown = document.getElementById('knowledge-category-filter-dropdown');
@@ -1050,12 +1050,12 @@ async function saveKnowledgeItem() {
                 showNotification(`✅ ${action}成功！已切换到分类"${newItemCategory}"查看新添加的知识项。`, 'success');
             }
             
-            // 刷新知识项列表（重置到第一页）
+            // English note.
             await loadKnowledgeItems(categoryToShow, 1, knowledgePagination.pageSize);
             console.log('知识项刷新完成');
         } catch (err) {
             console.error('刷新数据失败:', err);
-            // 如果刷新失败，恢复原内容
+            // English note.
             if (itemsListContainer && originalContent) {
                 itemsListContainer.innerHTML = originalContent;
             }
@@ -1066,12 +1066,12 @@ async function saveKnowledgeItem() {
         console.error('保存知识项失败:', error);
         showNotification('❌ 保存知识项失败: ' + error.message, 'error');
         
-        // 如果通知系统不可用，使用alert
+        // English note.
         if (typeof window.showNotification !== 'function') {
             alert('❌ 保存知识项失败: ' + error.message);
         }
         
-        // 恢复输入字段和按钮状态（错误时不关闭模态框，让用户修改后重试）
+        // English note.
         if (categoryInput) categoryInput.disabled = false;
         if (titleInput) titleInput.disabled = false;
         if (contentInput) contentInput.disabled = false;
@@ -1083,18 +1083,18 @@ async function saveKnowledgeItem() {
             saveButton.textContent = originalButtonText;
         }
     } finally {
-        // 清除保存中标志
+        // English note.
         isSavingKnowledgeItem = false;
     }
 }
 
-// 删除知识项
+// English note.
 async function deleteKnowledgeItem(id) {
     if (!confirm('确定要删除这个知识项吗？')) {
         return;
     }
     
-    // 找到要删除的知识项卡片和删除按钮
+    // English note.
     const itemCard = document.querySelector(`.knowledge-item-card[data-id="${id}"]`);
     const deleteButton = itemCard ? itemCard.querySelector('.knowledge-item-delete-btn') : null;
     const categorySection = itemCard ? itemCard.closest('.knowledge-category-section') : null;
@@ -1102,21 +1102,21 @@ async function deleteKnowledgeItem(id) {
     let originalOpacity = '';
     let originalButtonOpacity = '';
     
-    // 设置删除按钮的加载状态
+    // English note.
     if (deleteButton) {
         originalButtonOpacity = deleteButton.style.opacity;
         deleteButton.style.opacity = '0.5';
         deleteButton.style.cursor = 'not-allowed';
         deleteButton.disabled = true;
         
-        // 添加加载动画
+        // English note.
         const svg = deleteButton.querySelector('svg');
         if (svg) {
             svg.style.animation = 'spin 1s linear infinite';
         }
     }
     
-    // 立即从UI中移除该项（乐观更新）
+    // English note.
     if (itemCard) {
         originalDisplay = itemCard.style.display;
         originalOpacity = itemCard.style.opacity;
@@ -1124,12 +1124,12 @@ async function deleteKnowledgeItem(id) {
         itemCard.style.opacity = '0';
         itemCard.style.transform = 'translateX(-20px)';
         
-        // 等待动画完成后移除
+        // English note.
         setTimeout(() => {
             if (itemCard.parentElement) {
                 itemCard.remove();
                 
-                // 检查分类是否还有项目，如果没有则隐藏分类标题
+                // English note.
                 if (categorySection) {
                     const remainingItems = categorySection.querySelectorAll('.knowledge-item-card');
                     if (remainingItems.length === 0) {
@@ -1141,7 +1141,7 @@ async function deleteKnowledgeItem(id) {
                             }
                         }, 300);
                     } else {
-                        // 更新分类计数
+                        // English note.
                         const categoryCount = categorySection.querySelector('.knowledge-category-count');
                         if (categoryCount) {
                             const newCount = remainingItems.length;
@@ -1150,7 +1150,7 @@ async function deleteKnowledgeItem(id) {
                     }
                 }
                 
-                // 不在这里更新统计信息，等待重新加载数据后由正确的逻辑更新
+                // English note.
             }
         }, 300);
     }
@@ -1165,31 +1165,31 @@ async function deleteKnowledgeItem(id) {
             throw new Error(errorData.error || '删除知识项失败');
         }
         
-        // 显示成功通知
+        // English note.
         showNotification('✅ 删除成功！知识项已从系统中移除。', 'success');
         
-        // 重新加载数据以确保数据同步（保持当前页码）
+        // English note.
         await loadKnowledgeCategories();
         await loadKnowledgeItems(knowledgePagination.currentCategory, knowledgePagination.currentPage, knowledgePagination.pageSize);
         
     } catch (error) {
         console.error('删除知识项失败:', error);
         
-        // 如果删除失败，恢复该项显示
+        // English note.
         if (itemCard && originalDisplay !== 'none') {
             itemCard.style.display = originalDisplay || '';
             itemCard.style.opacity = originalOpacity || '1';
             itemCard.style.transform = '';
             itemCard.style.transition = '';
             
-            // 如果分类被移除了，需要恢复
+            // English note.
             if (categorySection && !categorySection.parentElement) {
-                // 需要重新加载来恢复（保持当前分页状态）
+                // English note.
                 await loadKnowledgeItems(knowledgePagination.currentCategory, knowledgePagination.currentPage, knowledgePagination.pageSize);
             }
         }
         
-        // 恢复删除按钮状态
+        // English note.
         if (deleteButton) {
             deleteButton.style.opacity = originalButtonOpacity || '';
             deleteButton.style.cursor = '';
@@ -1204,7 +1204,7 @@ async function deleteKnowledgeItem(id) {
     }
 }
 
-// 临时更新统计信息（删除后）
+// English note.
 function updateKnowledgeStatsAfterDelete() {
     const statsContainer = document.getElementById('knowledge-stats');
     if (!statsContainer) return;
@@ -1215,7 +1215,7 @@ function updateKnowledgeStatsAfterDelete() {
     const totalItems = allItems.length;
     const categoryCount = allCategories.length;
     
-    // 计算总内容大小（这里简化处理，实际应该从服务器获取）
+    // English note.
     const statsItems = statsContainer.querySelectorAll('.knowledge-stat-item');
     if (statsItems.length >= 2) {
         const totalItemsSpan = statsItems[0].querySelector('.knowledge-stat-value');
@@ -1230,18 +1230,18 @@ function updateKnowledgeStatsAfterDelete() {
     }
 }
 
-// 关闭知识项模态框
+// English note.
 function closeKnowledgeItemModal() {
     const modal = document.getElementById('knowledge-item-modal');
     if (modal) {
         modal.style.display = 'none';
     }
     
-    // 重置编辑状态
+    // English note.
     currentEditingItemId = null;
     isSavingKnowledgeItem = false;
     
-    // 恢复所有输入字段和按钮状态
+    // English note.
     const categoryInput = document.getElementById('knowledge-item-category');
     const titleInput = document.getElementById('knowledge-item-title');
     const contentInput = document.getElementById('knowledge-item-content');
@@ -1271,7 +1271,7 @@ function closeKnowledgeItemModal() {
     }
 }
 
-// 加载检索日志
+// English note.
 async function loadRetrievalLogs(conversationId = '', messageId = '') {
     try {
         let url = '/api/knowledge/retrieval-logs?limit=100';
@@ -1290,21 +1290,21 @@ async function loadRetrievalLogs(conversationId = '', messageId = '') {
         renderRetrievalLogs(data.logs || []);
     } catch (error) {
         console.error('加载检索日志失败:', error);
-        // 即使加载失败，也显示空状态而不是一直显示"加载中..."
+        // English note.
         renderRetrievalLogs([]);
-        // 只在非空筛选条件下才显示错误通知（避免在没有数据时显示错误）
+        // English note.
         if (conversationId || messageId) {
             showNotification(_t('retrievalLogs.loadError') + ': ' + error.message, 'error');
         }
     }
 }
 
-// 渲染检索日志
+// English note.
 function renderRetrievalLogs(logs) {
     const container = document.getElementById('retrieval-logs-list');
     if (!container) return;
     
-    // 更新统计信息（即使为空数组也要更新）
+    // English note.
     updateRetrievalStats(logs);
     
     if (logs.length === 0) {
@@ -1313,23 +1313,23 @@ function renderRetrievalLogs(logs) {
         return;
     }
     
-    // 保存日志数据供详情查看使用
+    // English note.
     retrievalLogsData = logs;
     
     container.innerHTML = logs.map((log, index) => {
-        // 处理retrievedItems：可能是数组、字符串数组，或者特殊标记
+        // English note.
         let itemCount = 0;
         let hasResults = false;
         
         if (log.retrievedItems) {
             if (Array.isArray(log.retrievedItems)) {
-                // 过滤掉特殊标记
+                // English note.
                 const realItems = log.retrievedItems.filter(id => id !== '_has_results');
                 itemCount = realItems.length;
-                // 如果有特殊标记，表示有结果但ID未知，显示为"有结果"
+                // English note.
                 if (log.retrievedItems.includes('_has_results')) {
                     hasResults = true;
-                    // 如果有真实ID，使用真实数量；否则显示为"有结果"（不显示具体数量）
+                    // English note.
                     if (itemCount === 0) {
                         itemCount = -1; // -1 表示有结果但数量未知
                     }
@@ -1337,7 +1337,7 @@ function renderRetrievalLogs(logs) {
                     hasResults = itemCount > 0;
                 }
             } else if (typeof log.retrievedItems === 'string') {
-                // 如果是字符串，尝试解析JSON
+                // English note.
                 try {
                     const parsed = JSON.parse(log.retrievedItems);
                     if (Array.isArray(parsed)) {
@@ -1353,7 +1353,7 @@ function renderRetrievalLogs(logs) {
                         }
                     }
                 } catch (e) {
-                    // 解析失败，忽略
+                    // English note.
                 }
             }
         }
@@ -1434,13 +1434,13 @@ function renderRetrievalLogs(logs) {
     }).join('');
 }
 
-// 更新检索统计信息
+// English note.
 function updateRetrievalStats(logs) {
     const statsContainer = document.getElementById('retrieval-stats');
     if (!statsContainer) return;
     
     const totalLogs = logs.length;
-    // 判断是否有结果：检查retrievedItems数组，过滤掉特殊标记后长度>0，或者包含特殊标记
+    // English note.
     const successfulLogs = logs.filter(log => {
         if (!log.retrievedItems) return false;
         if (Array.isArray(log.retrievedItems)) {
@@ -1449,7 +1449,7 @@ function updateRetrievalStats(logs) {
         }
         return false;
     }).length;
-    // 计算总知识项数（只计算真实ID，不包括特殊标记）
+    // English note.
     const totalItems = logs.reduce((sum, log) => {
         if (!log.retrievedItems) return sum;
         if (Array.isArray(log.retrievedItems)) {
@@ -1483,23 +1483,23 @@ function updateRetrievalStats(logs) {
     }
 }
 
-// 获取相对时间
+// English note.
 function getTimeAgo(timeStr) {
     if (!timeStr) return '';
     
-    // 处理时间字符串，支持多种格式
+    // English note.
     let date;
     if (typeof timeStr === 'string') {
-        // 首先尝试直接解析（支持RFC3339/ISO8601格式）
+        // English note.
         date = new Date(timeStr);
         
-        // 如果解析失败，尝试其他格式
+        // English note.
         if (isNaN(date.getTime())) {
-            // SQLite格式: "2006-01-02 15:04:05" 或带时区
+            // English note.
             const sqliteMatch = timeStr.match(/(\d{4}-\d{2}-\d{2}[\sT]\d{2}:\d{2}:\d{2}(?:\.\d+)?(?:[+-]\d{2}:\d{2}|Z)?)/);
             if (sqliteMatch) {
                 let timeStr2 = sqliteMatch[1].replace(' ', 'T');
-                // 如果没有时区信息，添加Z表示UTC
+                // English note.
                 if (!timeStr2.includes('Z') && !timeStr2.match(/[+-]\d{2}:\d{2}$/)) {
                     timeStr2 += 'Z';
                 }
@@ -1507,9 +1507,9 @@ function getTimeAgo(timeStr) {
             }
         }
         
-        // 如果还是失败，尝试更宽松的格式
+        // English note.
         if (isNaN(date.getTime())) {
-            // 尝试匹配 "YYYY-MM-DD HH:MM:SS" 格式
+            // English note.
             const match = timeStr.match(/(\d{4})-(\d{2})-(\d{2})[\sT](\d{2}):(\d{2}):(\d{2})/);
             if (match) {
                 date = new Date(
@@ -1526,12 +1526,12 @@ function getTimeAgo(timeStr) {
         date = new Date(timeStr);
     }
     
-    // 检查日期是否有效
+    // English note.
     if (isNaN(date.getTime())) {
         return formatTime(timeStr);
     }
     
-    // 检查日期是否合理（不在1970年之前，不在未来太远）
+    // English note.
     const year = date.getFullYear();
     if (year < 1970 || year > 2100) {
         return formatTime(timeStr);
@@ -1540,7 +1540,7 @@ function getTimeAgo(timeStr) {
     const now = new Date();
     const diff = now - date;
     
-    // 如果时间差为负数或过大（可能是解析错误），返回格式化时间
+    // English note.
     if (diff < 0 || diff > 365 * 24 * 60 * 60 * 1000 * 10) { // 超过10年认为是错误
         return formatTime(timeStr);
     }
@@ -1556,37 +1556,37 @@ function getTimeAgo(timeStr) {
     return '刚刚';
 }
 
-// 截断ID显示
+// English note.
 function truncateId(id) {
     if (!id || id.length <= 16) return id;
     return id.substring(0, 8) + '...' + id.substring(id.length - 8);
 }
 
-// 筛选检索日志
+// English note.
 function filterRetrievalLogs() {
     const conversationId = document.getElementById('retrieval-logs-conversation-id').value.trim();
     const messageId = document.getElementById('retrieval-logs-message-id').value.trim();
     loadRetrievalLogs(conversationId, messageId);
 }
 
-// 刷新检索日志
+// English note.
 function refreshRetrievalLogs() {
     filterRetrievalLogs();
 }
 
-// 删除检索日志
+// English note.
 async function deleteRetrievalLog(id, index) {
     if (!confirm(_t('retrievalLogs.deleteConfirm'))) {
         return;
     }
     
-    // 找到要删除的日志卡片和删除按钮
+    // English note.
     const logCard = document.querySelector(`.retrieval-log-card[data-index="${index}"]`);
     const deleteButton = logCard ? logCard.querySelector('.retrieval-log-delete-btn') : null;
     let originalButtonOpacity = '';
     let originalButtonDisabled = false;
     
-    // 设置删除按钮的加载状态
+    // English note.
     if (deleteButton) {
         originalButtonOpacity = deleteButton.style.opacity;
         originalButtonDisabled = deleteButton.disabled;
@@ -1594,25 +1594,25 @@ async function deleteRetrievalLog(id, index) {
         deleteButton.style.cursor = 'not-allowed';
         deleteButton.disabled = true;
         
-        // 添加加载动画
+        // English note.
         const svg = deleteButton.querySelector('svg');
         if (svg) {
             svg.style.animation = 'spin 1s linear infinite';
         }
     }
     
-    // 立即从UI中移除该项（乐观更新）
+    // English note.
     if (logCard) {
         logCard.style.transition = 'opacity 0.3s ease-out, transform 0.3s ease-out';
         logCard.style.opacity = '0';
         logCard.style.transform = 'translateX(-20px)';
         
-        // 等待动画完成后移除
+        // English note.
         setTimeout(() => {
             if (logCard.parentElement) {
                 logCard.remove();
                 
-                // 更新统计信息（临时更新，稍后会重新加载）
+                // English note.
                 updateRetrievalStatsAfterDelete();
             }
         }, 300);
@@ -1628,15 +1628,15 @@ async function deleteRetrievalLog(id, index) {
             throw new Error(errorData.error || '删除检索日志失败');
         }
         
-        // 显示成功通知
+        // English note.
         showNotification('✅ 删除成功！检索记录已从系统中移除。', 'success');
         
-        // 从内存中移除该项
+        // English note.
         if (retrievalLogsData && index >= 0 && index < retrievalLogsData.length) {
             retrievalLogsData.splice(index, 1);
         }
         
-        // 重新加载数据以确保数据同步
+        // English note.
         const conversationId = document.getElementById('retrieval-logs-conversation-id')?.value.trim() || '';
         const messageId = document.getElementById('retrieval-logs-message-id')?.value.trim() || '';
         await loadRetrievalLogs(conversationId, messageId);
@@ -1644,14 +1644,14 @@ async function deleteRetrievalLog(id, index) {
     } catch (error) {
         console.error('删除检索日志失败:', error);
         
-        // 如果删除失败，恢复该项显示
+        // English note.
         if (logCard) {
             logCard.style.opacity = '1';
             logCard.style.transform = '';
             logCard.style.transition = '';
         }
         
-        // 恢复删除按钮状态
+        // English note.
         if (deleteButton) {
             deleteButton.style.opacity = originalButtonOpacity || '';
             deleteButton.style.cursor = '';
@@ -1666,7 +1666,7 @@ async function deleteRetrievalLog(id, index) {
     }
 }
 
-// 临时更新统计信息（删除后）
+// English note.
 function updateRetrievalStatsAfterDelete() {
     const statsContainer = document.getElementById('retrieval-stats');
     if (!statsContainer) return;
@@ -1674,12 +1674,12 @@ function updateRetrievalStatsAfterDelete() {
     const allLogs = document.querySelectorAll('.retrieval-log-card');
     const totalLogs = allLogs.length;
     
-    // 计算成功检索数
+    // English note.
     const successfulLogs = Array.from(allLogs).filter(card => {
         return card.classList.contains('has-results');
     }).length;
     
-    // 计算总知识项数（简化处理，实际应该从服务器获取）
+    // English note.
     const totalItems = Array.from(allLogs).reduce((sum, card) => {
         const badge = card.querySelector('.retrieval-log-result-badge');
         if (badge && badge.classList.contains('success')) {
@@ -1718,7 +1718,7 @@ function updateRetrievalStatsAfterDelete() {
     }
 }
 
-// 显示检索日志详情
+// English note.
 async function showRetrievalLogDetails(index) {
     if (!retrievalLogsData || index < 0 || index >= retrievalLogsData.length) {
         showNotification(_t('retrievalLogs.detailError'), 'error');
@@ -1727,13 +1727,13 @@ async function showRetrievalLogDetails(index) {
     
     const log = retrievalLogsData[index];
     
-    // 获取检索到的知识项详情
+    // English note.
     let retrievedItemsDetails = [];
     if (log.retrievedItems && Array.isArray(log.retrievedItems)) {
         const realItemIds = log.retrievedItems.filter(id => id !== '_has_results');
         if (realItemIds.length > 0) {
             try {
-                // 批量获取知识项详情
+                // English note.
                 const itemPromises = realItemIds.map(async (itemId) => {
                     try {
                         const response = await apiFetch(`/api/knowledge/items/${itemId}`);
@@ -1755,13 +1755,13 @@ async function showRetrievalLogDetails(index) {
         }
     }
     
-    // 显示详情模态框
+    // English note.
     showRetrievalLogDetailsModal(log, retrievedItemsDetails);
 }
 
-// 显示检索日志详情模态框
+// English note.
 function showRetrievalLogDetailsModal(log, retrievedItems) {
-    // 创建或获取模态框
+    // English note.
     let modal = document.getElementById('retrieval-log-details-modal');
     if (!modal) {
         modal = document.createElement('div');
@@ -1786,7 +1786,7 @@ function showRetrievalLogDetailsModal(log, retrievedItems) {
         document.body.appendChild(modal);
     }
     
-    // 填充内容
+    // English note.
     const content = document.getElementById('retrieval-log-details-content');
     const timeAgo = getTimeAgo(log.createdAt);
     const fullTime = formatTime(log.createdAt);
@@ -1794,7 +1794,7 @@ function showRetrievalLogDetailsModal(log, retrievedItems) {
     let itemsHtml = '';
     if (retrievedItems.length > 0) {
         itemsHtml = retrievedItems.map((item, idx) => {
-            // 提取内容预览
+            // English note.
             let preview = item.content || '';
             preview = preview.replace(/^#+\s+/gm, '');
             preview = preview.replace(/```[\s\S]*?```/g, '');
@@ -1884,7 +1884,7 @@ function showRetrievalLogDetailsModal(log, retrievedItems) {
     modal.style.display = 'block';
 }
 
-// 关闭检索日志详情模态框
+// English note.
 function closeRetrievalLogDetailsModal() {
     const modal = document.getElementById('retrieval-log-details-modal');
     if (modal) {
@@ -1892,7 +1892,7 @@ function closeRetrievalLogDetailsModal() {
     }
 }
 
-// 点击模态框外部关闭
+// English note.
 window.addEventListener('click', function(event) {
     const modal = document.getElementById('retrieval-log-details-modal');
     if (event.target === modal) {
@@ -1900,7 +1900,7 @@ window.addEventListener('click', function(event) {
     }
 });
 
-// 语言切换时重新渲染检索历史列表与统计，使动态内容随语言更新；知识管理页的「未启用」区块已使用 data-i18n，会由 applyTranslations(document) 自动更新
+// English note.
 document.addEventListener('languagechange', function () {
     var cur = typeof window.currentPage === 'function' ? window.currentPage() : (window.currentPage || '');
     if (cur === 'knowledge-retrieval-logs') {
@@ -1908,7 +1908,7 @@ document.addEventListener('languagechange', function () {
             renderRetrievalLogs(retrievalLogsData);
         }
     } else if (cur === 'knowledge-management') {
-        // 仅对「知识库未启用」状态：已有 data-i18n，applyTranslations 已处理；此处可选地重新应用一次以兼容旧 DOM
+        // English note.
         var listEl = document.getElementById('knowledge-items-list');
         if (listEl && typeof window.applyTranslations === 'function') {
             window.applyTranslations(listEl);
@@ -1916,7 +1916,7 @@ document.addEventListener('languagechange', function () {
     }
 });
 
-// 页面切换时加载数据
+// English note.
 if (typeof switchPage === 'function') {
     const originalSwitchPage = switchPage;
     window.switchPage = function(page) {
@@ -1928,13 +1928,13 @@ if (typeof switchPage === 'function') {
             updateIndexProgress(); // 更新索引进度
         } else if (page === 'knowledge-retrieval-logs') {
             loadRetrievalLogs();
-            // 切换到其他页面时停止轮询
+            // English note.
             if (indexProgressInterval) {
                 clearInterval(indexProgressInterval);
                 indexProgressInterval = null;
             }
         } else {
-            // 切换到其他页面时停止轮询
+            // English note.
             if (indexProgressInterval) {
                 clearInterval(indexProgressInterval);
                 indexProgressInterval = null;
@@ -1943,7 +1943,7 @@ if (typeof switchPage === 'function') {
     };
 }
 
-// 页面卸载时清理定时器
+// English note.
 window.addEventListener('beforeunload', function() {
     if (indexProgressInterval) {
         clearInterval(indexProgressInterval);
@@ -1951,7 +1951,7 @@ window.addEventListener('beforeunload', function() {
     }
 });
 
-// 工具函数
+// English note.
 function escapeHtml(text) {
     const div = document.createElement('div');
     div.textContent = text;
@@ -1961,19 +1961,19 @@ function escapeHtml(text) {
 function formatTime(timeStr) {
     if (!timeStr) return '';
     
-    // 处理时间字符串，支持多种格式
+    // English note.
     let date;
     if (typeof timeStr === 'string') {
-        // 首先尝试直接解析（支持RFC3339/ISO8601格式）
+        // English note.
         date = new Date(timeStr);
         
-        // 如果解析失败，尝试其他格式
+        // English note.
         if (isNaN(date.getTime())) {
-            // SQLite格式: "2006-01-02 15:04:05" 或带时区
+            // English note.
             const sqliteMatch = timeStr.match(/(\d{4}-\d{2}-\d{2}[\sT]\d{2}:\d{2}:\d{2}(?:\.\d+)?(?:[+-]\d{2}:\d{2}|Z)?)/);
             if (sqliteMatch) {
                 let timeStr2 = sqliteMatch[1].replace(' ', 'T');
-                // 如果没有时区信息，添加Z表示UTC
+                // English note.
                 if (!timeStr2.includes('Z') && !timeStr2.match(/[+-]\d{2}:\d{2}$/)) {
                     timeStr2 += 'Z';
                 }
@@ -1981,9 +1981,9 @@ function formatTime(timeStr) {
             }
         }
         
-        // 如果还是失败，尝试更宽松的格式
+        // English note.
         if (isNaN(date.getTime())) {
-            // 尝试匹配 "YYYY-MM-DD HH:MM:SS" 格式
+            // English note.
             const match = timeStr.match(/(\d{4})-(\d{2})-(\d{2})[\sT](\d{2}):(\d{2}):(\d{2})/);
             if (match) {
                 date = new Date(
@@ -2000,9 +2000,9 @@ function formatTime(timeStr) {
         date = new Date(timeStr);
     }
     
-    // 如果日期无效，检查是否是零值时间
+    // English note.
     if (isNaN(date.getTime())) {
-        // 检查是否是零值时间的字符串形式
+        // English note.
         if (typeof timeStr === 'string' && (timeStr.includes('0001-01-01') || timeStr.startsWith('0001'))) {
             return '';
         }
@@ -2010,10 +2010,10 @@ function formatTime(timeStr) {
         return '';
     }
     
-    // 检查日期是否合理（不在1970年之前，不在未来太远）
+    // English note.
     const year = date.getFullYear();
     if (year < 1970 || year > 2100) {
-        // 如果是零值时间（0001-01-01），返回空字符串，不显示
+        // English note.
         if (year === 1) {
             return '';
         }
@@ -2032,21 +2032,21 @@ function formatTime(timeStr) {
     });
 }
 
-// 显示通知
+// English note.
 function showNotification(message, type = 'info') {
-    // 如果存在全局通知系统（且不是当前函数），使用它
+    // English note.
     if (typeof window.showNotification === 'function' && window.showNotification !== showNotification) {
         window.showNotification(message, type);
         return;
     }
     
-    // 否则使用自定义的toast通知
+    // English note.
     showToastNotification(message, type);
 }
 
-// 显示Toast通知
+// English note.
 function showToastNotification(message, type = 'info') {
-    // 创建通知容器（如果不存在）
+    // English note.
     let container = document.getElementById('toast-notification-container');
     if (!container) {
         container = document.createElement('div');
@@ -2064,11 +2064,11 @@ function showToastNotification(message, type = 'info') {
         document.body.appendChild(container);
     }
     
-    // 创建通知元素
+    // English note.
     const toast = document.createElement('div');
     toast.className = `toast-notification toast-${type}`;
     
-    // 根据类型设置颜色
+    // English note.
     const typeStyles = {
         success: {
             background: '#28a745',
@@ -2135,7 +2135,7 @@ function showToastNotification(message, type = 'info') {
     
     container.appendChild(toast);
     
-    // 自动移除（成功消息显示5秒，错误消息显示7秒，其他显示4秒）
+    // English note.
     const duration = type === 'success' ? 5000 : type === 'error' ? 7000 : 4000;
     setTimeout(() => {
         if (toast.parentElement) {
@@ -2149,7 +2149,7 @@ function showToastNotification(message, type = 'info') {
     }, duration);
 }
 
-// 添加CSS动画（如果不存在）
+// English note.
 if (!document.getElementById('toast-notification-styles')) {
     const style = document.createElement('style');
     style.id = 'toast-notification-styles';
@@ -2178,7 +2178,7 @@ if (!document.getElementById('toast-notification-styles')) {
     document.head.appendChild(style);
 }
 
-// 点击模态框外部关闭
+// English note.
 window.addEventListener('click', function(event) {
     const modal = document.getElementById('knowledge-item-modal');
     if (event.target === modal) {
@@ -2186,26 +2186,26 @@ window.addEventListener('click', function(event) {
     }
 });
 
-// 切换到设置页面（用于功能未启用时的提示）
+// English note.
 function switchToSettings() {
     if (typeof switchPage === 'function') {
         switchPage('settings');
-        // 等待设置页面加载后，切换到知识库配置部分
+        // English note.
         setTimeout(() => {
             if (typeof switchSettingsSection === 'function') {
-                // 查找知识库配置部分（通常在基本设置中）
+                // English note.
                 const knowledgeSection = document.querySelector('[data-section="knowledge"]');
                 if (knowledgeSection) {
                     switchSettingsSection('knowledge');
                 } else {
-                    // 如果没有独立的知识库部分，切换到基本设置
+                    // English note.
                     switchSettingsSection('basic');
-                    // 滚动到知识库配置区域
+                    // English note.
                     setTimeout(() => {
                         const knowledgeEnabledCheckbox = document.getElementById('knowledge-enabled');
                         if (knowledgeEnabledCheckbox) {
                             knowledgeEnabledCheckbox.scrollIntoView({ behavior: 'smooth', block: 'center' });
-                            // 高亮显示
+                            // English note.
                             knowledgeEnabledCheckbox.parentElement.style.transition = 'background-color 0.3s';
                             knowledgeEnabledCheckbox.parentElement.style.backgroundColor = '#e3f2fd';
                             setTimeout(() => {
@@ -2219,29 +2219,29 @@ function switchToSettings() {
     }
 }
 
-// 自定义下拉组件交互
+// English note.
 document.addEventListener('DOMContentLoaded', function() {
     const wrapper = document.getElementById('knowledge-category-filter-wrapper');
     const trigger = document.getElementById('knowledge-category-filter-trigger');
     
     if (wrapper && trigger) {
-        // 点击触发器打开/关闭下拉菜单
+        // English note.
         trigger.addEventListener('click', function(e) {
             e.stopPropagation();
             wrapper.classList.toggle('open');
         });
         
-        // 点击外部关闭下拉菜单
+        // English note.
         document.addEventListener('click', function(e) {
             if (!wrapper.contains(e.target)) {
                 wrapper.classList.remove('open');
             }
         });
         
-        // 选择选项时更新选中状态
+        // English note.
         const dropdown = document.getElementById('knowledge-category-filter-dropdown');
         if (dropdown) {
-            // 默认选中"全部"选项
+            // English note.
             const defaultOption = dropdown.querySelector('.custom-select-option[data-value=""]');
             if (defaultOption) {
                 defaultOption.classList.add('selected');
@@ -2250,11 +2250,11 @@ document.addEventListener('DOMContentLoaded', function() {
             dropdown.addEventListener('click', function(e) {
                 const option = e.target.closest('.custom-select-option');
                 if (option) {
-                    // 移除之前的选中状态
+                    // English note.
                     dropdown.querySelectorAll('.custom-select-option').forEach(opt => {
                         opt.classList.remove('selected');
                     });
-                    // 添加选中状态
+                    // English note.
                     option.classList.add('selected');
                 }
             });

@@ -46,12 +46,12 @@ func isSoftRecoverableToolError(err error) bool {
 		return false
 	}
 
-	// 用户取消 — 不应重试，让 hard error 传播以终止编排。
+	// English note.
 	if errors.Is(err, context.Canceled) {
 		return false
 	}
 
-	// 工具执行超时 — 转为 soft error 让 LLM 知晓并选择替代方案，而非全局重试。
+	// English note.
 	if errors.Is(err, context.DeadlineExceeded) {
 		return true
 	}

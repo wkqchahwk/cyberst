@@ -16,7 +16,7 @@ import (
 	"go.uber.org/zap"
 )
 
-// EinoSingleAgentLoopStream Eino ADK 单代理（ChatModelAgent + Runner）流式对话；不依赖 multi_agent.enabled。
+// English note.
 func (h *AgentHandler) EinoSingleAgentLoopStream(c *gin.Context) {
 	c.Header("Content-Type", "text/event-stream")
 	c.Header("Cache-Control", "no-cache")
@@ -218,7 +218,7 @@ func (h *AgentHandler) EinoSingleAgentLoopStream(c *gin.Context) {
 	sendEvent("done", "", map[string]interface{}{"conversationId": conversationID})
 }
 
-// EinoSingleAgentLoop Eino ADK 单代理非流式对话。
+// English note.
 func (h *AgentHandler) EinoSingleAgentLoop(c *gin.Context) {
 	var req ChatRequest
 	if err := c.ShouldBindJSON(&req); err != nil {
