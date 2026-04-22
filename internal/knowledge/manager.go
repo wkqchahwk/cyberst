@@ -34,12 +34,12 @@ func NewManager(db *sql.DB, basePath string, logger *zap.Logger) *Manager {
 // English note.
 func (m *Manager) ScanKnowledgeBase() ([]string, error) {
 	if m.basePath == "" {
-		return nil, fmt.Errorf("知识库路径未配置")
+		return nil, fmt.Errorf("")
 	}
 
 	// English note.
 	if err := os.MkdirAll(m.basePath, 0755); err != nil {
-		return nil, fmt.Errorf("创建知识库目录失败: %w", err)
+		return nil, fmt.Errorf(": %w", err)
 	}
 
 	var itemsToIndex []string
@@ -63,7 +63,7 @@ func (m *Manager) ScanKnowledgeBase() ([]string, error) {
 
 		// English note.
 		parts := strings.Split(relPath, string(filepath.Separator))
-		category := "未分类"
+		category := ""
 		if len(parts) > 1 {
 			category = parts[0]
 		}
@@ -74,8 +74,8 @@ func (m *Manager) ScanKnowledgeBase() ([]string, error) {
 		// English note.
 		content, err := os.ReadFile(path)
 		if err != nil {
-			m.logger.Warn("读取知识库文件失败", zap.String("path", path), zap.Error(err))
-			return nil // 继续处理其他文件
+			m.logger.Warn("", zap.String("path", path), zap.Error(err))
+			return nil // 
 		}
 
 		// English note.
@@ -96,9 +96,9 @@ func (m *Manager) ScanKnowledgeBase() ([]string, error) {
 				id, category, title, path, string(content), now, now,
 			)
 			if err != nil {
-				return fmt.Errorf("插入知识项失败: %w", err)
+				return fmt.Errorf(": %w", err)
 			}
-			m.logger.Info("添加知识项", zap.String("id", id), zap.String("title", title), zap.String("category", category))
+			m.logger.Info("", zap.String("id", id), zap.String("title", title), zap.String("category", category))
 			// English note.
 			itemsToIndex = append(itemsToIndex, id)
 		} else if err == nil {
@@ -111,16 +111,16 @@ func (m *Manager) ScanKnowledgeBase() ([]string, error) {
 					category, title, string(content), time.Now(), existingID,
 				)
 				if err != nil {
-					return fmt.Errorf("更新知识项失败: %w", err)
+					return fmt.Errorf(": %w", err)
 				}
-				m.logger.Info("更新知识项", zap.String("id", existingID), zap.String("title", title))
+				m.logger.Info("", zap.String("id", existingID), zap.String("title", title))
 				// English note.
 				itemsToIndex = append(itemsToIndex, existingID)
 			} else {
-				m.logger.Debug("知识项未变化，跳过", zap.String("id", existingID), zap.String("title", title))
+				m.logger.Debug("，", zap.String("id", existingID), zap.String("title", title))
 			}
 		} else {
-			return fmt.Errorf("查询知识项失败: %w", err)
+			return fmt.Errorf(": %w", err)
 		}
 
 		return nil
@@ -137,7 +137,7 @@ func (m *Manager) ScanKnowledgeBase() ([]string, error) {
 func (m *Manager) GetCategories() ([]string, error) {
 	rows, err := m.db.Query("SELECT DISTINCT category FROM knowledge_base_items ORDER BY category")
 	if err != nil {
-		return nil, fmt.Errorf("查询分类失败: %w", err)
+		return nil, fmt.Errorf(": %w", err)
 	}
 	defer rows.Close()
 
@@ -145,7 +145,7 @@ func (m *Manager) GetCategories() ([]string, error) {
 	for rows.Next() {
 		var category string
 		if err := rows.Scan(&category); err != nil {
-			return nil, fmt.Errorf("扫描分类失败: %w", err)
+			return nil, fmt.Errorf(": %w", err)
 		}
 		categories = append(categories, category)
 	}
@@ -158,7 +158,7 @@ func (m *Manager) GetStats() (int, int, error) {
 	// English note.
 	categories, err := m.GetCategories()
 	if err != nil {
-		return 0, 0, fmt.Errorf("获取分类失败: %w", err)
+		return 0, 0, fmt.Errorf(": %w", err)
 	}
 	totalCategories := len(categories)
 
@@ -166,7 +166,7 @@ func (m *Manager) GetStats() (int, int, error) {
 	var totalItems int
 	err = m.db.QueryRow("SELECT COUNT(*) FROM knowledge_base_items").Scan(&totalItems)
 	if err != nil {
-		return totalCategories, 0, fmt.Errorf("获取知识项总数失败: %w", err)
+		return totalCategories, 0, fmt.Errorf(": %w", err)
 	}
 
 	return totalCategories, totalItems, nil
@@ -184,7 +184,7 @@ func (m *Manager) GetCategoriesWithItems(limit, offset int) ([]*CategoryWithItem
 		ORDER BY category
 	`)
 	if err != nil {
-		return nil, 0, fmt.Errorf("查询分类失败: %w", err)
+		return nil, 0, fmt.Errorf(": %w", err)
 	}
 	defer rows.Close()
 
@@ -197,7 +197,7 @@ func (m *Manager) GetCategoriesWithItems(limit, offset int) ([]*CategoryWithItem
 	for rows.Next() {
 		var info categoryInfo
 		if err := rows.Scan(&info.name, &info.itemCount); err != nil {
-			return nil, 0, fmt.Errorf("扫描分类失败: %w", err)
+			return nil, 0, fmt.Errorf(": %w", err)
 		}
 		allCategories = append(allCategories, info)
 	}
@@ -227,7 +227,7 @@ func (m *Manager) GetCategoriesWithItems(limit, offset int) ([]*CategoryWithItem
 		// English note.
 		items, _, err := m.GetItemsSummary(catInfo.name, 0, 0)
 		if err != nil {
-			return nil, 0, fmt.Errorf("获取分类 %s 的知识项失败: %w", catInfo.name, err)
+			return nil, 0, fmt.Errorf(" %s : %w", catInfo.name, err)
 		}
 
 		result = append(result, &CategoryWithItems{
@@ -282,7 +282,7 @@ func (m *Manager) GetItemsWithOptions(category string, limit, offset int, includ
 
 	rows, err = m.db.Query(query, args...)
 	if err != nil {
-		return nil, fmt.Errorf("查询知识项失败: %w", err)
+		return nil, fmt.Errorf(": %w", err)
 	}
 	defer rows.Close()
 
@@ -293,11 +293,11 @@ func (m *Manager) GetItemsWithOptions(category string, limit, offset int, includ
 
 		if includeContent {
 			if err := rows.Scan(&item.ID, &item.Category, &item.Title, &item.FilePath, &item.Content, &createdAt, &updatedAt); err != nil {
-				return nil, fmt.Errorf("扫描知识项失败: %w", err)
+				return nil, fmt.Errorf(": %w", err)
 			}
 		} else {
 			if err := rows.Scan(&item.ID, &item.Category, &item.Title, &item.FilePath, &createdAt, &updatedAt); err != nil {
-				return nil, fmt.Errorf("扫描知识项失败: %w", err)
+				return nil, fmt.Errorf(": %w", err)
 			}
 			// English note.
 			item.Content = ""
@@ -359,7 +359,7 @@ func (m *Manager) GetItemsCount(category string) (int, error) {
 	}
 
 	if err != nil {
-		return 0, fmt.Errorf("查询知识项总数失败: %w", err)
+		return 0, fmt.Errorf(": %w", err)
 	}
 
 	return count, nil
@@ -368,7 +368,7 @@ func (m *Manager) GetItemsCount(category string) (int, error) {
 // English note.
 func (m *Manager) SearchItemsByKeyword(keyword string, category string) ([]*KnowledgeItemSummary, error) {
 	if keyword == "" {
-		return nil, fmt.Errorf("搜索关键字不能为空")
+		return nil, fmt.Errorf("")
 	}
 
 	// English note.
@@ -396,7 +396,7 @@ func (m *Manager) SearchItemsByKeyword(keyword string, category string) ([]*Know
 
 	rows, err := m.db.Query(query, args...)
 	if err != nil {
-		return nil, fmt.Errorf("搜索知识项失败: %w", err)
+		return nil, fmt.Errorf(": %w", err)
 	}
 	defer rows.Close()
 
@@ -406,7 +406,7 @@ func (m *Manager) SearchItemsByKeyword(keyword string, category string) ([]*Know
 		var createdAt, updatedAt string
 
 		if err := rows.Scan(&item.ID, &item.Category, &item.Title, &item.FilePath, &createdAt, &updatedAt); err != nil {
-			return nil, fmt.Errorf("扫描知识项失败: %w", err)
+			return nil, fmt.Errorf(": %w", err)
 		}
 
 		// English note.
@@ -483,7 +483,7 @@ func (m *Manager) GetItemsSummary(category string, limit, offset int) ([]*Knowle
 
 	rows, err = m.db.Query(query, args...)
 	if err != nil {
-		return nil, 0, fmt.Errorf("查询知识项失败: %w", err)
+		return nil, 0, fmt.Errorf(": %w", err)
 	}
 	defer rows.Close()
 
@@ -493,7 +493,7 @@ func (m *Manager) GetItemsSummary(category string, limit, offset int) ([]*Knowle
 		var createdAt, updatedAt string
 
 		if err := rows.Scan(&item.ID, &item.Category, &item.Title, &item.FilePath, &createdAt, &updatedAt); err != nil {
-			return nil, 0, fmt.Errorf("扫描知识项失败: %w", err)
+			return nil, 0, fmt.Errorf(": %w", err)
 		}
 
 		// English note.
@@ -547,10 +547,10 @@ func (m *Manager) GetItem(id string) (*KnowledgeItem, error) {
 	).Scan(&item.ID, &item.Category, &item.Title, &item.FilePath, &item.Content, &createdAt, &updatedAt)
 
 	if err == sql.ErrNoRows {
-		return nil, fmt.Errorf("知识项不存在")
+		return nil, fmt.Errorf("")
 	}
 	if err != nil {
-		return nil, fmt.Errorf("查询知识项失败: %w", err)
+		return nil, fmt.Errorf(": %w", err)
 	}
 
 	// English note.
@@ -604,12 +604,12 @@ func (m *Manager) CreateItem(category, title, content string) (*KnowledgeItem, e
 
 	// English note.
 	if err := os.MkdirAll(filepath.Dir(filePath), 0755); err != nil {
-		return nil, fmt.Errorf("创建目录失败: %w", err)
+		return nil, fmt.Errorf(": %w", err)
 	}
 
 	// English note.
 	if err := os.WriteFile(filePath, []byte(content), 0644); err != nil {
-		return nil, fmt.Errorf("写入文件失败: %w", err)
+		return nil, fmt.Errorf(": %w", err)
 	}
 
 	// English note.
@@ -618,7 +618,7 @@ func (m *Manager) CreateItem(category, title, content string) (*KnowledgeItem, e
 		id, category, title, filePath, content, now, now,
 	)
 	if err != nil {
-		return nil, fmt.Errorf("插入知识项失败: %w", err)
+		return nil, fmt.Errorf(": %w", err)
 	}
 
 	return &KnowledgeItem{
@@ -647,12 +647,12 @@ func (m *Manager) UpdateItem(id, category, title, content string) (*KnowledgeIte
 	if item.FilePath != newFilePath {
 		// English note.
 		if err := os.MkdirAll(filepath.Dir(newFilePath), 0755); err != nil {
-			return nil, fmt.Errorf("创建目录失败: %w", err)
+			return nil, fmt.Errorf(": %w", err)
 		}
 
 		// English note.
 		if err := os.Rename(item.FilePath, newFilePath); err != nil {
-			return nil, fmt.Errorf("移动文件失败: %w", err)
+			return nil, fmt.Errorf(": %w", err)
 		}
 
 		// English note.
@@ -661,7 +661,7 @@ func (m *Manager) UpdateItem(id, category, title, content string) (*KnowledgeIte
 			// English note.
 			if oldDir != m.basePath {
 				if err := os.Remove(oldDir); err != nil {
-					m.logger.Warn("删除空目录失败", zap.String("dir", oldDir), zap.Error(err))
+					m.logger.Warn("", zap.String("dir", oldDir), zap.Error(err))
 				}
 			}
 		}
@@ -669,7 +669,7 @@ func (m *Manager) UpdateItem(id, category, title, content string) (*KnowledgeIte
 
 	// English note.
 	if err := os.WriteFile(newFilePath, []byte(content), 0644); err != nil {
-		return nil, fmt.Errorf("写入文件失败: %w", err)
+		return nil, fmt.Errorf(": %w", err)
 	}
 
 	// English note.
@@ -678,13 +678,13 @@ func (m *Manager) UpdateItem(id, category, title, content string) (*KnowledgeIte
 		category, title, newFilePath, content, time.Now(), id,
 	)
 	if err != nil {
-		return nil, fmt.Errorf("更新知识项失败: %w", err)
+		return nil, fmt.Errorf(": %w", err)
 	}
 
 	// English note.
 	_, err = m.db.Exec("DELETE FROM knowledge_embeddings WHERE item_id = ?", id)
 	if err != nil {
-		m.logger.Warn("删除旧向量嵌入失败", zap.Error(err))
+		m.logger.Warn("", zap.Error(err))
 	}
 
 	return m.GetItem(id)
@@ -696,18 +696,18 @@ func (m *Manager) DeleteItem(id string) error {
 	var filePath string
 	err := m.db.QueryRow("SELECT file_path FROM knowledge_base_items WHERE id = ?", id).Scan(&filePath)
 	if err != nil {
-		return fmt.Errorf("查询知识项失败: %w", err)
+		return fmt.Errorf(": %w", err)
 	}
 
 	// English note.
 	if err := os.Remove(filePath); err != nil && !os.IsNotExist(err) {
-		m.logger.Warn("删除文件失败", zap.String("path", filePath), zap.Error(err))
+		m.logger.Warn("", zap.String("path", filePath), zap.Error(err))
 	}
 
 	// English note.
 	_, err = m.db.Exec("DELETE FROM knowledge_base_items WHERE id = ?", id)
 	if err != nil {
-		return fmt.Errorf("删除知识项失败: %w", err)
+		return fmt.Errorf(": %w", err)
 	}
 
 	// English note.
@@ -716,7 +716,7 @@ func (m *Manager) DeleteItem(id string) error {
 		// English note.
 		if dir != m.basePath {
 			if err := os.Remove(dir); err != nil {
-				m.logger.Warn("删除空目录失败", zap.String("dir", dir), zap.Error(err))
+				m.logger.Warn("", zap.String("dir", dir), zap.Error(err))
 			}
 		}
 	}
@@ -757,7 +757,7 @@ func (m *Manager) GetIndexStatus() (map[string]interface{}, error) {
 	var totalItems int
 	err := m.db.QueryRow("SELECT COUNT(*) FROM knowledge_base_items").Scan(&totalItems)
 	if err != nil {
-		return nil, fmt.Errorf("查询总知识项数失败: %w", err)
+		return nil, fmt.Errorf(": %w", err)
 	}
 
 	// English note.
@@ -767,7 +767,7 @@ func (m *Manager) GetIndexStatus() (map[string]interface{}, error) {
 		FROM knowledge_embeddings
 	`).Scan(&indexedItems)
 	if err != nil {
-		return nil, fmt.Errorf("查询已索引项数失败: %w", err)
+		return nil, fmt.Errorf(": %w", err)
 	}
 
 	// English note.
@@ -812,7 +812,7 @@ func (m *Manager) GetRetrievalLogs(conversationID, messageID string, limit int) 
 	}
 
 	if err != nil {
-		return nil, fmt.Errorf("查询检索日志失败: %w", err)
+		return nil, fmt.Errorf(": %w", err)
 	}
 	defer rows.Close()
 
@@ -822,7 +822,7 @@ func (m *Manager) GetRetrievalLogs(conversationID, messageID string, limit int) 
 		var createdAt string
 		var itemsJSON sql.NullString
 		if err := rows.Scan(&log.ID, &log.ConversationID, &log.MessageID, &log.Query, &log.RiskType, &itemsJSON, &createdAt); err != nil {
-			return nil, fmt.Errorf("扫描检索日志失败: %w", err)
+			return nil, fmt.Errorf(": %w", err)
 		}
 
 		// English note.
@@ -846,7 +846,7 @@ func (m *Manager) GetRetrievalLogs(conversationID, messageID string, limit int) 
 
 		// English note.
 		if log.CreatedAt.IsZero() {
-			m.logger.Warn("解析检索日志时间失败",
+			m.logger.Warn("",
 				zap.String("timeStr", createdAt),
 				zap.Error(err),
 			)
@@ -869,16 +869,16 @@ func (m *Manager) GetRetrievalLogs(conversationID, messageID string, limit int) 
 func (m *Manager) DeleteRetrievalLog(id string) error {
 	result, err := m.db.Exec("DELETE FROM knowledge_retrieval_logs WHERE id = ?", id)
 	if err != nil {
-		return fmt.Errorf("删除检索日志失败: %w", err)
+		return fmt.Errorf(": %w", err)
 	}
 
 	rowsAffected, err := result.RowsAffected()
 	if err != nil {
-		return fmt.Errorf("获取删除行数失败: %w", err)
+		return fmt.Errorf(": %w", err)
 	}
 
 	if rowsAffected == 0 {
-		return fmt.Errorf("检索日志不存在")
+		return fmt.Errorf("")
 	}
 
 	return nil

@@ -15,7 +15,7 @@
     var currentTabId = 1;
     var inited = false;
     var tabIdCounter = 1;
-    var PROMPT = ''; // 真实 Shell 自己输出提示符，这里不再自定义
+    var PROMPT = ''; //  Shell ，
     var HISTORY_MAX = 100;
     var CANCEL_AFTER_MS = 125000;
 
@@ -32,14 +32,14 @@
         }
         // English note.
         var fallbacks = {
-            'settingsTerminal.welcomeLine': 'CyberStrikeAI 终端 - 真实 Shell 会话，直接输入命令；Ctrl+L 清屏',
-            'settingsTerminal.sessionClosed': '[会话已关闭]',
-            'settingsTerminal.connectionError': '[终端连接出错]',
-            'settingsTerminal.connectFailed': '[无法连接终端服务: {{msg}}]',
-            'settingsTerminal.closeTabTitle': '关闭',
-            'settingsTerminal.containerClickTitle': '点击此处后输入命令',
-            'settingsTerminal.xtermNotLoaded': '未加载 xterm.js，请刷新页面或检查网络。',
-            'settingsTerminal.terminalTab': '终端 {{n}}'
+            'settingsTerminal.welcomeLine': 'CyberStrikeAI  -  Shell ，；Ctrl+L ',
+            'settingsTerminal.sessionClosed': '[]',
+            'settingsTerminal.connectionError': '[]',
+            'settingsTerminal.connectFailed': '[: {{msg}}]',
+            'settingsTerminal.closeTabTitle': '',
+            'settingsTerminal.containerClickTitle': '',
+            'settingsTerminal.xtermNotLoaded': ' xterm.js，。',
+            'settingsTerminal.terminalTab': ' {{n}}'
         };
         var s = fallbacks[key] || key;
         if (opts && typeof opts === 'object') {

@@ -3,8 +3,8 @@ package multiagent
 import "testing"
 
 func TestUnwrapPlanExecuteUserText(t *testing.T) {
-	raw := `{"response": "你好！很高兴见到你。"}`
-	if got := UnwrapPlanExecuteUserText(raw); got != "你好！很高兴见到你。" {
+	raw := `{"response": "！。"}`
+	if got := UnwrapPlanExecuteUserText(raw); got != "！。" {
 		t.Fatalf("got %q", got)
 	}
 	if got := UnwrapPlanExecuteUserText("plain"); got != "plain" {

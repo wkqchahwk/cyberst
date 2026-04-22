@@ -82,12 +82,12 @@ func (m MessageID) Value() interface{} {
 // English note.
 type Message struct {
 	ID      MessageID       `json:"id,omitempty"`
-	Type    string          `json:"-"` // 内部使用，不序列化到JSON
+	Type    string          `json:"-"` // ，JSON
 	Method  string          `json:"method,omitempty"`
 	Params  json.RawMessage `json:"params,omitempty"`
 	Result  json.RawMessage `json:"result,omitempty"`
 	Error   *Error          `json:"error,omitempty"`
-	Version string          `json:"jsonrpc,omitempty"` // JSON-RPC 2.0 版本标识
+	Version string          `json:"jsonrpc,omitempty"` // JSON-RPC 2.0 
 }
 
 // English note.
@@ -100,8 +100,8 @@ type Error struct {
 // English note.
 type Tool struct {
 	Name             string                 `json:"name"`
-	Description      string                 `json:"description"`                // 详细描述
-	ShortDescription string                 `json:"shortDescription,omitempty"` // 简短描述（用于工具列表，减少token消耗）
+	Description      string                 `json:"description"`                // 
+	ShortDescription string                 `json:"shortDescription,omitempty"` // （，token）
 	InputSchema      map[string]interface{} `json:"inputSchema"`
 }
 

@@ -26,30 +26,30 @@ const (
 	// English note.
 	defaultSummaryTimeout = 10 * time.Minute
 
-	summaryPromptTemplate = `你是一名负责为安全代理执行上下文压缩的助手，任务是在保持所有关键渗透信息完整的前提下压缩扫描数据。
+	summaryPromptTemplate = `，。
 
-必须保留的关键信息：
-- 已发现的漏洞与潜在攻击路径
-- 扫描结果与工具输出（可压缩，但需保留核心发现）
-- 获取到的访问凭证、令牌或认证细节
-- 系统架构洞察与潜在薄弱点
-- 当前评估进展
-- 失败尝试与死路（避免重复劳动）
-- 关于测试策略的所有决策记录
+：
+- 
+- （，）
+- 、
+- 
+- 
+- （）
+- 
 
-压缩指南：
-- 保留精确技术细节（URL、路径、参数、Payload 等）
-- 将冗长的工具输出压缩成概述，但保留关键发现
-- 记录版本号与识别出的技术/组件信息
-- 保留可能暗示漏洞的原始报错
-- 将重复或相似发现整合成一条带有共性说明的结论
+：
+- （URL、、、Payload ）
+- ，
+- /
+- 
+- 
 
-请牢记：另一位安全代理会依赖这份摘要继续测试，他必须在不损失任何作战上下文的情况下无缝接手。
+：，。
 
-需要压缩的对话片段：
+：
 %s
 
-请给出技术精准且简明扼要的摘要，覆盖全部与安全评估相关的上下文。`
+，。`
 )
 
 // English note.
@@ -152,7 +152,7 @@ func (mc *MemoryCompressor) UpdateConfig(cfg *config.OpenAIConfig) {
 	// English note.
 	if openAIClient, ok := mc.completionClient.(*OpenAICompletionClient); ok {
 		openAIClient.UpdateConfig(cfg)
-		mc.logger.Info("MemoryCompressor配置已更新",
+		mc.logger.Info("MemoryCompressor",
 			zap.String("model", cfg.Model),
 		)
 	}

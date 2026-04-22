@@ -19,7 +19,7 @@ function saveAuth(token, expiresAt) {
             expiresAt: expiry.toISOString(),
         }));
     } catch (error) {
-        console.warn('无法持久化认证信息:', error);
+        console.warn(':', error);
     }
 }
 
@@ -29,7 +29,7 @@ function clearAuthStorage() {
     try {
         localStorage.removeItem(AUTH_STORAGE_KEY);
     } catch (error) {
-        console.warn('无法清除认证信息:', error);
+        console.warn(':', error);
     }
 }
 
@@ -53,7 +53,7 @@ function loadAuthFromStorage() {
         authTokenExpiry = expiry;
         return isTokenValid();
     } catch (error) {
-        console.error('读取认证信息失败:', error);
+        console.error(':', error);
         clearAuthStorage();
         return false;
     }
@@ -132,7 +132,7 @@ function handleUnauthorized({ message = null, silent = false } = {}) {
         if (typeof window !== 'undefined' && typeof window.t === 'function') {
             finalMessage = window.t('auth.sessionExpired');
         } else {
-            finalMessage = '认证已过期，请重新登录';
+            finalMessage = '，';
         }
     }
     if (!silent) {
@@ -157,7 +157,7 @@ async function apiFetch(url, options = {}) {
         handleUnauthorized();
         const msg = (typeof window !== 'undefined' && typeof window.t === 'function')
             ? window.t('auth.unauthorized')
-            : '未授权访问';
+            : '';
         throw new Error(msg);
     }
     return response;
@@ -189,7 +189,7 @@ async function apiUploadWithProgress(url, formData, options = {}) {
                 handleUnauthorized();
                 const msg = (typeof window !== 'undefined' && typeof window.t === 'function')
                     ? window.t('auth.unauthorized')
-                    : '未授权访问';
+                    : '';
                 reject(new Error(msg));
                 return;
             }
@@ -226,7 +226,7 @@ async function submitLogin(event) {
         if (errorBox) {
             const msgEmpty = (typeof window !== 'undefined' && typeof window.t === 'function')
                 ? window.t('auth.enterPassword')
-                : '请输入密码';
+                : '';
             errorBox.textContent = msgEmpty;
             errorBox.style.display = 'block';
         }
@@ -250,7 +250,7 @@ async function submitLogin(event) {
             if (errorBox) {
                 const fallback = (typeof window !== 'undefined' && typeof window.t === 'function')
                     ? window.t('auth.loginFailedCheck')
-                    : '登录失败，请检查密码';
+                    : '，';
                 errorBox.textContent = result.error || fallback;
                 errorBox.style.display = 'block';
             }
@@ -266,11 +266,11 @@ async function submitLogin(event) {
             await refreshAppData();
         }
     } catch (error) {
-        console.error('登录失败:', error);
+        console.error(':', error);
         if (errorBox) {
             const fallback = (typeof window !== 'undefined' && typeof window.t === 'function')
                 ? window.t('auth.loginFailedRetry')
-                : '登录失败，请稍后重试';
+                : '，';
             errorBox.textContent = fallback;
             errorBox.style.display = 'block';
         }
@@ -296,7 +296,7 @@ async function bootstrapApp() {
                 await window.i18nReady;
             }
         } catch (e) {
-            console.warn('等待 i18n 就绪失败，继续初始化聊天', e);
+            console.warn(' i18n ，', e);
         }
         initializeChatUI();
         isAppInitialized = true;
@@ -307,7 +307,7 @@ async function bootstrapApp() {
 // English note.
 function getStatusText(status) {
     if (typeof window.t !== 'function') {
-        const fallback = { pending: '等待中', running: '执行中', completed: '已完成', failed: '失败' };
+        const fallback = { pending: '', running: '', completed: '', failed: '' };
         return fallback[status] || status;
     }
     const keyMap = { pending: 'mcpDetailModal.statusPending', running: 'mcpDetailModal.statusRunning', completed: 'mcpDetailModal.statusCompleted', failed: 'mcpDetailModal.statusFailed' };
@@ -321,11 +321,11 @@ function formatDuration(ms) {
     const hours = Math.floor(minutes / 60);
     
     if (hours > 0) {
-        return `${hours}小时${minutes % 60}分钟`;
+        return `${hours}${minutes % 60}`;
     } else if (minutes > 0) {
-        return `${minutes}分钟${seconds % 60}秒`;
+        return `${minutes}${seconds % 60}`;
     } else {
-        return `${seconds}秒`;
+        return `${seconds}`;
     }
 }
 
@@ -352,7 +352,7 @@ function formatMarkdown(text) {
                 let parsedContent = marked.parse(text);
                 return DOMPurify.sanitize(parsedContent, sanitizeConfig);
             } catch (e) {
-                console.error('Markdown 解析失败:', e);
+                console.error('Markdown :', e);
                 return DOMPurify.sanitize(text, sanitizeConfig);
             }
         } else {
@@ -366,7 +366,7 @@ function formatMarkdown(text) {
             });
             return marked.parse(text);
         } catch (e) {
-            console.error('Markdown 解析失败:', e);
+            console.error('Markdown :', e);
             return escapeHtml(text).replace(/\n/g, '<br>');
         }
     } else {
@@ -396,7 +396,7 @@ async function initializeApp() {
                 return;
             }
         } catch (error) {
-            console.warn('本地会话已失效，需重新登录');
+            console.warn('，');
         }
     }
 
@@ -446,12 +446,12 @@ async function logout() {
             });
         }
     } catch (error) {
-        console.error('退出登录API调用失败:', error);
+        console.error('API:', error);
     } finally {
         // English note.
         clearAuthStorage();
         hideLoginOverlay();
-        showLoginOverlay(typeof window.t === 'function' ? window.t('auth.loggedOut') : '已退出登录');
+        showLoginOverlay(typeof window.t === 'function' ? window.t('auth.loggedOut') : '');
     }
 }
 

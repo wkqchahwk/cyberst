@@ -23,7 +23,7 @@ func (h *AgentHandler) MultiAgentLoopStream(c *gin.Context) {
 	c.Header("Cache-Control", "no-cache")
 	c.Header("Connection", "keep-alive")
 	if h.config == nil || !h.config.MultiAgent.Enabled {
-		ev := StreamEvent{Type: "error", Message: "多代理未启用，请在设置或 config.yaml 中开启 multi_agent.enabled"}
+		ev := StreamEvent{Type: "error", Message: "， config.yaml  multi_agent.enabled"}
 		b, _ := json.Marshal(ev)
 		fmt.Fprintf(c.Writer, "data: %s\n\n", b)
 		done := StreamEvent{Type: "done", Message: ""}
@@ -37,7 +37,7 @@ func (h *AgentHandler) MultiAgentLoopStream(c *gin.Context) {
 
 	var req ChatRequest
 	if err := c.ShouldBindJSON(&req); err != nil {
-		event := StreamEvent{Type: "error", Message: "请求参数错误: " + err.Error()}
+		event := StreamEvent{Type: "error", Message: ": " + err.Error()}
 		b, _ := json.Marshal(event)
 		fmt.Fprintf(c.Writer, "data: %s\n\n", b)
 		c.Writer.Flush()
@@ -85,7 +85,7 @@ func (h *AgentHandler) MultiAgentLoopStream(c *gin.Context) {
 		sseWriteMu.Unlock()
 	}
 
-	h.logger.Info("收到 Eino DeepAgent 流式请求",
+	h.logger.Info(" Eino DeepAgent ",
 		zap.String("conversationId", req.ConversationID),
 	)
 
@@ -96,7 +96,7 @@ func (h *AgentHandler) MultiAgentLoopStream(c *gin.Context) {
 		return
 	}
 	if prep.CreatedNew {
-		sendEvent("conversation", "会话已创建", map[string]interface{}{
+		sendEvent("conversation", "", map[string]interface{}{
 			"conversationId": prep.ConversationID,
 		})
 	}
@@ -121,13 +121,13 @@ func (h *AgentHandler) MultiAgentLoopStream(c *gin.Context) {
 	if _, err := h.tasks.StartTask(conversationID, req.Message, cancelWithCause); err != nil {
 		var errorMsg string
 		if errors.Is(err, ErrTaskAlreadyRunning) {
-			errorMsg = "⚠️ 当前会话已有任务正在执行中，请等待当前任务完成或点击「停止任务」后再尝试。"
+			errorMsg = "⚠️ ，「」。"
 			sendEvent("error", errorMsg, map[string]interface{}{
 				"conversationId": conversationID,
 				"errorType":      "task_already_running",
 			})
 		} else {
-			errorMsg = "❌ 无法启动任务: " + err.Error()
+			errorMsg = "❌ : " + err.Error()
 			sendEvent("error", errorMsg, nil)
 		}
 		if assistantMessageID != "" {
@@ -140,7 +140,7 @@ func (h *AgentHandler) MultiAgentLoopStream(c *gin.Context) {
 	taskStatus := "completed"
 	defer h.tasks.FinishTask(conversationID, taskStatus)
 
-	sendEvent("progress", "正在启动 Eino 多代理...", map[string]interface{}{
+	sendEvent("progress", " Eino ...", map[string]interface{}{
 		"conversationId": conversationID,
 	})
 
@@ -168,7 +168,7 @@ func (h *AgentHandler) MultiAgentLoopStream(c *gin.Context) {
 		if errors.Is(cause, ErrTaskCancelled) {
 			taskStatus = "cancelled"
 			h.tasks.UpdateTaskStatus(conversationID, taskStatus)
-			cancelMsg := "任务已被用户取消，后续操作已停止。"
+			cancelMsg := "，。"
 			if assistantMessageID != "" {
 				_, _ = h.db.Exec("UPDATE messages SET content = ? WHERE id = ?", cancelMsg, assistantMessageID)
 				_ = h.db.AddProcessDetail(assistantMessageID, conversationID, "cancelled", cancelMsg, nil)
@@ -181,10 +181,10 @@ func (h *AgentHandler) MultiAgentLoopStream(c *gin.Context) {
 			return
 		}
 
-		h.logger.Error("Eino DeepAgent 执行失败", zap.Error(runErr))
+		h.logger.Error("Eino DeepAgent ", zap.Error(runErr))
 		taskStatus = "failed"
 		h.tasks.UpdateTaskStatus(conversationID, taskStatus)
-		errMsg := "执行失败: " + runErr.Error()
+		errMsg := ": " + runErr.Error()
 		if assistantMessageID != "" {
 			_, _ = h.db.Exec("UPDATE messages SET content = ? WHERE id = ?", errMsg, assistantMessageID)
 			_ = h.db.AddProcessDetail(assistantMessageID, conversationID, "error", errMsg, nil)
@@ -213,7 +213,7 @@ func (h *AgentHandler) MultiAgentLoopStream(c *gin.Context) {
 
 	if result.LastReActInput != "" || result.LastReActOutput != "" {
 		if err := h.db.SaveReActData(conversationID, result.LastReActInput, result.LastReActOutput); err != nil {
-			h.logger.Warn("保存 ReAct 数据失败", zap.Error(err))
+			h.logger.Warn(" ReAct ", zap.Error(err))
 		}
 	}
 
@@ -233,7 +233,7 @@ func (h *AgentHandler) MultiAgentLoopStream(c *gin.Context) {
 // English note.
 func (h *AgentHandler) MultiAgentLoop(c *gin.Context) {
 	if h.config == nil || !h.config.MultiAgent.Enabled {
-		c.JSON(http.StatusNotFound, gin.H{"error": "多代理未启用，请在 config.yaml 中设置 multi_agent.enabled: true"})
+		c.JSON(http.StatusNotFound, gin.H{"error": "， config.yaml  multi_agent.enabled: true"})
 		return
 	}
 
@@ -243,7 +243,7 @@ func (h *AgentHandler) MultiAgentLoop(c *gin.Context) {
 		return
 	}
 
-	h.logger.Info("收到 Eino DeepAgent 非流式请求", zap.String("conversationId", req.ConversationID))
+	h.logger.Info(" Eino DeepAgent ", zap.String("conversationId", req.ConversationID))
 
 	prep, err := h.prepareMultiAgentSession(&req)
 	if err != nil {
@@ -267,8 +267,8 @@ func (h *AgentHandler) MultiAgentLoop(c *gin.Context) {
 		strings.TrimSpace(req.Orchestration),
 	)
 	if runErr != nil {
-		h.logger.Error("Eino DeepAgent 执行失败", zap.Error(runErr))
-		errMsg := "执行失败: " + runErr.Error()
+		h.logger.Error("Eino DeepAgent ", zap.Error(runErr))
+		errMsg := ": " + runErr.Error()
 		if prep.AssistantMessageID != "" {
 			_, _ = h.db.Exec("UPDATE messages SET content = ? WHERE id = ?", errMsg, prep.AssistantMessageID)
 		}
@@ -292,7 +292,7 @@ func (h *AgentHandler) MultiAgentLoop(c *gin.Context) {
 
 	if result.LastReActInput != "" || result.LastReActOutput != "" {
 		if err := h.db.SaveReActData(prep.ConversationID, result.LastReActInput, result.LastReActOutput); err != nil {
-			h.logger.Warn("保存 ReAct 数据失败", zap.Error(err))
+			h.logger.Warn(" ReAct ", zap.Error(err))
 		}
 	}
 
@@ -307,15 +307,15 @@ func (h *AgentHandler) MultiAgentLoop(c *gin.Context) {
 func multiAgentHTTPErrorStatus(err error) (int, string) {
 	msg := err.Error()
 	switch {
-	case strings.Contains(msg, "对话不存在"):
+	case strings.Contains(msg, ""):
 		return http.StatusNotFound, msg
-	case strings.Contains(msg, "未找到该 WebShell"):
+	case strings.Contains(msg, " WebShell"):
 		return http.StatusBadRequest, msg
-	case strings.Contains(msg, "附件最多"):
+	case strings.Contains(msg, ""):
 		return http.StatusBadRequest, msg
-	case strings.Contains(msg, "保存用户消息失败"), strings.Contains(msg, "创建对话失败"):
+	case strings.Contains(msg, ""), strings.Contains(msg, ""):
 		return http.StatusInternalServerError, msg
-	case strings.Contains(msg, "保存上传文件失败"):
+	case strings.Contains(msg, ""):
 		return http.StatusInternalServerError, msg
 	default:
 		return http.StatusBadRequest, msg

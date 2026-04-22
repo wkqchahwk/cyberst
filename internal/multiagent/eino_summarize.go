@@ -17,14 +17,14 @@ import (
 )
 
 // English note.
-const einoSummarizeUserInstruction = `在保持所有关键安全测试信息完整的前提下压缩对话历史。
+const einoSummarizeUserInstruction = `。
 
-必须保留：已确认漏洞与攻击路径、工具输出中的核心发现、凭证与认证细节、架构与薄弱点、当前进度、失败尝试与死路、策略决策。
-保留精确技术细节（URL、路径、参数、Payload、版本号、报错原文可摘要但要点不丢）。
-将冗长扫描输出概括为结论；重复发现合并表述。
-已枚举资产须保留**可继承的摘要**：主域、关键子域/主机短表（或数量+代表样例）、高价值目标与已识别服务/端口要点，避免后续子代理因「看不见清单」而重复全量枚举。
+：、、、、、、。
+（URL、、、Payload、、）。
+；。
+****：、/（+）、/，「」。
 
-输出须使后续代理能无缝继续同一授权测试任务。`
+。`
 
 // English note.
 // English note.
@@ -35,7 +35,7 @@ func newEinoSummarizationMiddleware(
 	logger *zap.Logger,
 ) (adk.ChatModelAgentMiddleware, error) {
 	if summaryModel == nil || appCfg == nil {
-		return nil, fmt.Errorf("multiagent: summarization 需要 model 与配置")
+		return nil, fmt.Errorf("multiagent: summarization  model ")
 	}
 	maxTotal := appCfg.OpenAI.MaxTotalTokens
 	if maxTotal <= 0 {
@@ -74,7 +74,7 @@ func newEinoSummarizationMiddleware(
 			if logger == nil {
 				return nil
 			}
-			logger.Info("eino summarization 已压缩上下文",
+			logger.Info("eino summarization ",
 				zap.Int("messages_before", len(before.Messages)),
 				zap.Int("messages_after", len(after.Messages)),
 				zap.Int("max_total_tokens", maxTotal),

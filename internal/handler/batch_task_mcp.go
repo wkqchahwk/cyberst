@@ -27,27 +27,27 @@ func RegisterBatchTaskMCPTools(mcpServer *mcp.Server, h *AgentHandler, logger *z
 	// --- list ---
 	reg(mcp.Tool{
 		Name:             builtin.ToolBatchTaskList,
-		Description:      "列出批量任务队列（精简摘要，省上下文）。含队列元数据、子任务 id/status/截断后的 message、各状态计数。完整子任务（含 result/error/conversationId/时间等）请用 batch_task_get(queue_id)。\n\n⚠️ 调用约束：本工具属于「任务管理」模块，仅当用户明确提及查看/管理批量任务、任务队列时才可调用。不要在用户未要求时自行调用。",
-		ShortDescription: "列出批量任务队列",
+		Description:      "（，）。、 id/status/ message、。（ result/error/conversationId/） batch_task_get(queue_id)。\n\n⚠️ ：「」，/、。。",
+		ShortDescription: "",
 		InputSchema: map[string]interface{}{
 			"type": "object",
 			"properties": map[string]interface{}{
 				"status": map[string]interface{}{
 					"type":        "string",
-					"description": "筛选状态：all（默认）、pending、running、paused、completed、cancelled",
+					"description": "：all（）、pending、running、paused、completed、cancelled",
 					"enum":        []string{"all", "pending", "running", "paused", "completed", "cancelled"},
 				},
 				"keyword": map[string]interface{}{
 					"type":        "string",
-					"description": "按队列 ID 或标题模糊搜索",
+					"description": " ID ",
 				},
 				"page": map[string]interface{}{
 					"type":        "integer",
-					"description": "页码，从 1 开始，默认 1",
+					"description": "， 1 ， 1",
 				},
 				"page_size": map[string]interface{}{
 					"type":        "integer",
-					"description": "每页条数，默认 20，最大 100",
+					"description": "， 20， 100",
 				},
 			},
 		},
@@ -74,7 +74,7 @@ func RegisterBatchTaskMCPTools(mcpServer *mcp.Server, h *AgentHandler, logger *z
 		}
 		queues, total, err := h.batchTaskManager.ListQueues(pageSize, offset, status, keyword)
 		if err != nil {
-			return batchMCPTextResult(fmt.Sprintf("列出队列失败: %v", err), true), nil
+			return batchMCPTextResult(fmt.Sprintf(": %v", err), true), nil
 		}
 		totalPages := (total + pageSize - 1) / pageSize
 		if totalPages == 0 {
@@ -101,14 +101,14 @@ func RegisterBatchTaskMCPTools(mcpServer *mcp.Server, h *AgentHandler, logger *z
 	// --- get ---
 	reg(mcp.Tool{
 		Name:             builtin.ToolBatchTaskGet,
-		Description:      "根据 queue_id 获取单个批量任务队列详情（含子任务列表、Cron、调度开关与最近错误信息）。\n\n⚠️ 调用约束：本工具属于「任务管理」模块，仅当用户明确提及查看/管理批量任务、任务队列时才可调用。不要在用户未要求时自行调用。",
-		ShortDescription: "获取批量任务队列详情",
+		Description:      " queue_id （、Cron、）。\n\n⚠️ ：「」，/、。。",
+		ShortDescription: "",
 		InputSchema: map[string]interface{}{
 			"type": "object",
 			"properties": map[string]interface{}{
 				"queue_id": map[string]interface{}{
 					"type":        "string",
-					"description": "队列 ID",
+					"description": " ID",
 				},
 			},
 			"required": []string{"queue_id"},
@@ -116,11 +116,11 @@ func RegisterBatchTaskMCPTools(mcpServer *mcp.Server, h *AgentHandler, logger *z
 	}, func(ctx context.Context, args map[string]interface{}) (*mcp.ToolResult, error) {
 		qid := mcpArgString(args, "queue_id")
 		if qid == "" {
-			return batchMCPTextResult("queue_id 不能为空", true), nil
+			return batchMCPTextResult("queue_id ", true), nil
 		}
 		queue, ok := h.batchTaskManager.GetBatchQueue(qid)
 		if !ok {
-			return batchMCPTextResult("队列不存在: "+qid, true), nil
+			return batchMCPTextResult(": "+qid, true), nil
 		}
 		return batchMCPJSONResult(queue)
 	})
@@ -128,53 +128,53 @@ func RegisterBatchTaskMCPTools(mcpServer *mcp.Server, h *AgentHandler, logger *z
 	// --- create ---
 	reg(mcp.Tool{
 		Name: builtin.ToolBatchTaskCreate,
-		Description: `⚠️ 调用约束：本工具属于「任务管理」模块，仅当用户明确要求创建批量任务、任务队列时才可调用。禁止在用户未提及”批量任务””任务队列””定时任务”等关键词时自行调用。如果用户只是让你做某件事，请在当前对话中直接完成，不要自作主张创建任务队列。
+		Description: `⚠️ ：「」，、。””””””。，，。
 
-【用途】应用内「任务管理 / 批量任务队列」：把多条彼此独立的用户指令登记成一条队列，便于在界面里查看进度、暂停/继续、定时重跑等。这是队列数据与调度入口，不是再开一个”子代理会话”替你探索当前问题。
+【】「 / 」：，、/、。，””。
 
-【何时用】用户明确要批量排队执行、Cron 周期跑同一批指令、或需要与任务管理页面对齐时调用。需要即时追问、强依赖当前对话上下文的分析/编码，应在本对话内直接完成，不要为了”委派”而创建队列。
+【】、Cron 、。、/，，””。
 
-【参数】tasks（字符串数组）或 tasks_text（多行，每行一条）二选一；每项是一条将来由系统按队列顺序执行的指令文案。agent_mode：single（原生 ReAct，默认）、eino_single（Eino ADK 单代理）、deep / plan_execute / supervisor（需系统启用多代理）；兼容旧值 multi（视为 deep）。非”把主对话拆给子代理”。schedule_mode：manual（默认）或 cron；cron 须填 cron_expr（5 段，如 “0 */6 * * *”）。
+【】tasks（） tasks_text（，）；。agent_mode：single（ ReAct，）、eino_single（Eino ADK ）、deep / plan_execute / supervisor（）； multi（ deep）。””。schedule_mode：manual（） cron；cron  cron_expr（5 ， “0 */6 * * *”）。
 
-【执行】默认创建后为 pending，不自动跑。execute_now=true 可创建后立即跑；否则之后调用 batch_task_start。Cron 自动下一轮需 schedule_enabled 为 true（可用 batch_task_schedule_enabled）。`,
-		ShortDescription: "任务管理：创建批量任务队列（登记多条指令，可选立即或 Cron）",
+【】 pending，。execute_now=true ； batch_task_start。Cron  schedule_enabled  true（ batch_task_schedule_enabled）。`,
+		ShortDescription: "：（， Cron）",
 		InputSchema: map[string]interface{}{
 			"type": "object",
 			"properties": map[string]interface{}{
 				"title": map[string]interface{}{
 					"type":        "string",
-					"description": "可选队列标题，便于在任务管理中识别",
+					"description": "，",
 				},
 				"role": map[string]interface{}{
 					"type":        "string",
-					"description": "队列使用的角色名，空表示默认",
+					"description": "，",
 				},
 				"tasks": map[string]interface{}{
 					"type":        "array",
-					"description": "队列中的子任务指令，每项一条独立待执行文案（与 tasks_text 二选一）",
+					"description": "，（ tasks_text ）",
 					"items":       map[string]interface{}{"type": "string"},
 				},
 				"tasks_text": map[string]interface{}{
 					"type":        "string",
-					"description": "多行文本，每行一条子任务指令（与 tasks 二选一）",
+					"description": "，（ tasks ）",
 				},
 				"agent_mode": map[string]interface{}{
 					"type":        "string",
-					"description": "执行模式：single（原生 ReAct）、eino_single（Eino ADK）、deep/plan_execute/supervisor（Eino 编排，需启用多代理）；multi 兼容为 deep",
+					"description": "：single（ ReAct）、eino_single（Eino ADK）、deep/plan_execute/supervisor（Eino ，）；multi  deep",
 					"enum":        []string{"single", "eino_single", "deep", "plan_execute", "supervisor", "multi"},
 				},
 				"schedule_mode": map[string]interface{}{
 					"type":        "string",
-					"description": "manual（仅手工/启动后跑）或 cron（按表达式触发）",
+					"description": "manual（/） cron（）",
 					"enum":        []string{"manual", "cron"},
 				},
 				"cron_expr": map[string]interface{}{
 					"type":        "string",
-					"description": "schedule_mode 为 cron 时必填。标准 5 段：分钟 小时 日 月 星期，例如 \"0 */6 * * *\"、\"30 2 * * 1-5\"",
+					"description": "schedule_mode  cron 。 5 ：    ， \"0 */6 * * *\"、\"30 2 * * 1-5\"",
 				},
 				"execute_now": map[string]interface{}{
 					"type":        "boolean",
-					"description": "创建后是否立即开始执行队列，默认 false（pending，需 batch_task_start）",
+					"description": "， false（pending， batch_task_start）",
 				},
 			},
 		},
@@ -191,11 +191,11 @@ func RegisterBatchTaskMCPTools(mcpServer *mcp.Server, h *AgentHandler, logger *z
 		var nextRunAt *time.Time
 		if scheduleMode == "cron" {
 			if cronExpr == "" {
-				return batchMCPTextResult("Cron 调度模式下 cron_expr 不能为空", true), nil
+				return batchMCPTextResult("Cron  cron_expr ", true), nil
 			}
 			sch, err := h.batchCronParser.Parse(cronExpr)
 			if err != nil {
-				return batchMCPTextResult("无效的 Cron 表达式: "+err.Error(), true), nil
+				return batchMCPTextResult(" Cron : "+err.Error(), true), nil
 			}
 			n := sch.Next(time.Now())
 			nextRunAt = &n
@@ -206,16 +206,16 @@ func RegisterBatchTaskMCPTools(mcpServer *mcp.Server, h *AgentHandler, logger *z
 		}
 		queue, createErr := h.batchTaskManager.CreateBatchQueue(title, role, agentMode, scheduleMode, cronExpr, nextRunAt, tasks)
 		if createErr != nil {
-			return batchMCPTextResult("创建队列失败: "+createErr.Error(), true), nil
+			return batchMCPTextResult(": "+createErr.Error(), true), nil
 		}
 		started := false
 		if executeNow {
 			ok, err := h.startBatchQueueExecution(queue.ID, false)
 			if !ok {
-				return batchMCPTextResult("队列不存在: "+queue.ID, true), nil
+				return batchMCPTextResult(": "+queue.ID, true), nil
 			}
 			if err != nil {
-				return batchMCPTextResult("创建成功但启动失败: "+err.Error(), true), nil
+				return batchMCPTextResult(": "+err.Error(), true), nil
 			}
 			started = true
 			if refreshed, exists := h.batchTaskManager.GetBatchQueue(queue.ID); exists {
@@ -230,9 +230,9 @@ func RegisterBatchTaskMCPTools(mcpServer *mcp.Server, h *AgentHandler, logger *z
 			"execute_now": executeNow,
 			"reminder": func() string {
 				if started {
-					return "队列已创建并立即启动。"
+					return "。"
 				}
-				return "队列已创建，当前为 pending。需要开始执行时请调用 MCP 工具 batch_task_start（queue_id 同上）。Cron 自动调度需 schedule_enabled 为 true，可用 batch_task_schedule_enabled。"
+				return "， pending。 MCP  batch_task_start（queue_id ）。Cron  schedule_enabled  true， batch_task_schedule_enabled。"
 			}(),
 		})
 	})
@@ -240,17 +240,17 @@ func RegisterBatchTaskMCPTools(mcpServer *mcp.Server, h *AgentHandler, logger *z
 	// --- start ---
 	reg(mcp.Tool{
 		Name: builtin.ToolBatchTaskStart,
-		Description: `启动或继续执行批量任务队列（pending / paused）。
-与 batch_task_create 配合使用：仅创建队列不会自动执行，需调用本工具才会开始跑子任务。
+		Description: `（pending / paused）。
+ batch_task_create ：，。
 
-⚠️ 调用约束：本工具属于「任务管理」模块，仅当用户明确要求启动/继续批量任务时才可调用。不要在用户未要求时自行调用。`,
-		ShortDescription: "启动/继续批量任务队列（创建后需调用才会执行）",
+⚠️ ：「」，/。。`,
+		ShortDescription: "/（）",
 		InputSchema: map[string]interface{}{
 			"type": "object",
 			"properties": map[string]interface{}{
 				"queue_id": map[string]interface{}{
 					"type":        "string",
-					"description": "队列 ID",
+					"description": " ID",
 				},
 			},
 			"required": []string{"queue_id"},
@@ -258,30 +258,30 @@ func RegisterBatchTaskMCPTools(mcpServer *mcp.Server, h *AgentHandler, logger *z
 	}, func(ctx context.Context, args map[string]interface{}) (*mcp.ToolResult, error) {
 		qid := mcpArgString(args, "queue_id")
 		if qid == "" {
-			return batchMCPTextResult("queue_id 不能为空", true), nil
+			return batchMCPTextResult("queue_id ", true), nil
 		}
 		ok, err := h.startBatchQueueExecution(qid, false)
 		if !ok {
-			return batchMCPTextResult("队列不存在: "+qid, true), nil
+			return batchMCPTextResult(": "+qid, true), nil
 		}
 		if err != nil {
-			return batchMCPTextResult("启动失败: "+err.Error(), true), nil
+			return batchMCPTextResult(": "+err.Error(), true), nil
 		}
 		logger.Info("MCP batch_task_start", zap.String("queueId", qid))
-		return batchMCPTextResult("已提交启动，队列将开始执行。", false), nil
+		return batchMCPTextResult("，。", false), nil
 	})
 
 	// --- rerun (reset + start for completed/cancelled queues) ---
 	reg(mcp.Tool{
 		Name:             builtin.ToolBatchTaskRerun,
-		Description:      "重跑已完成或已取消的批量任务队列。会重置所有子任务状态后重新执行一轮。\n\n⚠️ 调用约束：本工具属于「任务管理」模块，仅当用户明确要求重跑批量任务时才可调用。不要在用户未要求时自行调用。",
-		ShortDescription: "重跑批量任务队列",
+		Description:      "。。\n\n⚠️ ：「」，。。",
+		ShortDescription: "",
 		InputSchema: map[string]interface{}{
 			"type": "object",
 			"properties": map[string]interface{}{
 				"queue_id": map[string]interface{}{
 					"type":        "string",
-					"description": "队列 ID",
+					"description": " ID",
 				},
 			},
 			"required": []string{"queue_id"},
@@ -289,40 +289,40 @@ func RegisterBatchTaskMCPTools(mcpServer *mcp.Server, h *AgentHandler, logger *z
 	}, func(ctx context.Context, args map[string]interface{}) (*mcp.ToolResult, error) {
 		qid := mcpArgString(args, "queue_id")
 		if qid == "" {
-			return batchMCPTextResult("queue_id 不能为空", true), nil
+			return batchMCPTextResult("queue_id ", true), nil
 		}
 		queue, exists := h.batchTaskManager.GetBatchQueue(qid)
 		if !exists {
-			return batchMCPTextResult("队列不存在: "+qid, true), nil
+			return batchMCPTextResult(": "+qid, true), nil
 		}
 		if queue.Status != "completed" && queue.Status != "cancelled" {
-			return batchMCPTextResult("仅已完成或已取消的队列可以重跑，当前状态: "+queue.Status, true), nil
+			return batchMCPTextResult("，: "+queue.Status, true), nil
 		}
 		if !h.batchTaskManager.ResetQueueForRerun(qid) {
-			return batchMCPTextResult("重置队列失败", true), nil
+			return batchMCPTextResult("", true), nil
 		}
 		ok, err := h.startBatchQueueExecution(qid, false)
 		if !ok {
-			return batchMCPTextResult("启动失败", true), nil
+			return batchMCPTextResult("", true), nil
 		}
 		if err != nil {
-			return batchMCPTextResult("启动失败: "+err.Error(), true), nil
+			return batchMCPTextResult(": "+err.Error(), true), nil
 		}
 		logger.Info("MCP batch_task_rerun", zap.String("queueId", qid))
-		return batchMCPTextResult("已重置并重新启动队列。", false), nil
+		return batchMCPTextResult("。", false), nil
 	})
 
 	// --- pause ---
 	reg(mcp.Tool{
 		Name:             builtin.ToolBatchTaskPause,
-		Description:      "暂停正在运行的批量任务队列（当前子任务会被取消）。\n\n⚠️ 调用约束：本工具属于「任务管理」模块，仅当用户明确要求暂停批量任务时才可调用。不要在用户未要求时自行调用。",
-		ShortDescription: "暂停批量任务队列",
+		Description:      "（）。\n\n⚠️ ：「」，。。",
+		ShortDescription: "",
 		InputSchema: map[string]interface{}{
 			"type": "object",
 			"properties": map[string]interface{}{
 				"queue_id": map[string]interface{}{
 					"type":        "string",
-					"description": "队列 ID",
+					"description": " ID",
 				},
 			},
 			"required": []string{"queue_id"},
@@ -330,26 +330,26 @@ func RegisterBatchTaskMCPTools(mcpServer *mcp.Server, h *AgentHandler, logger *z
 	}, func(ctx context.Context, args map[string]interface{}) (*mcp.ToolResult, error) {
 		qid := mcpArgString(args, "queue_id")
 		if qid == "" {
-			return batchMCPTextResult("queue_id 不能为空", true), nil
+			return batchMCPTextResult("queue_id ", true), nil
 		}
 		if !h.batchTaskManager.PauseQueue(qid) {
-			return batchMCPTextResult("无法暂停：队列不存在或当前非 running 状态", true), nil
+			return batchMCPTextResult("： running ", true), nil
 		}
 		logger.Info("MCP batch_task_pause", zap.String("queueId", qid))
-		return batchMCPTextResult("队列已暂停。", false), nil
+		return batchMCPTextResult("。", false), nil
 	})
 
 	// --- delete queue ---
 	reg(mcp.Tool{
 		Name:             builtin.ToolBatchTaskDelete,
-		Description:      "删除批量任务队列及其子任务记录。\n\n⚠️ 调用约束：本工具属于「任务管理」模块，仅当用户明确要求删除批量任务队列时才可调用。不要在用户未要求时自行调用。",
-		ShortDescription: "删除批量任务队列",
+		Description:      "。\n\n⚠️ ：「」，。。",
+		ShortDescription: "",
 		InputSchema: map[string]interface{}{
 			"type": "object",
 			"properties": map[string]interface{}{
 				"queue_id": map[string]interface{}{
 					"type":        "string",
-					"description": "队列 ID",
+					"description": " ID",
 				},
 			},
 			"required": []string{"queue_id"},
@@ -357,38 +357,38 @@ func RegisterBatchTaskMCPTools(mcpServer *mcp.Server, h *AgentHandler, logger *z
 	}, func(ctx context.Context, args map[string]interface{}) (*mcp.ToolResult, error) {
 		qid := mcpArgString(args, "queue_id")
 		if qid == "" {
-			return batchMCPTextResult("queue_id 不能为空", true), nil
+			return batchMCPTextResult("queue_id ", true), nil
 		}
 		if !h.batchTaskManager.DeleteQueue(qid) {
-			return batchMCPTextResult("删除失败：队列不存在", true), nil
+			return batchMCPTextResult("：", true), nil
 		}
 		logger.Info("MCP batch_task_delete", zap.String("queueId", qid))
-		return batchMCPTextResult("队列已删除。", false), nil
+		return batchMCPTextResult("。", false), nil
 	})
 
 	// --- update metadata (title/role/agentMode) ---
 	reg(mcp.Tool{
 		Name:             builtin.ToolBatchTaskUpdateMetadata,
-		Description:      "修改批量任务队列的标题、角色和代理模式。仅在队列非 running 状态下可修改。\n\n⚠️ 调用约束：本工具属于「任务管理」模块，仅当用户明确要求修改批量任务队列属性时才可调用。不要在用户未要求时自行调用。",
-		ShortDescription: "修改批量任务队列标题/角色/代理模式",
+		Description:      "、。 running 。\n\n⚠️ ：「」，。。",
+		ShortDescription: "//",
 		InputSchema: map[string]interface{}{
 			"type": "object",
 			"properties": map[string]interface{}{
 				"queue_id": map[string]interface{}{
 					"type":        "string",
-					"description": "队列 ID",
+					"description": " ID",
 				},
 				"title": map[string]interface{}{
 					"type":        "string",
-					"description": "新标题（空字符串清除标题）",
+					"description": "（）",
 				},
 				"role": map[string]interface{}{
 					"type":        "string",
-					"description": "新角色名（空字符串使用默认角色）",
+					"description": "（）",
 				},
 				"agent_mode": map[string]interface{}{
 					"type":        "string",
-					"description": "代理模式：single、eino_single、deep、plan_execute、supervisor；multi 视为 deep",
+					"description": "：single、eino_single、deep、plan_execute、supervisor；multi  deep",
 					"enum":        []string{"single", "eino_single", "deep", "plan_execute", "supervisor", "multi"},
 				},
 			},
@@ -397,7 +397,7 @@ func RegisterBatchTaskMCPTools(mcpServer *mcp.Server, h *AgentHandler, logger *z
 	}, func(ctx context.Context, args map[string]interface{}) (*mcp.ToolResult, error) {
 		qid := mcpArgString(args, "queue_id")
 		if qid == "" {
-			return batchMCPTextResult("queue_id 不能为空", true), nil
+			return batchMCPTextResult("queue_id ", true), nil
 		}
 		title := mcpArgString(args, "title")
 		role := mcpArgString(args, "role")
@@ -413,26 +413,26 @@ func RegisterBatchTaskMCPTools(mcpServer *mcp.Server, h *AgentHandler, logger *z
 	// --- update schedule ---
 	reg(mcp.Tool{
 		Name: builtin.ToolBatchTaskUpdateSchedule,
-		Description: `修改批量任务队列的调度方式和 Cron 表达式。仅在队列非 running 状态下可修改。
-schedule_mode 为 cron 时必须提供有效 cron_expr；为 manual 时会清除 Cron 配置。
+		Description: ` Cron 。 running 。
+schedule_mode  cron  cron_expr； manual  Cron 。
 
-⚠️ 调用约束：本工具属于「任务管理」模块，仅当用户明确要求修改批量任务调度配置时才可调用。不要在用户未要求时自行调用。`,
-		ShortDescription: "修改批量任务调度配置（Cron 表达式）",
+⚠️ ：「」，。。`,
+		ShortDescription: "（Cron ）",
 		InputSchema: map[string]interface{}{
 			"type": "object",
 			"properties": map[string]interface{}{
 				"queue_id": map[string]interface{}{
 					"type":        "string",
-					"description": "队列 ID",
+					"description": " ID",
 				},
 				"schedule_mode": map[string]interface{}{
 					"type":        "string",
-					"description": "manual 或 cron",
+					"description": "manual  cron",
 					"enum":        []string{"manual", "cron"},
 				},
 				"cron_expr": map[string]interface{}{
 					"type":        "string",
-					"description": "Cron 表达式（schedule_mode 为 cron 时必填）。标准 5 段格式：分钟 小时 日 月 星期，如 \"0 */6 * * *\"（每6小时）、\"30 2 * * 1-5\"（工作日凌晨2:30）",
+					"description": "Cron （schedule_mode  cron ）。 5 ：    ， \"0 */6 * * *\"（6）、\"30 2 * * 1-5\"（2:30）",
 				},
 			},
 			"required": []string{"queue_id", "schedule_mode"},
@@ -440,25 +440,25 @@ schedule_mode 为 cron 时必须提供有效 cron_expr；为 manual 时会清除
 	}, func(ctx context.Context, args map[string]interface{}) (*mcp.ToolResult, error) {
 		qid := mcpArgString(args, "queue_id")
 		if qid == "" {
-			return batchMCPTextResult("queue_id 不能为空", true), nil
+			return batchMCPTextResult("queue_id ", true), nil
 		}
 		queue, exists := h.batchTaskManager.GetBatchQueue(qid)
 		if !exists {
-			return batchMCPTextResult("队列不存在: "+qid, true), nil
+			return batchMCPTextResult(": "+qid, true), nil
 		}
 		if queue.Status == "running" {
-			return batchMCPTextResult("队列正在运行中，无法修改调度配置", true), nil
+			return batchMCPTextResult("，", true), nil
 		}
 		scheduleMode := normalizeBatchQueueScheduleMode(mcpArgString(args, "schedule_mode"))
 		cronExpr := strings.TrimSpace(mcpArgString(args, "cron_expr"))
 		var nextRunAt *time.Time
 		if scheduleMode == "cron" {
 			if cronExpr == "" {
-				return batchMCPTextResult("Cron 调度模式下 cron_expr 不能为空", true), nil
+				return batchMCPTextResult("Cron  cron_expr ", true), nil
 			}
 			sch, err := h.batchCronParser.Parse(cronExpr)
 			if err != nil {
-				return batchMCPTextResult("无效的 Cron 表达式: "+err.Error(), true), nil
+				return batchMCPTextResult(" Cron : "+err.Error(), true), nil
 			}
 			n := sch.Next(time.Now())
 			nextRunAt = &n
@@ -472,21 +472,21 @@ schedule_mode 为 cron 时必须提供有效 cron_expr；为 manual 时会清除
 	// --- schedule enabled ---
 	reg(mcp.Tool{
 		Name: builtin.ToolBatchTaskScheduleEnabled,
-		Description: `设置是否允许 Cron 自动触发该队列。关闭后仍保留 Cron 表达式，仅停止定时自动跑；可用手工「启动」执行。
-仅对 schedule_mode 为 cron 的队列有意义。
+		Description: ` Cron 。 Cron ，；「」。
+ schedule_mode  cron 。
 
-⚠️ 调用约束：本工具属于「任务管理」模块，仅当用户明确要求开关批量任务自动调度时才可调用。不要在用户未要求时自行调用。`,
-		ShortDescription: "开关批量任务 Cron 自动调度",
+⚠️ ：「」，。。`,
+		ShortDescription: " Cron ",
 		InputSchema: map[string]interface{}{
 			"type": "object",
 			"properties": map[string]interface{}{
 				"queue_id": map[string]interface{}{
 					"type":        "string",
-					"description": "队列 ID",
+					"description": " ID",
 				},
 				"schedule_enabled": map[string]interface{}{
 					"type":        "boolean",
-					"description": "true 允许定时触发，false 仅手工执行",
+					"description": "true ，false ",
 				},
 			},
 			"required": []string{"queue_id", "schedule_enabled"},
@@ -494,17 +494,17 @@ schedule_mode 为 cron 时必须提供有效 cron_expr；为 manual 时会清除
 	}, func(ctx context.Context, args map[string]interface{}) (*mcp.ToolResult, error) {
 		qid := mcpArgString(args, "queue_id")
 		if qid == "" {
-			return batchMCPTextResult("queue_id 不能为空", true), nil
+			return batchMCPTextResult("queue_id ", true), nil
 		}
 		en, ok := mcpArgBool(args, "schedule_enabled")
 		if !ok {
-			return batchMCPTextResult("schedule_enabled 必须为布尔值", true), nil
+			return batchMCPTextResult("schedule_enabled ", true), nil
 		}
 		if _, exists := h.batchTaskManager.GetBatchQueue(qid); !exists {
-			return batchMCPTextResult("队列不存在", true), nil
+			return batchMCPTextResult("", true), nil
 		}
 		if !h.batchTaskManager.SetScheduleEnabled(qid, en) {
-			return batchMCPTextResult("更新失败", true), nil
+			return batchMCPTextResult("", true), nil
 		}
 		queue, _ := h.batchTaskManager.GetBatchQueue(qid)
 		logger.Info("MCP batch_task_schedule_enabled", zap.String("queueId", qid), zap.Bool("enabled", en))
@@ -514,18 +514,18 @@ schedule_mode 为 cron 时必须提供有效 cron_expr；为 manual 时会清除
 	// --- add task ---
 	reg(mcp.Tool{
 		Name:             builtin.ToolBatchTaskAdd,
-		Description:      "向处于 pending 状态的队列追加一条子任务。\n\n⚠️ 调用约束：本工具属于「任务管理」模块，仅当用户明确要求向批量任务队列添加子任务时才可调用。不要在用户未要求时自行调用。",
-		ShortDescription: "批量队列添加子任务",
+		Description:      " pending 。\n\n⚠️ ：「」，。。",
+		ShortDescription: "",
 		InputSchema: map[string]interface{}{
 			"type": "object",
 			"properties": map[string]interface{}{
 				"queue_id": map[string]interface{}{
 					"type":        "string",
-					"description": "队列 ID",
+					"description": " ID",
 				},
 				"message": map[string]interface{}{
 					"type":        "string",
-					"description": "任务指令内容",
+					"description": "",
 				},
 			},
 			"required": []string{"queue_id", "message"},
@@ -534,7 +534,7 @@ schedule_mode 为 cron 时必须提供有效 cron_expr；为 manual 时会清除
 		qid := mcpArgString(args, "queue_id")
 		msg := strings.TrimSpace(mcpArgString(args, "message"))
 		if qid == "" || msg == "" {
-			return batchMCPTextResult("queue_id 与 message 均不能为空", true), nil
+			return batchMCPTextResult("queue_id  message ", true), nil
 		}
 		task, err := h.batchTaskManager.AddTaskToQueue(qid, msg)
 		if err != nil {
@@ -548,22 +548,22 @@ schedule_mode 为 cron 时必须提供有效 cron_expr；为 manual 时会清除
 	// --- update task ---
 	reg(mcp.Tool{
 		Name:             builtin.ToolBatchTaskUpdate,
-		Description:      "修改 pending 队列中仍为 pending 的子任务文案。\n\n⚠️ 调用约束：本工具属于「任务管理」模块，仅当用户明确要求修改批量子任务内容时才可调用。不要在用户未要求时自行调用。",
-		ShortDescription: "更新批量子任务内容",
+		Description:      " pending  pending 。\n\n⚠️ ：「」，。。",
+		ShortDescription: "",
 		InputSchema: map[string]interface{}{
 			"type": "object",
 			"properties": map[string]interface{}{
 				"queue_id": map[string]interface{}{
 					"type":        "string",
-					"description": "队列 ID",
+					"description": " ID",
 				},
 				"task_id": map[string]interface{}{
 					"type":        "string",
-					"description": "子任务 ID",
+					"description": " ID",
 				},
 				"message": map[string]interface{}{
 					"type":        "string",
-					"description": "新的任务指令",
+					"description": "",
 				},
 			},
 			"required": []string{"queue_id", "task_id", "message"},
@@ -573,7 +573,7 @@ schedule_mode 为 cron 时必须提供有效 cron_expr；为 manual 时会清除
 		tid := mcpArgString(args, "task_id")
 		msg := strings.TrimSpace(mcpArgString(args, "message"))
 		if qid == "" || tid == "" || msg == "" {
-			return batchMCPTextResult("queue_id、task_id、message 均不能为空", true), nil
+			return batchMCPTextResult("queue_id、task_id、message ", true), nil
 		}
 		if err := h.batchTaskManager.UpdateTaskMessage(qid, tid, msg); err != nil {
 			return batchMCPTextResult(err.Error(), true), nil
@@ -586,18 +586,18 @@ schedule_mode 为 cron 时必须提供有效 cron_expr；为 manual 时会清除
 	// --- remove task ---
 	reg(mcp.Tool{
 		Name:             builtin.ToolBatchTaskRemove,
-		Description:      "从 pending 队列中删除仍为 pending 的子任务。\n\n⚠️ 调用约束：本工具属于「任务管理」模块，仅当用户明确要求删除批量子任务时才可调用。不要在用户未要求时自行调用。",
-		ShortDescription: "删除批量子任务",
+		Description:      " pending  pending 。\n\n⚠️ ：「」，。。",
+		ShortDescription: "",
 		InputSchema: map[string]interface{}{
 			"type": "object",
 			"properties": map[string]interface{}{
 				"queue_id": map[string]interface{}{
 					"type":        "string",
-					"description": "队列 ID",
+					"description": " ID",
 				},
 				"task_id": map[string]interface{}{
 					"type":        "string",
-					"description": "子任务 ID",
+					"description": " ID",
 				},
 			},
 			"required": []string{"queue_id", "task_id"},
@@ -606,7 +606,7 @@ schedule_mode 为 cron 时必须提供有效 cron_expr；为 manual 时会清除
 		qid := mcpArgString(args, "queue_id")
 		tid := mcpArgString(args, "task_id")
 		if qid == "" || tid == "" {
-			return batchMCPTextResult("queue_id 与 task_id 均不能为空", true), nil
+			return batchMCPTextResult("queue_id  task_id ", true), nil
 		}
 		if err := h.batchTaskManager.DeleteTask(qid, tid); err != nil {
 			return batchMCPTextResult(err.Error(), true), nil
@@ -616,7 +616,7 @@ schedule_mode 为 cron 时必须提供有效 cron_expr；为 manual 时会清除
 		return batchMCPJSONResult(queue)
 	})
 
-	logger.Info("批量任务 MCP 工具已注册", zap.Int("count", 12))
+	logger.Info(" MCP ", zap.Int("count", 12))
 }
 
 // English note.
@@ -669,7 +669,7 @@ func truncateStringRunes(s string, maxRunes int) string {
 	return s
 }
 
-const mcpBatchListMaxTasksPerQueue = 200 // 列表中每个队列最多返回的子任务摘要数
+const mcpBatchListMaxTasksPerQueue = 200 // 
 
 func toBatchTaskQueueMCPListItem(q *BatchTaskQueue) batchTaskQueueMCPListItem {
 	counts := map[string]int{
@@ -725,7 +725,7 @@ func batchMCPTextResult(text string, isErr bool) *mcp.ToolResult {
 func batchMCPJSONResult(v interface{}) (*mcp.ToolResult, error) {
 	b, err := json.MarshalIndent(v, "", "  ")
 	if err != nil {
-		return batchMCPTextResult(fmt.Sprintf("JSON 编码失败: %v", err), true), nil
+		return batchMCPTextResult(fmt.Sprintf("JSON : %v", err), true), nil
 	}
 	return &mcp.ToolResult{Content: []mcp.Content{{Type: "text", Text: string(b)}}}, nil
 }
@@ -759,7 +759,7 @@ func batchMCPTasksFromArgs(args map[string]interface{}) ([]string, string) {
 			return out, ""
 		}
 	}
-	return nil, "需要提供 tasks（字符串数组）或 tasks_text（多行文本，每行一条任务）"
+	return nil, " tasks（） tasks_text（，）"
 }
 
 func mcpArgString(args map[string]interface{}, key string) string {

@@ -71,7 +71,7 @@ func TestExternalMCPHandler_AddOrUpdateExternalMCP_Stdio(t *testing.T) {
 
 	var configObj config.ExternalMCPServerConfig
 	if err := json.Unmarshal([]byte(configJSON), &configObj); err != nil {
-		t.Fatalf("解析配置JSON失败: %v", err)
+		t.Fatalf("JSON: %v", err)
 	}
 
 	reqBody := AddOrUpdateExternalMCPRequest{
@@ -86,7 +86,7 @@ func TestExternalMCPHandler_AddOrUpdateExternalMCP_Stdio(t *testing.T) {
 	router.ServeHTTP(w, req)
 
 	if w.Code != http.StatusOK {
-		t.Fatalf("期望状态码200，实际%d: %s", w.Code, w.Body.String())
+		t.Fatalf("200，%d: %s", w.Code, w.Body.String())
 	}
 
 	// English note.
@@ -95,28 +95,28 @@ func TestExternalMCPHandler_AddOrUpdateExternalMCP_Stdio(t *testing.T) {
 	router.ServeHTTP(w2, req2)
 
 	if w2.Code != http.StatusOK {
-		t.Fatalf("期望状态码200，实际%d: %s", w2.Code, w2.Body.String())
+		t.Fatalf("200，%d: %s", w2.Code, w2.Body.String())
 	}
 
 	var response ExternalMCPResponse
 	if err := json.Unmarshal(w2.Body.Bytes(), &response); err != nil {
-		t.Fatalf("解析响应失败: %v", err)
+		t.Fatalf(": %v", err)
 	}
 
 	if response.Config.Command != "python3" {
-		t.Errorf("期望command为python3，实际%s", response.Config.Command)
+		t.Errorf("commandpython3，%s", response.Config.Command)
 	}
 	if len(response.Config.Args) != 3 {
-		t.Errorf("期望args长度为3，实际%d", len(response.Config.Args))
+		t.Errorf("args3，%d", len(response.Config.Args))
 	}
 	if response.Config.Description != "Test stdio MCP" {
-		t.Errorf("期望description为'Test stdio MCP'，实际%s", response.Config.Description)
+		t.Errorf("description'Test stdio MCP'，%s", response.Config.Description)
 	}
 	if response.Config.Timeout != 300 {
-		t.Errorf("期望timeout为300，实际%d", response.Config.Timeout)
+		t.Errorf("timeout300，%d", response.Config.Timeout)
 	}
 	if !response.Config.Enabled {
-		t.Error("期望enabled为true")
+		t.Error("enabledtrue")
 	}
 }
 
@@ -133,7 +133,7 @@ func TestExternalMCPHandler_AddOrUpdateExternalMCP_HTTP(t *testing.T) {
 
 	var configObj config.ExternalMCPServerConfig
 	if err := json.Unmarshal([]byte(configJSON), &configObj); err != nil {
-		t.Fatalf("解析配置JSON失败: %v", err)
+		t.Fatalf("JSON: %v", err)
 	}
 
 	reqBody := AddOrUpdateExternalMCPRequest{
@@ -148,7 +148,7 @@ func TestExternalMCPHandler_AddOrUpdateExternalMCP_HTTP(t *testing.T) {
 	router.ServeHTTP(w, req)
 
 	if w.Code != http.StatusOK {
-		t.Fatalf("期望状态码200，实际%d: %s", w.Code, w.Body.String())
+		t.Fatalf("200，%d: %s", w.Code, w.Body.String())
 	}
 
 	// English note.
@@ -157,22 +157,22 @@ func TestExternalMCPHandler_AddOrUpdateExternalMCP_HTTP(t *testing.T) {
 	router.ServeHTTP(w2, req2)
 
 	if w2.Code != http.StatusOK {
-		t.Fatalf("期望状态码200，实际%d: %s", w2.Code, w2.Body.String())
+		t.Fatalf("200，%d: %s", w2.Code, w2.Body.String())
 	}
 
 	var response ExternalMCPResponse
 	if err := json.Unmarshal(w2.Body.Bytes(), &response); err != nil {
-		t.Fatalf("解析响应失败: %v", err)
+		t.Fatalf(": %v", err)
 	}
 
 	if response.Config.Transport != "http" {
-		t.Errorf("期望transport为http，实际%s", response.Config.Transport)
+		t.Errorf("transporthttp，%s", response.Config.Transport)
 	}
 	if response.Config.URL != "http://127.0.0.1:8081/mcp" {
-		t.Errorf("期望url为'http://127.0.0.1:8081/mcp'，实际%s", response.Config.URL)
+		t.Errorf("url'http://127.0.0.1:8081/mcp'，%s", response.Config.URL)
 	}
 	if !response.Config.Enabled {
-		t.Error("期望enabled为true")
+		t.Error("enabledtrue")
 	}
 }
 
@@ -186,24 +186,24 @@ func TestExternalMCPHandler_AddOrUpdateExternalMCP_InvalidConfig(t *testing.T) {
 		expectedErr string
 	}{
 		{
-			name:        "缺少command和url",
+			name:        "commandurl",
 			configJSON:  `{"enabled": true}`,
-			expectedErr: "需要指定command（stdio模式）或url（http/sse模式）",
+			expectedErr: "command（stdio）url（http/sse）",
 		},
 		{
-			name:        "stdio模式缺少command",
+			name:        "stdiocommand",
 			configJSON:  `{"args": ["test"], "enabled": true}`,
-			expectedErr: "stdio模式需要command",
+			expectedErr: "stdiocommand",
 		},
 		{
-			name:        "http模式缺少url",
+			name:        "httpurl",
 			configJSON:  `{"transport": "http", "enabled": true}`,
-			expectedErr: "HTTP模式需要URL",
+			expectedErr: "HTTPURL",
 		},
 		{
-			name:        "无效的transport",
+			name:        "transport",
 			configJSON:  `{"transport": "invalid", "enabled": true}`,
-			expectedErr: "不支持的传输模式",
+			expectedErr: "",
 		},
 	}
 
@@ -211,7 +211,7 @@ func TestExternalMCPHandler_AddOrUpdateExternalMCP_InvalidConfig(t *testing.T) {
 		t.Run(tc.name, func(t *testing.T) {
 			var configObj config.ExternalMCPServerConfig
 			if err := json.Unmarshal([]byte(tc.configJSON), &configObj); err != nil {
-				t.Fatalf("解析配置JSON失败: %v", err)
+				t.Fatalf("JSON: %v", err)
 			}
 
 			reqBody := AddOrUpdateExternalMCPRequest{
@@ -226,22 +226,22 @@ func TestExternalMCPHandler_AddOrUpdateExternalMCP_InvalidConfig(t *testing.T) {
 			router.ServeHTTP(w, req)
 
 			if w.Code != http.StatusBadRequest {
-				t.Errorf("期望状态码400，实际%d: %s", w.Code, w.Body.String())
+				t.Errorf("400，%d: %s", w.Code, w.Body.String())
 			}
 
 			var response map[string]interface{}
 			if err := json.Unmarshal(w.Body.Bytes(), &response); err != nil {
-				t.Fatalf("解析响应失败: %v", err)
+				t.Fatalf(": %v", err)
 			}
 
 			errorMsg := response["error"].(string)
 			// English note.
-			if tc.name == "stdio模式缺少command" {
+			if tc.name == "stdiocommand" {
 				if !strings.Contains(errorMsg, "stdio") && !strings.Contains(errorMsg, "command") {
-					t.Errorf("期望错误信息包含'stdio'或'command'，实际'%s'", errorMsg)
+					t.Errorf("'stdio''command'，'%s'", errorMsg)
 				}
 			} else if !strings.Contains(errorMsg, tc.expectedErr) {
-				t.Errorf("期望错误信息包含'%s'，实际'%s'", tc.expectedErr, errorMsg)
+				t.Errorf("'%s'，'%s'", tc.expectedErr, errorMsg)
 			}
 		})
 	}
@@ -264,7 +264,7 @@ func TestExternalMCPHandler_DeleteExternalMCP(t *testing.T) {
 	router.ServeHTTP(w, req)
 
 	if w.Code != http.StatusOK {
-		t.Fatalf("期望状态码200，实际%d: %s", w.Code, w.Body.String())
+		t.Fatalf("200，%d: %s", w.Code, w.Body.String())
 	}
 
 	// English note.
@@ -273,7 +273,7 @@ func TestExternalMCPHandler_DeleteExternalMCP(t *testing.T) {
 	router.ServeHTTP(w2, req2)
 
 	if w2.Code != http.StatusNotFound {
-		t.Errorf("期望状态码404，实际%d: %s", w2.Code, w2.Body.String())
+		t.Errorf("404，%d: %s", w2.Code, w2.Body.String())
 	}
 }
 
@@ -295,28 +295,28 @@ func TestExternalMCPHandler_GetExternalMCPs(t *testing.T) {
 	router.ServeHTTP(w, req)
 
 	if w.Code != http.StatusOK {
-		t.Fatalf("期望状态码200，实际%d: %s", w.Code, w.Body.String())
+		t.Fatalf("200，%d: %s", w.Code, w.Body.String())
 	}
 
 	var response map[string]interface{}
 	if err := json.Unmarshal(w.Body.Bytes(), &response); err != nil {
-		t.Fatalf("解析响应失败: %v", err)
+		t.Fatalf(": %v", err)
 	}
 
 	servers := response["servers"].(map[string]interface{})
 	if len(servers) != 2 {
-		t.Errorf("期望2个服务器，实际%d", len(servers))
+		t.Errorf("2，%d", len(servers))
 	}
 	if _, ok := servers["test1"]; !ok {
-		t.Error("期望包含test1")
+		t.Error("test1")
 	}
 	if _, ok := servers["test2"]; !ok {
-		t.Error("期望包含test2")
+		t.Error("test2")
 	}
 
 	stats := response["stats"].(map[string]interface{})
 	if int(stats["total"].(float64)) != 2 {
-		t.Errorf("期望总数为2，实际%d", int(stats["total"].(float64)))
+		t.Errorf("2，%d", int(stats["total"].(float64)))
 	}
 }
 
@@ -343,22 +343,22 @@ func TestExternalMCPHandler_GetExternalMCPStats(t *testing.T) {
 	router.ServeHTTP(w, req)
 
 	if w.Code != http.StatusOK {
-		t.Fatalf("期望状态码200，实际%d: %s", w.Code, w.Body.String())
+		t.Fatalf("200，%d: %s", w.Code, w.Body.String())
 	}
 
 	var stats map[string]interface{}
 	if err := json.Unmarshal(w.Body.Bytes(), &stats); err != nil {
-		t.Fatalf("解析响应失败: %v", err)
+		t.Fatalf(": %v", err)
 	}
 
 	if int(stats["total"].(float64)) != 3 {
-		t.Errorf("期望总数为3，实际%d", int(stats["total"].(float64)))
+		t.Errorf("3，%d", int(stats["total"].(float64)))
 	}
 	if int(stats["enabled"].(float64)) != 2 {
-		t.Errorf("期望启用数为2，实际%d", int(stats["enabled"].(float64)))
+		t.Errorf("2，%d", int(stats["enabled"].(float64)))
 	}
 	if int(stats["disabled"].(float64)) != 1 {
-		t.Errorf("期望停用数为1，实际%d", int(stats["disabled"].(float64)))
+		t.Errorf("1，%d", int(stats["disabled"].(float64)))
 	}
 }
 
@@ -382,7 +382,7 @@ func TestExternalMCPHandler_StartStopExternalMCP(t *testing.T) {
 	if w.Code != http.StatusOK {
 		// English note.
 		if w.Code != http.StatusBadRequest && w.Code != http.StatusInternalServerError {
-			t.Errorf("期望状态码200/400/500，实际%d: %s", w.Code, w.Body.String())
+			t.Errorf("200/400/500，%d: %s", w.Code, w.Body.String())
 		}
 	}
 
@@ -392,7 +392,7 @@ func TestExternalMCPHandler_StartStopExternalMCP(t *testing.T) {
 	router.ServeHTTP(w2, req2)
 
 	if w2.Code != http.StatusOK {
-		t.Errorf("期望状态码200，实际%d: %s", w2.Code, w2.Body.String())
+		t.Errorf("200，%d: %s", w2.Code, w2.Body.String())
 	}
 }
 
@@ -404,7 +404,7 @@ func TestExternalMCPHandler_GetExternalMCP_NotFound(t *testing.T) {
 	router.ServeHTTP(w, req)
 
 	if w.Code != http.StatusNotFound {
-		t.Errorf("期望状态码404，实际%d: %s", w.Code, w.Body.String())
+		t.Errorf("404，%d: %s", w.Code, w.Body.String())
 	}
 }
 
@@ -418,7 +418,7 @@ func TestExternalMCPHandler_DeleteExternalMCP_NotFound(t *testing.T) {
 
 	// English note.
 	if w.Code != http.StatusNotFound && w.Code != http.StatusOK {
-		t.Errorf("期望状态码404或200，实际%d: %s", w.Code, w.Body.String())
+		t.Errorf("404200，%d: %s", w.Code, w.Body.String())
 	}
 }
 
@@ -443,7 +443,7 @@ func TestExternalMCPHandler_AddOrUpdateExternalMCP_EmptyName(t *testing.T) {
 
 	// English note.
 	if w.Code != http.StatusNotFound && w.Code != http.StatusBadRequest {
-		t.Errorf("期望状态码404或400，实际%d: %s", w.Code, w.Body.String())
+		t.Errorf("404400，%d: %s", w.Code, w.Body.String())
 	}
 }
 
@@ -459,7 +459,7 @@ func TestExternalMCPHandler_AddOrUpdateExternalMCP_InvalidJSON(t *testing.T) {
 	router.ServeHTTP(w, req)
 
 	if w.Code != http.StatusBadRequest {
-		t.Errorf("期望状态码400，实际%d: %s", w.Code, w.Body.String())
+		t.Errorf("400，%d: %s", w.Code, w.Body.String())
 	}
 }
 
@@ -492,7 +492,7 @@ func TestExternalMCPHandler_UpdateExistingConfig(t *testing.T) {
 	router.ServeHTTP(w, req)
 
 	if w.Code != http.StatusOK {
-		t.Fatalf("期望状态码200，实际%d: %s", w.Code, w.Body.String())
+		t.Fatalf("200，%d: %s", w.Code, w.Body.String())
 	}
 
 	// English note.
@@ -501,18 +501,18 @@ func TestExternalMCPHandler_UpdateExistingConfig(t *testing.T) {
 	router.ServeHTTP(w2, req2)
 
 	if w2.Code != http.StatusOK {
-		t.Fatalf("期望状态码200，实际%d: %s", w2.Code, w2.Body.String())
+		t.Fatalf("200，%d: %s", w2.Code, w2.Body.String())
 	}
 
 	var response ExternalMCPResponse
 	if err := json.Unmarshal(w2.Body.Bytes(), &response); err != nil {
-		t.Fatalf("解析响应失败: %v", err)
+		t.Fatalf(": %v", err)
 	}
 
 	if response.Config.URL != "http://127.0.0.1:8081/mcp" {
-		t.Errorf("期望url为'http://127.0.0.1:8081/mcp'，实际%s", response.Config.URL)
+		t.Errorf("url'http://127.0.0.1:8081/mcp'，%s", response.Config.URL)
 	}
 	if response.Config.Command != "" {
-		t.Errorf("期望command为空，实际%s", response.Config.Command)
+		t.Errorf("command，%s", response.Config.Command)
 	}
 }

@@ -170,7 +170,7 @@ async function loadConfig(loadTools = true) {
     try {
         const response = await apiFetch('/api/config');
         if (!response.ok) {
-            throw new Error('获取配置失败');
+            throw new Error('');
         }
         
         currentConfig = await response.json();
@@ -388,10 +388,10 @@ async function loadConfig(loadTools = true) {
             await loadToolsList(1, '');
         }
     } catch (error) {
-        console.error('加载配置失败:', error);
+        console.error(':', error);
         const baseMsg = (typeof window !== 'undefined' && typeof window.t === 'function')
             ? window.t('settings.apply.loadFailed')
-            : '加载配置失败';
+            : '';
         alert(baseMsg + ': ' + error.message);
     }
 }
@@ -411,7 +411,7 @@ async function loadToolsList(page = 1, searchKeyword = '') {
     // English note.
     if (toolsList) {
         // English note.
-        toolsList.innerHTML = '<div class="tools-list-items"><div class="loading" style="padding: 20px; text-align: center; color: var(--text-muted);">⏳ ' + (typeof window.t === 'function' ? window.t('mcp.loadingTools') : '正在加载工具列表...') + '</div></div>';
+        toolsList.innerHTML = '<div class="tools-list-items"><div class="loading" style="padding: 20px; text-align: center; color: var(--text-muted);">⏳ ' + (typeof window.t === 'function' ? window.t('mcp.loadingTools') : '...') + '</div></div>';
     }
     
     try {
@@ -437,7 +437,7 @@ async function loadToolsList(page = 1, searchKeyword = '') {
         clearTimeout(timeoutId);
         
         if (!response.ok) {
-            throw new Error('获取工具列表失败');
+            throw new Error('');
         }
         
         const result = await response.json();
@@ -457,7 +457,7 @@ async function loadToolsList(page = 1, searchKeyword = '') {
                     enabled: tool.enabled,
                     is_external: tool.is_external || false,
                     external_mcp: tool.external_mcp || '',
-                    name: tool.name // 保存原始工具名称
+                    name: tool.name // 
                 });
             }
         });
@@ -465,12 +465,12 @@ async function loadToolsList(page = 1, searchKeyword = '') {
         renderToolsList();
         renderToolsPagination();
     } catch (error) {
-        console.error('加载工具列表失败:', error);
+        console.error(':', error);
         if (toolsList) {
             const isTimeout = error.name === 'AbortError' || error.message.includes('timeout');
             const errorMsg = isTimeout 
-                ? (typeof window.t === 'function' ? window.t('mcp.loadToolsTimeout') : '加载工具列表超时，可能是外部MCP连接较慢。请点击"刷新"按钮重试，或检查外部MCP连接状态。')
-                : (typeof window.t === 'function' ? window.t('mcp.loadToolsFailed') : '加载工具列表失败') + ': ' + escapeHtml(error.message);
+                ? (typeof window.t === 'function' ? window.t('mcp.loadToolsTimeout') : '，MCP。""，MCP。')
+                : (typeof window.t === 'function' ? window.t('mcp.loadToolsFailed') : '') + ': ' + escapeHtml(error.message);
             toolsList.innerHTML = `<div class="error" style="padding: 20px; text-align: center;">${errorMsg}</div>`;
         }
     }
@@ -480,7 +480,7 @@ async function loadToolsList(page = 1, searchKeyword = '') {
 function saveCurrentPageToolStates() {
     document.querySelectorAll('#tools-list .tool-item').forEach(item => {
         const checkbox = item.querySelector('input[type="checkbox"]');
-        const toolKey = item.dataset.toolKey; // 使用唯一标识符
+        const toolKey = item.dataset.toolKey; // 
         const toolName = item.dataset.toolName;
         const isExternal = item.dataset.isExternal === 'true';
         const externalMcp = item.dataset.externalMcp || '';
@@ -489,7 +489,7 @@ function saveCurrentPageToolStates() {
                 enabled: checkbox.checked,
                 is_external: isExternal,
                 external_mcp: externalMcp,
-                name: toolName // 保存原始工具名称
+                name: toolName // 
             });
         }
     });
@@ -555,7 +555,7 @@ function renderToolsList() {
     listContainer.innerHTML = '';
     
     if (allTools.length === 0) {
-        listContainer.innerHTML = '<div class="empty">' + (typeof window.t === 'function' ? window.t('mcp.noTools') : '暂无工具') + '</div>';
+        listContainer.innerHTML = '<div class="empty">' + (typeof window.t === 'function' ? window.t('mcp.noTools') : '') + '</div>';
         if (!toolsList.contains(listContainer)) {
             toolsList.appendChild(listContainer);
         }
@@ -565,11 +565,11 @@ function renderToolsList() {
     }
     
     allTools.forEach(tool => {
-        const toolKey = getToolKey(tool); // 生成唯一标识符
+        const toolKey = getToolKey(tool); // 
         const toolItem = document.createElement('div');
         toolItem.className = 'tool-item';
-        toolItem.dataset.toolKey = toolKey; // 保存唯一标识符
-        toolItem.dataset.toolName = tool.name; // 保存原始工具名称
+        toolItem.dataset.toolKey = toolKey; // 
+        toolItem.dataset.toolName = tool.name; // 
         toolItem.dataset.isExternal = tool.is_external ? 'true' : 'false';
         toolItem.dataset.externalMcp = tool.external_mcp || '';
         
@@ -584,8 +584,8 @@ function renderToolsList() {
         let externalBadge = '';
         if (toolState.is_external || tool.is_external) {
             const externalMcpName = toolState.external_mcp || tool.external_mcp || '';
-            const badgeText = externalMcpName ? (typeof window.t === 'function' ? window.t('mcp.externalFrom', { name: escapeHtml(externalMcpName) }) : `外部 (${escapeHtml(externalMcpName)})`) : (typeof window.t === 'function' ? window.t('mcp.externalBadge') : '外部');
-            const badgeTitle = externalMcpName ? (typeof window.t === 'function' ? window.t('mcp.externalToolFrom', { name: escapeHtml(externalMcpName) }) : `外部MCP工具 - 来源：${escapeHtml(externalMcpName)}`) : (typeof window.t === 'function' ? window.t('mcp.externalBadge') : '外部MCP工具');
+            const badgeText = externalMcpName ? (typeof window.t === 'function' ? window.t('mcp.externalFrom', { name: escapeHtml(externalMcpName) }) : ` (${escapeHtml(externalMcpName)})`) : (typeof window.t === 'function' ? window.t('mcp.externalBadge') : '');
+            const badgeTitle = externalMcpName ? (typeof window.t === 'function' ? window.t('mcp.externalToolFrom', { name: escapeHtml(externalMcpName) }) : `MCP - ：${escapeHtml(externalMcpName)}`) : (typeof window.t === 'function' ? window.t('mcp.externalBadge') : 'MCP');
             externalBadge = `<span class="external-tool-badge" title="${badgeTitle}">${badgeText}</span>`;
         }
         
@@ -599,7 +599,7 @@ function renderToolsList() {
                     ${escapeHtml(tool.name)}
                     ${externalBadge}
                 </div>
-                <div class="tool-item-desc">${escapeHtml(tool.description || (typeof window.t === 'function' ? window.t('mcp.noDescription') : '无描述'))}</div>
+                <div class="tool-item-desc">${escapeHtml(tool.description || (typeof window.t === 'function' ? window.t('mcp.noDescription') : ''))}</div>
             </div>
         `;
         listContainer.appendChild(toolItem);
@@ -640,8 +640,8 @@ function renderToolsPagination() {
     const t = typeof window.t === 'function' ? window.t : (k) => k;
     const paginationT = (key, opts) => {
         if (typeof window.t === 'function') return window.t(key, opts);
-        if (key === 'mcp.paginationInfo' && opts) return `显示 ${opts.start}-${opts.end} / 共 ${opts.total} 个工具`;
-        if (key === 'mcp.pageInfo' && opts) return `第 ${opts.page} / ${opts.total} 页`;
+        if (key === 'mcp.paginationInfo' && opts) return ` ${opts.start}-${opts.end} /  ${opts.total} `;
+        if (key === 'mcp.pageInfo' && opts) return ` ${opts.page} / ${opts.total} `;
         return key;
     };
     pagination.innerHTML = `
@@ -681,7 +681,7 @@ function handleToolCheckboxChange(toolKey, enabled) {
             enabled: enabled,
             is_external: isExternal,
             external_mcp: externalMcp,
-            name: toolName // 保存原始工具名称
+            name: toolName // 
         });
     }
     updateToolsStats();
@@ -703,7 +703,7 @@ function selectAllTools() {
                     enabled: true,
                     is_external: isExternal,
                     external_mcp: externalMcp,
-                    name: toolName // 保存原始工具名称
+                    name: toolName // 
                 });
             }
         }
@@ -727,7 +727,7 @@ function deselectAllTools() {
                     enabled: false,
                     is_external: isExternal,
                     external_mcp: externalMcp,
-                    name: toolName // 保存原始工具名称
+                    name: toolName // 
                 });
             }
         }
@@ -821,9 +821,9 @@ async function updateToolsStats() {
                 // English note.
                 let page = 1;
                 let hasMore = true;
-                const pageSize = 100; // 使用较大的页面大小以减少请求次数
+                const pageSize = 100; // 
                 
-                while (hasMore && page <= 10) { // 限制最多10页，避免无限循环
+                while (hasMore && page <= 10) { // 10，
                     const url = `/api/config/tools?page=${page}&page_size=${pageSize}`;
                     const pageResponse = await apiFetch(url);
                     if (!pageResponse.ok) break;
@@ -850,7 +850,7 @@ async function updateToolsStats() {
             totalEnabled = Array.from(localStateMap.values()).filter(enabled => enabled).length;
         }
     } catch (error) {
-        console.warn('获取工具统计失败，使用当前页数据', error);
+        console.warn('，', error);
         // English note.
         totalTools = totalTools || currentPageTotal;
         totalEnabled = currentPageEnabled;
@@ -906,7 +906,7 @@ async function applySettings() {
         if (hasError) {
             const msg = (typeof window !== 'undefined' && typeof window.t === 'function')
                 ? window.t('settings.apply.fillRequired')
-                : '请填写所有必填字段（标记为 * 的字段）';
+                : '（ * ）';
             alert(msg);
             return;
         }
@@ -1027,7 +1027,7 @@ async function applySettings() {
             const allToolsMap = new Map();
             let page = 1;
             let hasMore = true;
-            const pageSize = 100; // 使用合理的页面大小
+            const pageSize = 100; // 
             
             // English note.
             while (hasMore) {
@@ -1035,7 +1035,7 @@ async function applySettings() {
                 
                 const pageResponse = await apiFetch(url);
                 if (!pageResponse.ok) {
-                    throw new Error('获取工具列表失败');
+                    throw new Error('');
                 }
                 
                 const pageResult = await pageResponse.json();
@@ -1071,7 +1071,7 @@ async function applySettings() {
                 });
             });
         } catch (error) {
-            console.warn('获取所有工具列表失败，仅使用全局状态映射', error);
+            console.warn('，', error);
             // English note.
             toolStateMap.forEach((toolData, toolKey) => {
                 // English note.
@@ -1098,7 +1098,7 @@ async function applySettings() {
             const error = await updateResponse.json();
             const fallback = (typeof window !== 'undefined' && typeof window.t === 'function')
                 ? window.t('settings.apply.applyFailed')
-                : '应用配置失败';
+                : '';
             throw new Error(error.error || fallback);
         }
         
@@ -1111,13 +1111,13 @@ async function applySettings() {
             const error = await applyResponse.json();
             const fallback = (typeof window !== 'undefined' && typeof window.t === 'function')
                 ? window.t('settings.apply.applyFailed')
-                : '应用配置失败';
+                : '';
             throw new Error(error.error || fallback);
         }
         
         const successMsg = (typeof window !== 'undefined' && typeof window.t === 'function')
             ? window.t('settings.apply.applySuccess')
-            : '配置已成功应用！';
+            : '！';
         alert(successMsg);
         try {
             if (typeof initChatAgentModeFromConfig === 'function') {
@@ -1128,10 +1128,10 @@ async function applySettings() {
         }
         closeSettings();
     } catch (error) {
-        console.error('应用配置失败:', error);
+        console.error(':', error);
         const baseMsg = (typeof window !== 'undefined' && typeof window.t === 'function')
             ? window.t('settings.apply.applyFailed')
-            : '应用配置失败';
+            : '';
         alert(baseMsg + ': ' + error.message);
     }
 }
@@ -1149,14 +1149,14 @@ async function testOpenAIConnection() {
 
     if ((openAIProviderRequiresApiKey(provider) && !apiKey) || !model) {
         resultEl.style.color = 'var(--danger-color, #e53e3e)';
-        resultEl.textContent = typeof window.t === 'function' ? window.t('settingsBasic.testFillRequired') : '请先填写 API Key 和模型';
+        resultEl.textContent = typeof window.t === 'function' ? window.t('settingsBasic.testFillRequired') : ' API Key ';
         return;
     }
 
     btn.style.pointerEvents = 'none';
     btn.style.opacity = '0.5';
     resultEl.style.color = 'var(--text-muted, #888)';
-    resultEl.textContent = typeof window.t === 'function' ? window.t('settingsBasic.testing') : '测试中...';
+    resultEl.textContent = typeof window.t === 'function' ? window.t('settingsBasic.testing') : '...';
 
     try {
         const response = await apiFetch('/api/config/test-openai', {
@@ -1176,14 +1176,14 @@ async function testOpenAIConnection() {
             resultEl.style.color = 'var(--success-color, #38a169)';
             const latency = result.latency_ms ? ` (${result.latency_ms}ms)` : '';
             const modelInfo = result.model ? ` [${result.model}]` : '';
-            resultEl.textContent = (typeof window.t === 'function' ? window.t('settingsBasic.testSuccess') : '连接成功') + modelInfo + latency;
+            resultEl.textContent = (typeof window.t === 'function' ? window.t('settingsBasic.testSuccess') : '') + modelInfo + latency;
         } else {
             resultEl.style.color = 'var(--danger-color, #e53e3e)';
-            resultEl.textContent = (typeof window.t === 'function' ? window.t('settingsBasic.testFailed') : '连接失败') + ': ' + (result.error || '未知错误');
+            resultEl.textContent = (typeof window.t === 'function' ? window.t('settingsBasic.testFailed') : '') + ': ' + (result.error || '');
         }
     } catch (error) {
         resultEl.style.color = 'var(--danger-color, #e53e3e)';
-        resultEl.textContent = (typeof window.t === 'function' ? window.t('settingsBasic.testError') : '测试出错') + ': ' + error.message;
+        resultEl.textContent = (typeof window.t === 'function' ? window.t('settingsBasic.testError') : '') + ': ' + error.message;
     } finally {
         btn.style.pointerEvents = '';
         btn.style.opacity = '';
@@ -1199,7 +1199,7 @@ async function saveToolsConfig() {
         // English note.
         const response = await apiFetch('/api/config');
         if (!response.ok) {
-            throw new Error('获取配置失败');
+            throw new Error('');
         }
         
         const currentConfig = await response.json();
@@ -1224,7 +1224,7 @@ async function saveToolsConfig() {
                 
                 const pageResponse = await apiFetch(url);
                 if (!pageResponse.ok) {
-                    throw new Error('获取工具列表失败');
+                    throw new Error('');
                 }
                 
                 const pageResult = await pageResponse.json();
@@ -1259,7 +1259,7 @@ async function saveToolsConfig() {
                 });
             });
         } catch (error) {
-            console.warn('获取所有工具列表失败，仅使用全局状态映射', error);
+            console.warn('，', error);
             // English note.
             toolStateMap.forEach((toolData, toolKey) => {
                 // English note.
@@ -1284,7 +1284,7 @@ async function saveToolsConfig() {
         
         if (!updateResponse.ok) {
             const error = await updateResponse.json();
-            throw new Error(error.error || '更新配置失败');
+            throw new Error(error.error || '');
         }
         
         // English note.
@@ -1294,18 +1294,18 @@ async function saveToolsConfig() {
         
         if (!applyResponse.ok) {
             const error = await applyResponse.json();
-            throw new Error(error.error || '应用配置失败');
+            throw new Error(error.error || '');
         }
         
-        alert(typeof window.t === 'function' ? window.t('mcp.toolsConfigSaved') : '工具配置已成功保存！');
+        alert(typeof window.t === 'function' ? window.t('mcp.toolsConfigSaved') : '！');
         
         // English note.
         if (typeof loadToolsList === 'function') {
             await loadToolsList(toolsPagination.page, toolsSearchKeyword);
         }
     } catch (error) {
-        console.error('保存工具配置失败:', error);
-        alert((typeof window.t === 'function' ? window.t('mcp.saveToolsConfigFailed') : '保存工具配置失败') + ': ' + error.message);
+        console.error(':', error);
+        alert((typeof window.t === 'function' ? window.t('mcp.saveToolsConfigFailed') : '') + ': ' + error.message);
     }
 }
 
@@ -1352,7 +1352,7 @@ async function changePassword() {
     }
 
     if (hasError) {
-        alert(typeof window.t === 'function' ? window.t('settings.security.fillPasswordHint') : '请正确填写当前密码和新密码，新密码至少 8 位且需要两次输入一致。');
+        alert(typeof window.t === 'function' ? window.t('settings.security.fillPasswordHint') : '， 8 。');
         return;
     }
 
@@ -1374,17 +1374,17 @@ async function changePassword() {
 
         const result = await response.json().catch(() => ({}));
         if (!response.ok) {
-            throw new Error(result.error || '修改密码失败');
+            throw new Error(result.error || '');
         }
 
-        const pwdMsg = typeof window.t === 'function' ? window.t('settings.security.passwordUpdated') : '密码已更新，请使用新密码重新登录。';
+        const pwdMsg = typeof window.t === 'function' ? window.t('settings.security.passwordUpdated') : '，。';
         alert(pwdMsg);
         resetPasswordForm();
         handleUnauthorized({ message: pwdMsg, silent: false });
         closeSettings();
     } catch (error) {
-        console.error('修改密码失败:', error);
-        alert((typeof window.t === 'function' ? window.t('settings.security.changePasswordFailed') : '修改密码失败') + ': ' + error.message);
+        console.error(':', error);
+        alert((typeof window.t === 'function' ? window.t('settings.security.changePasswordFailed') : '') + ': ' + error.message);
     } finally {
         if (submitBtn) {
             submitBtn.disabled = false;
@@ -1399,7 +1399,7 @@ let currentEditingMCPName = null;
 // English note.
 async function fetchExternalMCPs() {
     const response = await apiFetch('/api/external-mcp');
-    if (!response.ok) throw new Error('获取外部MCP列表失败');
+    if (!response.ok) throw new Error('MCP');
     return response.json();
 }
 
@@ -1412,7 +1412,7 @@ async function loadExternalMCPs() {
         renderExternalMCPList(data.servers || {});
         renderExternalMCPStats(data.stats || {});
     } catch (error) {
-        console.error('加载外部MCP列表失败:', error);
+        console.error('MCP:', error);
         const list = document.getElementById('external-mcp-list');
         if (list) {
             const errT = typeof window.t === 'function' ? window.t : (k) => k;
@@ -1436,7 +1436,7 @@ async function pollExternalMCPToolCount(name, maxAttempts = 10) {
                 if (server && server.tool_count > 0) break;
             }
         } catch (e) {
-            console.warn('轮询工具数量失败:', e);
+            console.warn(':', e);
         }
     }
     if (typeof window !== 'undefined' && typeof window.refreshMentionTools === 'function') {
@@ -1558,7 +1558,7 @@ function renderExternalMCPStats(stats) {
 // English note.
 function showAddExternalMCPModal() {
     currentEditingMCPName = null;
-    document.getElementById('external-mcp-modal-title').textContent = (typeof window.t === 'function' ? window.t('mcp.addExternalMCP') : '添加外部MCP');
+    document.getElementById('external-mcp-modal-title').textContent = (typeof window.t === 'function' ? window.t('mcp.addExternalMCP') : 'MCP');
     document.getElementById('external-mcp-json').value = '';
     document.getElementById('external-mcp-json-error').style.display = 'none';
     document.getElementById('external-mcp-json-error').textContent = '';
@@ -1577,13 +1577,13 @@ async function editExternalMCP(name) {
     try {
         const response = await apiFetch(`/api/external-mcp/${encodeURIComponent(name)}`);
         if (!response.ok) {
-            throw new Error(typeof window.t === 'function' ? window.t('mcp.getConfigFailed') : '获取外部MCP配置失败');
+            throw new Error(typeof window.t === 'function' ? window.t('mcp.getConfigFailed') : 'MCP');
         }
         
         const server = await response.json();
         currentEditingMCPName = name;
         
-        document.getElementById('external-mcp-modal-title').textContent = (typeof window.t === 'function' ? window.t('mcp.editExternalMCP') : '编辑外部MCP');
+        document.getElementById('external-mcp-modal-title').textContent = (typeof window.t === 'function' ? window.t('mcp.editExternalMCP') : 'MCP');
         
         // English note.
         const config = { ...server.config };
@@ -1604,8 +1604,8 @@ async function editExternalMCP(name) {
         
         document.getElementById('external-mcp-modal').style.display = 'block';
     } catch (error) {
-        console.error('编辑外部MCP失败:', error);
-        alert((typeof window.t === 'function' ? window.t('mcp.operationFailed') : '编辑失败') + ': ' + error.message);
+        console.error('MCP:', error);
+        alert((typeof window.t === 'function' ? window.t('mcp.operationFailed') : '') + ': ' + error.message);
     }
 }
 
@@ -1617,7 +1617,7 @@ function formatExternalMCPJSON() {
     try {
         const jsonStr = jsonTextarea.value.trim();
         if (!jsonStr) {
-            errorDiv.textContent = (typeof window.t === 'function' ? window.t('mcp.jsonEmpty') : 'JSON不能为空');
+            errorDiv.textContent = (typeof window.t === 'function' ? window.t('mcp.jsonEmpty') : 'JSON');
             errorDiv.style.display = 'block';
             jsonTextarea.classList.add('error');
             return;
@@ -1629,7 +1629,7 @@ function formatExternalMCPJSON() {
         errorDiv.style.display = 'none';
         jsonTextarea.classList.remove('error');
     } catch (error) {
-        errorDiv.textContent = (typeof window.t === 'function' ? window.t('mcp.jsonError') : 'JSON格式错误') + ': ' + error.message;
+        errorDiv.textContent = (typeof window.t === 'function' ? window.t('mcp.jsonError') : 'JSON') + ': ' + error.message;
         errorDiv.style.display = 'block';
         jsonTextarea.classList.add('error');
     }
@@ -1637,7 +1637,7 @@ function formatExternalMCPJSON() {
 
 // English note.
 function loadExternalMCPExample() {
-    const desc = (typeof window.t === 'function' ? window.t('externalMcpModal.exampleDescription') : '示例描述');
+    const desc = (typeof window.t === 'function' ? window.t('externalMcpModal.exampleDescription') : '');
     const example = {
         "hexstrike-ai": {
             command: "python3",
@@ -1671,7 +1671,7 @@ async function saveExternalMCP() {
     const errorDiv = document.getElementById('external-mcp-json-error');
     
     if (!jsonStr) {
-        errorDiv.textContent = (typeof window.t === 'function' ? window.t('mcp.jsonEmpty') : 'JSON不能为空');
+        errorDiv.textContent = (typeof window.t === 'function' ? window.t('mcp.jsonEmpty') : 'JSON');
         errorDiv.style.display = 'block';
         jsonTextarea.classList.add('error');
         jsonTextarea.focus();
@@ -1682,7 +1682,7 @@ async function saveExternalMCP() {
     try {
         configObj = JSON.parse(jsonStr);
     } catch (error) {
-        errorDiv.textContent = (typeof window.t === 'function' ? window.t('mcp.jsonError') : 'JSON格式错误') + ': ' + error.message;
+        errorDiv.textContent = (typeof window.t === 'function' ? window.t('mcp.jsonError') : 'JSON') + ': ' + error.message;
         errorDiv.style.display = 'block';
         jsonTextarea.classList.add('error');
         jsonTextarea.focus();
@@ -1766,7 +1766,7 @@ async function saveExternalMCP() {
         // English note.
         if (currentEditingMCPName) {
             if (!configObj[currentEditingMCPName]) {
-                errorDiv.textContent = (typeof window.t === 'function' ? window.t('mcp.configEditMustContainName', { name: currentEditingMCPName }) : '配置错误: 编辑模式下，JSON必须包含配置名称 "' + currentEditingMCPName + '"');
+                errorDiv.textContent = (typeof window.t === 'function' ? window.t('mcp.configEditMustContainName', { name: currentEditingMCPName }) : ': ，JSON "' + currentEditingMCPName + '"');
                 errorDiv.style.display = 'block';
                 jsonTextarea.classList.add('error');
                 return;
@@ -1782,7 +1782,7 @@ async function saveExternalMCP() {
             
             if (!response.ok) {
                 const error = await response.json();
-                throw new Error(error.error || '保存失败');
+                throw new Error(error.error || '');
             }
         } else {
             // English note.
@@ -1798,7 +1798,7 @@ async function saveExternalMCP() {
                 
                 if (!response.ok) {
                     const error = await response.json();
-                    throw new Error(`保存 "${name}" 失败: ${error.error || '未知错误'}`);
+                    throw new Error(` "${name}" : ${error.error || ''}`);
                 }
             }
         }
@@ -1810,10 +1810,10 @@ async function saveExternalMCP() {
         }
         // English note.
         pollExternalMCPToolCount(null, 5);
-        alert(typeof window.t === 'function' ? window.t('mcp.saveSuccess') : '保存成功');
+        alert(typeof window.t === 'function' ? window.t('mcp.saveSuccess') : '');
     } catch (error) {
-        console.error('保存外部MCP失败:', error);
-        errorDiv.textContent = (typeof window.t === 'function' ? window.t('mcp.operationFailed') : '保存失败') + ': ' + error.message;
+        console.error('MCP:', error);
+        errorDiv.textContent = (typeof window.t === 'function' ? window.t('mcp.operationFailed') : '') + ': ' + error.message;
         errorDiv.style.display = 'block';
         jsonTextarea.classList.add('error');
     }
@@ -1821,7 +1821,7 @@ async function saveExternalMCP() {
 
 // English note.
 async function deleteExternalMCP(name) {
-    if (!confirm((typeof window.t === 'function' ? window.t('mcp.deleteExternalConfirm', { name: name }) : `确定要删除外部MCP "${name}" 吗？`))) {
+    if (!confirm((typeof window.t === 'function' ? window.t('mcp.deleteExternalConfirm', { name: name }) : `MCP "${name}" ？`))) {
         return;
     }
     
@@ -1832,7 +1832,7 @@ async function deleteExternalMCP(name) {
         
         if (!response.ok) {
             const error = await response.json();
-            throw new Error(error.error || '删除失败');
+            throw new Error(error.error || '');
         }
         
         await loadExternalMCPs();
@@ -1840,10 +1840,10 @@ async function deleteExternalMCP(name) {
         if (typeof window !== 'undefined' && typeof window.refreshMentionTools === 'function') {
             window.refreshMentionTools();
         }
-        alert(typeof window.t === 'function' ? window.t('mcp.deleteSuccess') : '删除成功');
+        alert(typeof window.t === 'function' ? window.t('mcp.deleteSuccess') : '');
     } catch (error) {
-        console.error('删除外部MCP失败:', error);
-        alert((typeof window.t === 'function' ? window.t('mcp.operationFailed') : '删除失败') + ': ' + error.message);
+        console.error('MCP:', error);
+        alert((typeof window.t === 'function' ? window.t('mcp.operationFailed') : '') + ': ' + error.message);
     }
 }
 
@@ -1858,7 +1858,7 @@ async function toggleExternalMCP(name, currentStatus) {
         button.disabled = true;
         button.style.opacity = '0.6';
         button.style.cursor = 'not-allowed';
-        button.innerHTML = '⏳ 连接中...';
+        button.innerHTML = '⏳ ...';
     }
     
     try {
@@ -1868,7 +1868,7 @@ async function toggleExternalMCP(name, currentStatus) {
         
         if (!response.ok) {
             const error = await response.json();
-            throw new Error(error.error || '操作失败');
+            throw new Error(error.error || '');
         }
         
         const result = await response.json();
@@ -1893,11 +1893,11 @@ async function toggleExternalMCP(name, currentStatus) {
                     }
                 }
             } catch (error) {
-                console.error('检查状态失败:', error);
+                console.error(':', error);
             }
             
             // English note.
-            await pollExternalMCPStatus(name, 30); // 最多轮询30次（约30秒）
+            await pollExternalMCPStatus(name, 30); // 30（30）
         } else {
             // English note.
             await loadExternalMCPs();
@@ -1907,15 +1907,15 @@ async function toggleExternalMCP(name, currentStatus) {
             }
         }
     } catch (error) {
-        console.error('切换外部MCP状态失败:', error);
-        alert((typeof window.t === 'function' ? window.t('mcp.operationFailed') : '操作失败') + ': ' + error.message);
+        console.error('MCP:', error);
+        alert((typeof window.t === 'function' ? window.t('mcp.operationFailed') : '') + ': ' + error.message);
         
         // English note.
         if (button) {
             button.disabled = false;
             button.style.opacity = '1';
             button.style.cursor = 'pointer';
-            button.innerHTML = '▶ 启动';
+            button.innerHTML = '▶ ';
         }
         
         // English note.
@@ -1930,7 +1930,7 @@ async function toggleExternalMCP(name, currentStatus) {
 // English note.
 async function pollExternalMCPStatus(name, maxAttempts = 30) {
     let attempts = 0;
-    const pollInterval = 1000; // 1秒轮询一次
+    const pollInterval = 1000; // 1
     
     while (attempts < maxAttempts) {
         await new Promise(resolve => setTimeout(resolve, pollInterval));
@@ -1961,7 +1961,7 @@ async function pollExternalMCPStatus(name, maxAttempts = 30) {
                         window.refreshMentionTools();
                     }
                     if (status === 'error') {
-                        alert(typeof window.t === 'function' ? window.t('mcp.connectionFailedCheck') : '连接失败，请检查配置和网络连接');
+                        alert(typeof window.t === 'function' ? window.t('mcp.connectionFailedCheck') : '，');
                     }
                     return;
                 } else if (status === 'connecting') {
@@ -1971,7 +1971,7 @@ async function pollExternalMCPStatus(name, maxAttempts = 30) {
                 }
             }
         } catch (error) {
-            console.error('轮询状态失败:', error);
+            console.error(':', error);
         }
         
         attempts++;
@@ -1983,7 +1983,7 @@ async function pollExternalMCPStatus(name, maxAttempts = 30) {
     if (typeof window !== 'undefined' && typeof window.refreshMentionTools === 'function') {
         window.refreshMentionTools();
     }
-    alert(typeof window.t === 'function' ? window.t('mcp.connectionTimeout') : '连接超时，请检查配置和网络连接');
+    alert(typeof window.t === 'function' ? window.t('mcp.connectionTimeout') : '，');
 }
 
 // English note.

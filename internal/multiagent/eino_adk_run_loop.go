@@ -41,7 +41,7 @@ type einoADKRunLoopArgs struct {
 
 func runEinoADKAgentLoop(ctx context.Context, args *einoADKRunLoopArgs, baseMsgs []adk.Message) (*RunResult, error) {
 	if args == nil || args.DA == nil {
-		return nil, fmt.Errorf("eino run loop: args 或 Agent 为空")
+		return nil, fmt.Errorf("eino run loop: args  Agent ")
 	}
 	if args.McpIDs == nil {
 		s := []string{}
@@ -86,7 +86,7 @@ func runEinoADKAgentLoop(ctx context.Context, args *einoADKRunLoopArgs, baseMsgs
 				logger.Error("eino runner panic recovered", zap.Any("recover", r), zap.Stack("stack"))
 			}
 			if progress != nil {
-				progress("error", fmt.Sprintf("Internal error: %v / 内部错误: %v", r, r), map[string]interface{}{
+				progress("error", fmt.Sprintf("Internal error: %v / : %v", r, r), map[string]interface{}{
 					"conversationId": conversationID,
 					"source":         "eino",
 				})
@@ -102,7 +102,7 @@ func runEinoADKAgentLoop(ctx context.Context, args *einoADKRunLoopArgs, baseMsgs
 	emptyHint := strings.TrimSpace(args.EmptyResponseMessage)
 	if emptyHint == "" {
 		emptyHint = "(Eino session completed but no assistant text was captured. Check process details or logs.) " +
-			"（Eino 会话已完成，但未捕获到助手文本输出。请查看过程详情或日志。）"
+			"（Eino ，。。）"
 	}
 
 attemptLoop:
@@ -168,7 +168,7 @@ attemptLoop:
 				if strings.TrimSpace(toolName) == "" {
 					toolName = "unknown"
 				}
-				progress("tool_result", fmt.Sprintf("工具结果 (%s)", toolName), map[string]interface{}{
+				progress("tool_result", fmt.Sprintf(" (%s)", toolName), map[string]interface{}{
 					"toolName":       toolName,
 					"success":        false,
 					"isError":        true,
@@ -212,7 +212,7 @@ attemptLoop:
 			case <-ctx.Done():
 				flushAllPendingAsFailed(ctx.Err())
 				if progress != nil {
-					progress("error", "Request cancelled / 请求已取消", map[string]interface{}{
+					progress("error", "Request cancelled / ", map[string]interface{}{
 						"conversationId": conversationID,
 						"source":         "eino",
 					})
@@ -544,7 +544,7 @@ attemptLoop:
 				if toolCallID != "" {
 					data["toolCallId"] = toolCallID
 				}
-				progress("tool_result", fmt.Sprintf("工具结果 (%s)", toolName), data)
+				progress("tool_result", fmt.Sprintf(" (%s)", toolName), data)
 			}
 		}
 	}
@@ -567,7 +567,7 @@ attemptLoop:
 	// English note.
 	const maxResponseRunes = 100000
 	if rs := []rune(cleaned); len(rs) > maxResponseRunes {
-		cleaned = string(rs[:maxResponseRunes]) + "\n\n... (response truncated / 响应已截断)"
+		cleaned = string(rs[:maxResponseRunes]) + "\n\n... (response truncated / )"
 	}
 	out := &RunResult{
 		Response:         cleaned,

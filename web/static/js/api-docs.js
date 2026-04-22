@@ -89,7 +89,7 @@ async function loadToken() {
         }
         currentToken = localStorage.getItem('swagger_auth_token');
     } catch (e) {
-        console.error('加载token失败:', e);
+        console.error('token:', e);
     }
 }
 
@@ -113,7 +113,7 @@ async function loadAPISpec() {
         apiSpec = await response.json();
         buildApiSpecTagToKey();
     } catch (error) {
-        console.error('加载API规范失败:', error);
+        console.error('API:', error);
         showError(_t('apiDocs.errorLoadFailed') + error.message);
     }
 }
@@ -716,7 +716,7 @@ async function testAPI(method, path, operationId) {
         
         // English note.
         resultDiv.className = response.ok ? 'api-test-result success' : 'api-test-result error';
-        resultDiv.textContent = `状态码: ${response.status} ${response.statusText}\n\n${typeof responseData === 'string' ? responseData : JSON.stringify(responseData, null, 2)}`;
+        resultDiv.textContent = `: ${response.status} ${response.statusText}\n\n${typeof responseData === 'string' ? responseData : JSON.stringify(responseData, null, 2)}`;
         
     } catch (error) {
         resultDiv.className = 'api-test-result error';
@@ -824,7 +824,7 @@ function copyCurlCommand(event, method, path) {
                 alert(_t('apiDocs.curlCopied'));
             }
         }).catch(err => {
-            console.error('复制失败:', err);
+            console.error(':', err);
             // English note.
             const textarea = document.createElement('textarea');
             textarea.value = curlCommand;
@@ -853,7 +853,7 @@ function copyCurlCommand(event, method, path) {
         });
         
     } catch (error) {
-        console.error('生成curl命令失败:', error);
+        console.error('curl:', error);
         alert(_t('apiDocs.curlGenFailed') + error.message);
     }
 }
@@ -1020,10 +1020,10 @@ function toggleDescription(button) {
     if (detail.style.display === 'none') {
         detail.style.display = 'block';
         icon.style.transform = 'rotate(180deg)';
-        span.textContent = typeof window.t === 'function' ? window.t('apiDocs.hideDetailDesc') : '隐藏详细说明';
+        span.textContent = typeof window.t === 'function' ? window.t('apiDocs.hideDetailDesc') : '';
     } else {
         detail.style.display = 'none';
         icon.style.transform = 'rotate(0deg)';
-        span.textContent = typeof window.t === 'function' ? window.t('apiDocs.viewDetailDesc') : '查看详细说明';
+        span.textContent = typeof window.t === 'function' ? window.t('apiDocs.viewDetailDesc') : '';
     }
 }

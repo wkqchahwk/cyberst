@@ -18,6 +18,7 @@ type SkillSummary struct {
 	DirName     string   `json:"dir_name"`
 	Name        string   `json:"name"`
 	Description string   `json:"description"`
+	Enabled     bool     `json:"enabled"`
 	Version     string   `json:"version"`
 	Path        string   `json:"path"`
 	Tags        []string `json:"tags"`
@@ -57,6 +58,7 @@ type SkillView struct {
 	DirName      string            `json:"dir_name"`
 	Name         string            `json:"name"`
 	Description  string            `json:"description"`
+	Enabled      bool              `json:"enabled"`
 	Content      string            `json:"content"`
 	Path         string            `json:"path"`
 	Version      string            `json:"version"`

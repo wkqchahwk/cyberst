@@ -25,7 +25,7 @@ type multiAgentPrepared struct {
 
 func (h *AgentHandler) prepareMultiAgentSession(req *ChatRequest) (*multiAgentPrepared, error) {
 	if len(req.Attachments) > maxAttachments {
-		return nil, fmt.Errorf("附件最多 %d 个", maxAttachments)
+		return nil, fmt.Errorf(" %d ", maxAttachments)
 	}
 
 	conversationID := strings.TrimSpace(req.ConversationID)
@@ -40,13 +40,13 @@ func (h *AgentHandler) prepareMultiAgentSession(req *ChatRequest) (*multiAgentPr
 			conv, err = h.db.CreateConversation(title)
 		}
 		if err != nil {
-			return nil, fmt.Errorf("创建对话失败: %w", err)
+			return nil, fmt.Errorf(": %w", err)
 		}
 		conversationID = conv.ID
 		createdNew = true
 	} else {
 		if _, err := h.db.GetConversation(conversationID); err != nil {
-			return nil, fmt.Errorf("对话不存在")
+			return nil, fmt.Errorf("")
 		}
 	}
 
@@ -72,20 +72,20 @@ func (h *AgentHandler) prepareMultiAgentSession(req *ChatRequest) (*multiAgentPr
 	if req.WebShellConnectionID != "" {
 		conn, errConn := h.db.GetWebshellConnection(strings.TrimSpace(req.WebShellConnectionID))
 		if errConn != nil || conn == nil {
-			h.logger.Warn("WebShell AI 助手：未找到连接", zap.String("id", req.WebShellConnectionID), zap.Error(errConn))
-			return nil, fmt.Errorf("未找到该 WebShell 连接")
+			h.logger.Warn("WebShell AI ：", zap.String("id", req.WebShellConnectionID), zap.Error(errConn))
+			return nil, fmt.Errorf(" WebShell ")
 		}
 		remark := conn.Remark
 		if remark == "" {
 			remark = conn.URL
 		}
-		webshellContext := fmt.Sprintf("[WebShell 助手上下文] 当前连接 ID：%s，备注：%s。可用工具（仅在该连接上操作时使用，connection_id 填 \"%s\"）：webshell_exec、webshell_file_list、webshell_file_read、webshell_file_write、record_vulnerability、list_knowledge_risk_types、search_knowledge_base。Skills 包请使用 Eino 多代理内置 `skill` 工具。\n\n用户请求：%s",
+		webshellContext := fmt.Sprintf("[WebShell ]  ID：%s，：%s。（，connection_id  \"%s\"）：webshell_exec、webshell_file_list、webshell_file_read、webshell_file_write、record_vulnerability、list_knowledge_risk_types、search_knowledge_base。Skills  Eino  `skill` 。\n\n：%s",
 			conn.ID, remark, conn.ID, req.Message)
 		// English note.
-		if req.Role != "" && req.Role != "默认" && h.config != nil && h.config.Roles != nil {
+		if req.Role != "" && req.Role != "" && h.config != nil && h.config.Roles != nil {
 			if role, exists := h.config.Roles[req.Role]; exists && role.Enabled && role.UserPrompt != "" {
 				finalMessage = role.UserPrompt + "\n\n" + webshellContext
-				h.logger.Info("WebShell + 角色: 应用角色提示词（多代理）", zap.String("role", req.Role))
+				h.logger.Info("WebShell + : （）", zap.String("role", req.Role))
 			} else {
 				finalMessage = webshellContext
 			}
@@ -101,7 +101,7 @@ func (h *AgentHandler) prepareMultiAgentSession(req *ChatRequest) (*multiAgentPr
 			builtin.ToolListKnowledgeRiskTypes,
 			builtin.ToolSearchKnowledgeBase,
 		}
-	} else if req.Role != "" && req.Role != "默认" && h.config != nil && h.config.Roles != nil {
+	} else if req.Role != "" && req.Role != "" && h.config != nil && h.config.Roles != nil {
 		if role, exists := h.config.Roles[req.Role]; exists && role.Enabled {
 			if role.UserPrompt != "" {
 				finalMessage = role.UserPrompt + "\n\n" + req.Message
@@ -116,7 +116,7 @@ func (h *AgentHandler) prepareMultiAgentSession(req *ChatRequest) (*multiAgentPr
 		var aerr error
 		savedPaths, aerr = saveAttachmentsToDateAndConversationDir(req.Attachments, conversationID, h.logger)
 		if aerr != nil {
-			return nil, fmt.Errorf("保存上传文件失败: %w", aerr)
+			return nil, fmt.Errorf(": %w", aerr)
 		}
 	}
 	finalMessage = appendAttachmentsToMessage(finalMessage, req.Attachments, savedPaths)
@@ -124,18 +124,18 @@ func (h *AgentHandler) prepareMultiAgentSession(req *ChatRequest) (*multiAgentPr
 	userContent := userMessageContentForStorage(req.Message, req.Attachments, savedPaths)
 	userMsgRow, uerr := h.db.AddMessage(conversationID, "user", userContent, nil)
 	if uerr != nil {
-		h.logger.Error("保存用户消息失败", zap.Error(uerr))
-		return nil, fmt.Errorf("保存用户消息失败: %w", uerr)
+		h.logger.Error("", zap.Error(uerr))
+		return nil, fmt.Errorf(": %w", uerr)
 	}
 	userMessageID := ""
 	if userMsgRow != nil {
 		userMessageID = userMsgRow.ID
 	}
 
-	assistantMsg, aerr := h.db.AddMessage(conversationID, "assistant", "处理中...", nil)
+	assistantMsg, aerr := h.db.AddMessage(conversationID, "assistant", "...", nil)
 	var assistantMessageID string
 	if aerr != nil {
-		h.logger.Warn("创建助手消息占位失败", zap.Error(aerr))
+		h.logger.Warn("", zap.Error(aerr))
 	} else if assistantMsg != nil {
 		assistantMessageID = assistantMsg.ID
 	}

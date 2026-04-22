@@ -28,20 +28,20 @@ import (
 )
 
 const (
-	robotCmdHelp        = "帮助"
-	robotCmdList        = "列表"
-	robotCmdListAlt     = "对话列表"
-	robotCmdSwitch      = "切换"
-	robotCmdContinue    = "继续"
-	robotCmdNew         = "新对话"
-	robotCmdClear       = "清空"
-	robotCmdCurrent     = "当前"
-	robotCmdStop        = "停止"
-	robotCmdRoles       = "角色"
-	robotCmdRolesList   = "角色列表"
-	robotCmdSwitchRole  = "切换角色"
-	robotCmdDelete      = "删除"
-	robotCmdVersion     = "版本"
+	robotCmdHelp        = ""
+	robotCmdList        = ""
+	robotCmdListAlt     = ""
+	robotCmdSwitch      = ""
+	robotCmdContinue    = ""
+	robotCmdNew         = ""
+	robotCmdClear       = ""
+	robotCmdCurrent     = ""
+	robotCmdStop        = ""
+	robotCmdRoles       = ""
+	robotCmdRolesList   = ""
+	robotCmdSwitchRole  = ""
+	robotCmdDelete      = ""
+	robotCmdVersion     = ""
 )
 
 // English note.
@@ -52,9 +52,9 @@ type RobotHandler struct {
 	logger         *zap.Logger
 	mu             sync.RWMutex
 	sessions       map[string]string             // key: "platform_userID", value: conversationID
-	sessionRoles   map[string]string             // key: "platform_userID", value: roleName（默认"默认"）
-	cancelMu       sync.Mutex                    // 保护 runningCancels
-	runningCancels map[string]context.CancelFunc // key: "platform_userID", 用于停止命令中断任务
+	sessionRoles   map[string]string             // key: "platform_userID", value: roleName（""）
+	cancelMu       sync.Mutex                    //  runningCancels
+	runningCancels map[string]context.CancelFunc // key: "platform_userID", 
 }
 
 // English note.
@@ -85,13 +85,13 @@ func (h *RobotHandler) getOrCreateConversation(platform, userID, title string) (
 	}
 	t := strings.TrimSpace(title)
 	if t == "" {
-		t = "新对话 " + time.Now().Format("01-02 15:04")
+		t = " " + time.Now().Format("01-02 15:04")
 	} else {
 		t = safeTruncateString(t, 50)
 	}
 	conv, err := h.db.CreateConversation(t)
 	if err != nil {
-		h.logger.Warn("创建机器人会话失败", zap.Error(err))
+		h.logger.Warn("", zap.Error(err))
 		return "", false
 	}
 	convID = conv.ID
@@ -114,7 +114,7 @@ func (h *RobotHandler) getRole(platform, userID string) string {
 	role := h.sessionRoles[h.sessionKey(platform, userID)]
 	h.mu.RUnlock()
 	if role == "" {
-		return "默认"
+		return ""
 	}
 	return role
 }
@@ -128,10 +128,10 @@ func (h *RobotHandler) setRole(platform, userID, roleName string) {
 
 // English note.
 func (h *RobotHandler) clearConversation(platform, userID string) (newConvID string) {
-	title := "新对话 " + time.Now().Format("01-02 15:04")
+	title := " " + time.Now().Format("01-02 15:04")
 	conv, err := h.db.CreateConversation(title)
 	if err != nil {
-		h.logger.Warn("创建新对话失败", zap.Error(err))
+		h.logger.Warn("", zap.Error(err))
 		return ""
 	}
 	h.setConversation(platform, userID, conv.ID)
@@ -142,7 +142,7 @@ func (h *RobotHandler) clearConversation(platform, userID string) (newConvID str
 func (h *RobotHandler) HandleMessage(platform, userID, text string) (reply string) {
 	text = strings.TrimSpace(text)
 	if text == "" {
-		return "请输入内容或发送「帮助」/ help 查看命令。"
+		return "「」/ help 。"
 	}
 
 	// English note.
@@ -153,10 +153,10 @@ func (h *RobotHandler) HandleMessage(platform, userID, text string) (reply strin
 	// English note.
 	convID, _ := h.getOrCreateConversation(platform, userID, text)
 	if convID == "" {
-		return "无法创建或获取对话，请稍后再试。"
+		return "，。"
 	}
 	// English note.
-	if conv, err := h.db.GetConversation(convID); err == nil && strings.HasPrefix(conv.Title, "新对话 ") {
+	if conv, err := h.db.GetConversation(convID); err == nil && strings.HasPrefix(conv.Title, " ") {
 		newTitle := safeTruncateString(text, 50)
 		if newTitle != "" {
 			_ = h.db.UpdateConversationTitle(convID, newTitle)
@@ -176,11 +176,11 @@ func (h *RobotHandler) HandleMessage(platform, userID, text string) (reply strin
 	role := h.getRole(platform, userID)
 	resp, newConvID, err := h.agentHandler.ProcessMessageForRobot(ctx, convID, text, role)
 	if err != nil {
-		h.logger.Warn("机器人 Agent 执行失败", zap.String("platform", platform), zap.String("userID", userID), zap.Error(err))
+		h.logger.Warn(" Agent ", zap.String("platform", platform), zap.String("userID", userID), zap.Error(err))
 		if errors.Is(err, context.Canceled) {
-			return "任务已取消。"
+			return "。"
 		}
-		return "处理失败: " + err.Error()
+		return ": " + err.Error()
 	}
 	if newConvID != convID {
 		h.setConversation(platform, userID, newConvID)
@@ -189,36 +189,36 @@ func (h *RobotHandler) HandleMessage(platform, userID, text string) (reply strin
 }
 
 func (h *RobotHandler) cmdHelp() string {
-	return "**【CyberStrikeAI 机器人命令】**\n\n" +
-		"- `帮助` `help` — 显示本帮助 | Show this help\n" +
-		"- `列表` `list` — 列出所有对话标题与 ID | List conversations\n" +
-		"- `切换 <ID>` `switch <ID>` — 指定对话继续 | Switch to conversation\n" +
-		"- `新对话` `new` — 开启新对话 | Start new conversation\n" +
-		"- `清空` `clear` — 清空当前上下文 | Clear context\n" +
-		"- `当前` `current` — 显示当前对话 ID 与标题 | Show current conversation\n" +
-		"- `停止` `stop` — 中断当前任务 | Stop running task\n" +
-		"- `角色` `roles` — 列出所有可用角色 | List roles\n" +
-		"- `角色 <名>` `role <name>` — 切换当前角色 | Switch role\n" +
-		"- `删除 <ID>` `delete <ID>` — 删除指定对话 | Delete conversation\n" +
-		"- `版本` `version` — 显示当前版本号 | Show version\n\n" +
+	return "**【CyberStrikeAI 】**\n\n" +
+		"- `` `help` —  | Show this help\n" +
+		"- `` `list` —  ID | List conversations\n" +
+		"- ` <ID>` `switch <ID>` —  | Switch to conversation\n" +
+		"- `` `new` —  | Start new conversation\n" +
+		"- `` `clear` —  | Clear context\n" +
+		"- `` `current` —  ID  | Show current conversation\n" +
+		"- `` `stop` —  | Stop running task\n" +
+		"- `` `roles` —  | List roles\n" +
+		"- ` <>` `role <name>` —  | Switch role\n" +
+		"- ` <ID>` `delete <ID>` —  | Delete conversation\n" +
+		"- `` `version` —  | Show version\n\n" +
 		"---\n" +
-		"除以上命令外，直接输入内容将发送给 AI 进行渗透测试/安全分析。\n" +
+		"， AI /。\n" +
 		"Otherwise, send any text for AI penetration testing / security analysis."
 }
 
 func (h *RobotHandler) cmdList() string {
 	convs, err := h.db.ListConversations(50, 0, "")
 	if err != nil {
-		return "获取对话列表失败: " + err.Error()
+		return ": " + err.Error()
 	}
 	if len(convs) == 0 {
-		return "暂无对话。发送任意内容将自动创建新对话。"
+		return "。。"
 	}
 	var b strings.Builder
-	b.WriteString("【对话列表】\n")
+	b.WriteString("【】\n")
 	for i, c := range convs {
 		if i >= 20 {
-			b.WriteString("… 仅显示前 20 条\n")
+			b.WriteString("…  20 \n")
 			break
 		}
 		b.WriteString(fmt.Sprintf("· %s\n  ID: %s\n", c.Title, c.ID))
@@ -228,22 +228,22 @@ func (h *RobotHandler) cmdList() string {
 
 func (h *RobotHandler) cmdSwitch(platform, userID, convID string) string {
 	if convID == "" {
-		return "请指定对话 ID，例如：切换 xxx-xxx-xxx"
+		return " ID，： xxx-xxx-xxx"
 	}
 	conv, err := h.db.GetConversation(convID)
 	if err != nil {
-		return "对话不存在或 ID 错误。"
+		return " ID 。"
 	}
 	h.setConversation(platform, userID, conv.ID)
-	return fmt.Sprintf("已切换到对话：「%s」\nID: %s", conv.Title, conv.ID)
+	return fmt.Sprintf("：「%s」\nID: %s", conv.Title, conv.ID)
 }
 
 func (h *RobotHandler) cmdNew(platform, userID string) string {
 	newID := h.clearConversation(platform, userID)
 	if newID == "" {
-		return "创建新对话失败，请重试。"
+		return "，。"
 	}
-	return "已开启新对话，可直接发送内容。"
+	return "，。"
 }
 
 func (h *RobotHandler) cmdClear(platform, userID string) string {
@@ -260,9 +260,9 @@ func (h *RobotHandler) cmdStop(platform, userID string) string {
 	}
 	h.cancelMu.Unlock()
 	if !ok {
-		return "当前没有正在执行的任务。"
+		return "。"
 	}
-	return "已停止当前任务。"
+	return "。"
 }
 
 func (h *RobotHandler) cmdCurrent(platform, userID string) string {
@@ -270,19 +270,19 @@ func (h *RobotHandler) cmdCurrent(platform, userID string) string {
 	convID := h.sessions[h.sessionKey(platform, userID)]
 	h.mu.RUnlock()
 	if convID == "" {
-		return "当前没有进行中的对话。发送任意内容将创建新对话。"
+		return "。。"
 	}
 	conv, err := h.db.GetConversation(convID)
 	if err != nil {
-		return "当前对话 ID: " + convID + "（获取标题失败）"
+		return " ID: " + convID + "（）"
 	}
 	role := h.getRole(platform, userID)
-	return fmt.Sprintf("当前对话：「%s」\nID: %s\n当前角色: %s", conv.Title, conv.ID, role)
+	return fmt.Sprintf("：「%s」\nID: %s\n: %s", conv.Title, conv.ID, role)
 }
 
 func (h *RobotHandler) cmdRoles() string {
 	if h.config.Roles == nil || len(h.config.Roles) == 0 {
-		return "暂无可用角色。"
+		return "。"
 	}
 	names := make([]string, 0, len(h.config.Roles))
 	for name, role := range h.config.Roles {
@@ -291,24 +291,24 @@ func (h *RobotHandler) cmdRoles() string {
 		}
 	}
 	if len(names) == 0 {
-		return "暂无可用角色。"
+		return "。"
 	}
 	sort.Slice(names, func(i, j int) bool {
-		if names[i] == "默认" {
+		if names[i] == "" {
 			return true
 		}
-		if names[j] == "默认" {
+		if names[j] == "" {
 			return false
 		}
 		return names[i] < names[j]
 	})
 	var b strings.Builder
-	b.WriteString("【角色列表】\n")
+	b.WriteString("【】\n")
 	for _, name := range names {
 		role := h.config.Roles[name]
 		desc := role.Description
 		if desc == "" {
-			desc = "无描述"
+			desc = ""
 		}
 		b.WriteString(fmt.Sprintf("· %s — %s\n", name, desc))
 	}
@@ -317,25 +317,25 @@ func (h *RobotHandler) cmdRoles() string {
 
 func (h *RobotHandler) cmdSwitchRole(platform, userID, roleName string) string {
 	if roleName == "" {
-		return "请指定角色名称，例如：角色 渗透测试"
+		return "，： "
 	}
 	if h.config.Roles == nil {
-		return "暂无可用角色。"
+		return "。"
 	}
 	role, exists := h.config.Roles[roleName]
 	if !exists {
-		return fmt.Sprintf("角色「%s」不存在。发送「角色」查看可用角色。", roleName)
+		return fmt.Sprintf("「%s」。「」。", roleName)
 	}
 	if !role.Enabled {
-		return fmt.Sprintf("角色「%s」已禁用。", roleName)
+		return fmt.Sprintf("「%s」。", roleName)
 	}
 	h.setRole(platform, userID, roleName)
-	return fmt.Sprintf("已切换到角色：「%s」\n%s", roleName, role.Description)
+	return fmt.Sprintf("：「%s」\n%s", roleName, role.Description)
 }
 
 func (h *RobotHandler) cmdDelete(platform, userID, convID string) string {
 	if convID == "" {
-		return "请指定对话 ID，例如：删除 xxx-xxx-xxx"
+		return " ID，： xxx-xxx-xxx"
 	}
 	sk := h.sessionKey(platform, userID)
 	h.mu.RLock()
@@ -348,15 +348,15 @@ func (h *RobotHandler) cmdDelete(platform, userID, convID string) string {
 		h.mu.Unlock()
 	}
 	if err := h.db.DeleteConversation(convID); err != nil {
-		return "删除失败: " + err.Error()
+		return ": " + err.Error()
 	}
-	return fmt.Sprintf("已删除对话 ID: %s", convID)
+	return fmt.Sprintf(" ID: %s", convID)
 }
 
 func (h *RobotHandler) cmdVersion() string {
 	v := h.config.Version
 	if v == "" {
-		v = "未知"
+		v = ""
 	}
 	return "CyberStrikeAI " + v
 }
@@ -428,7 +428,7 @@ type wecomXML struct {
 	Content      string `xml:"Content"`
 	MsgID        string `xml:"MsgId"`
 	AgentID      int64  `xml:"AgentID"`
-	Encrypt      string `xml:"Encrypt"` // 加密模式下消息在此
+	Encrypt      string `xml:"Encrypt"` // 
 }
 
 // English note.
@@ -456,7 +456,7 @@ func (h *RobotHandler) HandleWecomGET(c *gin.Context) {
 	// English note.
 	signature := h.signWecomRequest(h.config.Robots.Wecom.Token, timestamp, nonce, echostr)
 	if signature != msgSignature {
-		h.logger.Warn("企业微信 URL 验证签名失败", zap.String("expected", msgSignature), zap.String("got", signature))
+		h.logger.Warn(" URL ", zap.String("expected", msgSignature), zap.String("got", signature))
 		c.String(http.StatusBadRequest, "invalid signature")
 		return
 	}
@@ -470,7 +470,7 @@ func (h *RobotHandler) HandleWecomGET(c *gin.Context) {
 	if h.config.Robots.Wecom.EncodingAESKey != "" {
 		decrypted, err := wecomDecrypt(h.config.Robots.Wecom.EncodingAESKey, echostr)
 		if err != nil {
-			h.logger.Warn("企业微信 echostr 解密失败", zap.Error(err))
+			h.logger.Warn(" echostr ", zap.Error(err))
 			c.String(http.StatusBadRequest, "decrypt failed")
 			return
 		}
@@ -499,7 +499,7 @@ func wecomDecrypt(encodingAESKey, encryptedB64 string) ([]byte, error) {
 		return nil, err
 	}
 	if len(key) != 32 {
-		return nil, fmt.Errorf("encoding_aes_key 解码后应为 32 字节")
+		return nil, fmt.Errorf("encoding_aes_key  32 ")
 	}
 	ciphertext, err := base64.StdEncoding.DecodeString(encryptedB64)
 	if err != nil {
@@ -512,23 +512,23 @@ func wecomDecrypt(encodingAESKey, encryptedB64 string) ([]byte, error) {
 	iv := key[:16]
 	mode := cipher.NewCBCDecrypter(block, iv)
 	if len(ciphertext)%aes.BlockSize != 0 {
-		return nil, fmt.Errorf("密文长度不是块大小的倍数")
+		return nil, fmt.Errorf("")
 	}
 	plain := make([]byte, len(ciphertext))
 	mode.CryptBlocks(plain, ciphertext)
 	// English note.
 	n := int(plain[len(plain)-1])
 	if n < 1 || n > 32 {
-		return nil, fmt.Errorf("无效的 PKCS7 填充")
+		return nil, fmt.Errorf(" PKCS7 ")
 	}
 	plain = plain[:len(plain)-n]
 	// English note.
 	if len(plain) < 20 {
-		return nil, fmt.Errorf("明文过短")
+		return nil, fmt.Errorf("")
 	}
 	msgLen := binary.BigEndian.Uint32(plain[16:20])
 	if int(20+msgLen) > len(plain) {
-		return nil, fmt.Errorf("消息长度越界")
+		return nil, fmt.Errorf("")
 	}
 	return plain[20 : 20+msgLen], nil
 }
@@ -540,7 +540,7 @@ func wecomEncrypt(encodingAESKey, message, corpID string) (string, error) {
 		return "", err
 	}
 	if len(key) != 32 {
-		return "", fmt.Errorf("encoding_aes_key 解码后应为 32 字节")
+		return "", fmt.Errorf("encoding_aes_key  32 ")
 	}
 	// English note.
 	random := make([]byte, 16)
@@ -577,7 +577,7 @@ func wecomEncrypt(encodingAESKey, message, corpID string) (string, error) {
 // English note.
 func (h *RobotHandler) HandleWecomPOST(c *gin.Context) {
 	if !h.config.Robots.Wecom.Enabled {
-		h.logger.Debug("企业微信机器人未启用，跳过请求")
+		h.logger.Debug("，")
 		c.String(http.StatusOK, "")
 		return
 	}
@@ -589,30 +589,30 @@ func (h *RobotHandler) HandleWecomPOST(c *gin.Context) {
 	// English note.
 	bodyRaw, err := io.ReadAll(c.Request.Body)
 	if err != nil {
-		h.logger.Warn("企业微信 POST 读取请求体失败", zap.Error(err))
+		h.logger.Warn(" POST ", zap.Error(err))
 		c.String(http.StatusOK, "")
 		return
 	}
-	h.logger.Debug("企业微信 POST 收到请求", zap.String("body", string(bodyRaw)))
+	h.logger.Debug(" POST ", zap.String("body", string(bodyRaw)))
 
 	// English note.
 	// English note.
 	token := h.config.Robots.Wecom.Token
 	if token != "" {
 		if msgSignature == "" {
-			h.logger.Warn("企业微信 POST 缺少签名，已拒绝（需配置 token 并确保回调携带 msg_signature）")
+			h.logger.Warn(" POST ，（ token  msg_signature）")
 			c.String(http.StatusOK, "")
 			return
 		}
 		var tmp wecomXML
 		if err := xml.Unmarshal(bodyRaw, &tmp); err != nil {
-			h.logger.Warn("企业微信 POST 签名验证前解析 XML 失败", zap.Error(err))
+			h.logger.Warn(" POST  XML ", zap.Error(err))
 			c.String(http.StatusOK, "")
 			return
 		}
 		expected := h.signWecomRequest(token, timestamp, nonce, tmp.Encrypt)
 		if expected != msgSignature {
-			h.logger.Warn("企业微信 POST 签名验证失败", zap.String("expected", expected), zap.String("got", msgSignature))
+			h.logger.Warn(" POST ", zap.String("expected", expected), zap.String("got", msgSignature))
 			c.String(http.StatusOK, "")
 			return
 		}
@@ -620,31 +620,31 @@ func (h *RobotHandler) HandleWecomPOST(c *gin.Context) {
 
 	var body wecomXML
 	if err := xml.Unmarshal(bodyRaw, &body); err != nil {
-		h.logger.Warn("企业微信 POST 解析 XML 失败", zap.Error(err))
+		h.logger.Warn(" POST  XML ", zap.Error(err))
 		c.String(http.StatusOK, "")
 		return
 	}
-	h.logger.Debug("企业微信 XML 解析成功", zap.String("ToUserName", body.ToUserName), zap.String("FromUserName", body.FromUserName), zap.String("MsgType", body.MsgType), zap.String("Content", body.Content), zap.String("Encrypt", body.Encrypt))
+	h.logger.Debug(" XML ", zap.String("ToUserName", body.ToUserName), zap.String("FromUserName", body.FromUserName), zap.String("MsgType", body.MsgType), zap.String("Content", body.Content), zap.String("Encrypt", body.Encrypt))
 
 	// English note.
 	enterpriseID := body.ToUserName
 
 	// English note.
 	if body.Encrypt != "" && h.config.Robots.Wecom.EncodingAESKey != "" {
-		h.logger.Debug("企业微信进入加密模式解密流程")
+		h.logger.Debug("")
 		decrypted, err := wecomDecrypt(h.config.Robots.Wecom.EncodingAESKey, body.Encrypt)
 		if err != nil {
-			h.logger.Warn("企业微信消息解密失败", zap.Error(err))
+			h.logger.Warn("", zap.Error(err))
 			c.String(http.StatusOK, "")
 			return
 		}
-		h.logger.Debug("企业微信解密成功", zap.String("decrypted", string(decrypted)))
+		h.logger.Debug("", zap.String("decrypted", string(decrypted)))
 		if err := xml.Unmarshal(decrypted, &body); err != nil {
-			h.logger.Warn("企业微信解密后 XML 解析失败", zap.Error(err))
+			h.logger.Warn(" XML ", zap.Error(err))
 			c.String(http.StatusOK, "")
 			return
 		}
-		h.logger.Debug("企业微信内层 XML 解析成功", zap.String("FromUserName", body.FromUserName), zap.String("Content", body.Content))
+		h.logger.Debug(" XML ", zap.String("FromUserName", body.FromUserName), zap.String("Content", body.Content))
 	}
 
 	userID := body.FromUserName
@@ -654,25 +654,25 @@ func (h *RobotHandler) HandleWecomPOST(c *gin.Context) {
 	maxReplyLen := 2000
 	limitReply := func(s string) string {
 		if len(s) > maxReplyLen {
-			return s[:maxReplyLen] + "\n\n（内容过长，已截断）"
+			return s[:maxReplyLen] + "\n\n（，）"
 		}
 		return s
 	}
 
 	if body.MsgType != "text" {
-		h.logger.Debug("企业微信收到非文本消息", zap.String("MsgType", body.MsgType))
-		h.sendWecomReply(c, userID, enterpriseID, limitReply("暂仅支持文本消息，请发送文字。"), timestamp, nonce)
+		h.logger.Debug("", zap.String("MsgType", body.MsgType))
+		h.sendWecomReply(c, userID, enterpriseID, limitReply("，。"), timestamp, nonce)
 		return
 	}
 
 	// English note.
 	if cmdReply, ok := h.handleRobotCommand("wecom", userID, text); ok {
-		h.logger.Debug("企业微信收到命令消息，走被动回复", zap.String("userID", userID), zap.String("text", text))
+		h.logger.Debug("，", zap.String("userID", userID), zap.String("text", text))
 		h.sendWecomReply(c, userID, enterpriseID, limitReply(cmdReply), timestamp, nonce)
 		return
 	}
 
-	h.logger.Debug("企业微信开始处理消息（异步 AI）", zap.String("userID", userID), zap.String("text", text))
+	h.logger.Debug("（ AI）", zap.String("userID", userID), zap.String("text", text))
 
 	// English note.
 	// English note.
@@ -682,7 +682,7 @@ func (h *RobotHandler) HandleWecomPOST(c *gin.Context) {
 	go func() {
 		reply := h.HandleMessage("wecom", userID, text)
 		reply = limitReply(reply)
-		h.logger.Debug("企业微信消息处理完成", zap.String("userID", userID), zap.String("reply", reply))
+		h.logger.Debug("", zap.String("userID", userID), zap.String("reply", reply))
 		// English note.
 		h.sendWecomMessageViaAPI(userID, enterpriseID, reply)
 	}()
@@ -696,7 +696,7 @@ func (h *RobotHandler) sendWecomReply(c *gin.Context, toUser, fromUser, content,
 		// English note.
 		corpID := h.config.Robots.Wecom.CorpID
 		if corpID == "" {
-			h.logger.Warn("企业微信加密模式缺少 CorpID 配置")
+			h.logger.Warn(" CorpID ")
 			c.String(http.StatusOK, "")
 			return
 		}
@@ -712,14 +712,14 @@ func (h *RobotHandler) sendWecomReply(c *gin.Context, toUser, fromUser, content,
 
 		encrypted, err := wecomEncrypt(h.config.Robots.Wecom.EncodingAESKey, plainResp, corpID)
 		if err != nil {
-			h.logger.Warn("企业微信回复加密失败", zap.Error(err))
+			h.logger.Warn("", zap.Error(err))
 			c.String(http.StatusOK, "")
 			return
 		}
 		// English note.
 		msgSignature := h.signWecomRequest(h.config.Robots.Wecom.Token, timestamp, nonce, encrypted)
 
-		h.logger.Debug("企业微信发送加密回复",
+		h.logger.Debug("",
 			zap.String("Encrypt", encrypted[:50]+"..."),
 			zap.String("MsgSignature", msgSignature),
 			zap.String("TimeStamp", timestamp),
@@ -729,12 +729,12 @@ func (h *RobotHandler) sendWecomReply(c *gin.Context, toUser, fromUser, content,
 		xmlResp := fmt.Sprintf(`<xml><Encrypt><![CDATA[%s]]></Encrypt><MsgSignature><![CDATA[%s]]></MsgSignature><TimeStamp><![CDATA[%s]]></TimeStamp><Nonce><![CDATA[%s]]></Nonce></xml>`, encrypted, msgSignature, timestamp, nonce)
 		// also log the final response body so we can cross-check with the
 		// network traffic or developer console
-		h.logger.Debug("企业微信加密回复包", zap.String("xml", xmlResp))
+		h.logger.Debug("", zap.String("xml", xmlResp))
 		// for additional confidence, decrypt the payload ourselves and log it
 		if dec, err2 := wecomDecrypt(h.config.Robots.Wecom.EncodingAESKey, encrypted); err2 == nil {
-			h.logger.Debug("企业微信加密回复解密检查", zap.String("plain", string(dec)))
+			h.logger.Debug("", zap.String("plain", string(dec)))
 		} else {
-			h.logger.Warn("企业微信加密回复解密检查失败", zap.Error(err2))
+			h.logger.Warn("", zap.Error(err2))
 		}
 
 		// English note.
@@ -742,12 +742,12 @@ func (h *RobotHandler) sendWecomReply(c *gin.Context, toUser, fromUser, content,
 		// use text/xml as that's what WeCom examples show
 		c.Writer.Header().Set("Content-Type", "text/xml; charset=utf-8")
 		_, _ = c.Writer.Write([]byte(xmlResp))
-		h.logger.Debug("企业微信加密回复已发送")
+		h.logger.Debug("")
 		return
 	}
 
 	// English note.
-	h.logger.Debug("企业微信发送明文回复", zap.String("ToUserName", toUser), zap.String("FromUserName", fromUser), zap.String("Content", content[:50]+"..."))
+	h.logger.Debug("", zap.String("ToUserName", toUser), zap.String("FromUserName", fromUser), zap.String("Content", content[:50]+"..."))
 
 	// English note.
 	xmlResp := fmt.Sprintf(`<xml>
@@ -759,19 +759,19 @@ func (h *RobotHandler) sendWecomReply(c *gin.Context, toUser, fromUser, content,
 </xml>`, toUser, fromUser, time.Now().Unix(), content)
 
 	// log the exact plaintext response for debugging
-	h.logger.Debug("企业微信明文回复包", zap.String("xml", xmlResp))
+	h.logger.Debug("", zap.String("xml", xmlResp))
 
 	// use text/xml as recommended by WeCom docs
 	c.Header("Content-Type", "text/xml; charset=utf-8")
 	c.String(http.StatusOK, xmlResp)
-	h.logger.Debug("企业微信明文回复已发送")
+	h.logger.Debug("")
 }
 
 // English note.
 
 // English note.
 type RobotTestRequest struct {
-	Platform string `json:"platform"` // 如 "dingtalk"、"lark"、"wecom"
+	Platform string `json:"platform"` //  "dingtalk"、"lark"、"wecom"
 	UserID   string `json:"user_id"`
 	Text     string `json:"text"`
 }
@@ -780,7 +780,7 @@ type RobotTestRequest struct {
 func (h *RobotHandler) HandleRobotTest(c *gin.Context) {
 	var req RobotTestRequest
 	if err := c.ShouldBindJSON(&req); err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"error": "请求体需为 JSON，包含 platform、user_id、text"})
+		c.JSON(http.StatusBadRequest, gin.H{"error": " JSON， platform、user_id、text"})
 		return
 	}
 	platform := strings.TrimSpace(req.Platform)
@@ -806,7 +806,7 @@ func (h *RobotHandler) sendWecomMessageViaAPI(toUser, toParty, content string) {
 	agentID := h.config.Robots.Wecom.AgentID
 
 	if secret == "" || corpID == "" {
-		h.logger.Warn("企业微信主动 API 缺少 secret 或 corpID 配置")
+		h.logger.Warn(" API  secret  corpID ")
 		return
 	}
 
@@ -814,7 +814,7 @@ func (h *RobotHandler) sendWecomMessageViaAPI(toUser, toParty, content string) {
 	tokenURL := fmt.Sprintf("https://qyapi.weixin.qq.com/cgi-bin/gettoken?corpid=%s&corpsecret=%s", corpID, secret)
 	resp, err := http.Get(tokenURL)
 	if err != nil {
-		h.logger.Warn("企业微信获取 token 失败", zap.Error(err))
+		h.logger.Warn(" token ", zap.Error(err))
 		return
 	}
 	defer resp.Body.Close()
@@ -825,11 +825,11 @@ func (h *RobotHandler) sendWecomMessageViaAPI(toUser, toParty, content string) {
 		ErrMsg      string `json:"errmsg"`
 	}
 	if err := json.NewDecoder(resp.Body).Decode(&tokenResp); err != nil {
-		h.logger.Warn("企业微信 token 响应解析失败", zap.Error(err))
+		h.logger.Warn(" token ", zap.Error(err))
 		return
 	}
 	if tokenResp.ErrCode != 0 {
-		h.logger.Warn("企业微信 token 获取错误", zap.String("errmsg", tokenResp.ErrMsg), zap.Int("errcode", tokenResp.ErrCode))
+		h.logger.Warn(" token ", zap.String("errmsg", tokenResp.ErrMsg), zap.Int("errcode", tokenResp.ErrCode))
 		return
 	}
 
@@ -845,7 +845,7 @@ func (h *RobotHandler) sendWecomMessageViaAPI(toUser, toParty, content string) {
 
 	msgBody, err := json.Marshal(msgReq)
 	if err != nil {
-		h.logger.Warn("企业微信消息序列化失败", zap.Error(err))
+		h.logger.Warn("", zap.Error(err))
 		return
 	}
 
@@ -853,7 +853,7 @@ func (h *RobotHandler) sendWecomMessageViaAPI(toUser, toParty, content string) {
 	sendURL := fmt.Sprintf("https://qyapi.weixin.qq.com/cgi-bin/message/send?access_token=%s", tokenResp.AccessToken)
 	msgResp, err := http.Post(sendURL, "application/json", bytes.NewReader(msgBody))
 	if err != nil {
-		h.logger.Warn("企业微信主动发送消息失败", zap.Error(err))
+		h.logger.Warn("", zap.Error(err))
 		return
 	}
 	defer msgResp.Body.Close()
@@ -865,14 +865,14 @@ func (h *RobotHandler) sendWecomMessageViaAPI(toUser, toParty, content string) {
 		MsgID       string `json:"msgid"`
 	}
 	if err := json.NewDecoder(msgResp.Body).Decode(&sendResp); err != nil {
-		h.logger.Warn("企业微信发送响应解析失败", zap.Error(err))
+		h.logger.Warn("", zap.Error(err))
 		return
 	}
 
 	if sendResp.ErrCode == 0 {
-		h.logger.Debug("企业微信主动发送消息成功", zap.String("msgid", sendResp.MsgID))
+		h.logger.Debug("", zap.String("msgid", sendResp.MsgID))
 	} else {
-		h.logger.Warn("企业微信主动发送消息失败", zap.String("errmsg", sendResp.ErrMsg), zap.Int("errcode", sendResp.ErrCode), zap.String("invaliduser", sendResp.InvalidUser))
+		h.logger.Warn("", zap.String("errmsg", sendResp.ErrMsg), zap.Int("errcode", sendResp.ErrCode), zap.String("invaliduser", sendResp.InvalidUser))
 	}
 }
 

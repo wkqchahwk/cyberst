@@ -71,7 +71,7 @@ type FileResultStorage struct {
 func NewFileResultStorage(baseDir string, logger *zap.Logger) (*FileResultStorage, error) {
 	// English note.
 	if err := os.MkdirAll(baseDir, 0755); err != nil {
-		return nil, fmt.Errorf("创建存储目录失败: %w", err)
+		return nil, fmt.Errorf(": %w", err)
 	}
 
 	return &FileResultStorage{
@@ -98,7 +98,7 @@ func (s *FileResultStorage) SaveResult(executionID string, toolName string, resu
 	// English note.
 	resultPath := s.getResultPath(executionID)
 	if err := os.WriteFile(resultPath, []byte(result), 0644); err != nil {
-		return fmt.Errorf("保存结果文件失败: %w", err)
+		return fmt.Errorf(": %w", err)
 	}
 
 	// English note.
@@ -115,14 +115,14 @@ func (s *FileResultStorage) SaveResult(executionID string, toolName string, resu
 	metadataPath := s.getMetadataPath(executionID)
 	metadataJSON, err := json.Marshal(metadata)
 	if err != nil {
-		return fmt.Errorf("序列化元数据失败: %w", err)
+		return fmt.Errorf(": %w", err)
 	}
 
 	if err := os.WriteFile(metadataPath, metadataJSON, 0644); err != nil {
-		return fmt.Errorf("保存元数据文件失败: %w", err)
+		return fmt.Errorf(": %w", err)
 	}
 
-	s.logger.Info("保存工具执行结果",
+	s.logger.Info("",
 		zap.String("executionID", executionID),
 		zap.String("toolName", toolName),
 		zap.Int("size", len(result)),
@@ -141,9 +141,9 @@ func (s *FileResultStorage) GetResult(executionID string) (string, error) {
 	data, err := os.ReadFile(resultPath)
 	if err != nil {
 		if os.IsNotExist(err) {
-			return "", fmt.Errorf("结果不存在: %s", executionID)
+			return "", fmt.Errorf(": %s", executionID)
 		}
-		return "", fmt.Errorf("读取结果文件失败: %w", err)
+		return "", fmt.Errorf(": %w", err)
 	}
 
 	return string(data), nil
@@ -158,14 +158,14 @@ func (s *FileResultStorage) GetResultMetadata(executionID string) (*ResultMetada
 	data, err := os.ReadFile(metadataPath)
 	if err != nil {
 		if os.IsNotExist(err) {
-			return nil, fmt.Errorf("结果不存在: %s", executionID)
+			return nil, fmt.Errorf(": %s", executionID)
 		}
-		return nil, fmt.Errorf("读取元数据文件失败: %w", err)
+		return nil, fmt.Errorf(": %w", err)
 	}
 
 	var metadata ResultMetadata
 	if err := json.Unmarshal(data, &metadata); err != nil {
-		return nil, fmt.Errorf("解析元数据失败: %w", err)
+		return nil, fmt.Errorf(": %w", err)
 	}
 
 	return &metadata, nil
@@ -235,7 +235,7 @@ func (s *FileResultStorage) SearchResult(executionID string, keyword string, use
 	if useRegex {
 		compiledRegex, err := regexp.Compile(keyword)
 		if err != nil {
-			return nil, fmt.Errorf("无效的正则表达式: %w", err)
+			return nil, fmt.Errorf(": %w", err)
 		}
 		regex = compiledRegex
 	}
@@ -281,15 +281,15 @@ func (s *FileResultStorage) DeleteResult(executionID string) error {
 
 	// English note.
 	if err := os.Remove(resultPath); err != nil && !os.IsNotExist(err) {
-		return fmt.Errorf("删除结果文件失败: %w", err)
+		return fmt.Errorf(": %w", err)
 	}
 
 	// English note.
 	if err := os.Remove(metadataPath); err != nil && !os.IsNotExist(err) {
-		return fmt.Errorf("删除元数据文件失败: %w", err)
+		return fmt.Errorf(": %w", err)
 	}
 
-	s.logger.Info("删除工具执行结果",
+	s.logger.Info("",
 		zap.String("executionID", executionID),
 	)
 

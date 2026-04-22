@@ -24,7 +24,7 @@ func (h *AgentHandler) EinoSingleAgentLoopStream(c *gin.Context) {
 
 	var req ChatRequest
 	if err := c.ShouldBindJSON(&req); err != nil {
-		ev := StreamEvent{Type: "error", Message: "请求参数错误: " + err.Error()}
+		ev := StreamEvent{Type: "error", Message: ": " + err.Error()}
 		b, _ := json.Marshal(ev)
 		fmt.Fprintf(c.Writer, "data: %s\n\n", b)
 		done := StreamEvent{Type: "done", Message: ""}
@@ -71,7 +71,7 @@ func (h *AgentHandler) EinoSingleAgentLoopStream(c *gin.Context) {
 		sseWriteMu.Unlock()
 	}
 
-	h.logger.Info("收到 Eino ADK 单代理流式请求",
+	h.logger.Info(" Eino ADK ",
 		zap.String("conversationId", req.ConversationID),
 	)
 
@@ -82,7 +82,7 @@ func (h *AgentHandler) EinoSingleAgentLoopStream(c *gin.Context) {
 		return
 	}
 	if prep.CreatedNew {
-		sendEvent("conversation", "会话已创建", map[string]interface{}{
+		sendEvent("conversation", "", map[string]interface{}{
 			"conversationId": prep.ConversationID,
 		})
 	}
@@ -108,13 +108,13 @@ func (h *AgentHandler) EinoSingleAgentLoopStream(c *gin.Context) {
 	if _, err := h.tasks.StartTask(conversationID, req.Message, cancelWithCause); err != nil {
 		var errorMsg string
 		if errors.Is(err, ErrTaskAlreadyRunning) {
-			errorMsg = "⚠️ 当前会话已有任务正在执行中，请等待当前任务完成或点击「停止任务」后再尝试。"
+			errorMsg = "⚠️ ，「」。"
 			sendEvent("error", errorMsg, map[string]interface{}{
 				"conversationId": conversationID,
 				"errorType":      "task_already_running",
 			})
 		} else {
-			errorMsg = "❌ 无法启动任务: " + err.Error()
+			errorMsg = "❌ : " + err.Error()
 			sendEvent("error", errorMsg, nil)
 		}
 		if assistantMessageID != "" {
@@ -127,7 +127,7 @@ func (h *AgentHandler) EinoSingleAgentLoopStream(c *gin.Context) {
 	taskStatus := "completed"
 	defer h.tasks.FinishTask(conversationID, taskStatus)
 
-	sendEvent("progress", "正在启动 Eino ADK 单代理（ChatModelAgent）...", map[string]interface{}{
+	sendEvent("progress", " Eino ADK （ChatModelAgent）...", map[string]interface{}{
 		"conversationId": conversationID,
 	})
 
@@ -136,7 +136,7 @@ func (h *AgentHandler) EinoSingleAgentLoopStream(c *gin.Context) {
 	defer close(stopKeepalive)
 
 	if h.config == nil {
-		sendEvent("error", "服务器配置未加载", nil)
+		sendEvent("error", "", nil)
 		sendEvent("done", "", map[string]interface{}{"conversationId": conversationID})
 		return
 	}
@@ -160,7 +160,7 @@ func (h *AgentHandler) EinoSingleAgentLoopStream(c *gin.Context) {
 		if errors.Is(cause, ErrTaskCancelled) {
 			taskStatus = "cancelled"
 			h.tasks.UpdateTaskStatus(conversationID, taskStatus)
-			cancelMsg := "任务已被用户取消，后续操作已停止。"
+			cancelMsg := "，。"
 			if assistantMessageID != "" {
 				_, _ = h.db.Exec("UPDATE messages SET content = ? WHERE id = ?", cancelMsg, assistantMessageID)
 				_ = h.db.AddProcessDetail(assistantMessageID, conversationID, "cancelled", cancelMsg, nil)
@@ -173,10 +173,10 @@ func (h *AgentHandler) EinoSingleAgentLoopStream(c *gin.Context) {
 			return
 		}
 
-		h.logger.Error("Eino ADK 单代理执行失败", zap.Error(runErr))
+		h.logger.Error("Eino ADK ", zap.Error(runErr))
 		taskStatus = "failed"
 		h.tasks.UpdateTaskStatus(conversationID, taskStatus)
-		errMsg := "执行失败: " + runErr.Error()
+		errMsg := ": " + runErr.Error()
 		if assistantMessageID != "" {
 			_, _ = h.db.Exec("UPDATE messages SET content = ? WHERE id = ?", errMsg, assistantMessageID)
 			_ = h.db.AddProcessDetail(assistantMessageID, conversationID, "error", errMsg, nil)
@@ -205,7 +205,7 @@ func (h *AgentHandler) EinoSingleAgentLoopStream(c *gin.Context) {
 
 	if result.LastReActInput != "" || result.LastReActOutput != "" {
 		if err := h.db.SaveReActData(conversationID, result.LastReActInput, result.LastReActOutput); err != nil {
-			h.logger.Warn("保存 ReAct 数据失败", zap.Error(err))
+			h.logger.Warn(" ReAct ", zap.Error(err))
 		}
 	}
 
@@ -226,7 +226,7 @@ func (h *AgentHandler) EinoSingleAgentLoop(c *gin.Context) {
 		return
 	}
 
-	h.logger.Info("收到 Eino ADK 单代理非流式请求", zap.String("conversationId", req.ConversationID))
+	h.logger.Info(" Eino ADK ", zap.String("conversationId", req.ConversationID))
 
 	prep, err := h.prepareMultiAgentSession(&req)
 	if err != nil {
@@ -241,7 +241,7 @@ func (h *AgentHandler) EinoSingleAgentLoop(c *gin.Context) {
 	}
 
 	if h.config == nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"error": "服务器配置未加载"})
+		c.JSON(http.StatusInternalServerError, gin.H{"error": ""})
 		return
 	}
 

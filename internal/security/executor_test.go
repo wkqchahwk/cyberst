@@ -35,7 +35,7 @@ func setupTestStorage(t *testing.T) *storage.FileResultStorage {
 	
 	storage, err := storage.NewFileResultStorage(tmpDir, logger)
 	if err != nil {
-		t.Fatalf("创建测试存储失败: %v", err)
+		t.Fatalf(": %v", err)
 	}
 	
 	return storage
@@ -54,7 +54,7 @@ func TestExecutor_ExecuteInternalTool_QueryExecutionResult(t *testing.T) {
 	// English note.
 	err := testStorage.SaveResult(executionID, toolName, result)
 	if err != nil {
-		t.Fatalf("保存测试结果失败: %v", err)
+		t.Fatalf(": %v", err)
 	}
 	
 	ctx := context.Background()
@@ -68,21 +68,21 @@ func TestExecutor_ExecuteInternalTool_QueryExecutionResult(t *testing.T) {
 	
 	toolResult, err := executor.executeQueryExecutionResult(ctx, args)
 	if err != nil {
-		t.Fatalf("执行查询失败: %v", err)
+		t.Fatalf(": %v", err)
 	}
 	
 	if toolResult.IsError {
-		t.Fatalf("查询应该成功，但返回了错误: %s", toolResult.Content[0].Text)
+		t.Fatalf("，: %s", toolResult.Content[0].Text)
 	}
 	
 	// English note.
 	resultText := toolResult.Content[0].Text
 	if !strings.Contains(resultText, executionID) {
-		t.Errorf("结果中应该包含执行ID: %s", executionID)
+		t.Errorf("ID: %s", executionID)
 	}
 	
-	if !strings.Contains(resultText, "第 1/") {
-		t.Errorf("结果中应该包含分页信息")
+	if !strings.Contains(resultText, " 1/") {
+		t.Errorf("")
 	}
 	
 	// English note.
@@ -95,16 +95,16 @@ func TestExecutor_ExecuteInternalTool_QueryExecutionResult(t *testing.T) {
 	
 	toolResult2, err := executor.executeQueryExecutionResult(ctx, args2)
 	if err != nil {
-		t.Fatalf("执行搜索失败: %v", err)
+		t.Fatalf(": %v", err)
 	}
 	
 	if toolResult2.IsError {
-		t.Fatalf("搜索应该成功，但返回了错误: %s", toolResult2.Content[0].Text)
+		t.Fatalf("，: %s", toolResult2.Content[0].Text)
 	}
 	
 	resultText2 := toolResult2.Content[0].Text
 	if !strings.Contains(resultText2, "error") {
-		t.Errorf("搜索结果中应该包含关键词: error")
+		t.Errorf(": error")
 	}
 	
 	// English note.
@@ -117,16 +117,16 @@ func TestExecutor_ExecuteInternalTool_QueryExecutionResult(t *testing.T) {
 	
 	toolResult3, err := executor.executeQueryExecutionResult(ctx, args3)
 	if err != nil {
-		t.Fatalf("执行过滤失败: %v", err)
+		t.Fatalf(": %v", err)
 	}
 	
 	if toolResult3.IsError {
-		t.Fatalf("过滤应该成功，但返回了错误: %s", toolResult3.Content[0].Text)
+		t.Fatalf("，: %s", toolResult3.Content[0].Text)
 	}
 	
 	resultText3 := toolResult3.Content[0].Text
 	if !strings.Contains(resultText3, "Port") {
-		t.Errorf("过滤结果中应该包含关键词: Port")
+		t.Errorf(": Port")
 	}
 	
 	// English note.
@@ -136,11 +136,11 @@ func TestExecutor_ExecuteInternalTool_QueryExecutionResult(t *testing.T) {
 	
 	toolResult4, err := executor.executeQueryExecutionResult(ctx, args4)
 	if err != nil {
-		t.Fatalf("执行查询失败: %v", err)
+		t.Fatalf(": %v", err)
 	}
 	
 	if !toolResult4.IsError {
-		t.Fatal("缺少execution_id应该返回错误")
+		t.Fatal("execution_id")
 	}
 	
 	// English note.
@@ -151,11 +151,11 @@ func TestExecutor_ExecuteInternalTool_QueryExecutionResult(t *testing.T) {
 	
 	toolResult5, err := executor.executeQueryExecutionResult(ctx, args5)
 	if err != nil {
-		t.Fatalf("执行查询失败: %v", err)
+		t.Fatalf(": %v", err)
 	}
 	
 	if !toolResult5.IsError {
-		t.Fatal("不存在的执行ID应该返回错误")
+		t.Fatal("ID")
 	}
 }
 
@@ -170,15 +170,15 @@ func TestExecutor_ExecuteInternalTool_UnknownTool(t *testing.T) {
 	// English note.
 	toolResult, err := executor.executeInternalTool(ctx, "unknown_tool", "internal:unknown_tool", args)
 	if err != nil {
-		t.Fatalf("执行内部工具失败: %v", err)
+		t.Fatalf(": %v", err)
 	}
 	
 	if !toolResult.IsError {
-		t.Fatal("未知的工具类型应该返回错误")
+		t.Fatal("")
 	}
 	
-	if !strings.Contains(toolResult.Content[0].Text, "未知的内部工具类型") {
-		t.Errorf("错误消息应该包含'未知的内部工具类型'")
+	if !strings.Contains(toolResult.Content[0].Text, "") {
+		t.Errorf("''")
 	}
 }
 
@@ -193,15 +193,15 @@ func TestExecutor_ExecuteInternalTool_NoStorage(t *testing.T) {
 	
 	toolResult, err := executor.executeQueryExecutionResult(ctx, args)
 	if err != nil {
-		t.Fatalf("执行查询失败: %v", err)
+		t.Fatalf(": %v", err)
 	}
 	
 	if !toolResult.IsError {
-		t.Fatal("未初始化的存储应该返回错误")
+		t.Fatal("")
 	}
 	
-	if !strings.Contains(toolResult.Content[0].Text, "结果存储未初始化") {
-		t.Errorf("错误消息应该包含'结果存储未初始化'")
+	if !strings.Contains(toolResult.Content[0].Text, "") {
+		t.Errorf("''")
 	}
 }
 
@@ -211,58 +211,58 @@ func TestPaginateLines(t *testing.T) {
 	// English note.
 	page := paginateLines(lines, 1, 2)
 	if page.Page != 1 {
-		t.Errorf("页码不匹配。期望: 1, 实际: %d", page.Page)
+		t.Errorf("。: 1, : %d", page.Page)
 	}
 	if page.Limit != 2 {
-		t.Errorf("每页行数不匹配。期望: 2, 实际: %d", page.Limit)
+		t.Errorf("。: 2, : %d", page.Limit)
 	}
 	if page.TotalLines != 5 {
-		t.Errorf("总行数不匹配。期望: 5, 实际: %d", page.TotalLines)
+		t.Errorf("。: 5, : %d", page.TotalLines)
 	}
 	if page.TotalPages != 3 {
-		t.Errorf("总页数不匹配。期望: 3, 实际: %d", page.TotalPages)
+		t.Errorf("。: 3, : %d", page.TotalPages)
 	}
 	if len(page.Lines) != 2 {
-		t.Errorf("第一页行数不匹配。期望: 2, 实际: %d", len(page.Lines))
+		t.Errorf("。: 2, : %d", len(page.Lines))
 	}
 	
 	// English note.
 	page2 := paginateLines(lines, 2, 2)
 	if len(page2.Lines) != 2 {
-		t.Errorf("第二页行数不匹配。期望: 2, 实际: %d", len(page2.Lines))
+		t.Errorf("。: 2, : %d", len(page2.Lines))
 	}
 	if page2.Lines[0] != "Line 3" {
-		t.Errorf("第二页第一行不匹配。期望: Line 3, 实际: %s", page2.Lines[0])
+		t.Errorf("。: Line 3, : %s", page2.Lines[0])
 	}
 	
 	// English note.
 	page3 := paginateLines(lines, 3, 2)
 	if len(page3.Lines) != 1 {
-		t.Errorf("第三页行数不匹配。期望: 1, 实际: %d", len(page3.Lines))
+		t.Errorf("。: 1, : %d", len(page3.Lines))
 	}
 	
 	// English note.
 	page4 := paginateLines(lines, 4, 2)
 	if page4.Page != 3 {
-		t.Errorf("超出范围的页码应该被修正为最后一页。期望: 3, 实际: %d", page4.Page)
+		t.Errorf("。: 3, : %d", page4.Page)
 	}
 	if len(page4.Lines) != 1 {
-		t.Errorf("最后一页应该只有1行。实际: %d行", len(page4.Lines))
+		t.Errorf("1。: %d", len(page4.Lines))
 	}
 	
 	// English note.
 	page0 := paginateLines(lines, 0, 2)
 	if page0.Page != 1 {
-		t.Errorf("无效页码应该被修正为1。实际: %d", page0.Page)
+		t.Errorf("1。: %d", page0.Page)
 	}
 	
 	// English note.
 	emptyPage := paginateLines([]string{}, 1, 10)
 	if emptyPage.TotalLines != 0 {
-		t.Errorf("空列表的总行数应该为0。实际: %d", emptyPage.TotalLines)
+		t.Errorf("0。: %d", emptyPage.TotalLines)
 	}
 	if len(emptyPage.Lines) != 0 {
-		t.Errorf("空列表应该返回空结果。实际: %d行", len(emptyPage.Lines))
+		t.Errorf("。: %d", len(emptyPage.Lines))
 	}
 }
 

@@ -217,11 +217,11 @@ async function submitFofaSearch() {
 
         const result = await response.json().catch(() => ({}));
         if (!response.ok) {
-            throw new Error(result.error || `请求失败: ${response.status}`);
+            throw new Error(result.error || `: ${response.status}`);
         }
         renderFofaResults(result);
     } catch (e) {
-        console.error('FOFA 查询失败:', e);
+        console.error('FOFA :', e);
         setFofaMeta(_t('infoCollect.queryFailed'));
         renderFofaResults({ query, fields: [], results: [], total: 0, page: 1, size: 0 });
         alert(_t('infoCollect.queryFailed') + ': ' + (e && e.message ? e.message : String(e)));
@@ -269,7 +269,7 @@ async function parseFofaNaturalLanguage() {
         });
         const result = await resp.json().catch(() => ({}));
         if (!resp.ok) {
-            throw new Error(result.error || `请求失败: ${resp.status}`);
+            throw new Error(result.error || `: ${resp.status}`);
         }
         showFofaParseModal(text, result);
         showInlineToast(_t('infoCollect.parseDone'));
@@ -279,7 +279,7 @@ async function parseFofaNaturalLanguage() {
             showInlineToast(_t('infoCollect.parseCancelled'));
             return;
         }
-        console.error('FOFA 自然语言解析失败:', e);
+        console.error('FOFA :', e);
         showInlineToast(_t('infoCollect.parseFailed') + (e && e.message ? e.message : String(e)), { duration: 2800 });
     }
     finally {
@@ -704,7 +704,7 @@ function scanFofaRow(encodedRowJson, clickEvent) {
     try {
         row = JSON.parse(decodeURIComponent(encodedRowJson));
     } catch (e) {
-        console.warn('解析行数据失败', e);
+        console.warn('', e);
     }
 
     const fields = (document.getElementById('fofa-fields')?.value || '').split(',').map(s => s.trim()).filter(Boolean);
@@ -761,7 +761,7 @@ function buildScanMessage(target, row, options) {
     const fields = Array.isArray(opts.fields) ? opts.fields : [];
 
     const summary = formatFofaRowSummary(row || {}, fields);
-    return `对以下目标做信息收集与基础扫描：\n${target}\n\n要求：\n1) 识别服务/框架与关键指纹\n2) 枚举开放端口与常见管理入口\n3) 用 httpx/指纹/目录探测等方式快速确认可访问面\n4) 输出可复现的命令与结论\n\n已知信息（来自 FOFA 该行全部字段）：\n${summary}`.trim();
+    return `：\n${target}\n\n：\n1) /\n2) \n3)  httpx//\n4) \n\n（ FOFA ）：\n${summary}`.trim();
 }
 
 function bindFofaTableEvents() {
@@ -1023,7 +1023,7 @@ async function batchScanSelectedFofaRows() {
         if (typeof getCurrentRole === 'function') {
             try { role = getCurrentRole() || ''; } catch (e) { /* ignore */ }
         }
-        if (role === '默认') role = '';
+        if (role === '') role = '';
 
         const resp = await apiFetch('/api/batch-tasks', {
             method: 'POST',
@@ -1036,7 +1036,7 @@ async function batchScanSelectedFofaRows() {
         }
         const queueId = result.queueId;
         if (!queueId) {
-            throw new Error('创建成功但未返回 queueId');
+            throw new Error(' queueId');
         }
 
         // English note.
@@ -1053,7 +1053,7 @@ async function batchScanSelectedFofaRows() {
             showInlineToast(_t('infoCollect.batchQueueCreated'));
         }
     } catch (e) {
-        console.error('批量扫描失败:', e);
+        console.error(':', e);
         alert(_t('infoCollect.batchScanFailed') + ': ' + (e && e.message ? e.message : String(e)));
     }
 }

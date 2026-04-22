@@ -34,10 +34,10 @@ var ToolOutputCallbackCtxKey = toolOutputCallbackCtxKey{}
 // English note.
 type Executor struct {
 	config        *config.SecurityConfig
-	toolIndex     map[string]*config.ToolConfig // 工具索引，用于 O(1) 查找
+	toolIndex     map[string]*config.ToolConfig // ， O(1) 
 	mcpServer     *mcp.Server
 	logger        *zap.Logger
-	resultStorage ResultStorage // 结果存储（用于查询工具）
+	resultStorage ResultStorage // （）
 }
 
 // English note.
@@ -59,7 +59,7 @@ func NewExecutor(cfg *config.SecurityConfig, mcpServer *mcp.Server, logger *zap.
 		toolIndex:     make(map[string]*config.ToolConfig),
 		mcpServer:     mcpServer,
 		logger:        logger,
-		resultStorage: nil, // 稍后通过 SetResultStorage 设置
+		resultStorage: nil, //  SetResultStorage 
 	}
 	// English note.
 	executor.buildToolIndex()
@@ -116,7 +116,7 @@ func (e *Executor) buildToolIndex() {
 			e.toolIndex[e.config.Tools[i].Name] = &e.config.Tools[i]
 		}
 	}
-	e.logger.Info("工具索引构建完成",
+	e.logger.Info("",
 		zap.Int("totalTools", len(e.config.Tools)),
 		zap.Int("enabledTools", len(e.toolIndex)),
 	)
@@ -124,7 +124,7 @@ func (e *Executor) buildToolIndex() {
 
 // English note.
 func (e *Executor) ExecuteTool(ctx context.Context, toolName string, args map[string]interface{}) (*mcp.ToolResult, error) {
-	e.logger.Info("ExecuteTool被调用",
+	e.logger.Info("ExecuteTool",
 		zap.String("toolName", toolName),
 		zap.Any("args", args),
 	)
@@ -135,7 +135,7 @@ func (e *Executor) ExecuteTool(ctx context.Context, toolName string, args map[st
 		return e.blockedByActionModeResult(toolName, "Arbitrary command execution is blocked in report-only mode."), nil
 	}
 	if toolName == "exec" {
-		e.logger.Info("执行exec工具")
+		e.logger.Info("exec")
 		return e.executeSystemCommand(ctx, args)
 	}
 
@@ -151,15 +151,15 @@ func (e *Executor) ExecuteTool(ctx context.Context, toolName string, args map[st
 		}
 	}
 	if !exists {
-		e.logger.Error("工具未找到或未启用",
+		e.logger.Error("",
 			zap.String("toolName", toolName),
 			zap.Int("totalTools", len(e.config.Tools)),
 			zap.Int("enabledTools", len(e.toolIndex)),
 		)
-		return nil, fmt.Errorf("工具 %s 未找到或未启用", toolName)
+		return nil, fmt.Errorf(" %s ", toolName)
 	}
 
-	e.logger.Info("找到工具配置",
+	e.logger.Info("",
 		zap.String("toolName", toolName),
 		zap.String("command", toolConfig.Command),
 		zap.Strings("args", toolConfig.Args),
@@ -167,7 +167,7 @@ func (e *Executor) ExecuteTool(ctx context.Context, toolName string, args map[st
 
 	// English note.
 	if strings.HasPrefix(toolConfig.Command, "internal:") {
-		e.logger.Info("执行内部工具",
+		e.logger.Info("",
 			zap.String("toolName", toolName),
 			zap.String("command", toolConfig.Command),
 		)
@@ -177,7 +177,7 @@ func (e *Executor) ExecuteTool(ctx context.Context, toolName string, args map[st
 	// English note.
 	cmdArgs := e.buildCommandArgs(toolName, toolConfig, args)
 
-	e.logger.Info("构建命令参数完成",
+	e.logger.Info("",
 		zap.String("toolName", toolName),
 		zap.Strings("cmdArgs", cmdArgs),
 		zap.Int("argsCount", len(cmdArgs)),
@@ -185,7 +185,7 @@ func (e *Executor) ExecuteTool(ctx context.Context, toolName string, args map[st
 
 	// English note.
 	if len(cmdArgs) == 0 {
-		e.logger.Warn("命令参数为空",
+		e.logger.Warn("",
 			zap.String("toolName", toolName),
 			zap.Any("inputArgs", args),
 		)
@@ -193,7 +193,7 @@ func (e *Executor) ExecuteTool(ctx context.Context, toolName string, args map[st
 			Content: []mcp.Content{
 				{
 					Type: "text",
-					Text: fmt.Sprintf("错误: 工具 %s 缺少必需的参数。接收到的参数: %v", toolName, args),
+					Text: fmt.Sprintf(":  %s 。: %v", toolName, args),
 				},
 			},
 			IsError: true,
@@ -204,7 +204,7 @@ func (e *Executor) ExecuteTool(ctx context.Context, toolName string, args map[st
 	cmd := exec.CommandContext(ctx, toolConfig.Command, cmdArgs...)
 	applyDefaultTerminalEnv(cmd)
 
-	e.logger.Info("执行安全工具",
+	e.logger.Info("",
 		zap.String("tool", toolName),
 		zap.Strings("args", cmdArgs),
 	)
@@ -215,7 +215,7 @@ func (e *Executor) ExecuteTool(ctx context.Context, toolName string, args map[st
 	if cb, ok := ctx.Value(ToolOutputCallbackCtxKey).(ToolOutputCallback); ok && cb != nil {
 		output, err = streamCommandOutput(cmd, cb)
 		if err != nil && shouldRetryWithPTY(output) {
-			e.logger.Info("检测到工具需要 TTY，使用 PTY 重试",
+			e.logger.Info(" TTY， PTY ",
 				zap.String("tool", toolName),
 			)
 			cmd2 := exec.CommandContext(ctx, toolConfig.Command, cmdArgs...)
@@ -227,7 +227,7 @@ func (e *Executor) ExecuteTool(ctx context.Context, toolName string, args map[st
 		output = string(outputBytes)
 		err = err2
 		if err != nil && shouldRetryWithPTY(output) {
-			e.logger.Info("检测到工具需要 TTY，使用 PTY 重试",
+			e.logger.Info(" TTY， PTY ",
 				zap.String("tool", toolName),
 			)
 			cmd2 := exec.CommandContext(ctx, toolConfig.Command, cmdArgs...)
@@ -241,7 +241,7 @@ func (e *Executor) ExecuteTool(ctx context.Context, toolName string, args map[st
 		if exitCode != nil && toolConfig.AllowedExitCodes != nil {
 			for _, allowedCode := range toolConfig.AllowedExitCodes {
 				if *exitCode == allowedCode {
-					e.logger.Info("工具执行完成（退出码在允许列表中）",
+					e.logger.Info("（）",
 						zap.String("tool", toolName),
 						zap.Int("exitCode", *exitCode),
 						zap.String("output", string(output)),
@@ -259,7 +259,7 @@ func (e *Executor) ExecuteTool(ctx context.Context, toolName string, args map[st
 			}
 		}
 
-		e.logger.Error("工具执行失败",
+		e.logger.Error("",
 			zap.String("tool", toolName),
 			zap.Error(err),
 			zap.Int("exitCode", getExitCodeValue(err)),
@@ -269,14 +269,14 @@ func (e *Executor) ExecuteTool(ctx context.Context, toolName string, args map[st
 			Content: []mcp.Content{
 				{
 					Type: "text",
-					Text: fmt.Sprintf("工具执行失败: %v\n输出: %s", err, string(output)),
+					Text: fmt.Sprintf(": %v\n: %s", err, string(output)),
 				},
 			},
 			IsError: true,
 		}, nil
 	}
 
-	e.logger.Info("工具执行成功",
+	e.logger.Info("",
 		zap.String("tool", toolName),
 		zap.String("output", string(output)),
 	)
@@ -294,7 +294,7 @@ func (e *Executor) ExecuteTool(ctx context.Context, toolName string, args map[st
 
 // English note.
 func (e *Executor) RegisterTools(mcpServer *mcp.Server) {
-	e.logger.Info("开始注册工具",
+	e.logger.Info("",
 		zap.Int("totalTools", len(e.config.Tools)),
 		zap.Int("enabledTools", len(e.toolIndex)),
 	)
@@ -304,7 +304,7 @@ func (e *Executor) RegisterTools(mcpServer *mcp.Server) {
 
 	for i, toolConfig := range e.config.Tools {
 		if !toolConfig.Enabled {
-			e.logger.Debug("跳过未启用的工具",
+			e.logger.Debug("",
 				zap.String("tool", toolConfig.Name),
 			)
 			continue
@@ -331,7 +331,7 @@ func (e *Executor) RegisterTools(mcpServer *mcp.Server) {
 			}
 		}
 		if useFullDescription {
-			shortDesc = "" // 使用 description 时清空 ShortDescription，下游会回退到 Description
+			shortDesc = "" //  description  ShortDescription， Description
 		}
 
 		tool := mcp.Tool{
@@ -342,7 +342,7 @@ func (e *Executor) RegisterTools(mcpServer *mcp.Server) {
 		}
 
 		handler := func(ctx context.Context, args map[string]interface{}) (*mcp.ToolResult, error) {
-			e.logger.Info("工具handler被调用",
+			e.logger.Info("handler",
 				zap.String("toolName", toolName),
 				zap.Any("args", args),
 			)
@@ -350,14 +350,14 @@ func (e *Executor) RegisterTools(mcpServer *mcp.Server) {
 		}
 
 		mcpServer.RegisterTool(tool, handler)
-		e.logger.Info("注册安全工具成功",
+		e.logger.Info("",
 			zap.String("tool", toolConfigCopy.Name),
 			zap.String("command", toolConfigCopy.Command),
 			zap.Int("index", i),
 		)
 	}
 
-	e.logger.Info("工具注册完成",
+	e.logger.Info("",
 		zap.Int("registeredCount", len(e.config.Tools)),
 	)
 }
@@ -425,7 +425,7 @@ func (e *Executor) buildCommandArgs(toolName string, toolConfig *config.ToolConf
 			if value == nil {
 				if param.Required {
 					// English note.
-					e.logger.Warn("缺少必需的标志参数",
+					e.logger.Warn("",
 						zap.String("tool", toolName),
 						zap.String("param", param.Name),
 					)
@@ -458,7 +458,7 @@ func (e *Executor) buildCommandArgs(toolName string, toolConfig *config.ToolConf
 
 				if ok {
 					if !boolVal {
-						continue // false 时不添加任何参数
+						continue // false 
 					}
 					// English note.
 					if param.Flag != "" {
@@ -470,7 +470,7 @@ func (e *Executor) buildCommandArgs(toolName string, toolConfig *config.ToolConf
 
 			format := param.Format
 			if format == "" {
-				format = "flag" // 默认格式
+				format = "flag" // 
 			}
 
 			switch format {
@@ -542,7 +542,7 @@ func (e *Executor) buildCommandArgs(toolName string, toolConfig *config.ToolConf
 					if value == nil {
 						if param.Required {
 							// English note.
-							e.logger.Warn("缺少必需的位置参数",
+							e.logger.Warn("",
 								zap.String("tool", toolName),
 								zap.String("param", param.Name),
 								zap.Int("position", *param.Position),
@@ -840,7 +840,7 @@ func (e *Executor) executeSystemCommand(ctx context.Context, args map[string]int
 			Content: []mcp.Content{
 				{
 					Type: "text",
-					Text: "错误: 缺少command参数",
+					Text: ": command",
 				},
 			},
 			IsError: true,
@@ -852,7 +852,7 @@ func (e *Executor) executeSystemCommand(ctx context.Context, args map[string]int
 			Content: []mcp.Content{
 				{
 					Type: "text",
-					Text: "错误: command参数不能为空",
+					Text: ": command",
 				},
 			},
 			IsError: true,
@@ -860,7 +860,7 @@ func (e *Executor) executeSystemCommand(ctx context.Context, args map[string]int
 	}
 
 	// English note.
-	e.logger.Warn("执行系统命令",
+	e.logger.Warn("",
 		zap.String("command", command),
 	)
 
@@ -889,7 +889,7 @@ func (e *Executor) executeSystemCommand(ctx context.Context, args map[string]int
 	}
 
 	// English note.
-	e.logger.Info("执行系统命令",
+	e.logger.Info("",
 		zap.String("command", command),
 		zap.String("shell", shell),
 		zap.String("workdir", workDir),
@@ -918,7 +918,7 @@ func (e *Executor) executeSystemCommand(ctx context.Context, args map[string]int
 		// English note.
 		stdout, err := pidCmd.StdoutPipe()
 		if err != nil {
-			e.logger.Error("创建stdout管道失败",
+			e.logger.Error("stdout",
 				zap.String("command", command),
 				zap.Error(err),
 			)
@@ -928,19 +928,19 @@ func (e *Executor) executeSystemCommand(ctx context.Context, args map[string]int
 					Content: []mcp.Content{
 						{
 							Type: "text",
-							Text: fmt.Sprintf("后台命令启动失败: %v", err),
+							Text: fmt.Sprintf(": %v", err),
 						},
 					},
 					IsError: true,
 				}, nil
 			}
 			pid := pidCmd.Process.Pid
-			go pidCmd.Wait() // 在后台等待，避免僵尸进程
+			go pidCmd.Wait() // ，
 			return &mcp.ToolResult{
 				Content: []mcp.Content{
 					{
 						Type: "text",
-						Text: fmt.Sprintf("后台命令已启动\n命令: %s\n进程ID: %d (可能不准确，获取PID失败)\n\n注意: 后台进程将继续运行，不会等待其完成。", command, pid),
+						Text: fmt.Sprintf("\n: %s\nID: %d (，PID)\n\n: ，。", command, pid),
 					},
 				},
 				IsError: false,
@@ -950,7 +950,7 @@ func (e *Executor) executeSystemCommand(ctx context.Context, args map[string]int
 		// English note.
 		if err := pidCmd.Start(); err != nil {
 			stdout.Close()
-			e.logger.Error("后台命令启动失败",
+			e.logger.Error("",
 				zap.String("command", command),
 				zap.Error(err),
 			)
@@ -958,7 +958,7 @@ func (e *Executor) executeSystemCommand(ctx context.Context, args map[string]int
 				Content: []mcp.Content{
 					{
 						Type: "text",
-						Text: fmt.Sprintf("后台命令启动失败: %v", err),
+						Text: fmt.Sprintf(": %v", err),
 					},
 				},
 				IsError: true,
@@ -972,7 +972,7 @@ func (e *Executor) executeSystemCommand(ctx context.Context, args map[string]int
 
 		var actualPid int
 		if err != nil && err != io.EOF {
-			e.logger.Warn("读取后台进程PID失败",
+			e.logger.Warn("PID",
 				zap.String("command", command),
 				zap.Error(err),
 			)
@@ -984,7 +984,7 @@ func (e *Executor) executeSystemCommand(ctx context.Context, args map[string]int
 			if parsedPid, err := strconv.Atoi(pidStr); err == nil {
 				actualPid = parsedPid
 			} else {
-				e.logger.Warn("解析后台进程PID失败",
+				e.logger.Warn("PID",
 					zap.String("command", command),
 					zap.String("pidLine", pidStr),
 					zap.Error(err),
@@ -997,14 +997,14 @@ func (e *Executor) executeSystemCommand(ctx context.Context, args map[string]int
 		// English note.
 		go func() {
 			if err := pidCmd.Wait(); err != nil {
-				e.logger.Debug("后台命令shell进程执行完成",
+				e.logger.Debug("shell",
 					zap.String("command", command),
 					zap.Error(err),
 				)
 			}
 		}()
 
-		e.logger.Info("后台命令已启动",
+		e.logger.Info("",
 			zap.String("command", command),
 			zap.Int("actualPid", actualPid),
 		)
@@ -1013,7 +1013,7 @@ func (e *Executor) executeSystemCommand(ctx context.Context, args map[string]int
 			Content: []mcp.Content{
 				{
 					Type: "text",
-					Text: fmt.Sprintf("后台命令已启动\n命令: %s\n进程ID: %d\n\n注意: 后台进程将继续运行，不会等待其完成。", command, actualPid),
+					Text: fmt.Sprintf("\n: %s\nID: %d\n\n: ，。", command, actualPid),
 				},
 			},
 			IsError: false,
@@ -1027,7 +1027,7 @@ func (e *Executor) executeSystemCommand(ctx context.Context, args map[string]int
 	if cb, ok := ctx.Value(ToolOutputCallbackCtxKey).(ToolOutputCallback); ok && cb != nil {
 		output, err = streamCommandOutput(cmd, cb)
 		if err != nil && shouldRetryWithPTY(output) {
-			e.logger.Info("检测到系统命令需要 TTY，使用 PTY 重试")
+			e.logger.Info(" TTY， PTY ")
 			cmd2 := exec.CommandContext(ctx, shell, "-c", command)
 			if workDir != "" {
 				cmd2.Dir = workDir
@@ -1040,7 +1040,7 @@ func (e *Executor) executeSystemCommand(ctx context.Context, args map[string]int
 		output = string(outputBytes)
 		err = err2
 		if err != nil && shouldRetryWithPTY(output) {
-			e.logger.Info("检测到系统命令需要 TTY，使用 PTY 重试")
+			e.logger.Info(" TTY， PTY ")
 			cmd2 := exec.CommandContext(ctx, shell, "-c", command)
 			if workDir != "" {
 				cmd2.Dir = workDir
@@ -1050,7 +1050,7 @@ func (e *Executor) executeSystemCommand(ctx context.Context, args map[string]int
 		}
 	}
 	if err != nil {
-		e.logger.Error("系统命令执行失败",
+		e.logger.Error("",
 			zap.String("command", command),
 			zap.Error(err),
 			zap.String("output", string(output)),
@@ -1059,14 +1059,14 @@ func (e *Executor) executeSystemCommand(ctx context.Context, args map[string]int
 			Content: []mcp.Content{
 				{
 					Type: "text",
-					Text: fmt.Sprintf("命令执行失败: %v\n输出: %s", err, string(output)),
+					Text: fmt.Sprintf(": %v\n: %s", err, string(output)),
 				},
 			},
 			IsError: true,
 		}, nil
 	}
 
-	e.logger.Info("系统命令执行成功",
+	e.logger.Info("",
 		zap.String("command", command),
 		zap.String("output_length", fmt.Sprintf("%d", len(output))),
 	)
@@ -1224,7 +1224,7 @@ func runCommandWithPTY(ctx context.Context, cmd *exec.Cmd, cb ToolOutputCallback
 	go func() {
 		select {
 		case <-ctx.Done():
-			_ = ptmx.Close() // 触发读退出
+			_ = ptmx.Close() // 
 			if cmd.Process != nil {
 				_ = cmd.Process.Kill()
 			}
@@ -1276,7 +1276,7 @@ func (e *Executor) executeInternalTool(ctx context.Context, toolName string, com
 	// English note.
 	internalToolType := strings.TrimPrefix(command, "internal:")
 
-	e.logger.Info("执行内部工具",
+	e.logger.Info("",
 		zap.String("toolName", toolName),
 		zap.String("internalToolType", internalToolType),
 		zap.Any("args", args),
@@ -1291,7 +1291,7 @@ func (e *Executor) executeInternalTool(ctx context.Context, toolName string, com
 			Content: []mcp.Content{
 				{
 					Type: "text",
-					Text: fmt.Sprintf("错误: 未知的内部工具类型: %s", internalToolType),
+					Text: fmt.Sprintf(": : %s", internalToolType),
 				},
 			},
 			IsError: true,
@@ -1308,7 +1308,7 @@ func (e *Executor) executeQueryExecutionResult(ctx context.Context, args map[str
 			Content: []mcp.Content{
 				{
 					Type: "text",
-					Text: "错误: execution_id 参数必需且不能为空",
+					Text: ": execution_id ",
 				},
 			},
 			IsError: true,
@@ -1332,7 +1332,7 @@ func (e *Executor) executeQueryExecutionResult(ctx context.Context, args map[str
 		limit = 100
 	}
 	if limit > 500 {
-		limit = 500 // 限制最大每页行数
+		limit = 500 // 
 	}
 
 	search := ""
@@ -1356,7 +1356,7 @@ func (e *Executor) executeQueryExecutionResult(ctx context.Context, args map[str
 			Content: []mcp.Content{
 				{
 					Type: "text",
-					Text: "错误: 结果存储未初始化",
+					Text: ": ",
 				},
 			},
 			IsError: true,
@@ -1375,7 +1375,7 @@ func (e *Executor) executeQueryExecutionResult(ctx context.Context, args map[str
 				Content: []mcp.Content{
 					{
 						Type: "text",
-						Text: fmt.Sprintf("搜索失败: %v", err),
+						Text: fmt.Sprintf(": %v", err),
 					},
 				},
 				IsError: true,
@@ -1391,7 +1391,7 @@ func (e *Executor) executeQueryExecutionResult(ctx context.Context, args map[str
 				Content: []mcp.Content{
 					{
 						Type: "text",
-						Text: fmt.Sprintf("过滤失败: %v", err),
+						Text: fmt.Sprintf(": %v", err),
 					},
 				},
 				IsError: true,
@@ -1407,7 +1407,7 @@ func (e *Executor) executeQueryExecutionResult(ctx context.Context, args map[str
 				Content: []mcp.Content{
 					{
 						Type: "text",
-						Text: fmt.Sprintf("查询失败: %v", err),
+						Text: fmt.Sprintf(": %v", err),
 					},
 				},
 				IsError: true,
@@ -1419,23 +1419,23 @@ func (e *Executor) executeQueryExecutionResult(ctx context.Context, args map[str
 	metadata, err := e.resultStorage.GetResultMetadata(executionID)
 	if err != nil {
 		// English note.
-		e.logger.Warn("获取结果元信息失败", zap.Error(err))
+		e.logger.Warn("", zap.Error(err))
 	}
 
 	// English note.
 	var sb strings.Builder
-	sb.WriteString(fmt.Sprintf("查询结果 (执行ID: %s)\n", executionID))
+	sb.WriteString(fmt.Sprintf(" (ID: %s)\n", executionID))
 
 	if metadata != nil {
-		sb.WriteString(fmt.Sprintf("工具: %s | 大小: %d 字节 (%.2f KB) | 总行数: %d\n",
+		sb.WriteString(fmt.Sprintf(": %s | : %d  (%.2f KB) | : %d\n",
 			metadata.ToolName, metadata.TotalSize, float64(metadata.TotalSize)/1024, metadata.TotalLines))
 	}
 
-	sb.WriteString(fmt.Sprintf("第 %d/%d 页，每页 %d 行，共 %d 行\n\n",
+	sb.WriteString(fmt.Sprintf(" %d/%d ， %d ， %d \n\n",
 		resultPage.Page, resultPage.TotalPages, resultPage.Limit, resultPage.TotalLines))
 
 	if len(resultPage.Lines) == 0 {
-		sb.WriteString("没有找到匹配的结果。\n")
+		sb.WriteString("。\n")
 	} else {
 		for i, line := range resultPage.Lines {
 			lineNum := (resultPage.Page-1)*resultPage.Limit + i + 1
@@ -1445,17 +1445,17 @@ func (e *Executor) executeQueryExecutionResult(ctx context.Context, args map[str
 
 	sb.WriteString("\n")
 	if resultPage.Page < resultPage.TotalPages {
-		sb.WriteString(fmt.Sprintf("提示: 使用 page=%d 查看下一页", resultPage.Page+1))
+		sb.WriteString(fmt.Sprintf(":  page=%d ", resultPage.Page+1))
 		if search != "" {
-			sb.WriteString(fmt.Sprintf("，或使用 search=\"%s\" 继续搜索", search))
+			sb.WriteString(fmt.Sprintf("， search=\"%s\" ", search))
 			if useRegex {
-				sb.WriteString(" (正则模式)")
+				sb.WriteString(" ()")
 			}
 		}
 		if filter != "" {
-			sb.WriteString(fmt.Sprintf("，或使用 filter=\"%s\" 继续过滤", filter))
+			sb.WriteString(fmt.Sprintf("， filter=\"%s\" ", filter))
 			if useRegex {
-				sb.WriteString(" (正则模式)")
+				sb.WriteString(" ()")
 			}
 		}
 		sb.WriteString("\n")
@@ -1521,7 +1521,7 @@ func (e *Executor) buildInputSchema(toolConfig *config.ToolConfig) map[string]in
 		for _, param := range toolConfig.Parameters {
 			// English note.
 			if strings.TrimSpace(param.Name) == "" {
-				e.logger.Debug("跳过无名称的参数",
+				e.logger.Debug("",
 					zap.String("tool", toolConfig.Name),
 					zap.String("type", param.Type),
 				)
@@ -1572,7 +1572,7 @@ func (e *Executor) buildInputSchema(toolConfig *config.ToolConfig) map[string]in
 	// English note.
 	// English note.
 	// English note.
-	e.logger.Warn("工具未定义参数配置，返回空schema",
+	e.logger.Warn("，schema",
 		zap.String("tool", toolConfig.Name),
 	)
 	return schema
@@ -1595,7 +1595,7 @@ func (e *Executor) convertToOpenAIType(configType string) string {
 		return configType
 	default:
 		// English note.
-		e.logger.Warn("未知的参数类型，使用原类型",
+		e.logger.Warn("，",
 			zap.String("type", configType),
 		)
 		return configType

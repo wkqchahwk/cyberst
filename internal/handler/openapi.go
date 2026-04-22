@@ -43,7 +43,7 @@ func (h *OpenAPIHandler) GetOpenAPISpec(c *gin.Context) {
 		"openapi": "3.0.0",
 		"info": map[string]interface{}{
 			"title":       "CyberStrikeAI API",
-			"description": "AI驱动的自动化安全测试平台API文档",
+			"description": "AIAPI",
 			"version":     "1.0.0",
 			"contact": map[string]interface{}{
 				"name": "CyberStrikeAI",
@@ -52,7 +52,7 @@ func (h *OpenAPIHandler) GetOpenAPISpec(c *gin.Context) {
 		"servers": []map[string]interface{}{
 			{
 				"url":         scheme + "://" + host,
-				"description": "当前服务器",
+				"description": "",
 			},
 		},
 		"components": map[string]interface{}{
@@ -61,7 +61,7 @@ func (h *OpenAPIHandler) GetOpenAPISpec(c *gin.Context) {
 					"type":         "http",
 					"scheme":       "bearer",
 					"bearerFormat": "JWT",
-					"description":  "使用Bearer Token进行认证。Token通过 /api/auth/login 接口获取。",
+					"description":  "Bearer Token。Token /api/auth/login 。",
 				},
 			},
 			"schemas": map[string]interface{}{
@@ -70,8 +70,8 @@ func (h *OpenAPIHandler) GetOpenAPISpec(c *gin.Context) {
 					"properties": map[string]interface{}{
 						"title": map[string]interface{}{
 							"type":        "string",
-							"description": "对话标题",
-							"example":     "Web应用安全测试",
+							"description": "",
+							"example":     "Web",
 						},
 					},
 				},
@@ -80,23 +80,23 @@ func (h *OpenAPIHandler) GetOpenAPISpec(c *gin.Context) {
 					"properties": map[string]interface{}{
 						"id": map[string]interface{}{
 							"type":        "string",
-							"description": "对话ID",
+							"description": "ID",
 							"example":     "550e8400-e29b-41d4-a716-446655440000",
 						},
 						"title": map[string]interface{}{
 							"type":        "string",
-							"description": "对话标题",
-							"example":     "Web应用安全测试",
+							"description": "",
+							"example":     "Web",
 						},
 						"createdAt": map[string]interface{}{
 							"type":        "string",
 							"format":      "date-time",
-							"description": "创建时间",
+							"description": "",
 						},
 						"updatedAt": map[string]interface{}{
 							"type":        "string",
 							"format":      "date-time",
-							"description": "更新时间",
+							"description": "",
 						},
 					},
 				},
@@ -105,37 +105,37 @@ func (h *OpenAPIHandler) GetOpenAPISpec(c *gin.Context) {
 					"properties": map[string]interface{}{
 						"id": map[string]interface{}{
 							"type":        "string",
-							"description": "对话ID",
+							"description": "ID",
 						},
 						"title": map[string]interface{}{
 							"type":        "string",
-							"description": "对话标题",
+							"description": "",
 						},
 						"status": map[string]interface{}{
 							"type":        "string",
-							"description": "对话状态：active（进行中）、completed（已完成）、failed（失败）",
+							"description": "：active（）、completed（）、failed（）",
 							"enum":        []string{"active", "completed", "failed"},
 						},
 						"createdAt": map[string]interface{}{
 							"type":        "string",
 							"format":      "date-time",
-							"description": "创建时间",
+							"description": "",
 						},
 						"updatedAt": map[string]interface{}{
 							"type":        "string",
 							"format":      "date-time",
-							"description": "更新时间",
+							"description": "",
 						},
 						"messages": map[string]interface{}{
 							"type":        "array",
-							"description": "消息列表",
+							"description": "",
 							"items": map[string]interface{}{
 								"$ref": "#/components/schemas/Message",
 							},
 						},
 						"messageCount": map[string]interface{}{
 							"type":        "integer",
-							"description": "消息数量",
+							"description": "",
 						},
 					},
 				},
@@ -144,25 +144,25 @@ func (h *OpenAPIHandler) GetOpenAPISpec(c *gin.Context) {
 					"properties": map[string]interface{}{
 						"id": map[string]interface{}{
 							"type":        "string",
-							"description": "消息ID",
+							"description": "ID",
 						},
 						"conversationId": map[string]interface{}{
 							"type":        "string",
-							"description": "对话ID",
+							"description": "ID",
 						},
 						"role": map[string]interface{}{
 							"type":        "string",
-							"description": "消息角色：user（用户）、assistant（助手）",
+							"description": "：user（）、assistant（）",
 							"enum":        []string{"user", "assistant"},
 						},
 						"content": map[string]interface{}{
 							"type":        "string",
-							"description": "消息内容",
+							"description": "",
 						},
 						"createdAt": map[string]interface{}{
 							"type":        "string",
 							"format":      "date-time",
-							"description": "创建时间",
+							"description": "",
 						},
 					},
 				},
@@ -171,25 +171,25 @@ func (h *OpenAPIHandler) GetOpenAPISpec(c *gin.Context) {
 					"properties": map[string]interface{}{
 						"conversationId": map[string]interface{}{
 							"type":        "string",
-							"description": "对话ID",
+							"description": "ID",
 						},
 						"messages": map[string]interface{}{
 							"type":        "array",
-							"description": "消息列表",
+							"description": "",
 							"items": map[string]interface{}{
 								"$ref": "#/components/schemas/Message",
 							},
 						},
 						"vulnerabilities": map[string]interface{}{
 							"type":        "array",
-							"description": "发现的漏洞列表",
+							"description": "",
 							"items": map[string]interface{}{
 								"$ref": "#/components/schemas/Vulnerability",
 							},
 						},
 						"executionResults": map[string]interface{}{
 							"type":        "array",
-							"description": "执行结果列表",
+							"description": "",
 							"items": map[string]interface{}{
 								"$ref": "#/components/schemas/ExecutionResult",
 							},
@@ -201,29 +201,29 @@ func (h *OpenAPIHandler) GetOpenAPISpec(c *gin.Context) {
 					"properties": map[string]interface{}{
 						"id": map[string]interface{}{
 							"type":        "string",
-							"description": "漏洞ID",
+							"description": "ID",
 						},
 						"title": map[string]interface{}{
 							"type":        "string",
-							"description": "漏洞标题",
+							"description": "",
 						},
 						"description": map[string]interface{}{
 							"type":        "string",
-							"description": "漏洞描述",
+							"description": "",
 						},
 						"severity": map[string]interface{}{
 							"type":        "string",
-							"description": "严重程度",
+							"description": "",
 							"enum":        []string{"critical", "high", "medium", "low", "info"},
 						},
 						"status": map[string]interface{}{
 							"type":        "string",
-							"description": "状态",
+							"description": "",
 							"enum":        []string{"open", "closed", "fixed"},
 						},
 						"target": map[string]interface{}{
 							"type":        "string",
-							"description": "受影响的目标",
+							"description": "",
 						},
 					},
 				},
@@ -232,25 +232,25 @@ func (h *OpenAPIHandler) GetOpenAPISpec(c *gin.Context) {
 					"properties": map[string]interface{}{
 						"id": map[string]interface{}{
 							"type":        "string",
-							"description": "执行ID",
+							"description": "ID",
 						},
 						"toolName": map[string]interface{}{
 							"type":        "string",
-							"description": "工具名称",
+							"description": "",
 						},
 						"status": map[string]interface{}{
 							"type":        "string",
-							"description": "执行状态",
+							"description": "",
 							"enum":        []string{"success", "failed", "running"},
 						},
 						"result": map[string]interface{}{
 							"type":        "string",
-							"description": "执行结果",
+							"description": "",
 						},
 						"createdAt": map[string]interface{}{
 							"type":        "string",
 							"format":      "date-time",
-							"description": "创建时间",
+							"description": "",
 						},
 					},
 				},
@@ -259,7 +259,7 @@ func (h *OpenAPIHandler) GetOpenAPISpec(c *gin.Context) {
 					"properties": map[string]interface{}{
 						"error": map[string]interface{}{
 							"type":        "string",
-							"description": "错误信息",
+							"description": "",
 						},
 					},
 				},
@@ -269,7 +269,7 @@ func (h *OpenAPIHandler) GetOpenAPISpec(c *gin.Context) {
 					"properties": map[string]interface{}{
 						"password": map[string]interface{}{
 							"type":        "string",
-							"description": "登录密码",
+							"description": "",
 						},
 					},
 				},
@@ -278,16 +278,16 @@ func (h *OpenAPIHandler) GetOpenAPISpec(c *gin.Context) {
 					"properties": map[string]interface{}{
 						"token": map[string]interface{}{
 							"type":        "string",
-							"description": "认证Token",
+							"description": "Token",
 						},
 						"expires_at": map[string]interface{}{
 							"type":        "string",
 							"format":      "date-time",
-							"description": "Token过期时间",
+							"description": "Token",
 						},
 						"session_duration_hr": map[string]interface{}{
 							"type":        "integer",
-							"description": "会话持续时间（小时）",
+							"description": "（）",
 						},
 					},
 				},
@@ -297,11 +297,11 @@ func (h *OpenAPIHandler) GetOpenAPISpec(c *gin.Context) {
 					"properties": map[string]interface{}{
 						"oldPassword": map[string]interface{}{
 							"type":        "string",
-							"description": "当前密码",
+							"description": "",
 						},
 						"newPassword": map[string]interface{}{
 							"type":        "string",
-							"description": "新密码（至少8位）",
+							"description": "（8）",
 						},
 					},
 				},
@@ -311,7 +311,7 @@ func (h *OpenAPIHandler) GetOpenAPISpec(c *gin.Context) {
 					"properties": map[string]interface{}{
 						"title": map[string]interface{}{
 							"type":        "string",
-							"description": "对话标题",
+							"description": "",
 						},
 					},
 				},
@@ -320,25 +320,25 @@ func (h *OpenAPIHandler) GetOpenAPISpec(c *gin.Context) {
 					"properties": map[string]interface{}{
 						"id": map[string]interface{}{
 							"type":        "string",
-							"description": "分组ID",
+							"description": "ID",
 						},
 						"name": map[string]interface{}{
 							"type":        "string",
-							"description": "分组名称",
+							"description": "",
 						},
 						"icon": map[string]interface{}{
 							"type":        "string",
-							"description": "分组图标",
+							"description": "",
 						},
 						"createdAt": map[string]interface{}{
 							"type":        "string",
 							"format":      "date-time",
-							"description": "创建时间",
+							"description": "",
 						},
 						"updatedAt": map[string]interface{}{
 							"type":        "string",
 							"format":      "date-time",
-							"description": "更新时间",
+							"description": "",
 						},
 					},
 				},
@@ -348,11 +348,11 @@ func (h *OpenAPIHandler) GetOpenAPISpec(c *gin.Context) {
 					"properties": map[string]interface{}{
 						"name": map[string]interface{}{
 							"type":        "string",
-							"description": "分组名称",
+							"description": "",
 						},
 						"icon": map[string]interface{}{
 							"type":        "string",
-							"description": "分组图标（可选）",
+							"description": "（）",
 						},
 					},
 				},
@@ -362,11 +362,11 @@ func (h *OpenAPIHandler) GetOpenAPISpec(c *gin.Context) {
 					"properties": map[string]interface{}{
 						"name": map[string]interface{}{
 							"type":        "string",
-							"description": "分组名称",
+							"description": "",
 						},
 						"icon": map[string]interface{}{
 							"type":        "string",
-							"description": "分组图标",
+							"description": "",
 						},
 					},
 				},
@@ -376,11 +376,11 @@ func (h *OpenAPIHandler) GetOpenAPISpec(c *gin.Context) {
 					"properties": map[string]interface{}{
 						"conversationId": map[string]interface{}{
 							"type":        "string",
-							"description": "对话ID",
+							"description": "ID",
 						},
 						"groupId": map[string]interface{}{
 							"type":        "string",
-							"description": "分组ID",
+							"description": "ID",
 						},
 					},
 				},
@@ -390,36 +390,36 @@ func (h *OpenAPIHandler) GetOpenAPISpec(c *gin.Context) {
 					"properties": map[string]interface{}{
 						"title": map[string]interface{}{
 							"type":        "string",
-							"description": "任务标题（可选）",
+							"description": "（）",
 						},
 						"tasks": map[string]interface{}{
 							"type":        "array",
-							"description": "任务列表，每行一个任务",
+							"description": "，",
 							"items": map[string]interface{}{
 								"type": "string",
 							},
 						},
 						"role": map[string]interface{}{
 							"type":        "string",
-							"description": "角色名称（可选）",
+							"description": "（）",
 						},
 						"agentMode": map[string]interface{}{
 							"type":        "string",
-							"description": "代理模式：single（原生 ReAct）| eino_single（Eino ADK 单代理）| deep | plan_execute | supervisor；react 同 single；旧值 multi 按 deep",
+							"description": "：single（ ReAct）| eino_single（Eino ADK ）| deep | plan_execute | supervisor；react  single； multi  deep",
 							"enum":        []string{"single", "eino_single", "deep", "plan_execute", "supervisor", "multi", "react"},
 						},
 						"scheduleMode": map[string]interface{}{
 							"type":        "string",
-							"description": "调度方式（manual | cron）",
+							"description": "（manual | cron）",
 							"enum":        []string{"manual", "cron"},
 						},
 						"cronExpr": map[string]interface{}{
 							"type":        "string",
-							"description": "Cron 表达式（scheduleMode=cron 时必填）",
+							"description": "Cron （scheduleMode=cron ）",
 						},
 						"executeNow": map[string]interface{}{
 							"type":        "boolean",
-							"description": "是否创建后立即执行（默认 false）",
+							"description": "（ false）",
 						},
 					},
 				},
@@ -428,20 +428,20 @@ func (h *OpenAPIHandler) GetOpenAPISpec(c *gin.Context) {
 					"properties": map[string]interface{}{
 						"id": map[string]interface{}{
 							"type":        "string",
-							"description": "队列ID",
+							"description": "ID",
 						},
 						"title": map[string]interface{}{
 							"type":        "string",
-							"description": "队列标题",
+							"description": "",
 						},
 						"status": map[string]interface{}{
 							"type":        "string",
-							"description": "队列状态",
+							"description": "",
 							"enum":        []string{"pending", "running", "paused", "completed", "failed"},
 						},
 						"tasks": map[string]interface{}{
 							"type":        "array",
-							"description": "任务列表",
+							"description": "",
 							"items": map[string]interface{}{
 								"type": "object",
 							},
@@ -449,7 +449,7 @@ func (h *OpenAPIHandler) GetOpenAPISpec(c *gin.Context) {
 						"createdAt": map[string]interface{}{
 							"type":        "string",
 							"format":      "date-time",
-							"description": "创建时间",
+							"description": "",
 						},
 					},
 				},
@@ -459,7 +459,7 @@ func (h *OpenAPIHandler) GetOpenAPISpec(c *gin.Context) {
 					"properties": map[string]interface{}{
 						"conversationId": map[string]interface{}{
 							"type":        "string",
-							"description": "对话ID",
+							"description": "ID",
 						},
 					},
 				},
@@ -468,17 +468,17 @@ func (h *OpenAPIHandler) GetOpenAPISpec(c *gin.Context) {
 					"properties": map[string]interface{}{
 						"conversationId": map[string]interface{}{
 							"type":        "string",
-							"description": "对话ID",
+							"description": "ID",
 						},
 						"status": map[string]interface{}{
 							"type":        "string",
-							"description": "任务状态",
+							"description": "",
 							"enum":        []string{"running", "completed", "failed", "cancelled", "timeout"},
 						},
 						"startedAt": map[string]interface{}{
 							"type":        "string",
 							"format":      "date-time",
-							"description": "开始时间",
+							"description": "",
 						},
 					},
 				},
@@ -488,45 +488,45 @@ func (h *OpenAPIHandler) GetOpenAPISpec(c *gin.Context) {
 					"properties": map[string]interface{}{
 						"conversation_id": map[string]interface{}{
 							"type":        "string",
-							"description": "对话ID",
+							"description": "ID",
 						},
 						"title": map[string]interface{}{
 							"type":        "string",
-							"description": "漏洞标题",
+							"description": "",
 						},
 						"description": map[string]interface{}{
 							"type":        "string",
-							"description": "漏洞描述",
+							"description": "",
 						},
 						"severity": map[string]interface{}{
 							"type":        "string",
-							"description": "严重程度",
+							"description": "",
 							"enum":        []string{"critical", "high", "medium", "low", "info"},
 						},
 						"status": map[string]interface{}{
 							"type":        "string",
-							"description": "状态",
+							"description": "",
 							"enum":        []string{"open", "closed", "fixed"},
 						},
 						"type": map[string]interface{}{
 							"type":        "string",
-							"description": "漏洞类型",
+							"description": "",
 						},
 						"target": map[string]interface{}{
 							"type":        "string",
-							"description": "受影响的目标",
+							"description": "",
 						},
 						"proof": map[string]interface{}{
 							"type":        "string",
-							"description": "漏洞证明",
+							"description": "",
 						},
 						"impact": map[string]interface{}{
 							"type":        "string",
-							"description": "影响",
+							"description": "",
 						},
 						"recommendation": map[string]interface{}{
 							"type":        "string",
-							"description": "修复建议",
+							"description": "",
 						},
 					},
 				},
@@ -535,41 +535,41 @@ func (h *OpenAPIHandler) GetOpenAPISpec(c *gin.Context) {
 					"properties": map[string]interface{}{
 						"title": map[string]interface{}{
 							"type":        "string",
-							"description": "漏洞标题",
+							"description": "",
 						},
 						"description": map[string]interface{}{
 							"type":        "string",
-							"description": "漏洞描述",
+							"description": "",
 						},
 						"severity": map[string]interface{}{
 							"type":        "string",
-							"description": "严重程度",
+							"description": "",
 							"enum":        []string{"critical", "high", "medium", "low", "info"},
 						},
 						"status": map[string]interface{}{
 							"type":        "string",
-							"description": "状态",
+							"description": "",
 							"enum":        []string{"open", "closed", "fixed"},
 						},
 						"type": map[string]interface{}{
 							"type":        "string",
-							"description": "漏洞类型",
+							"description": "",
 						},
 						"target": map[string]interface{}{
 							"type":        "string",
-							"description": "受影响的目标",
+							"description": "",
 						},
 						"proof": map[string]interface{}{
 							"type":        "string",
-							"description": "漏洞证明",
+							"description": "",
 						},
 						"impact": map[string]interface{}{
 							"type":        "string",
-							"description": "影响",
+							"description": "",
 						},
 						"recommendation": map[string]interface{}{
 							"type":        "string",
-							"description": "修复建议",
+							"description": "",
 						},
 					},
 				},
@@ -578,26 +578,26 @@ func (h *OpenAPIHandler) GetOpenAPISpec(c *gin.Context) {
 					"properties": map[string]interface{}{
 						"vulnerabilities": map[string]interface{}{
 							"type":        "array",
-							"description": "漏洞列表",
+							"description": "",
 							"items": map[string]interface{}{
 								"$ref": "#/components/schemas/Vulnerability",
 							},
 						},
 						"total": map[string]interface{}{
 							"type":        "integer",
-							"description": "总数",
+							"description": "",
 						},
 						"page": map[string]interface{}{
 							"type":        "integer",
-							"description": "当前页",
+							"description": "",
 						},
 						"page_size": map[string]interface{}{
 							"type":        "integer",
-							"description": "每页数量",
+							"description": "",
 						},
 						"total_pages": map[string]interface{}{
 							"type":        "integer",
-							"description": "总页数",
+							"description": "",
 						},
 					},
 				},
@@ -606,15 +606,15 @@ func (h *OpenAPIHandler) GetOpenAPISpec(c *gin.Context) {
 					"properties": map[string]interface{}{
 						"total": map[string]interface{}{
 							"type":        "integer",
-							"description": "总漏洞数",
+							"description": "",
 						},
 						"by_severity": map[string]interface{}{
 							"type":        "object",
-							"description": "按严重程度统计",
+							"description": "",
 						},
 						"by_status": map[string]interface{}{
 							"type":        "object",
-							"description": "按状态统计",
+							"description": "",
 						},
 					},
 				},
@@ -623,34 +623,34 @@ func (h *OpenAPIHandler) GetOpenAPISpec(c *gin.Context) {
 					"properties": map[string]interface{}{
 						"name": map[string]interface{}{
 							"type":        "string",
-							"description": "角色名称",
+							"description": "",
 						},
 						"description": map[string]interface{}{
 							"type":        "string",
-							"description": "角色描述",
+							"description": "",
 						},
 						"enabled": map[string]interface{}{
 							"type":        "boolean",
-							"description": "是否启用",
+							"description": "",
 						},
 						"systemPrompt": map[string]interface{}{
 							"type":        "string",
-							"description": "系统提示词",
+							"description": "",
 						},
 						"userPrompt": map[string]interface{}{
 							"type":        "string",
-							"description": "用户提示词",
+							"description": "",
 						},
 						"tools": map[string]interface{}{
 							"type":        "array",
-							"description": "工具列表",
+							"description": "",
 							"items": map[string]interface{}{
 								"type": "string",
 							},
 						},
 						"skills": map[string]interface{}{
 							"type":        "array",
-							"description": "Skills列表",
+							"description": "Skills",
 							"items": map[string]interface{}{
 								"type": "string",
 							},
@@ -662,15 +662,15 @@ func (h *OpenAPIHandler) GetOpenAPISpec(c *gin.Context) {
 					"properties": map[string]interface{}{
 						"name": map[string]interface{}{
 							"type":        "string",
-							"description": "Skill名称",
+							"description": "Skill",
 						},
 						"description": map[string]interface{}{
 							"type":        "string",
-							"description": "Skill描述",
+							"description": "Skill",
 						},
 						"path": map[string]interface{}{
 							"type":        "string",
-							"description": "Skill路径",
+							"description": "Skill",
 						},
 					},
 				},
@@ -680,11 +680,11 @@ func (h *OpenAPIHandler) GetOpenAPISpec(c *gin.Context) {
 					"properties": map[string]interface{}{
 						"name": map[string]interface{}{
 							"type":        "string",
-							"description": "Skill名称",
+							"description": "Skill",
 						},
 						"description": map[string]interface{}{
 							"type":        "string",
-							"description": "Skill描述",
+							"description": "Skill",
 						},
 					},
 				},
@@ -693,7 +693,7 @@ func (h *OpenAPIHandler) GetOpenAPISpec(c *gin.Context) {
 					"properties": map[string]interface{}{
 						"description": map[string]interface{}{
 							"type":        "string",
-							"description": "Skill描述",
+							"description": "Skill",
 						},
 					},
 				},
@@ -702,21 +702,21 @@ func (h *OpenAPIHandler) GetOpenAPISpec(c *gin.Context) {
 					"properties": map[string]interface{}{
 						"id": map[string]interface{}{
 							"type":        "string",
-							"description": "执行ID",
+							"description": "ID",
 						},
 						"toolName": map[string]interface{}{
 							"type":        "string",
-							"description": "工具名称",
+							"description": "",
 						},
 						"status": map[string]interface{}{
 							"type":        "string",
-							"description": "执行状态",
+							"description": "",
 							"enum":        []string{"success", "failed", "running"},
 						},
 						"createdAt": map[string]interface{}{
 							"type":        "string",
 							"format":      "date-time",
-							"description": "创建时间",
+							"description": "",
 						},
 					},
 				},
@@ -725,60 +725,60 @@ func (h *OpenAPIHandler) GetOpenAPISpec(c *gin.Context) {
 					"properties": map[string]interface{}{
 						"executions": map[string]interface{}{
 							"type":        "array",
-							"description": "执行记录列表",
+							"description": "",
 							"items": map[string]interface{}{
 								"$ref": "#/components/schemas/ToolExecution",
 							},
 						},
 						"stats": map[string]interface{}{
 							"type":        "object",
-							"description": "统计信息",
+							"description": "",
 						},
 						"timestamp": map[string]interface{}{
 							"type":        "string",
 							"format":      "date-time",
-							"description": "时间戳",
+							"description": "",
 						},
 						"total": map[string]interface{}{
 							"type":        "integer",
-							"description": "总数",
+							"description": "",
 						},
 						"page": map[string]interface{}{
 							"type":        "integer",
-							"description": "当前页",
+							"description": "",
 						},
 						"page_size": map[string]interface{}{
 							"type":        "integer",
-							"description": "每页数量",
+							"description": "",
 						},
 						"total_pages": map[string]interface{}{
 							"type":        "integer",
-							"description": "总页数",
+							"description": "",
 						},
 					},
 				},
 				"ConfigResponse": map[string]interface{}{
 					"type":        "object",
-					"description": "配置信息",
+					"description": "",
 				},
 				"UpdateConfigRequest": map[string]interface{}{
 					"type":        "object",
-					"description": "更新配置请求",
+					"description": "",
 				},
 				"ExternalMCPConfig": map[string]interface{}{
 					"type": "object",
 					"properties": map[string]interface{}{
 						"enabled": map[string]interface{}{
 							"type":        "boolean",
-							"description": "是否启用",
+							"description": "",
 						},
 						"command": map[string]interface{}{
 							"type":        "string",
-							"description": "命令",
+							"description": "",
 						},
 						"args": map[string]interface{}{
 							"type":        "array",
-							"description": "参数列表",
+							"description": "",
 							"items": map[string]interface{}{
 								"type": "string",
 							},
@@ -793,16 +793,16 @@ func (h *OpenAPIHandler) GetOpenAPISpec(c *gin.Context) {
 						},
 						"status": map[string]interface{}{
 							"type":        "string",
-							"description": "状态",
+							"description": "",
 							"enum":        []string{"connected", "disconnected", "error", "disabled"},
 						},
 						"toolCount": map[string]interface{}{
 							"type":        "integer",
-							"description": "工具数量",
+							"description": "",
 						},
 						"error": map[string]interface{}{
 							"type":        "string",
-							"description": "错误信息",
+							"description": "",
 						},
 					},
 				},
@@ -817,15 +817,15 @@ func (h *OpenAPIHandler) GetOpenAPISpec(c *gin.Context) {
 				},
 				"AttackChain": map[string]interface{}{
 					"type":        "object",
-					"description": "攻击链数据",
+					"description": "",
 				},
 				"MCPMessage": map[string]interface{}{
 					"type":        "object",
-					"description": "MCP消息（符合JSON-RPC 2.0规范）",
+					"description": "MCP（JSON-RPC 2.0）",
 					"required":    []string{"jsonrpc"},
 					"properties": map[string]interface{}{
 						"id": map[string]interface{}{
-							"description": "消息ID，可以是字符串、数字或null。对于请求，必须提供；对于通知，可以省略",
+							"description": "ID，、null。，；，",
 							"oneOf": []map[string]interface{}{
 								{"type": "string"},
 								{"type": "number"},
@@ -835,7 +835,7 @@ func (h *OpenAPIHandler) GetOpenAPISpec(c *gin.Context) {
 						},
 						"method": map[string]interface{}{
 							"type":        "string",
-							"description": "方法名。支持的方法：\n- `initialize`: 初始化MCP连接\n- `tools/list`: 列出所有可用工具\n- `tools/call`: 调用工具\n- `prompts/list`: 列出所有提示词模板\n- `prompts/get`: 获取提示词模板\n- `resources/list`: 列出所有资源\n- `resources/read`: 读取资源内容\n- `sampling/request`: 采样请求",
+							"description": "。：\n- `initialize`: MCP\n- `tools/list`: \n- `tools/call`: \n- `prompts/list`: \n- `prompts/get`: \n- `resources/list`: \n- `resources/read`: \n- `sampling/request`: ",
 							"enum": []string{
 								"initialize",
 								"tools/list",
@@ -849,12 +849,12 @@ func (h *OpenAPIHandler) GetOpenAPISpec(c *gin.Context) {
 							"example": "tools/list",
 						},
 						"params": map[string]interface{}{
-							"description": "方法参数（JSON对象），根据不同的method有不同的结构",
+							"description": "（JSON），method",
 							"type":        "object",
 						},
 						"jsonrpc": map[string]interface{}{
 							"type":        "string",
-							"description": "JSON-RPC版本，固定为\"2.0\"",
+							"description": "JSON-RPC，\"2.0\"",
 							"enum":        []string{"2.0"},
 							"example":     "2.0",
 						},
@@ -866,12 +866,12 @@ func (h *OpenAPIHandler) GetOpenAPISpec(c *gin.Context) {
 					"properties": map[string]interface{}{
 						"protocolVersion": map[string]interface{}{
 							"type":        "string",
-							"description": "协议版本",
+							"description": "",
 							"example":     "2024-11-05",
 						},
 						"capabilities": map[string]interface{}{
 							"type":        "object",
-							"description": "客户端能力",
+							"description": "",
 						},
 						"clientInfo": map[string]interface{}{
 							"type":     "object",
@@ -879,12 +879,12 @@ func (h *OpenAPIHandler) GetOpenAPISpec(c *gin.Context) {
 							"properties": map[string]interface{}{
 								"name": map[string]interface{}{
 									"type":        "string",
-									"description": "客户端名称",
+									"description": "",
 									"example":     "MyClient",
 								},
 								"version": map[string]interface{}{
 									"type":        "string",
-									"description": "客户端版本",
+									"description": "",
 									"example":     "1.0.0",
 								},
 							},
@@ -897,12 +897,12 @@ func (h *OpenAPIHandler) GetOpenAPISpec(c *gin.Context) {
 					"properties": map[string]interface{}{
 						"name": map[string]interface{}{
 							"type":        "string",
-							"description": "工具名称",
+							"description": "",
 							"example":     "nmap",
 						},
 						"arguments": map[string]interface{}{
 							"type":        "object",
-							"description": "工具参数（键值对），具体参数取决于工具定义",
+							"description": "（），",
 							"example": map[string]interface{}{
 								"target": "192.168.1.1",
 								"ports":  "80,443",
@@ -914,7 +914,7 @@ func (h *OpenAPIHandler) GetOpenAPISpec(c *gin.Context) {
 					"type": "object",
 					"properties": map[string]interface{}{
 						"id": map[string]interface{}{
-							"description": "消息ID（与请求中的id相同）",
+							"description": "ID（id）",
 							"oneOf": []map[string]interface{}{
 								{"type": "string"},
 								{"type": "number"},
@@ -922,31 +922,31 @@ func (h *OpenAPIHandler) GetOpenAPISpec(c *gin.Context) {
 							},
 						},
 						"result": map[string]interface{}{
-							"description": "方法执行结果（JSON对象），结构取决于调用的方法",
+							"description": "（JSON），",
 							"type":        "object",
 						},
 						"error": map[string]interface{}{
 							"type":        "object",
-							"description": "错误信息（如果执行失败）",
+							"description": "（）",
 							"properties": map[string]interface{}{
 								"code": map[string]interface{}{
 									"type":        "integer",
-									"description": "错误代码",
+									"description": "",
 									"example":     -32600,
 								},
 								"message": map[string]interface{}{
 									"type":        "string",
-									"description": "错误消息",
+									"description": "",
 									"example":     "Invalid Request",
 								},
 								"data": map[string]interface{}{
-									"description": "错误详情（可选）",
+									"description": "（）",
 								},
 							},
 						},
 						"jsonrpc": map[string]interface{}{
 							"type":        "string",
-							"description": "JSON-RPC版本",
+							"description": "JSON-RPC",
 							"example":     "2.0",
 						},
 					},
@@ -961,9 +961,9 @@ func (h *OpenAPIHandler) GetOpenAPISpec(c *gin.Context) {
 		"paths": map[string]interface{}{
 			"/api/auth/login": map[string]interface{}{
 				"post": map[string]interface{}{
-					"tags":        []string{"认证"},
-					"summary":     "用户登录",
-					"description": "使用密码登录获取认证Token",
+					"tags":        []string{""},
+					"summary":     "",
+					"description": "Token",
 					"operationId": "login",
 					"security":    []map[string]interface{}{},
 					"requestBody": map[string]interface{}{
@@ -978,7 +978,7 @@ func (h *OpenAPIHandler) GetOpenAPISpec(c *gin.Context) {
 					},
 					"responses": map[string]interface{}{
 						"200": map[string]interface{}{
-							"description": "登录成功",
+							"description": "",
 							"content": map[string]interface{}{
 								"application/json": map[string]interface{}{
 									"schema": map[string]interface{}{
@@ -988,20 +988,20 @@ func (h *OpenAPIHandler) GetOpenAPISpec(c *gin.Context) {
 							},
 						},
 						"401": map[string]interface{}{
-							"description": "密码错误",
+							"description": "",
 						},
 					},
 				},
 			},
 			"/api/auth/logout": map[string]interface{}{
 				"post": map[string]interface{}{
-					"tags":        []string{"认证"},
-					"summary":     "用户登出",
-					"description": "登出当前会话，使Token失效",
+					"tags":        []string{""},
+					"summary":     "",
+					"description": "，Token",
 					"operationId": "logout",
 					"responses": map[string]interface{}{
 						"200": map[string]interface{}{
-							"description": "登出成功",
+							"description": "",
 							"content": map[string]interface{}{
 								"application/json": map[string]interface{}{
 									"schema": map[string]interface{}{
@@ -1009,7 +1009,7 @@ func (h *OpenAPIHandler) GetOpenAPISpec(c *gin.Context) {
 										"properties": map[string]interface{}{
 											"message": map[string]interface{}{
 												"type":    "string",
-												"example": "已退出登录",
+												"example": "",
 											},
 										},
 									},
@@ -1017,16 +1017,16 @@ func (h *OpenAPIHandler) GetOpenAPISpec(c *gin.Context) {
 							},
 						},
 						"401": map[string]interface{}{
-							"description": "未授权",
+							"description": "",
 						},
 					},
 				},
 			},
 			"/api/auth/change-password": map[string]interface{}{
 				"post": map[string]interface{}{
-					"tags":        []string{"认证"},
-					"summary":     "修改密码",
-					"description": "修改登录密码，修改后所有会话将失效",
+					"tags":        []string{""},
+					"summary":     "",
+					"description": "，",
 					"operationId": "changePassword",
 					"requestBody": map[string]interface{}{
 						"required": true,
@@ -1040,7 +1040,7 @@ func (h *OpenAPIHandler) GetOpenAPISpec(c *gin.Context) {
 					},
 					"responses": map[string]interface{}{
 						"200": map[string]interface{}{
-							"description": "密码修改成功",
+							"description": "",
 							"content": map[string]interface{}{
 								"application/json": map[string]interface{}{
 									"schema": map[string]interface{}{
@@ -1048,7 +1048,7 @@ func (h *OpenAPIHandler) GetOpenAPISpec(c *gin.Context) {
 										"properties": map[string]interface{}{
 											"message": map[string]interface{}{
 												"type":    "string",
-												"example": "密码已更新，请使用新密码重新登录",
+												"example": "，",
 											},
 										},
 									},
@@ -1056,23 +1056,23 @@ func (h *OpenAPIHandler) GetOpenAPISpec(c *gin.Context) {
 							},
 						},
 						"400": map[string]interface{}{
-							"description": "请求参数错误",
+							"description": "",
 						},
 						"401": map[string]interface{}{
-							"description": "未授权",
+							"description": "",
 						},
 					},
 				},
 			},
 			"/api/auth/validate": map[string]interface{}{
 				"get": map[string]interface{}{
-					"tags":        []string{"认证"},
-					"summary":     "验证Token",
-					"description": "验证当前Token是否有效",
+					"tags":        []string{""},
+					"summary":     "Token",
+					"description": "Token",
 					"operationId": "validateToken",
 					"responses": map[string]interface{}{
 						"200": map[string]interface{}{
-							"description": "Token有效",
+							"description": "Token",
 							"content": map[string]interface{}{
 								"application/json": map[string]interface{}{
 									"schema": map[string]interface{}{
@@ -1085,7 +1085,7 @@ func (h *OpenAPIHandler) GetOpenAPISpec(c *gin.Context) {
 											"expires_at": map[string]interface{}{
 												"type":        "string",
 												"format":      "date-time",
-												"description": "过期时间",
+												"description": "",
 											},
 										},
 									},
@@ -1093,16 +1093,16 @@ func (h *OpenAPIHandler) GetOpenAPISpec(c *gin.Context) {
 							},
 						},
 						"401": map[string]interface{}{
-							"description": "Token无效或已过期",
+							"description": "Token",
 						},
 					},
 				},
 			},
 			"/api/conversations": map[string]interface{}{
 				"post": map[string]interface{}{
-					"tags":        []string{"对话管理"},
-					"summary":     "创建对话",
-					"description": "创建一个新的安全测试对话。\n**重要说明**：\n- ✅ 创建的对话会**立即保存到数据库**\n- ✅ 前端页面会**自动刷新**显示新对话\n- ✅ 与前端创建的对话**完全一致**\n**创建对话的两种方式**：\n**方式1（推荐）：** 直接使用 `/api/agent-loop` 发送消息，**不提供** `conversationId` 参数，系统会自动创建新对话并发送消息。这是最简单的方式，一步完成创建和发送。\n**方式2：** 先调用此端点创建空对话，然后使用返回的 `conversationId` 调用 `/api/agent-loop` 发送消息。适用于需要先创建对话，稍后再发送消息的场景。\n**示例**：\n```json\n{\n  \"title\": \"Web应用安全测试\"\n}\n```",
+					"tags":        []string{""},
+					"summary":     "",
+					"description": "。\n****：\n- ✅ ****\n- ✅ ****\n- ✅ ****\n****：\n**1（）：**  `/api/agent-loop` ，**** `conversationId` ，。，。\n**2：** ， `conversationId`  `/api/agent-loop` 。，。\n****：\n```json\n{\n  \"title\": \"Web\"\n}\n```",
 					"operationId": "createConversation",
 					"requestBody": map[string]interface{}{
 						"required": true,
@@ -1116,7 +1116,7 @@ func (h *OpenAPIHandler) GetOpenAPISpec(c *gin.Context) {
 					},
 					"responses": map[string]interface{}{
 						"200": map[string]interface{}{
-							"description": "对话创建成功",
+							"description": "",
 							"content": map[string]interface{}{
 								"application/json": map[string]interface{}{
 									"schema": map[string]interface{}{
@@ -1126,27 +1126,27 @@ func (h *OpenAPIHandler) GetOpenAPISpec(c *gin.Context) {
 							},
 						},
 						"400": map[string]interface{}{
-							"description": "请求参数错误",
+							"description": "",
 						},
 						"401": map[string]interface{}{
-							"description": "未授权，需要有效的Token",
+							"description": "，Token",
 						},
 						"500": map[string]interface{}{
-							"description": "服务器内部错误",
+							"description": "",
 						},
 					},
 				},
 				"get": map[string]interface{}{
-					"tags":        []string{"对话管理"},
-					"summary":     "列出对话",
-					"description": "获取对话列表，支持分页和搜索",
+					"tags":        []string{""},
+					"summary":     "",
+					"description": "，",
 					"operationId": "listConversations",
 					"parameters": []map[string]interface{}{
 						{
 							"name":        "limit",
 							"in":          "query",
 							"required":    false,
-							"description": "返回数量限制",
+							"description": "",
 							"schema": map[string]interface{}{
 								"type":    "integer",
 								"default": 50,
@@ -1158,7 +1158,7 @@ func (h *OpenAPIHandler) GetOpenAPISpec(c *gin.Context) {
 							"name":        "offset",
 							"in":          "query",
 							"required":    false,
-							"description": "偏移量",
+							"description": "",
 							"schema": map[string]interface{}{
 								"type":    "integer",
 								"default": 0,
@@ -1169,7 +1169,7 @@ func (h *OpenAPIHandler) GetOpenAPISpec(c *gin.Context) {
 							"name":        "search",
 							"in":          "query",
 							"required":    false,
-							"description": "搜索关键词",
+							"description": "",
 							"schema": map[string]interface{}{
 								"type": "string",
 							},
@@ -1177,7 +1177,7 @@ func (h *OpenAPIHandler) GetOpenAPISpec(c *gin.Context) {
 					},
 					"responses": map[string]interface{}{
 						"200": map[string]interface{}{
-							"description": "获取成功",
+							"description": "",
 							"content": map[string]interface{}{
 								"application/json": map[string]interface{}{
 									"schema": map[string]interface{}{
@@ -1190,23 +1190,23 @@ func (h *OpenAPIHandler) GetOpenAPISpec(c *gin.Context) {
 							},
 						},
 						"401": map[string]interface{}{
-							"description": "未授权，需要有效的Token",
+							"description": "，Token",
 						},
 					},
 				},
 			},
 			"/api/conversations/{id}": map[string]interface{}{
 				"get": map[string]interface{}{
-					"tags":        []string{"对话管理"},
-					"summary":     "查看对话详情",
-					"description": "获取指定对话的详细信息，包括对话信息和消息列表",
+					"tags":        []string{""},
+					"summary":     "",
+					"description": "，",
 					"operationId": "getConversation",
 					"parameters": []map[string]interface{}{
 						{
 							"name":        "id",
 							"in":          "path",
 							"required":    true,
-							"description": "对话ID",
+							"description": "ID",
 							"schema": map[string]interface{}{
 								"type": "string",
 							},
@@ -1214,7 +1214,7 @@ func (h *OpenAPIHandler) GetOpenAPISpec(c *gin.Context) {
 					},
 					"responses": map[string]interface{}{
 						"200": map[string]interface{}{
-							"description": "获取成功",
+							"description": "",
 							"content": map[string]interface{}{
 								"application/json": map[string]interface{}{
 									"schema": map[string]interface{}{
@@ -1224,24 +1224,24 @@ func (h *OpenAPIHandler) GetOpenAPISpec(c *gin.Context) {
 							},
 						},
 						"404": map[string]interface{}{
-							"description": "对话不存在",
+							"description": "",
 						},
 						"401": map[string]interface{}{
-							"description": "未授权，需要有效的Token",
+							"description": "，Token",
 						},
 					},
 				},
 				"put": map[string]interface{}{
-					"tags":        []string{"对话管理"},
-					"summary":     "更新对话",
-					"description": "更新对话标题",
+					"tags":        []string{""},
+					"summary":     "",
+					"description": "",
 					"operationId": "updateConversation",
 					"parameters": []map[string]interface{}{
 						{
 							"name":        "id",
 							"in":          "path",
 							"required":    true,
-							"description": "对话ID",
+							"description": "ID",
 							"schema": map[string]interface{}{
 								"type": "string",
 							},
@@ -1259,7 +1259,7 @@ func (h *OpenAPIHandler) GetOpenAPISpec(c *gin.Context) {
 					},
 					"responses": map[string]interface{}{
 						"200": map[string]interface{}{
-							"description": "更新成功",
+							"description": "",
 							"content": map[string]interface{}{
 								"application/json": map[string]interface{}{
 									"schema": map[string]interface{}{
@@ -1269,27 +1269,27 @@ func (h *OpenAPIHandler) GetOpenAPISpec(c *gin.Context) {
 							},
 						},
 						"400": map[string]interface{}{
-							"description": "请求参数错误",
+							"description": "",
 						},
 						"404": map[string]interface{}{
-							"description": "对话不存在",
+							"description": "",
 						},
 						"401": map[string]interface{}{
-							"description": "未授权，需要有效的Token",
+							"description": "，Token",
 						},
 					},
 				},
 				"delete": map[string]interface{}{
-					"tags":        []string{"对话管理"},
-					"summary":     "删除对话",
-					"description": "删除指定的对话及其所有相关数据（消息、漏洞等）。**此操作不可恢复**。",
+					"tags":        []string{""},
+					"summary":     "",
+					"description": "（、）。****。",
 					"operationId": "deleteConversation",
 					"parameters": []map[string]interface{}{
 						{
 							"name":        "id",
 							"in":          "path",
 							"required":    true,
-							"description": "对话ID",
+							"description": "ID",
 							"schema": map[string]interface{}{
 								"type": "string",
 							},
@@ -1297,7 +1297,7 @@ func (h *OpenAPIHandler) GetOpenAPISpec(c *gin.Context) {
 					},
 					"responses": map[string]interface{}{
 						"200": map[string]interface{}{
-							"description": "删除成功",
+							"description": "",
 							"content": map[string]interface{}{
 								"application/json": map[string]interface{}{
 									"schema": map[string]interface{}{
@@ -1305,8 +1305,8 @@ func (h *OpenAPIHandler) GetOpenAPISpec(c *gin.Context) {
 										"properties": map[string]interface{}{
 											"message": map[string]interface{}{
 												"type":        "string",
-												"description": "成功消息",
-												"example":     "删除成功",
+												"description": "",
+												"example":     "",
 											},
 										},
 									},
@@ -1314,29 +1314,29 @@ func (h *OpenAPIHandler) GetOpenAPISpec(c *gin.Context) {
 							},
 						},
 						"404": map[string]interface{}{
-							"description": "对话不存在",
+							"description": "",
 						},
 						"401": map[string]interface{}{
-							"description": "未授权，需要有效的Token",
+							"description": "，Token",
 						},
 						"500": map[string]interface{}{
-							"description": "服务器内部错误",
+							"description": "",
 						},
 					},
 				},
 			},
 			"/api/conversations/{id}/results": map[string]interface{}{
 				"get": map[string]interface{}{
-					"tags":        []string{"对话管理"},
-					"summary":     "获取对话结果",
-					"description": "获取指定对话的执行结果，包括消息、漏洞信息和执行结果",
+					"tags":        []string{""},
+					"summary":     "",
+					"description": "，、",
 					"operationId": "getConversationResults",
 					"parameters": []map[string]interface{}{
 						{
 							"name":        "id",
 							"in":          "path",
 							"required":    true,
-							"description": "对话ID",
+							"description": "ID",
 							"schema": map[string]interface{}{
 								"type": "string",
 							},
@@ -1344,7 +1344,7 @@ func (h *OpenAPIHandler) GetOpenAPISpec(c *gin.Context) {
 					},
 					"responses": map[string]interface{}{
 						"200": map[string]interface{}{
-							"description": "获取成功",
+							"description": "",
 							"content": map[string]interface{}{
 								"application/json": map[string]interface{}{
 									"schema": map[string]interface{}{
@@ -1354,19 +1354,19 @@ func (h *OpenAPIHandler) GetOpenAPISpec(c *gin.Context) {
 							},
 						},
 						"404": map[string]interface{}{
-							"description": "对话不存在或结果不存在",
+							"description": "",
 						},
 						"401": map[string]interface{}{
-							"description": "未授权，需要有效的Token",
+							"description": "，Token",
 						},
 					},
 				},
 			},
 			"/api/agent-loop": map[string]interface{}{
 				"post": map[string]interface{}{
-					"tags":        []string{"对话交互"},
-					"summary":     "发送消息并获取AI回复（非流式）",
-					"description": "向AI发送消息并获取回复（非流式响应）。**这是与AI交互的核心端点**，与前端聊天功能完全一致。\n**重要说明**：\n- ✅ 通过此API创建/发送的消息会**立即保存到数据库**\n- ✅ 前端页面会**自动刷新**显示新创建的对话和消息\n- ✅ 所有操作都有**完整的交互痕迹**，就像在前端操作一样\n- ✅ 支持角色配置，可以指定使用哪个测试角色\n**推荐使用流程**：\n1. **先创建对话**：调用 `POST /api/conversations` 创建新对话，获取 `conversationId`\n2. **再发送消息**：使用返回的 `conversationId` 调用此端点发送消息\n**使用示例**：\n**步骤1 - 创建对话：**\n```json\nPOST /api/conversations\n{\n  \"title\": \"Web应用安全测试\"\n}\n```\n**步骤2 - 发送消息：**\n```json\nPOST /api/agent-loop\n{\n  \"conversationId\": \"返回的对话ID\",\n  \"message\": \"扫描 http://example.com 的SQL注入漏洞\",\n  \"role\": \"渗透测试\"\n}\n```\n**其他方式**：\n如果不提供 `conversationId`，系统会自动创建新对话并发送消息。但**推荐先创建对话**，这样可以更好地管理对话列表。\n**响应**：返回AI的回复、对话ID和MCP执行ID列表。前端会自动刷新显示新消息。",
+					"tags":        []string{""},
+					"summary":     "AI（）",
+					"description": "AI（）。**AI**，。\n****：\n- ✅ API/****\n- ✅ ****\n- ✅ ****，\n- ✅ ，\n****：\n1. ****： `POST /api/conversations` ， `conversationId`\n2. ****： `conversationId` \n****：\n**1 - ：**\n```json\nPOST /api/conversations\n{\n  \"title\": \"Web\"\n}\n```\n**2 - ：**\n```json\nPOST /api/agent-loop\n{\n  \"conversationId\": \"ID\",\n  \"message\": \" http://example.com SQL\",\n  \"role\": \"\"\n}\n```\n****：\n `conversationId`，。****，。\n****：AI、IDMCPID。。",
 					"operationId": "sendMessage",
 					"requestBody": map[string]interface{}{
 						"required": true,
@@ -1377,18 +1377,18 @@ func (h *OpenAPIHandler) GetOpenAPISpec(c *gin.Context) {
 									"properties": map[string]interface{}{
 										"message": map[string]interface{}{
 											"type":        "string",
-											"description": "要发送的消息（必需）",
-											"example":     "扫描 http://example.com 的SQL注入漏洞",
+											"description": "（）",
+											"example":     " http://example.com SQL",
 										},
 										"conversationId": map[string]interface{}{
 											"type":        "string",
-											"description": "对话ID（可选）。\n- **不提供**：自动创建新对话并发送消息（推荐）\n- **提供**：消息会添加到指定对话中（对话必须存在）",
+											"description": "ID（）。\n- ****：（）\n- ****：（）",
 											"example":     "550e8400-e29b-41d4-a716-446655440000",
 										},
 										"role": map[string]interface{}{
 											"type":        "string",
-											"description": "角色名称（可选），如：默认、渗透测试、Web应用扫描等",
-											"example":     "默认",
+											"description": "（），：、、Web",
+											"example":     "",
 										},
 									},
 									"required": []string{"message"},
@@ -1398,7 +1398,7 @@ func (h *OpenAPIHandler) GetOpenAPISpec(c *gin.Context) {
 					},
 					"responses": map[string]interface{}{
 						"200": map[string]interface{}{
-							"description": "消息发送成功，返回AI回复",
+							"description": "，AI",
 							"content": map[string]interface{}{
 								"application/json": map[string]interface{}{
 									"schema": map[string]interface{}{
@@ -1406,15 +1406,15 @@ func (h *OpenAPIHandler) GetOpenAPISpec(c *gin.Context) {
 										"properties": map[string]interface{}{
 											"response": map[string]interface{}{
 												"type":        "string",
-												"description": "AI的回复内容",
+												"description": "AI",
 											},
 											"conversationId": map[string]interface{}{
 												"type":        "string",
-												"description": "对话ID",
+												"description": "ID",
 											},
 											"mcpExecutionIds": map[string]interface{}{
 												"type":        "array",
-												"description": "MCP执行ID列表",
+												"description": "MCPID",
 												"items": map[string]interface{}{
 													"type": "string",
 												},
@@ -1422,7 +1422,7 @@ func (h *OpenAPIHandler) GetOpenAPISpec(c *gin.Context) {
 											"time": map[string]interface{}{
 												"type":        "string",
 												"format":      "date-time",
-												"description": "响应时间",
+												"description": "",
 											},
 										},
 									},
@@ -1430,22 +1430,22 @@ func (h *OpenAPIHandler) GetOpenAPISpec(c *gin.Context) {
 							},
 						},
 						"400": map[string]interface{}{
-							"description": "请求参数错误",
+							"description": "",
 						},
 						"401": map[string]interface{}{
-							"description": "未授权，需要有效的Token",
+							"description": "，Token",
 						},
 						"500": map[string]interface{}{
-							"description": "服务器内部错误",
+							"description": "",
 						},
 					},
 				},
 			},
 			"/api/agent-loop/stream": map[string]interface{}{
 				"post": map[string]interface{}{
-					"tags":        []string{"对话交互"},
-					"summary":     "发送消息并获取AI回复（流式）",
-					"description": "向AI发送消息并获取流式回复（Server-Sent Events）。**这是与AI交互的核心端点**，与前端聊天功能完全一致。\n**重要说明**：\n- ✅ 通过此API创建/发送的消息会**立即保存到数据库**\n- ✅ 前端页面会**自动刷新**显示新创建的对话和消息\n- ✅ 所有操作都有**完整的交互痕迹**，就像在前端操作一样\n- ✅ 支持角色配置，可以指定使用哪个测试角色\n- ✅ 返回流式响应，适合实时显示AI回复\n**推荐使用流程**：\n1. **先创建对话**：调用 `POST /api/conversations` 创建新对话，获取 `conversationId`\n2. **再发送消息**：使用返回的 `conversationId` 调用此端点发送消息\n**使用示例**：\n**步骤1 - 创建对话：**\n```json\nPOST /api/conversations\n{\n  \"title\": \"Web应用安全测试\"\n}\n```\n**步骤2 - 发送消息（流式）：**\n```json\nPOST /api/agent-loop/stream\n{\n  \"conversationId\": \"返回的对话ID\",\n  \"message\": \"扫描 http://example.com 的SQL注入漏洞\",\n  \"role\": \"渗透测试\"\n}\n```\n**响应格式**：Server-Sent Events (SSE)，事件类型包括：\n- `message`: 用户消息确认\n- `response`: AI回复片段\n- `progress`: 进度更新\n- `done`: 完成\n- `error`: 错误\n- `cancelled`: 已取消",
+					"tags":        []string{""},
+					"summary":     "AI（）",
+					"description": "AI（Server-Sent Events）。**AI**，。\n****：\n- ✅ API/****\n- ✅ ****\n- ✅ ****，\n- ✅ ，\n- ✅ ，AI\n****：\n1. ****： `POST /api/conversations` ， `conversationId`\n2. ****： `conversationId` \n****：\n**1 - ：**\n```json\nPOST /api/conversations\n{\n  \"title\": \"Web\"\n}\n```\n**2 - （）：**\n```json\nPOST /api/agent-loop/stream\n{\n  \"conversationId\": \"ID\",\n  \"message\": \" http://example.com SQL\",\n  \"role\": \"\"\n}\n```\n****：Server-Sent Events (SSE)，：\n- `message`: \n- `response`: AI\n- `progress`: \n- `done`: \n- `error`: \n- `cancelled`: ",
 					"operationId": "sendMessageStream",
 					"requestBody": map[string]interface{}{
 						"required": true,
@@ -1456,18 +1456,18 @@ func (h *OpenAPIHandler) GetOpenAPISpec(c *gin.Context) {
 									"properties": map[string]interface{}{
 										"message": map[string]interface{}{
 											"type":        "string",
-											"description": "要发送的消息（必需）",
-											"example":     "扫描 http://example.com 的SQL注入漏洞",
+											"description": "（）",
+											"example":     " http://example.com SQL",
 										},
 										"conversationId": map[string]interface{}{
 											"type":        "string",
-											"description": "对话ID（可选）。\n- **不提供**：自动创建新对话并发送消息（推荐）\n- **提供**：消息会添加到指定对话中（对话必须存在）",
+											"description": "ID（）。\n- ****：（）\n- ****：（）",
 											"example":     "550e8400-e29b-41d4-a716-446655440000",
 										},
 										"role": map[string]interface{}{
 											"type":        "string",
-											"description": "角色名称（可选），如：默认、渗透测试、Web应用扫描等",
-											"example":     "默认",
+											"description": "（），：、、Web",
+											"example":     "",
 										},
 									},
 									"required": []string{"message"},
@@ -1477,33 +1477,33 @@ func (h *OpenAPIHandler) GetOpenAPISpec(c *gin.Context) {
 					},
 					"responses": map[string]interface{}{
 						"200": map[string]interface{}{
-							"description": "流式响应（Server-Sent Events）",
+							"description": "（Server-Sent Events）",
 							"content": map[string]interface{}{
 								"text/event-stream": map[string]interface{}{
 									"schema": map[string]interface{}{
 										"type":        "string",
-										"description": "SSE流式数据",
+										"description": "SSE",
 									},
 								},
 							},
 						},
 						"400": map[string]interface{}{
-							"description": "请求参数错误",
+							"description": "",
 						},
 						"401": map[string]interface{}{
-							"description": "未授权，需要有效的Token",
+							"description": "，Token",
 						},
 						"500": map[string]interface{}{
-							"description": "服务器内部错误",
+							"description": "",
 						},
 					},
 				},
 			},
 			"/api/eino-agent": map[string]interface{}{
 				"post": map[string]interface{}{
-					"tags":        []string{"对话交互"},
-					"summary":     "发送消息并获取 AI 回复（Eino ADK 单代理，非流式）",
-					"description": "与 `POST /api/agent-loop` 请求体相同，由 **CloudWeGo Eino** `adk.NewChatModelAgent` + `adk.NewRunner.Run` 执行（单代理 MCP 工具链）。**不依赖** `multi_agent.enabled`；`multi_agent.eino_skills` / `eino_middleware` 等与多代理主代理一致时可生效。支持 `webshellConnectionId`。",
+					"tags":        []string{""},
+					"summary":     " AI （Eino ADK ，）",
+					"description": " `POST /api/agent-loop` ， **CloudWeGo Eino** `adk.NewChatModelAgent` + `adk.NewRunner.Run` （ MCP ）。**** `multi_agent.enabled`；`multi_agent.eino_skills` / `eino_middleware` 。 `webshellConnectionId`。",
 					"operationId": "sendMessageEinoSingleAgent",
 					"requestBody": map[string]interface{}{
 						"required": true,
@@ -1523,18 +1523,18 @@ func (h *OpenAPIHandler) GetOpenAPISpec(c *gin.Context) {
 						},
 					},
 					"responses": map[string]interface{}{
-						"200": map[string]interface{}{"description": "成功，响应格式同 /api/agent-loop"},
-						"400": map[string]interface{}{"description": "参数错误"},
-						"401": map[string]interface{}{"description": "未授权"},
-						"500": map[string]interface{}{"description": "执行失败"},
+						"200": map[string]interface{}{"description": "， /api/agent-loop"},
+						"400": map[string]interface{}{"description": ""},
+						"401": map[string]interface{}{"description": ""},
+						"500": map[string]interface{}{"description": ""},
 					},
 				},
 			},
 			"/api/eino-agent/stream": map[string]interface{}{
 				"post": map[string]interface{}{
-					"tags":        []string{"对话交互"},
-					"summary":     "发送消息并获取 AI 回复（Eino ADK 单代理，SSE）",
-					"description": "与 `POST /api/agent-loop/stream` 类似；由 Eino **单代理** ADK 执行。事件类型与多代理流式一致（含 `tool_call` / `response_delta` 等）。**不依赖** `multi_agent.enabled`。",
+					"tags":        []string{""},
+					"summary":     " AI （Eino ADK ，SSE）",
+					"description": " `POST /api/agent-loop/stream` ； Eino **** ADK 。（ `tool_call` / `response_delta` ）。**** `multi_agent.enabled`。",
 					"operationId": "sendMessageEinoSingleAgentStream",
 					"requestBody": map[string]interface{}{
 						"required": true,
@@ -1560,20 +1560,20 @@ func (h *OpenAPIHandler) GetOpenAPISpec(c *gin.Context) {
 								"text/event-stream": map[string]interface{}{
 									"schema": map[string]interface{}{
 										"type":        "string",
-										"description": "SSE 流",
+										"description": "SSE ",
 									},
 								},
 							},
 						},
-						"401": map[string]interface{}{"description": "未授权"},
+						"401": map[string]interface{}{"description": ""},
 					},
 				},
 			},
 			"/api/multi-agent": map[string]interface{}{
 				"post": map[string]interface{}{
-					"tags":        []string{"对话交互"},
-					"summary":     "发送消息并获取 AI 回复（Eino 多代理，非流式）",
-					"description": "与 `POST /api/agent-loop` 请求体相同，但由 **CloudWeGo Eino** 多代理执行。编排由请求体 `orchestration`（`deep` | `plan_execute` | `supervisor`）指定，缺省为 `deep`。**前提**：`multi_agent.enabled: true`；未启用时返回 404 JSON。支持 `webshellConnectionId`。",
+					"tags":        []string{""},
+					"summary":     " AI （Eino ，）",
+					"description": " `POST /api/agent-loop` ， **CloudWeGo Eino** 。 `orchestration`（`deep` | `plan_execute` | `supervisor`）， `deep`。****：`multi_agent.enabled: true`； 404 JSON。 `webshellConnectionId`。",
 					"operationId": "sendMessageMultiAgent",
 					"requestBody": map[string]interface{}{
 						"required": true,
@@ -1584,23 +1584,23 @@ func (h *OpenAPIHandler) GetOpenAPISpec(c *gin.Context) {
 									"properties": map[string]interface{}{
 										"message": map[string]interface{}{
 											"type":        "string",
-											"description": "要发送的消息（必需）",
+											"description": "（）",
 										},
 										"conversationId": map[string]interface{}{
 											"type":        "string",
-											"description": "对话 ID（可选，不提供则新建）",
+											"description": " ID（，）",
 										},
 										"role": map[string]interface{}{
 											"type":        "string",
-											"description": "角色名称（可选）",
+											"description": "（）",
 										},
 										"webshellConnectionId": map[string]interface{}{
 											"type":        "string",
-											"description": "WebShell 连接 ID（可选，与 agent-loop 行为一致）",
+											"description": "WebShell  ID（， agent-loop ）",
 										},
 										"orchestration": map[string]interface{}{
 											"type":        "string",
-											"description": "Eino 预置编排：deep | plan_execute | supervisor；缺省 deep",
+											"description": "Eino ：deep | plan_execute | supervisor； deep",
 											"enum":        []string{"deep", "plan_execute", "supervisor"},
 										},
 									},
@@ -1611,20 +1611,20 @@ func (h *OpenAPIHandler) GetOpenAPISpec(c *gin.Context) {
 					},
 					"responses": map[string]interface{}{
 						"200": map[string]interface{}{
-							"description": "成功，响应格式同 /api/agent-loop",
+							"description": "， /api/agent-loop",
 						},
-						"400": map[string]interface{}{"description": "参数错误"},
-						"401": map[string]interface{}{"description": "未授权"},
-						"404": map[string]interface{}{"description": "多代理未启用或对话不存在"},
-						"500": map[string]interface{}{"description": "执行失败"},
+						"400": map[string]interface{}{"description": ""},
+						"401": map[string]interface{}{"description": ""},
+						"404": map[string]interface{}{"description": ""},
+						"500": map[string]interface{}{"description": ""},
 					},
 				},
 			},
 			"/api/multi-agent/stream": map[string]interface{}{
 				"post": map[string]interface{}{
-					"tags":        []string{"对话交互"},
-					"summary":     "发送消息并获取 AI 回复（Eino 多代理，SSE）",
-					"description": "与 `POST /api/agent-loop/stream` 类似；由 Eino 多代理执行。`orchestration` 指定 deep / plan_execute / supervisor，缺省 deep。**前提**：`multi_agent.enabled: true`；未启用时 SSE 内首条为 `type: error` 后接 `done`。支持 `webshellConnectionId`。",
+					"tags":        []string{""},
+					"summary":     " AI （Eino ，SSE）",
+					"description": " `POST /api/agent-loop/stream` ； Eino 。`orchestration`  deep / plan_execute / supervisor， deep。****：`multi_agent.enabled: true`； SSE  `type: error`  `done`。 `webshellConnectionId`。",
 					"operationId": "sendMessageMultiAgentStream",
 					"requestBody": map[string]interface{}{
 						"required": true,
@@ -1639,7 +1639,7 @@ func (h *OpenAPIHandler) GetOpenAPISpec(c *gin.Context) {
 										"webshellConnectionId": map[string]interface{}{"type": "string"},
 										"orchestration": map[string]interface{}{
 											"type":        "string",
-											"description": "deep | plan_execute | supervisor；缺省 deep",
+											"description": "deep | plan_execute | supervisor； deep",
 											"enum":        []string{"deep", "plan_execute", "supervisor"},
 										},
 									},
@@ -1655,20 +1655,20 @@ func (h *OpenAPIHandler) GetOpenAPISpec(c *gin.Context) {
 								"text/event-stream": map[string]interface{}{
 									"schema": map[string]interface{}{
 										"type":        "string",
-										"description": "SSE 流",
+										"description": "SSE ",
 									},
 								},
 							},
 						},
-						"401": map[string]interface{}{"description": "未授权"},
+						"401": map[string]interface{}{"description": ""},
 					},
 				},
 			},
 			"/api/agent-loop/cancel": map[string]interface{}{
 				"post": map[string]interface{}{
-					"tags":        []string{"对话交互"},
-					"summary":     "取消任务",
-					"description": "取消正在执行的Agent Loop任务",
+					"tags":        []string{""},
+					"summary":     "",
+					"description": "Agent Loop",
 					"operationId": "cancelAgentLoop",
 					"requestBody": map[string]interface{}{
 						"required": true,
@@ -1682,7 +1682,7 @@ func (h *OpenAPIHandler) GetOpenAPISpec(c *gin.Context) {
 					},
 					"responses": map[string]interface{}{
 						"200": map[string]interface{}{
-							"description": "取消请求已提交",
+							"description": "",
 							"content": map[string]interface{}{
 								"application/json": map[string]interface{}{
 									"schema": map[string]interface{}{
@@ -1694,11 +1694,11 @@ func (h *OpenAPIHandler) GetOpenAPISpec(c *gin.Context) {
 											},
 											"conversationId": map[string]interface{}{
 												"type":        "string",
-												"description": "对话ID",
+												"description": "ID",
 											},
 											"message": map[string]interface{}{
 												"type":    "string",
-												"example": "已提交取消请求，任务将在当前步骤完成后停止。",
+												"example": "，。",
 											},
 										},
 									},
@@ -1706,23 +1706,23 @@ func (h *OpenAPIHandler) GetOpenAPISpec(c *gin.Context) {
 							},
 						},
 						"404": map[string]interface{}{
-							"description": "未找到正在执行的任务",
+							"description": "",
 						},
 						"401": map[string]interface{}{
-							"description": "未授权",
+							"description": "",
 						},
 					},
 				},
 			},
 			"/api/agent-loop/tasks": map[string]interface{}{
 				"get": map[string]interface{}{
-					"tags":        []string{"对话交互"},
-					"summary":     "列出运行中的任务",
-					"description": "获取所有正在运行的Agent Loop任务",
+					"tags":        []string{""},
+					"summary":     "",
+					"description": "Agent Loop",
 					"operationId": "listAgentTasks",
 					"responses": map[string]interface{}{
 						"200": map[string]interface{}{
-							"description": "获取成功",
+							"description": "",
 							"content": map[string]interface{}{
 								"application/json": map[string]interface{}{
 									"schema": map[string]interface{}{
@@ -1730,7 +1730,7 @@ func (h *OpenAPIHandler) GetOpenAPISpec(c *gin.Context) {
 										"properties": map[string]interface{}{
 											"tasks": map[string]interface{}{
 												"type":        "array",
-												"description": "任务列表",
+												"description": "",
 												"items": map[string]interface{}{
 													"$ref": "#/components/schemas/AgentTask",
 												},
@@ -1741,20 +1741,20 @@ func (h *OpenAPIHandler) GetOpenAPISpec(c *gin.Context) {
 							},
 						},
 						"401": map[string]interface{}{
-							"description": "未授权",
+							"description": "",
 						},
 					},
 				},
 			},
 			"/api/agent-loop/tasks/completed": map[string]interface{}{
 				"get": map[string]interface{}{
-					"tags":        []string{"对话交互"},
-					"summary":     "列出已完成的任务",
-					"description": "获取最近完成的Agent Loop任务历史",
+					"tags":        []string{""},
+					"summary":     "",
+					"description": "Agent Loop",
 					"operationId": "listCompletedTasks",
 					"responses": map[string]interface{}{
 						"200": map[string]interface{}{
-							"description": "获取成功",
+							"description": "",
 							"content": map[string]interface{}{
 								"application/json": map[string]interface{}{
 									"schema": map[string]interface{}{
@@ -1762,7 +1762,7 @@ func (h *OpenAPIHandler) GetOpenAPISpec(c *gin.Context) {
 										"properties": map[string]interface{}{
 											"tasks": map[string]interface{}{
 												"type":        "array",
-												"description": "已完成任务列表",
+												"description": "",
 												"items": map[string]interface{}{
 													"$ref": "#/components/schemas/AgentTask",
 												},
@@ -1773,16 +1773,16 @@ func (h *OpenAPIHandler) GetOpenAPISpec(c *gin.Context) {
 							},
 						},
 						"401": map[string]interface{}{
-							"description": "未授权",
+							"description": "",
 						},
 					},
 				},
 			},
 			"/api/batch-tasks": map[string]interface{}{
 				"post": map[string]interface{}{
-					"tags":        []string{"批量任务"},
-					"summary":     "创建批量任务队列",
-					"description": "创建一个批量任务队列，包含多个任务",
+					"tags":        []string{""},
+					"summary":     "",
+					"description": "，",
 					"operationId": "createBatchQueue",
 					"requestBody": map[string]interface{}{
 						"required": true,
@@ -1796,7 +1796,7 @@ func (h *OpenAPIHandler) GetOpenAPISpec(c *gin.Context) {
 					},
 					"responses": map[string]interface{}{
 						"200": map[string]interface{}{
-							"description": "创建成功",
+							"description": "",
 							"content": map[string]interface{}{
 								"application/json": map[string]interface{}{
 									"schema": map[string]interface{}{
@@ -1804,14 +1804,14 @@ func (h *OpenAPIHandler) GetOpenAPISpec(c *gin.Context) {
 										"properties": map[string]interface{}{
 											"queueId": map[string]interface{}{
 												"type":        "string",
-												"description": "队列ID",
+												"description": "ID",
 											},
 											"queue": map[string]interface{}{
 												"$ref": "#/components/schemas/BatchQueue",
 											},
 											"started": map[string]interface{}{
 												"type":        "boolean",
-												"description": "是否已立即启动执行",
+												"description": "",
 											},
 										},
 									},
@@ -1819,21 +1819,21 @@ func (h *OpenAPIHandler) GetOpenAPISpec(c *gin.Context) {
 							},
 						},
 						"400": map[string]interface{}{
-							"description": "请求参数错误",
+							"description": "",
 						},
 						"401": map[string]interface{}{
-							"description": "未授权",
+							"description": "",
 						},
 					},
 				},
 				"get": map[string]interface{}{
-					"tags":        []string{"批量任务"},
-					"summary":     "列出批量任务队列",
-					"description": "获取所有批量任务队列",
+					"tags":        []string{""},
+					"summary":     "",
+					"description": "",
 					"operationId": "listBatchQueues",
 					"responses": map[string]interface{}{
 						"200": map[string]interface{}{
-							"description": "获取成功",
+							"description": "",
 							"content": map[string]interface{}{
 								"application/json": map[string]interface{}{
 									"schema": map[string]interface{}{
@@ -1841,7 +1841,7 @@ func (h *OpenAPIHandler) GetOpenAPISpec(c *gin.Context) {
 										"properties": map[string]interface{}{
 											"queues": map[string]interface{}{
 												"type":        "array",
-												"description": "队列列表",
+												"description": "",
 												"items": map[string]interface{}{
 													"$ref": "#/components/schemas/BatchQueue",
 												},
@@ -1852,23 +1852,23 @@ func (h *OpenAPIHandler) GetOpenAPISpec(c *gin.Context) {
 							},
 						},
 						"401": map[string]interface{}{
-							"description": "未授权",
+							"description": "",
 						},
 					},
 				},
 			},
 			"/api/batch-tasks/{queueId}": map[string]interface{}{
 				"get": map[string]interface{}{
-					"tags":        []string{"批量任务"},
-					"summary":     "获取批量任务队列",
-					"description": "获取指定批量任务队列的详细信息",
+					"tags":        []string{""},
+					"summary":     "",
+					"description": "",
 					"operationId": "getBatchQueue",
 					"parameters": []map[string]interface{}{
 						{
 							"name":        "queueId",
 							"in":          "path",
 							"required":    true,
-							"description": "队列ID",
+							"description": "ID",
 							"schema": map[string]interface{}{
 								"type": "string",
 							},
@@ -1876,7 +1876,7 @@ func (h *OpenAPIHandler) GetOpenAPISpec(c *gin.Context) {
 					},
 					"responses": map[string]interface{}{
 						"200": map[string]interface{}{
-							"description": "获取成功",
+							"description": "",
 							"content": map[string]interface{}{
 								"application/json": map[string]interface{}{
 									"schema": map[string]interface{}{
@@ -1886,24 +1886,24 @@ func (h *OpenAPIHandler) GetOpenAPISpec(c *gin.Context) {
 							},
 						},
 						"404": map[string]interface{}{
-							"description": "队列不存在",
+							"description": "",
 						},
 						"401": map[string]interface{}{
-							"description": "未授权",
+							"description": "",
 						},
 					},
 				},
 				"delete": map[string]interface{}{
-					"tags":        []string{"批量任务"},
-					"summary":     "删除批量任务队列",
-					"description": "删除指定的批量任务队列",
+					"tags":        []string{""},
+					"summary":     "",
+					"description": "",
 					"operationId": "deleteBatchQueue",
 					"parameters": []map[string]interface{}{
 						{
 							"name":        "queueId",
 							"in":          "path",
 							"required":    true,
-							"description": "队列ID",
+							"description": "ID",
 							"schema": map[string]interface{}{
 								"type": "string",
 							},
@@ -1911,29 +1911,29 @@ func (h *OpenAPIHandler) GetOpenAPISpec(c *gin.Context) {
 					},
 					"responses": map[string]interface{}{
 						"200": map[string]interface{}{
-							"description": "删除成功",
+							"description": "",
 						},
 						"404": map[string]interface{}{
-							"description": "队列不存在",
+							"description": "",
 						},
 						"401": map[string]interface{}{
-							"description": "未授权",
+							"description": "",
 						},
 					},
 				},
 			},
 			"/api/batch-tasks/{queueId}/start": map[string]interface{}{
 				"post": map[string]interface{}{
-					"tags":        []string{"批量任务"},
-					"summary":     "启动批量任务队列",
-					"description": "开始执行批量任务队列中的任务",
+					"tags":        []string{""},
+					"summary":     "",
+					"description": "",
 					"operationId": "startBatchQueue",
 					"parameters": []map[string]interface{}{
 						{
 							"name":        "queueId",
 							"in":          "path",
 							"required":    true,
-							"description": "队列ID",
+							"description": "ID",
 							"schema": map[string]interface{}{
 								"type": "string",
 							},
@@ -1941,29 +1941,29 @@ func (h *OpenAPIHandler) GetOpenAPISpec(c *gin.Context) {
 					},
 					"responses": map[string]interface{}{
 						"200": map[string]interface{}{
-							"description": "启动成功",
+							"description": "",
 						},
 						"404": map[string]interface{}{
-							"description": "队列不存在",
+							"description": "",
 						},
 						"401": map[string]interface{}{
-							"description": "未授权",
+							"description": "",
 						},
 					},
 				},
 			},
 			"/api/batch-tasks/{queueId}/pause": map[string]interface{}{
 				"post": map[string]interface{}{
-					"tags":        []string{"批量任务"},
-					"summary":     "暂停批量任务队列",
-					"description": "暂停正在执行的批量任务队列",
+					"tags":        []string{""},
+					"summary":     "",
+					"description": "",
 					"operationId": "pauseBatchQueue",
 					"parameters": []map[string]interface{}{
 						{
 							"name":        "queueId",
 							"in":          "path",
 							"required":    true,
-							"description": "队列ID",
+							"description": "ID",
 							"schema": map[string]interface{}{
 								"type": "string",
 							},
@@ -1971,29 +1971,29 @@ func (h *OpenAPIHandler) GetOpenAPISpec(c *gin.Context) {
 					},
 					"responses": map[string]interface{}{
 						"200": map[string]interface{}{
-							"description": "暂停成功",
+							"description": "",
 						},
 						"404": map[string]interface{}{
-							"description": "队列不存在",
+							"description": "",
 						},
 						"401": map[string]interface{}{
-							"description": "未授权",
+							"description": "",
 						},
 					},
 				},
 			},
 			"/api/batch-tasks/{queueId}/tasks": map[string]interface{}{
 				"post": map[string]interface{}{
-					"tags":        []string{"批量任务"},
-					"summary":     "添加任务到队列",
-					"description": "向批量任务队列添加新任务。任务会添加到队列末尾，按照队列顺序依次执行。每个任务会创建一个独立的对话，支持完整的状态跟踪。\n**任务格式**：\n任务内容是一个字符串，描述要执行的安全测试任务。例如：\n- \"扫描 http://example.com 的SQL注入漏洞\"\n- \"对 192.168.1.1 进行端口扫描\"\n- \"检测 https://target.com 的XSS漏洞\"\n**使用示例**：\n```json\n{\n  \"task\": \"扫描 http://example.com 的SQL注入漏洞\"\n}\n```",
+					"tags":        []string{""},
+					"summary":     "",
+					"description": "。，。，。\n****：\n，。：\n- \" http://example.com SQL\"\n- \" 192.168.1.1 \"\n- \" https://target.com XSS\"\n****：\n```json\n{\n  \"task\": \" http://example.com SQL\"\n}\n```",
 					"operationId": "addBatchTask",
 					"parameters": []map[string]interface{}{
 						{
 							"name":        "queueId",
 							"in":          "path",
 							"required":    true,
-							"description": "队列ID",
+							"description": "ID",
 							"schema": map[string]interface{}{
 								"type": "string",
 							},
@@ -2009,24 +2009,24 @@ func (h *OpenAPIHandler) GetOpenAPISpec(c *gin.Context) {
 									"properties": map[string]interface{}{
 										"task": map[string]interface{}{
 											"type":        "string",
-											"description": "任务内容，描述要执行的安全测试任务（必需）",
-											"example":     "扫描 http://example.com 的SQL注入漏洞",
+											"description": "，（）",
+											"example":     " http://example.com SQL",
 										},
 									},
 								},
 								"examples": map[string]interface{}{
 									"sqlInjection": map[string]interface{}{
-										"summary":     "SQL注入扫描",
-										"description": "扫描目标网站的SQL注入漏洞",
+										"summary":     "SQL",
+										"description": "SQL",
 										"value": map[string]interface{}{
-											"task": "扫描 http://example.com 的SQL注入漏洞",
+											"task": " http://example.com SQL",
 										},
 									},
 									"portScan": map[string]interface{}{
-										"summary":     "端口扫描",
-										"description": "对目标IP进行端口扫描",
+										"summary":     "",
+										"description": "IP",
 										"value": map[string]interface{}{
-											"task": "对 192.168.1.1 进行端口扫描",
+											"task": " 192.168.1.1 ",
 										},
 									},
 								},
@@ -2035,7 +2035,7 @@ func (h *OpenAPIHandler) GetOpenAPISpec(c *gin.Context) {
 					},
 					"responses": map[string]interface{}{
 						"200": map[string]interface{}{
-							"description": "添加成功",
+							"description": "",
 							"content": map[string]interface{}{
 								"application/json": map[string]interface{}{
 									"schema": map[string]interface{}{
@@ -2043,12 +2043,12 @@ func (h *OpenAPIHandler) GetOpenAPISpec(c *gin.Context) {
 										"properties": map[string]interface{}{
 											"taskId": map[string]interface{}{
 												"type":        "string",
-												"description": "新添加的任务ID",
+												"description": "ID",
 											},
 											"message": map[string]interface{}{
 												"type":        "string",
-												"description": "成功消息",
-												"example":     "任务已添加到队列",
+												"description": "",
+												"example":     "",
 											},
 										},
 									},
@@ -2056,29 +2056,29 @@ func (h *OpenAPIHandler) GetOpenAPISpec(c *gin.Context) {
 							},
 						},
 						"400": map[string]interface{}{
-							"description": "请求参数错误（如task为空）",
+							"description": "（task）",
 						},
 						"404": map[string]interface{}{
-							"description": "队列不存在",
+							"description": "",
 						},
 						"401": map[string]interface{}{
-							"description": "未授权",
+							"description": "",
 						},
 					},
 				},
 			},
 			"/api/batch-tasks/{queueId}/tasks/{taskId}": map[string]interface{}{
 				"put": map[string]interface{}{
-					"tags":        []string{"批量任务"},
-					"summary":     "更新批量任务",
-					"description": "更新批量任务队列中的指定任务",
+					"tags":        []string{""},
+					"summary":     "",
+					"description": "",
 					"operationId": "updateBatchTask",
 					"parameters": []map[string]interface{}{
 						{
 							"name":        "queueId",
 							"in":          "path",
 							"required":    true,
-							"description": "队列ID",
+							"description": "ID",
 							"schema": map[string]interface{}{
 								"type": "string",
 							},
@@ -2087,7 +2087,7 @@ func (h *OpenAPIHandler) GetOpenAPISpec(c *gin.Context) {
 							"name":        "taskId",
 							"in":          "path",
 							"required":    true,
-							"description": "任务ID",
+							"description": "ID",
 							"schema": map[string]interface{}{
 								"type": "string",
 							},
@@ -2102,7 +2102,7 @@ func (h *OpenAPIHandler) GetOpenAPISpec(c *gin.Context) {
 									"properties": map[string]interface{}{
 										"task": map[string]interface{}{
 											"type":        "string",
-											"description": "任务内容",
+											"description": "",
 										},
 									},
 								},
@@ -2111,27 +2111,27 @@ func (h *OpenAPIHandler) GetOpenAPISpec(c *gin.Context) {
 					},
 					"responses": map[string]interface{}{
 						"200": map[string]interface{}{
-							"description": "更新成功",
+							"description": "",
 						},
 						"404": map[string]interface{}{
-							"description": "任务不存在",
+							"description": "",
 						},
 						"401": map[string]interface{}{
-							"description": "未授权",
+							"description": "",
 						},
 					},
 				},
 				"delete": map[string]interface{}{
-					"tags":        []string{"批量任务"},
-					"summary":     "删除批量任务",
-					"description": "从批量任务队列中删除指定任务",
+					"tags":        []string{""},
+					"summary":     "",
+					"description": "",
 					"operationId": "deleteBatchTask",
 					"parameters": []map[string]interface{}{
 						{
 							"name":        "queueId",
 							"in":          "path",
 							"required":    true,
-							"description": "队列ID",
+							"description": "ID",
 							"schema": map[string]interface{}{
 								"type": "string",
 							},
@@ -2140,7 +2140,7 @@ func (h *OpenAPIHandler) GetOpenAPISpec(c *gin.Context) {
 							"name":        "taskId",
 							"in":          "path",
 							"required":    true,
-							"description": "任务ID",
+							"description": "ID",
 							"schema": map[string]interface{}{
 								"type": "string",
 							},
@@ -2148,22 +2148,22 @@ func (h *OpenAPIHandler) GetOpenAPISpec(c *gin.Context) {
 					},
 					"responses": map[string]interface{}{
 						"200": map[string]interface{}{
-							"description": "删除成功",
+							"description": "",
 						},
 						"404": map[string]interface{}{
-							"description": "任务不存在",
+							"description": "",
 						},
 						"401": map[string]interface{}{
-							"description": "未授权",
+							"description": "",
 						},
 					},
 				},
 			},
 			"/api/groups": map[string]interface{}{
 				"post": map[string]interface{}{
-					"tags":        []string{"对话分组"},
-					"summary":     "创建分组",
-					"description": "创建一个新的对话分组",
+					"tags":        []string{""},
+					"summary":     "",
+					"description": "",
 					"operationId": "createGroup",
 					"requestBody": map[string]interface{}{
 						"required": true,
@@ -2177,7 +2177,7 @@ func (h *OpenAPIHandler) GetOpenAPISpec(c *gin.Context) {
 					},
 					"responses": map[string]interface{}{
 						"200": map[string]interface{}{
-							"description": "创建成功",
+							"description": "",
 							"content": map[string]interface{}{
 								"application/json": map[string]interface{}{
 									"schema": map[string]interface{}{
@@ -2187,21 +2187,21 @@ func (h *OpenAPIHandler) GetOpenAPISpec(c *gin.Context) {
 							},
 						},
 						"400": map[string]interface{}{
-							"description": "请求参数错误或分组名称已存在",
+							"description": "",
 						},
 						"401": map[string]interface{}{
-							"description": "未授权",
+							"description": "",
 						},
 					},
 				},
 				"get": map[string]interface{}{
-					"tags":        []string{"对话分组"},
-					"summary":     "列出分组",
-					"description": "获取所有对话分组",
+					"tags":        []string{""},
+					"summary":     "",
+					"description": "",
 					"operationId": "listGroups",
 					"responses": map[string]interface{}{
 						"200": map[string]interface{}{
-							"description": "获取成功",
+							"description": "",
 							"content": map[string]interface{}{
 								"application/json": map[string]interface{}{
 									"schema": map[string]interface{}{
@@ -2214,23 +2214,23 @@ func (h *OpenAPIHandler) GetOpenAPISpec(c *gin.Context) {
 							},
 						},
 						"401": map[string]interface{}{
-							"description": "未授权",
+							"description": "",
 						},
 					},
 				},
 			},
 			"/api/groups/{id}": map[string]interface{}{
 				"get": map[string]interface{}{
-					"tags":        []string{"对话分组"},
-					"summary":     "获取分组",
-					"description": "获取指定分组的详细信息",
+					"tags":        []string{""},
+					"summary":     "",
+					"description": "",
 					"operationId": "getGroup",
 					"parameters": []map[string]interface{}{
 						{
 							"name":        "id",
 							"in":          "path",
 							"required":    true,
-							"description": "分组ID",
+							"description": "ID",
 							"schema": map[string]interface{}{
 								"type": "string",
 							},
@@ -2238,7 +2238,7 @@ func (h *OpenAPIHandler) GetOpenAPISpec(c *gin.Context) {
 					},
 					"responses": map[string]interface{}{
 						"200": map[string]interface{}{
-							"description": "获取成功",
+							"description": "",
 							"content": map[string]interface{}{
 								"application/json": map[string]interface{}{
 									"schema": map[string]interface{}{
@@ -2248,24 +2248,24 @@ func (h *OpenAPIHandler) GetOpenAPISpec(c *gin.Context) {
 							},
 						},
 						"404": map[string]interface{}{
-							"description": "分组不存在",
+							"description": "",
 						},
 						"401": map[string]interface{}{
-							"description": "未授权",
+							"description": "",
 						},
 					},
 				},
 				"put": map[string]interface{}{
-					"tags":        []string{"对话分组"},
-					"summary":     "更新分组",
-					"description": "更新分组信息",
+					"tags":        []string{""},
+					"summary":     "",
+					"description": "",
 					"operationId": "updateGroup",
 					"parameters": []map[string]interface{}{
 						{
 							"name":        "id",
 							"in":          "path",
 							"required":    true,
-							"description": "分组ID",
+							"description": "ID",
 							"schema": map[string]interface{}{
 								"type": "string",
 							},
@@ -2283,7 +2283,7 @@ func (h *OpenAPIHandler) GetOpenAPISpec(c *gin.Context) {
 					},
 					"responses": map[string]interface{}{
 						"200": map[string]interface{}{
-							"description": "更新成功",
+							"description": "",
 							"content": map[string]interface{}{
 								"application/json": map[string]interface{}{
 									"schema": map[string]interface{}{
@@ -2293,27 +2293,27 @@ func (h *OpenAPIHandler) GetOpenAPISpec(c *gin.Context) {
 							},
 						},
 						"400": map[string]interface{}{
-							"description": "请求参数错误或分组名称已存在",
+							"description": "",
 						},
 						"404": map[string]interface{}{
-							"description": "分组不存在",
+							"description": "",
 						},
 						"401": map[string]interface{}{
-							"description": "未授权",
+							"description": "",
 						},
 					},
 				},
 				"delete": map[string]interface{}{
-					"tags":        []string{"对话分组"},
-					"summary":     "删除分组",
-					"description": "删除指定分组",
+					"tags":        []string{""},
+					"summary":     "",
+					"description": "",
 					"operationId": "deleteGroup",
 					"parameters": []map[string]interface{}{
 						{
 							"name":        "id",
 							"in":          "path",
 							"required":    true,
-							"description": "分组ID",
+							"description": "ID",
 							"schema": map[string]interface{}{
 								"type": "string",
 							},
@@ -2321,29 +2321,29 @@ func (h *OpenAPIHandler) GetOpenAPISpec(c *gin.Context) {
 					},
 					"responses": map[string]interface{}{
 						"200": map[string]interface{}{
-							"description": "删除成功",
+							"description": "",
 						},
 						"404": map[string]interface{}{
-							"description": "分组不存在",
+							"description": "",
 						},
 						"401": map[string]interface{}{
-							"description": "未授权",
+							"description": "",
 						},
 					},
 				},
 			},
 			"/api/groups/{id}/conversations": map[string]interface{}{
 				"get": map[string]interface{}{
-					"tags":        []string{"对话分组"},
-					"summary":     "获取分组中的对话",
-					"description": "获取指定分组中的所有对话",
+					"tags":        []string{""},
+					"summary":     "",
+					"description": "",
 					"operationId": "getGroupConversations",
 					"parameters": []map[string]interface{}{
 						{
 							"name":        "id",
 							"in":          "path",
 							"required":    true,
-							"description": "分组ID",
+							"description": "ID",
 							"schema": map[string]interface{}{
 								"type": "string",
 							},
@@ -2351,7 +2351,7 @@ func (h *OpenAPIHandler) GetOpenAPISpec(c *gin.Context) {
 					},
 					"responses": map[string]interface{}{
 						"200": map[string]interface{}{
-							"description": "获取成功",
+							"description": "",
 							"content": map[string]interface{}{
 								"application/json": map[string]interface{}{
 									"schema": map[string]interface{}{
@@ -2364,19 +2364,19 @@ func (h *OpenAPIHandler) GetOpenAPISpec(c *gin.Context) {
 							},
 						},
 						"404": map[string]interface{}{
-							"description": "分组不存在",
+							"description": "",
 						},
 						"401": map[string]interface{}{
-							"description": "未授权",
+							"description": "",
 						},
 					},
 				},
 			},
 			"/api/groups/conversations": map[string]interface{}{
 				"post": map[string]interface{}{
-					"tags":        []string{"对话分组"},
-					"summary":     "添加对话到分组",
-					"description": "将对话添加到指定分组",
+					"tags":        []string{""},
+					"summary":     "",
+					"description": "",
 					"operationId": "addConversationToGroup",
 					"requestBody": map[string]interface{}{
 						"required": true,
@@ -2390,32 +2390,32 @@ func (h *OpenAPIHandler) GetOpenAPISpec(c *gin.Context) {
 					},
 					"responses": map[string]interface{}{
 						"200": map[string]interface{}{
-							"description": "添加成功",
+							"description": "",
 						},
 						"400": map[string]interface{}{
-							"description": "请求参数错误",
+							"description": "",
 						},
 						"404": map[string]interface{}{
-							"description": "对话或分组不存在",
+							"description": "",
 						},
 						"401": map[string]interface{}{
-							"description": "未授权",
+							"description": "",
 						},
 					},
 				},
 			},
 			"/api/groups/{id}/conversations/{conversationId}": map[string]interface{}{
 				"delete": map[string]interface{}{
-					"tags":        []string{"对话分组"},
-					"summary":     "从分组移除对话",
-					"description": "从指定分组中移除对话",
+					"tags":        []string{""},
+					"summary":     "",
+					"description": "",
 					"operationId": "removeConversationFromGroup",
 					"parameters": []map[string]interface{}{
 						{
 							"name":        "id",
 							"in":          "path",
 							"required":    true,
-							"description": "分组ID",
+							"description": "ID",
 							"schema": map[string]interface{}{
 								"type": "string",
 							},
@@ -2424,7 +2424,7 @@ func (h *OpenAPIHandler) GetOpenAPISpec(c *gin.Context) {
 							"name":        "conversationId",
 							"in":          "path",
 							"required":    true,
-							"description": "对话ID",
+							"description": "ID",
 							"schema": map[string]interface{}{
 								"type": "string",
 							},
@@ -2432,29 +2432,29 @@ func (h *OpenAPIHandler) GetOpenAPISpec(c *gin.Context) {
 					},
 					"responses": map[string]interface{}{
 						"200": map[string]interface{}{
-							"description": "移除成功",
+							"description": "",
 						},
 						"404": map[string]interface{}{
-							"description": "对话或分组不存在",
+							"description": "",
 						},
 						"401": map[string]interface{}{
-							"description": "未授权",
+							"description": "",
 						},
 					},
 				},
 			},
 			"/api/vulnerabilities": map[string]interface{}{
 				"get": map[string]interface{}{
-					"tags":        []string{"漏洞管理"},
-					"summary":     "列出漏洞",
-					"description": "获取漏洞列表，支持分页和筛选",
+					"tags":        []string{""},
+					"summary":     "",
+					"description": "，",
 					"operationId": "listVulnerabilities",
 					"parameters": []map[string]interface{}{
 						{
 							"name":        "limit",
 							"in":          "query",
 							"required":    false,
-							"description": "每页数量",
+							"description": "",
 							"schema": map[string]interface{}{
 								"type":    "integer",
 								"default": 20,
@@ -2466,7 +2466,7 @@ func (h *OpenAPIHandler) GetOpenAPISpec(c *gin.Context) {
 							"name":        "offset",
 							"in":          "query",
 							"required":    false,
-							"description": "偏移量",
+							"description": "",
 							"schema": map[string]interface{}{
 								"type":    "integer",
 								"default": 0,
@@ -2477,7 +2477,7 @@ func (h *OpenAPIHandler) GetOpenAPISpec(c *gin.Context) {
 							"name":        "page",
 							"in":          "query",
 							"required":    false,
-							"description": "页码（与offset二选一）",
+							"description": "（offset）",
 							"schema": map[string]interface{}{
 								"type":    "integer",
 								"minimum": 1,
@@ -2487,7 +2487,7 @@ func (h *OpenAPIHandler) GetOpenAPISpec(c *gin.Context) {
 							"name":        "id",
 							"in":          "query",
 							"required":    false,
-							"description": "漏洞ID",
+							"description": "ID",
 							"schema": map[string]interface{}{
 								"type": "string",
 							},
@@ -2496,7 +2496,7 @@ func (h *OpenAPIHandler) GetOpenAPISpec(c *gin.Context) {
 							"name":        "conversation_id",
 							"in":          "query",
 							"required":    false,
-							"description": "对话ID",
+							"description": "ID",
 							"schema": map[string]interface{}{
 								"type": "string",
 							},
@@ -2505,7 +2505,7 @@ func (h *OpenAPIHandler) GetOpenAPISpec(c *gin.Context) {
 							"name":        "severity",
 							"in":          "query",
 							"required":    false,
-							"description": "严重程度",
+							"description": "",
 							"schema": map[string]interface{}{
 								"type": "string",
 								"enum": []string{"critical", "high", "medium", "low", "info"},
@@ -2515,7 +2515,7 @@ func (h *OpenAPIHandler) GetOpenAPISpec(c *gin.Context) {
 							"name":        "status",
 							"in":          "query",
 							"required":    false,
-							"description": "状态",
+							"description": "",
 							"schema": map[string]interface{}{
 								"type": "string",
 								"enum": []string{"open", "closed", "fixed"},
@@ -2524,7 +2524,7 @@ func (h *OpenAPIHandler) GetOpenAPISpec(c *gin.Context) {
 					},
 					"responses": map[string]interface{}{
 						"200": map[string]interface{}{
-							"description": "获取成功",
+							"description": "",
 							"content": map[string]interface{}{
 								"application/json": map[string]interface{}{
 									"schema": map[string]interface{}{
@@ -2534,14 +2534,14 @@ func (h *OpenAPIHandler) GetOpenAPISpec(c *gin.Context) {
 							},
 						},
 						"401": map[string]interface{}{
-							"description": "未授权",
+							"description": "",
 						},
 					},
 				},
 				"post": map[string]interface{}{
-					"tags":        []string{"漏洞管理"},
-					"summary":     "创建漏洞",
-					"description": "创建一个新的漏洞记录",
+					"tags":        []string{""},
+					"summary":     "",
+					"description": "",
 					"operationId": "createVulnerability",
 					"requestBody": map[string]interface{}{
 						"required": true,
@@ -2555,7 +2555,7 @@ func (h *OpenAPIHandler) GetOpenAPISpec(c *gin.Context) {
 					},
 					"responses": map[string]interface{}{
 						"200": map[string]interface{}{
-							"description": "创建成功",
+							"description": "",
 							"content": map[string]interface{}{
 								"application/json": map[string]interface{}{
 									"schema": map[string]interface{}{
@@ -2565,23 +2565,23 @@ func (h *OpenAPIHandler) GetOpenAPISpec(c *gin.Context) {
 							},
 						},
 						"400": map[string]interface{}{
-							"description": "请求参数错误",
+							"description": "",
 						},
 						"401": map[string]interface{}{
-							"description": "未授权",
+							"description": "",
 						},
 					},
 				},
 			},
 			"/api/vulnerabilities/stats": map[string]interface{}{
 				"get": map[string]interface{}{
-					"tags":        []string{"漏洞管理"},
-					"summary":     "获取漏洞统计",
-					"description": "获取漏洞统计信息",
+					"tags":        []string{""},
+					"summary":     "",
+					"description": "",
 					"operationId": "getVulnerabilityStats",
 					"responses": map[string]interface{}{
 						"200": map[string]interface{}{
-							"description": "获取成功",
+							"description": "",
 							"content": map[string]interface{}{
 								"application/json": map[string]interface{}{
 									"schema": map[string]interface{}{
@@ -2591,23 +2591,23 @@ func (h *OpenAPIHandler) GetOpenAPISpec(c *gin.Context) {
 							},
 						},
 						"401": map[string]interface{}{
-							"description": "未授权",
+							"description": "",
 						},
 					},
 				},
 			},
 			"/api/vulnerabilities/{id}": map[string]interface{}{
 				"get": map[string]interface{}{
-					"tags":        []string{"漏洞管理"},
-					"summary":     "获取漏洞",
-					"description": "获取指定漏洞的详细信息",
+					"tags":        []string{""},
+					"summary":     "",
+					"description": "",
 					"operationId": "getVulnerability",
 					"parameters": []map[string]interface{}{
 						{
 							"name":        "id",
 							"in":          "path",
 							"required":    true,
-							"description": "漏洞ID",
+							"description": "ID",
 							"schema": map[string]interface{}{
 								"type": "string",
 							},
@@ -2615,7 +2615,7 @@ func (h *OpenAPIHandler) GetOpenAPISpec(c *gin.Context) {
 					},
 					"responses": map[string]interface{}{
 						"200": map[string]interface{}{
-							"description": "获取成功",
+							"description": "",
 							"content": map[string]interface{}{
 								"application/json": map[string]interface{}{
 									"schema": map[string]interface{}{
@@ -2625,24 +2625,24 @@ func (h *OpenAPIHandler) GetOpenAPISpec(c *gin.Context) {
 							},
 						},
 						"404": map[string]interface{}{
-							"description": "漏洞不存在",
+							"description": "",
 						},
 						"401": map[string]interface{}{
-							"description": "未授权",
+							"description": "",
 						},
 					},
 				},
 				"put": map[string]interface{}{
-					"tags":        []string{"漏洞管理"},
-					"summary":     "更新漏洞",
-					"description": "更新漏洞信息",
+					"tags":        []string{""},
+					"summary":     "",
+					"description": "",
 					"operationId": "updateVulnerability",
 					"parameters": []map[string]interface{}{
 						{
 							"name":        "id",
 							"in":          "path",
 							"required":    true,
-							"description": "漏洞ID",
+							"description": "ID",
 							"schema": map[string]interface{}{
 								"type": "string",
 							},
@@ -2660,7 +2660,7 @@ func (h *OpenAPIHandler) GetOpenAPISpec(c *gin.Context) {
 					},
 					"responses": map[string]interface{}{
 						"200": map[string]interface{}{
-							"description": "更新成功",
+							"description": "",
 							"content": map[string]interface{}{
 								"application/json": map[string]interface{}{
 									"schema": map[string]interface{}{
@@ -2670,27 +2670,27 @@ func (h *OpenAPIHandler) GetOpenAPISpec(c *gin.Context) {
 							},
 						},
 						"400": map[string]interface{}{
-							"description": "请求参数错误",
+							"description": "",
 						},
 						"404": map[string]interface{}{
-							"description": "漏洞不存在",
+							"description": "",
 						},
 						"401": map[string]interface{}{
-							"description": "未授权",
+							"description": "",
 						},
 					},
 				},
 				"delete": map[string]interface{}{
-					"tags":        []string{"漏洞管理"},
-					"summary":     "删除漏洞",
-					"description": "删除指定漏洞",
+					"tags":        []string{""},
+					"summary":     "",
+					"description": "",
 					"operationId": "deleteVulnerability",
 					"parameters": []map[string]interface{}{
 						{
 							"name":        "id",
 							"in":          "path",
 							"required":    true,
-							"description": "漏洞ID",
+							"description": "ID",
 							"schema": map[string]interface{}{
 								"type": "string",
 							},
@@ -2698,26 +2698,26 @@ func (h *OpenAPIHandler) GetOpenAPISpec(c *gin.Context) {
 					},
 					"responses": map[string]interface{}{
 						"200": map[string]interface{}{
-							"description": "删除成功",
+							"description": "",
 						},
 						"404": map[string]interface{}{
-							"description": "漏洞不存在",
+							"description": "",
 						},
 						"401": map[string]interface{}{
-							"description": "未授权",
+							"description": "",
 						},
 					},
 				},
 			},
 			"/api/roles": map[string]interface{}{
 				"get": map[string]interface{}{
-					"tags":        []string{"角色管理"},
-					"summary":     "列出角色",
-					"description": "获取所有安全测试角色",
+					"tags":        []string{""},
+					"summary":     "",
+					"description": "",
 					"operationId": "getRoles",
 					"responses": map[string]interface{}{
 						"200": map[string]interface{}{
-							"description": "获取成功",
+							"description": "",
 							"content": map[string]interface{}{
 								"application/json": map[string]interface{}{
 									"schema": map[string]interface{}{
@@ -2725,7 +2725,7 @@ func (h *OpenAPIHandler) GetOpenAPISpec(c *gin.Context) {
 										"properties": map[string]interface{}{
 											"roles": map[string]interface{}{
 												"type":        "array",
-												"description": "角色列表",
+												"description": "",
 												"items": map[string]interface{}{
 													"$ref": "#/components/schemas/RoleConfig",
 												},
@@ -2736,14 +2736,14 @@ func (h *OpenAPIHandler) GetOpenAPISpec(c *gin.Context) {
 							},
 						},
 						"401": map[string]interface{}{
-							"description": "未授权",
+							"description": "",
 						},
 					},
 				},
 				"post": map[string]interface{}{
-					"tags":        []string{"角色管理"},
-					"summary":     "创建角色",
-					"description": "创建一个新的安全测试角色",
+					"tags":        []string{""},
+					"summary":     "",
+					"description": "",
 					"operationId": "createRole",
 					"requestBody": map[string]interface{}{
 						"required": true,
@@ -2757,29 +2757,29 @@ func (h *OpenAPIHandler) GetOpenAPISpec(c *gin.Context) {
 					},
 					"responses": map[string]interface{}{
 						"200": map[string]interface{}{
-							"description": "创建成功",
+							"description": "",
 						},
 						"400": map[string]interface{}{
-							"description": "请求参数错误",
+							"description": "",
 						},
 						"401": map[string]interface{}{
-							"description": "未授权",
+							"description": "",
 						},
 					},
 				},
 			},
 			"/api/roles/{name}": map[string]interface{}{
 				"get": map[string]interface{}{
-					"tags":        []string{"角色管理"},
-					"summary":     "获取角色",
-					"description": "获取指定角色的详细信息",
+					"tags":        []string{""},
+					"summary":     "",
+					"description": "",
 					"operationId": "getRole",
 					"parameters": []map[string]interface{}{
 						{
 							"name":        "name",
 							"in":          "path",
 							"required":    true,
-							"description": "角色名称",
+							"description": "",
 							"schema": map[string]interface{}{
 								"type": "string",
 							},
@@ -2787,7 +2787,7 @@ func (h *OpenAPIHandler) GetOpenAPISpec(c *gin.Context) {
 					},
 					"responses": map[string]interface{}{
 						"200": map[string]interface{}{
-							"description": "获取成功",
+							"description": "",
 							"content": map[string]interface{}{
 								"application/json": map[string]interface{}{
 									"schema": map[string]interface{}{
@@ -2802,24 +2802,24 @@ func (h *OpenAPIHandler) GetOpenAPISpec(c *gin.Context) {
 							},
 						},
 						"404": map[string]interface{}{
-							"description": "角色不存在",
+							"description": "",
 						},
 						"401": map[string]interface{}{
-							"description": "未授权",
+							"description": "",
 						},
 					},
 				},
 				"put": map[string]interface{}{
-					"tags":        []string{"角色管理"},
-					"summary":     "更新角色",
-					"description": "更新指定角色的配置",
+					"tags":        []string{""},
+					"summary":     "",
+					"description": "",
 					"operationId": "updateRole",
 					"parameters": []map[string]interface{}{
 						{
 							"name":        "name",
 							"in":          "path",
 							"required":    true,
-							"description": "角色名称",
+							"description": "",
 							"schema": map[string]interface{}{
 								"type": "string",
 							},
@@ -2837,30 +2837,30 @@ func (h *OpenAPIHandler) GetOpenAPISpec(c *gin.Context) {
 					},
 					"responses": map[string]interface{}{
 						"200": map[string]interface{}{
-							"description": "更新成功",
+							"description": "",
 						},
 						"400": map[string]interface{}{
-							"description": "请求参数错误",
+							"description": "",
 						},
 						"404": map[string]interface{}{
-							"description": "角色不存在",
+							"description": "",
 						},
 						"401": map[string]interface{}{
-							"description": "未授权",
+							"description": "",
 						},
 					},
 				},
 				"delete": map[string]interface{}{
-					"tags":        []string{"角色管理"},
-					"summary":     "删除角色",
-					"description": "删除指定角色",
+					"tags":        []string{""},
+					"summary":     "",
+					"description": "",
 					"operationId": "deleteRole",
 					"parameters": []map[string]interface{}{
 						{
 							"name":        "name",
 							"in":          "path",
 							"required":    true,
-							"description": "角色名称",
+							"description": "",
 							"schema": map[string]interface{}{
 								"type": "string",
 							},
@@ -2868,26 +2868,26 @@ func (h *OpenAPIHandler) GetOpenAPISpec(c *gin.Context) {
 					},
 					"responses": map[string]interface{}{
 						"200": map[string]interface{}{
-							"description": "删除成功",
+							"description": "",
 						},
 						"404": map[string]interface{}{
-							"description": "角色不存在",
+							"description": "",
 						},
 						"401": map[string]interface{}{
-							"description": "未授权",
+							"description": "",
 						},
 					},
 				},
 			},
 			"/api/roles/skills/list": map[string]interface{}{
 				"get": map[string]interface{}{
-					"tags":        []string{"角色管理"},
-					"summary":     "获取可用Skills列表",
-					"description": "获取所有可用的Skills列表，用于角色配置",
+					"tags":        []string{""},
+					"summary":     "Skills",
+					"description": "Skills，",
 					"operationId": "getSkills",
 					"responses": map[string]interface{}{
 						"200": map[string]interface{}{
-							"description": "获取成功",
+							"description": "",
 							"content": map[string]interface{}{
 								"application/json": map[string]interface{}{
 									"schema": map[string]interface{}{
@@ -2895,7 +2895,7 @@ func (h *OpenAPIHandler) GetOpenAPISpec(c *gin.Context) {
 										"properties": map[string]interface{}{
 											"skills": map[string]interface{}{
 												"type":        "array",
-												"description": "Skills列表",
+												"description": "Skills",
 												"items": map[string]interface{}{
 													"type": "string",
 												},
@@ -2906,23 +2906,23 @@ func (h *OpenAPIHandler) GetOpenAPISpec(c *gin.Context) {
 							},
 						},
 						"401": map[string]interface{}{
-							"description": "未授权",
+							"description": "",
 						},
 					},
 				},
 			},
 			"/api/skills": map[string]interface{}{
 				"get": map[string]interface{}{
-					"tags":        []string{"Skills管理"},
-					"summary":     "列出Skills",
-					"description": "获取所有Skills列表，支持分页和搜索",
+					"tags":        []string{"Skills"},
+					"summary":     "Skills",
+					"description": "Skills，",
 					"operationId": "getSkills",
 					"parameters": []map[string]interface{}{
 						{
 							"name":        "limit",
 							"in":          "query",
 							"required":    false,
-							"description": "每页数量",
+							"description": "",
 							"schema": map[string]interface{}{
 								"type":    "integer",
 								"default": 20,
@@ -2932,7 +2932,7 @@ func (h *OpenAPIHandler) GetOpenAPISpec(c *gin.Context) {
 							"name":        "offset",
 							"in":          "query",
 							"required":    false,
-							"description": "偏移量",
+							"description": "",
 							"schema": map[string]interface{}{
 								"type":    "integer",
 								"default": 0,
@@ -2942,7 +2942,7 @@ func (h *OpenAPIHandler) GetOpenAPISpec(c *gin.Context) {
 							"name":        "search",
 							"in":          "query",
 							"required":    false,
-							"description": "搜索关键词",
+							"description": "",
 							"schema": map[string]interface{}{
 								"type": "string",
 							},
@@ -2950,7 +2950,7 @@ func (h *OpenAPIHandler) GetOpenAPISpec(c *gin.Context) {
 					},
 					"responses": map[string]interface{}{
 						"200": map[string]interface{}{
-							"description": "获取成功",
+							"description": "",
 							"content": map[string]interface{}{
 								"application/json": map[string]interface{}{
 									"schema": map[string]interface{}{
@@ -2958,14 +2958,14 @@ func (h *OpenAPIHandler) GetOpenAPISpec(c *gin.Context) {
 										"properties": map[string]interface{}{
 											"skills": map[string]interface{}{
 												"type":        "array",
-												"description": "Skills列表",
+												"description": "Skills",
 												"items": map[string]interface{}{
 													"$ref": "#/components/schemas/Skill",
 												},
 											},
 											"total": map[string]interface{}{
 												"type":        "integer",
-												"description": "总数",
+												"description": "",
 											},
 										},
 									},
@@ -2973,14 +2973,14 @@ func (h *OpenAPIHandler) GetOpenAPISpec(c *gin.Context) {
 							},
 						},
 						"401": map[string]interface{}{
-							"description": "未授权",
+							"description": "",
 						},
 					},
 				},
 				"post": map[string]interface{}{
-					"tags":        []string{"Skills管理"},
-					"summary":     "创建Skill",
-					"description": "创建一个新的Skill",
+					"tags":        []string{"Skills"},
+					"summary":     "Skill",
+					"description": "Skill",
 					"operationId": "createSkill",
 					"requestBody": map[string]interface{}{
 						"required": true,
@@ -2994,67 +2994,67 @@ func (h *OpenAPIHandler) GetOpenAPISpec(c *gin.Context) {
 					},
 					"responses": map[string]interface{}{
 						"200": map[string]interface{}{
-							"description": "创建成功",
+							"description": "",
 						},
 						"400": map[string]interface{}{
-							"description": "请求参数错误",
+							"description": "",
 						},
 						"401": map[string]interface{}{
-							"description": "未授权",
+							"description": "",
 						},
 					},
 				},
 			},
 			"/api/skills/stats": map[string]interface{}{
 				"get": map[string]interface{}{
-					"tags":        []string{"Skills管理"},
-					"summary":     "获取Skill统计",
-					"description": "获取Skill调用统计信息",
+					"tags":        []string{"Skills"},
+					"summary":     "Skill",
+					"description": "Skill",
 					"operationId": "getSkillStats",
 					"responses": map[string]interface{}{
 						"200": map[string]interface{}{
-							"description": "获取成功",
+							"description": "",
 							"content": map[string]interface{}{
 								"application/json": map[string]interface{}{
 									"schema": map[string]interface{}{
 										"type":        "object",
-										"description": "统计信息",
+										"description": "",
 									},
 								},
 							},
 						},
 						"401": map[string]interface{}{
-							"description": "未授权",
+							"description": "",
 						},
 					},
 				},
 				"delete": map[string]interface{}{
-					"tags":        []string{"Skills管理"},
-					"summary":     "清空Skill统计",
-					"description": "清空所有Skill的调用统计",
+					"tags":        []string{"Skills"},
+					"summary":     "Skill",
+					"description": "Skill",
 					"operationId": "clearSkillStats",
 					"responses": map[string]interface{}{
 						"200": map[string]interface{}{
-							"description": "清空成功",
+							"description": "",
 						},
 						"401": map[string]interface{}{
-							"description": "未授权",
+							"description": "",
 						},
 					},
 				},
 			},
 			"/api/skills/{name}": map[string]interface{}{
 				"get": map[string]interface{}{
-					"tags":        []string{"Skills管理"},
-					"summary":     "获取Skill",
-					"description": "获取指定Skill的详细信息",
+					"tags":        []string{"Skills"},
+					"summary":     "Skill",
+					"description": "Skill",
 					"operationId": "getSkill",
 					"parameters": []map[string]interface{}{
 						{
 							"name":        "name",
 							"in":          "path",
 							"required":    true,
-							"description": "Skill名称",
+							"description": "Skill",
 							"schema": map[string]interface{}{
 								"type": "string",
 							},
@@ -3062,7 +3062,7 @@ func (h *OpenAPIHandler) GetOpenAPISpec(c *gin.Context) {
 					},
 					"responses": map[string]interface{}{
 						"200": map[string]interface{}{
-							"description": "获取成功",
+							"description": "",
 							"content": map[string]interface{}{
 								"application/json": map[string]interface{}{
 									"schema": map[string]interface{}{
@@ -3072,24 +3072,24 @@ func (h *OpenAPIHandler) GetOpenAPISpec(c *gin.Context) {
 							},
 						},
 						"404": map[string]interface{}{
-							"description": "Skill不存在",
+							"description": "Skill",
 						},
 						"401": map[string]interface{}{
-							"description": "未授权",
+							"description": "",
 						},
 					},
 				},
 				"put": map[string]interface{}{
-					"tags":        []string{"Skills管理"},
-					"summary":     "更新Skill",
-					"description": "更新指定Skill的信息",
+					"tags":        []string{"Skills"},
+					"summary":     "Skill",
+					"description": "Skill",
 					"operationId": "updateSkill",
 					"parameters": []map[string]interface{}{
 						{
 							"name":        "name",
 							"in":          "path",
 							"required":    true,
-							"description": "Skill名称",
+							"description": "Skill",
 							"schema": map[string]interface{}{
 								"type": "string",
 							},
@@ -3107,30 +3107,30 @@ func (h *OpenAPIHandler) GetOpenAPISpec(c *gin.Context) {
 					},
 					"responses": map[string]interface{}{
 						"200": map[string]interface{}{
-							"description": "更新成功",
+							"description": "",
 						},
 						"400": map[string]interface{}{
-							"description": "请求参数错误",
+							"description": "",
 						},
 						"404": map[string]interface{}{
-							"description": "Skill不存在",
+							"description": "Skill",
 						},
 						"401": map[string]interface{}{
-							"description": "未授权",
+							"description": "",
 						},
 					},
 				},
 				"delete": map[string]interface{}{
-					"tags":        []string{"Skills管理"},
-					"summary":     "删除Skill",
-					"description": "删除指定Skill",
+					"tags":        []string{"Skills"},
+					"summary":     "Skill",
+					"description": "Skill",
 					"operationId": "deleteSkill",
 					"parameters": []map[string]interface{}{
 						{
 							"name":        "name",
 							"in":          "path",
 							"required":    true,
-							"description": "Skill名称",
+							"description": "Skill",
 							"schema": map[string]interface{}{
 								"type": "string",
 							},
@@ -3138,29 +3138,29 @@ func (h *OpenAPIHandler) GetOpenAPISpec(c *gin.Context) {
 					},
 					"responses": map[string]interface{}{
 						"200": map[string]interface{}{
-							"description": "删除成功",
+							"description": "",
 						},
 						"404": map[string]interface{}{
-							"description": "Skill不存在",
+							"description": "Skill",
 						},
 						"401": map[string]interface{}{
-							"description": "未授权",
+							"description": "",
 						},
 					},
 				},
 			},
 			"/api/skills/{name}/bound-roles": map[string]interface{}{
 				"get": map[string]interface{}{
-					"tags":        []string{"Skills管理"},
-					"summary":     "获取绑定角色",
-					"description": "获取使用指定Skill的所有角色",
+					"tags":        []string{"Skills"},
+					"summary":     "",
+					"description": "Skill",
 					"operationId": "getSkillBoundRoles",
 					"parameters": []map[string]interface{}{
 						{
 							"name":        "name",
 							"in":          "path",
 							"required":    true,
-							"description": "Skill名称",
+							"description": "Skill",
 							"schema": map[string]interface{}{
 								"type": "string",
 							},
@@ -3168,7 +3168,7 @@ func (h *OpenAPIHandler) GetOpenAPISpec(c *gin.Context) {
 					},
 					"responses": map[string]interface{}{
 						"200": map[string]interface{}{
-							"description": "获取成功",
+							"description": "",
 							"content": map[string]interface{}{
 								"application/json": map[string]interface{}{
 									"schema": map[string]interface{}{
@@ -3176,7 +3176,7 @@ func (h *OpenAPIHandler) GetOpenAPISpec(c *gin.Context) {
 										"properties": map[string]interface{}{
 											"roles": map[string]interface{}{
 												"type":        "array",
-												"description": "角色列表",
+												"description": "",
 												"items": map[string]interface{}{
 													"type": "string",
 												},
@@ -3187,26 +3187,26 @@ func (h *OpenAPIHandler) GetOpenAPISpec(c *gin.Context) {
 							},
 						},
 						"404": map[string]interface{}{
-							"description": "Skill不存在",
+							"description": "Skill",
 						},
 						"401": map[string]interface{}{
-							"description": "未授权",
+							"description": "",
 						},
 					},
 				},
 			},
 			"/api/skills/{name}/stats": map[string]interface{}{
 				"delete": map[string]interface{}{
-					"tags":        []string{"Skills管理"},
-					"summary":     "清空Skill统计",
-					"description": "清空指定Skill的调用统计",
+					"tags":        []string{"Skills"},
+					"summary":     "Skill",
+					"description": "Skill",
 					"operationId": "clearSkillStatsByName",
 					"parameters": []map[string]interface{}{
 						{
 							"name":        "name",
 							"in":          "path",
 							"required":    true,
-							"description": "Skill名称",
+							"description": "Skill",
 							"schema": map[string]interface{}{
 								"type": "string",
 							},
@@ -3214,29 +3214,29 @@ func (h *OpenAPIHandler) GetOpenAPISpec(c *gin.Context) {
 					},
 					"responses": map[string]interface{}{
 						"200": map[string]interface{}{
-							"description": "清空成功",
+							"description": "",
 						},
 						"404": map[string]interface{}{
-							"description": "Skill不存在",
+							"description": "Skill",
 						},
 						"401": map[string]interface{}{
-							"description": "未授权",
+							"description": "",
 						},
 					},
 				},
 			},
 			"/api/monitor": map[string]interface{}{
 				"get": map[string]interface{}{
-					"tags":        []string{"监控"},
-					"summary":     "获取监控信息",
-					"description": "获取工具执行监控信息，支持分页和筛选",
+					"tags":        []string{""},
+					"summary":     "",
+					"description": "，",
 					"operationId": "monitor",
 					"parameters": []map[string]interface{}{
 						{
 							"name":        "page",
 							"in":          "query",
 							"required":    false,
-							"description": "页码",
+							"description": "",
 							"schema": map[string]interface{}{
 								"type":    "integer",
 								"default": 1,
@@ -3247,7 +3247,7 @@ func (h *OpenAPIHandler) GetOpenAPISpec(c *gin.Context) {
 							"name":        "page_size",
 							"in":          "query",
 							"required":    false,
-							"description": "每页数量",
+							"description": "",
 							"schema": map[string]interface{}{
 								"type":    "integer",
 								"default": 20,
@@ -3259,7 +3259,7 @@ func (h *OpenAPIHandler) GetOpenAPISpec(c *gin.Context) {
 							"name":        "status",
 							"in":          "query",
 							"required":    false,
-							"description": "状态筛选",
+							"description": "",
 							"schema": map[string]interface{}{
 								"type": "string",
 								"enum": []string{"success", "failed", "running"},
@@ -3269,7 +3269,7 @@ func (h *OpenAPIHandler) GetOpenAPISpec(c *gin.Context) {
 							"name":        "tool",
 							"in":          "query",
 							"required":    false,
-							"description": "工具名称筛选（支持部分匹配）",
+							"description": "（）",
 							"schema": map[string]interface{}{
 								"type": "string",
 							},
@@ -3277,7 +3277,7 @@ func (h *OpenAPIHandler) GetOpenAPISpec(c *gin.Context) {
 					},
 					"responses": map[string]interface{}{
 						"200": map[string]interface{}{
-							"description": "获取成功",
+							"description": "",
 							"content": map[string]interface{}{
 								"application/json": map[string]interface{}{
 									"schema": map[string]interface{}{
@@ -3287,23 +3287,23 @@ func (h *OpenAPIHandler) GetOpenAPISpec(c *gin.Context) {
 							},
 						},
 						"401": map[string]interface{}{
-							"description": "未授权",
+							"description": "",
 						},
 					},
 				},
 			},
 			"/api/monitor/execution/{id}": map[string]interface{}{
 				"get": map[string]interface{}{
-					"tags":        []string{"监控"},
-					"summary":     "获取执行记录",
-					"description": "获取指定执行记录的详细信息",
+					"tags":        []string{""},
+					"summary":     "",
+					"description": "",
 					"operationId": "getExecution",
 					"parameters": []map[string]interface{}{
 						{
 							"name":        "id",
 							"in":          "path",
 							"required":    true,
-							"description": "执行ID",
+							"description": "ID",
 							"schema": map[string]interface{}{
 								"type": "string",
 							},
@@ -3311,7 +3311,7 @@ func (h *OpenAPIHandler) GetOpenAPISpec(c *gin.Context) {
 					},
 					"responses": map[string]interface{}{
 						"200": map[string]interface{}{
-							"description": "获取成功",
+							"description": "",
 							"content": map[string]interface{}{
 								"application/json": map[string]interface{}{
 									"schema": map[string]interface{}{
@@ -3321,24 +3321,24 @@ func (h *OpenAPIHandler) GetOpenAPISpec(c *gin.Context) {
 							},
 						},
 						"404": map[string]interface{}{
-							"description": "执行记录不存在",
+							"description": "",
 						},
 						"401": map[string]interface{}{
-							"description": "未授权",
+							"description": "",
 						},
 					},
 				},
 				"delete": map[string]interface{}{
-					"tags":        []string{"监控"},
-					"summary":     "删除执行记录",
-					"description": "删除指定的执行记录",
+					"tags":        []string{""},
+					"summary":     "",
+					"description": "",
 					"operationId": "deleteExecution",
 					"parameters": []map[string]interface{}{
 						{
 							"name":        "id",
 							"in":          "path",
 							"required":    true,
-							"description": "执行ID",
+							"description": "ID",
 							"schema": map[string]interface{}{
 								"type": "string",
 							},
@@ -3346,66 +3346,66 @@ func (h *OpenAPIHandler) GetOpenAPISpec(c *gin.Context) {
 					},
 					"responses": map[string]interface{}{
 						"200": map[string]interface{}{
-							"description": "删除成功",
+							"description": "",
 						},
 						"404": map[string]interface{}{
-							"description": "执行记录不存在",
+							"description": "",
 						},
 						"401": map[string]interface{}{
-							"description": "未授权",
+							"description": "",
 						},
 					},
 				},
 			},
 			"/api/monitor/executions": map[string]interface{}{
 				"delete": map[string]interface{}{
-					"tags":        []string{"监控"},
-					"summary":     "批量删除执行记录",
-					"description": "批量删除执行记录",
+					"tags":        []string{""},
+					"summary":     "",
+					"description": "",
 					"operationId": "deleteExecutions",
 					"responses": map[string]interface{}{
 						"200": map[string]interface{}{
-							"description": "删除成功",
+							"description": "",
 						},
 						"401": map[string]interface{}{
-							"description": "未授权",
+							"description": "",
 						},
 					},
 				},
 			},
 			"/api/monitor/stats": map[string]interface{}{
 				"get": map[string]interface{}{
-					"tags":        []string{"监控"},
-					"summary":     "获取统计信息",
-					"description": "获取工具执行统计信息",
+					"tags":        []string{""},
+					"summary":     "",
+					"description": "",
 					"operationId": "getStats",
 					"responses": map[string]interface{}{
 						"200": map[string]interface{}{
-							"description": "获取成功",
+							"description": "",
 							"content": map[string]interface{}{
 								"application/json": map[string]interface{}{
 									"schema": map[string]interface{}{
 										"type":        "object",
-										"description": "统计信息",
+										"description": "",
 									},
 								},
 							},
 						},
 						"401": map[string]interface{}{
-							"description": "未授权",
+							"description": "",
 						},
 					},
 				},
 			},
 			"/api/config": map[string]interface{}{
 				"get": map[string]interface{}{
-					"tags":        []string{"配置管理"},
-					"summary":     "获取配置",
-					"description": "获取系统配置信息",
+					"tags":        []string{""},
+					"summary":     "",
+					"description": "",
 					"operationId": "getConfig",
 					"responses": map[string]interface{}{
 						"200": map[string]interface{}{
-							"description": "获取成功",
+							"description": "",
 							"content": map[string]interface{}{
 								"application/json": map[string]interface{}{
 									"schema": map[string]interface{}{
@@ -3415,14 +3415,14 @@ func (h *OpenAPIHandler) GetOpenAPISpec(c *gin.Context) {
 							},
 						},
 						"401": map[string]interface{}{
-							"description": "未授权",
+							"description": "",
 						},
 					},
 				},
 				"put": map[string]interface{}{
-					"tags":        []string{"配置管理"},
-					"summary":     "更新配置",
-					"description": "更新系统配置",
+					"tags":        []string{""},
+					"summary":     "",
+					"description": "",
 					"operationId": "updateConfig",
 					"requestBody": map[string]interface{}{
 						"required": true,
@@ -3436,66 +3436,66 @@ func (h *OpenAPIHandler) GetOpenAPISpec(c *gin.Context) {
 					},
 					"responses": map[string]interface{}{
 						"200": map[string]interface{}{
-							"description": "更新成功",
+							"description": "",
 						},
 						"400": map[string]interface{}{
-							"description": "请求参数错误",
+							"description": "",
 						},
 						"401": map[string]interface{}{
-							"description": "未授权",
+							"description": "",
 						},
 					},
 				},
 			},
 			"/api/config/tools": map[string]interface{}{
 				"get": map[string]interface{}{
-					"tags":        []string{"配置管理"},
-					"summary":     "获取工具配置",
-					"description": "获取所有工具的配置信息",
+					"tags":        []string{""},
+					"summary":     "",
+					"description": "",
 					"operationId": "getTools",
 					"responses": map[string]interface{}{
 						"200": map[string]interface{}{
-							"description": "获取成功",
+							"description": "",
 							"content": map[string]interface{}{
 								"application/json": map[string]interface{}{
 									"schema": map[string]interface{}{
 										"type":        "array",
-										"description": "工具配置列表",
+										"description": "",
 									},
 								},
 							},
 						},
 						"401": map[string]interface{}{
-							"description": "未授权",
+							"description": "",
 						},
 					},
 				},
 			},
 			"/api/config/apply": map[string]interface{}{
 				"post": map[string]interface{}{
-					"tags":        []string{"配置管理"},
-					"summary":     "应用配置",
-					"description": "应用配置更改",
+					"tags":        []string{""},
+					"summary":     "",
+					"description": "",
 					"operationId": "applyConfig",
 					"responses": map[string]interface{}{
 						"200": map[string]interface{}{
-							"description": "应用成功",
+							"description": "",
 						},
 						"401": map[string]interface{}{
-							"description": "未授权",
+							"description": "",
 						},
 					},
 				},
 			},
 			"/api/external-mcp": map[string]interface{}{
 				"get": map[string]interface{}{
-					"tags":        []string{"外部MCP管理"},
-					"summary":     "列出外部MCP",
-					"description": "获取所有外部MCP配置和状态",
+					"tags":        []string{"MCP"},
+					"summary":     "MCP",
+					"description": "MCP",
 					"operationId": "getExternalMCPs",
 					"responses": map[string]interface{}{
 						"200": map[string]interface{}{
-							"description": "获取成功",
+							"description": "",
 							"content": map[string]interface{}{
 								"application/json": map[string]interface{}{
 									"schema": map[string]interface{}{
@@ -3503,14 +3503,14 @@ func (h *OpenAPIHandler) GetOpenAPISpec(c *gin.Context) {
 										"properties": map[string]interface{}{
 											"servers": map[string]interface{}{
 												"type":        "object",
-												"description": "MCP服务器配置",
+												"description": "MCP",
 												"additionalProperties": map[string]interface{}{
 													"$ref": "#/components/schemas/ExternalMCPResponse",
 												},
 											},
 											"stats": map[string]interface{}{
 												"type":        "object",
-												"description": "统计信息",
+												"description": "",
 											},
 										},
 									},
@@ -3518,47 +3518,47 @@ func (h *OpenAPIHandler) GetOpenAPISpec(c *gin.Context) {
 							},
 						},
 						"401": map[string]interface{}{
-							"description": "未授权",
+							"description": "",
 						},
 					},
 				},
 			},
 			"/api/external-mcp/stats": map[string]interface{}{
 				"get": map[string]interface{}{
-					"tags":        []string{"外部MCP管理"},
-					"summary":     "获取外部MCP统计",
-					"description": "获取外部MCP统计信息",
+					"tags":        []string{"MCP"},
+					"summary":     "MCP",
+					"description": "MCP",
 					"operationId": "getExternalMCPStats",
 					"responses": map[string]interface{}{
 						"200": map[string]interface{}{
-							"description": "获取成功",
+							"description": "",
 							"content": map[string]interface{}{
 								"application/json": map[string]interface{}{
 									"schema": map[string]interface{}{
 										"type":        "object",
-										"description": "统计信息",
+										"description": "",
 									},
 								},
 							},
 						},
 						"401": map[string]interface{}{
-							"description": "未授权",
+							"description": "",
 						},
 					},
 				},
 			},
 			"/api/external-mcp/{name}": map[string]interface{}{
 				"get": map[string]interface{}{
-					"tags":        []string{"外部MCP管理"},
-					"summary":     "获取外部MCP",
-					"description": "获取指定外部MCP的配置和状态",
+					"tags":        []string{"MCP"},
+					"summary":     "MCP",
+					"description": "MCP",
 					"operationId": "getExternalMCP",
 					"parameters": []map[string]interface{}{
 						{
 							"name":        "name",
 							"in":          "path",
 							"required":    true,
-							"description": "MCP名称",
+							"description": "MCP",
 							"schema": map[string]interface{}{
 								"type": "string",
 							},
@@ -3566,7 +3566,7 @@ func (h *OpenAPIHandler) GetOpenAPISpec(c *gin.Context) {
 					},
 					"responses": map[string]interface{}{
 						"200": map[string]interface{}{
-							"description": "获取成功",
+							"description": "",
 							"content": map[string]interface{}{
 								"application/json": map[string]interface{}{
 									"schema": map[string]interface{}{
@@ -3576,24 +3576,24 @@ func (h *OpenAPIHandler) GetOpenAPISpec(c *gin.Context) {
 							},
 						},
 						"404": map[string]interface{}{
-							"description": "MCP不存在",
+							"description": "MCP",
 						},
 						"401": map[string]interface{}{
-							"description": "未授权",
+							"description": "",
 						},
 					},
 				},
 				"put": map[string]interface{}{
-					"tags":        []string{"外部MCP管理"},
-					"summary":     "添加或更新外部MCP",
-					"description": "添加新的外部MCP配置或更新现有配置。\n**传输方式**：\n支持两种传输方式：\n**1. stdio（标准输入输出）**：\n```json\n{\n  \"config\": {\n    \"enabled\": true,\n    \"command\": \"node\",\n    \"args\": [\"/path/to/mcp-server.js\"],\n    \"env\": {}\n  }\n}\n```\n**2. sse（Server-Sent Events）**：\n```json\n{\n  \"config\": {\n    \"enabled\": true,\n    \"transport\": \"sse\",\n    \"url\": \"http://127.0.0.1:8082/sse\",\n    \"timeout\": 30\n  }\n}\n```\n**配置参数说明**：\n- `enabled`: 是否启用（boolean，必需）\n- `command`: 命令（stdio模式必需，如：\"node\", \"python\"）\n- `args`: 命令参数数组（stdio模式必需）\n- `env`: 环境变量（object，可选）\n- `transport`: 传输方式（\"stdio\" 或 \"sse\"，sse模式必需）\n- `url`: SSE端点URL（sse模式必需）\n- `timeout`: 超时时间（秒，可选，默认30）\n- `description`: 描述（可选）",
+					"tags":        []string{"MCP"},
+					"summary":     "MCP",
+					"description": "MCP。\n****：\n：\n**1. stdio（）**：\n```json\n{\n  \"config\": {\n    \"enabled\": true,\n    \"command\": \"node\",\n    \"args\": [\"/path/to/mcp-server.js\"],\n    \"env\": {}\n  }\n}\n```\n**2. sse（Server-Sent Events）**：\n```json\n{\n  \"config\": {\n    \"enabled\": true,\n    \"transport\": \"sse\",\n    \"url\": \"http://127.0.0.1:8082/sse\",\n    \"timeout\": 30\n  }\n}\n```\n****：\n- `enabled`: （boolean，）\n- `command`: （stdio，：\"node\", \"python\"）\n- `args`: （stdio）\n- `env`: （object，）\n- `transport`: （\"stdio\"  \"sse\"，sse）\n- `url`: SSEURL（sse）\n- `timeout`: （，，30）\n- `description`: （）",
 					"operationId": "addOrUpdateExternalMCP",
 					"parameters": []map[string]interface{}{
 						{
 							"name":        "name",
 							"in":          "path",
 							"required":    true,
-							"description": "MCP名称（唯一标识符）",
+							"description": "MCP（）",
 							"schema": map[string]interface{}{
 								"type": "string",
 							},
@@ -3608,8 +3608,8 @@ func (h *OpenAPIHandler) GetOpenAPISpec(c *gin.Context) {
 								},
 								"examples": map[string]interface{}{
 									"stdio": map[string]interface{}{
-										"summary":     "stdio模式配置",
-										"description": "使用标准输入输出方式连接外部MCP服务器",
+										"summary":     "stdio",
+										"description": "MCP",
 										"value": map[string]interface{}{
 											"config": map[string]interface{}{
 												"enabled":     true,
@@ -3617,20 +3617,20 @@ func (h *OpenAPIHandler) GetOpenAPISpec(c *gin.Context) {
 												"args":        []string{"/path/to/mcp-server.js"},
 												"env":         map[string]interface{}{},
 												"timeout":     30,
-												"description": "Node.js MCP服务器",
+												"description": "Node.js MCP",
 											},
 										},
 									},
 									"sse": map[string]interface{}{
-										"summary":     "SSE模式配置",
-										"description": "使用Server-Sent Events方式连接外部MCP服务器",
+										"summary":     "SSE",
+										"description": "Server-Sent EventsMCP",
 										"value": map[string]interface{}{
 											"config": map[string]interface{}{
 												"enabled":     true,
 												"transport":   "sse",
 												"url":         "http://127.0.0.1:8082/sse",
 												"timeout":     30,
-												"description": "SSE MCP服务器",
+												"description": "SSE MCP",
 											},
 										},
 									},
@@ -3640,7 +3640,7 @@ func (h *OpenAPIHandler) GetOpenAPISpec(c *gin.Context) {
 					},
 					"responses": map[string]interface{}{
 						"200": map[string]interface{}{
-							"description": "操作成功",
+							"description": "",
 							"content": map[string]interface{}{
 								"application/json": map[string]interface{}{
 									"schema": map[string]interface{}{
@@ -3648,7 +3648,7 @@ func (h *OpenAPIHandler) GetOpenAPISpec(c *gin.Context) {
 										"properties": map[string]interface{}{
 											"message": map[string]interface{}{
 												"type":    "string",
-												"example": "外部MCP配置已保存",
+												"example": "MCP",
 											},
 										},
 									},
@@ -3656,34 +3656,34 @@ func (h *OpenAPIHandler) GetOpenAPISpec(c *gin.Context) {
 							},
 						},
 						"400": map[string]interface{}{
-							"description": "请求参数错误（如配置格式不正确、缺少必需字段等）",
+							"description": "（、）",
 							"content": map[string]interface{}{
 								"application/json": map[string]interface{}{
 									"schema": map[string]interface{}{
 										"$ref": "#/components/schemas/Error",
 									},
 									"example": map[string]interface{}{
-										"error": "stdio模式需要提供command和args参数",
+										"error": "stdiocommandargs",
 									},
 								},
 							},
 						},
 						"401": map[string]interface{}{
-							"description": "未授权",
+							"description": "",
 						},
 					},
 				},
 				"delete": map[string]interface{}{
-					"tags":        []string{"外部MCP管理"},
-					"summary":     "删除外部MCP",
-					"description": "删除指定的外部MCP配置",
+					"tags":        []string{"MCP"},
+					"summary":     "MCP",
+					"description": "MCP",
 					"operationId": "deleteExternalMCP",
 					"parameters": []map[string]interface{}{
 						{
 							"name":        "name",
 							"in":          "path",
 							"required":    true,
-							"description": "MCP名称",
+							"description": "MCP",
 							"schema": map[string]interface{}{
 								"type": "string",
 							},
@@ -3691,29 +3691,29 @@ func (h *OpenAPIHandler) GetOpenAPISpec(c *gin.Context) {
 					},
 					"responses": map[string]interface{}{
 						"200": map[string]interface{}{
-							"description": "删除成功",
+							"description": "",
 						},
 						"404": map[string]interface{}{
-							"description": "MCP不存在",
+							"description": "MCP",
 						},
 						"401": map[string]interface{}{
-							"description": "未授权",
+							"description": "",
 						},
 					},
 				},
 			},
 			"/api/external-mcp/{name}/start": map[string]interface{}{
 				"post": map[string]interface{}{
-					"tags":        []string{"外部MCP管理"},
-					"summary":     "启动外部MCP",
-					"description": "启动指定的外部MCP服务器",
+					"tags":        []string{"MCP"},
+					"summary":     "MCP",
+					"description": "MCP",
 					"operationId": "startExternalMCP",
 					"parameters": []map[string]interface{}{
 						{
 							"name":        "name",
 							"in":          "path",
 							"required":    true,
-							"description": "MCP名称",
+							"description": "MCP",
 							"schema": map[string]interface{}{
 								"type": "string",
 							},
@@ -3721,29 +3721,29 @@ func (h *OpenAPIHandler) GetOpenAPISpec(c *gin.Context) {
 					},
 					"responses": map[string]interface{}{
 						"200": map[string]interface{}{
-							"description": "启动成功",
+							"description": "",
 						},
 						"404": map[string]interface{}{
-							"description": "MCP不存在",
+							"description": "MCP",
 						},
 						"401": map[string]interface{}{
-							"description": "未授权",
+							"description": "",
 						},
 					},
 				},
 			},
 			"/api/external-mcp/{name}/stop": map[string]interface{}{
 				"post": map[string]interface{}{
-					"tags":        []string{"外部MCP管理"},
-					"summary":     "停止外部MCP",
-					"description": "停止指定的外部MCP服务器",
+					"tags":        []string{"MCP"},
+					"summary":     "MCP",
+					"description": "MCP",
 					"operationId": "stopExternalMCP",
 					"parameters": []map[string]interface{}{
 						{
 							"name":        "name",
 							"in":          "path",
 							"required":    true,
-							"description": "MCP名称",
+							"description": "MCP",
 							"schema": map[string]interface{}{
 								"type": "string",
 							},
@@ -3751,29 +3751,29 @@ func (h *OpenAPIHandler) GetOpenAPISpec(c *gin.Context) {
 					},
 					"responses": map[string]interface{}{
 						"200": map[string]interface{}{
-							"description": "停止成功",
+							"description": "",
 						},
 						"404": map[string]interface{}{
-							"description": "MCP不存在",
+							"description": "MCP",
 						},
 						"401": map[string]interface{}{
-							"description": "未授权",
+							"description": "",
 						},
 					},
 				},
 			},
 			"/api/attack-chain/{conversationId}": map[string]interface{}{
 				"get": map[string]interface{}{
-					"tags":        []string{"攻击链"},
-					"summary":     "获取攻击链",
-					"description": "获取指定对话的攻击链可视化数据",
+					"tags":        []string{""},
+					"summary":     "",
+					"description": "",
 					"operationId": "getAttackChain",
 					"parameters": []map[string]interface{}{
 						{
 							"name":        "conversationId",
 							"in":          "path",
 							"required":    true,
-							"description": "对话ID",
+							"description": "ID",
 							"schema": map[string]interface{}{
 								"type": "string",
 							},
@@ -3781,7 +3781,7 @@ func (h *OpenAPIHandler) GetOpenAPISpec(c *gin.Context) {
 					},
 					"responses": map[string]interface{}{
 						"200": map[string]interface{}{
-							"description": "获取成功",
+							"description": "",
 							"content": map[string]interface{}{
 								"application/json": map[string]interface{}{
 									"schema": map[string]interface{}{
@@ -3791,26 +3791,26 @@ func (h *OpenAPIHandler) GetOpenAPISpec(c *gin.Context) {
 							},
 						},
 						"404": map[string]interface{}{
-							"description": "对话不存在",
+							"description": "",
 						},
 						"401": map[string]interface{}{
-							"description": "未授权",
+							"description": "",
 						},
 					},
 				},
 			},
 			"/api/attack-chain/{conversationId}/regenerate": map[string]interface{}{
 				"post": map[string]interface{}{
-					"tags":        []string{"攻击链"},
-					"summary":     "重新生成攻击链",
-					"description": "重新生成指定对话的攻击链可视化数据",
+					"tags":        []string{""},
+					"summary":     "",
+					"description": "",
 					"operationId": "regenerateAttackChain",
 					"parameters": []map[string]interface{}{
 						{
 							"name":        "conversationId",
 							"in":          "path",
 							"required":    true,
-							"description": "对话ID",
+							"description": "ID",
 							"schema": map[string]interface{}{
 								"type": "string",
 							},
@@ -3818,7 +3818,7 @@ func (h *OpenAPIHandler) GetOpenAPISpec(c *gin.Context) {
 					},
 					"responses": map[string]interface{}{
 						"200": map[string]interface{}{
-							"description": "重新生成成功",
+							"description": "",
 							"content": map[string]interface{}{
 								"application/json": map[string]interface{}{
 									"schema": map[string]interface{}{
@@ -3828,26 +3828,26 @@ func (h *OpenAPIHandler) GetOpenAPISpec(c *gin.Context) {
 							},
 						},
 						"404": map[string]interface{}{
-							"description": "对话不存在",
+							"description": "",
 						},
 						"401": map[string]interface{}{
-							"description": "未授权",
+							"description": "",
 						},
 					},
 				},
 			},
 			"/api/conversations/{id}/pinned": map[string]interface{}{
 				"put": map[string]interface{}{
-					"tags":        []string{"对话管理"},
-					"summary":     "设置对话置顶",
-					"description": "设置或取消对话的置顶状态",
+					"tags":        []string{""},
+					"summary":     "",
+					"description": "",
 					"operationId": "updateConversationPinned",
 					"parameters": []map[string]interface{}{
 						{
 							"name":        "id",
 							"in":          "path",
 							"required":    true,
-							"description": "对话ID",
+							"description": "ID",
 							"schema": map[string]interface{}{
 								"type": "string",
 							},
@@ -3863,7 +3863,7 @@ func (h *OpenAPIHandler) GetOpenAPISpec(c *gin.Context) {
 									"properties": map[string]interface{}{
 										"pinned": map[string]interface{}{
 											"type":        "boolean",
-											"description": "是否置顶",
+											"description": "",
 										},
 									},
 								},
@@ -3872,29 +3872,29 @@ func (h *OpenAPIHandler) GetOpenAPISpec(c *gin.Context) {
 					},
 					"responses": map[string]interface{}{
 						"200": map[string]interface{}{
-							"description": "更新成功",
+							"description": "",
 						},
 						"404": map[string]interface{}{
-							"description": "对话不存在",
+							"description": "",
 						},
 						"401": map[string]interface{}{
-							"description": "未授权",
+							"description": "",
 						},
 					},
 				},
 			},
 			"/api/groups/{id}/pinned": map[string]interface{}{
 				"put": map[string]interface{}{
-					"tags":        []string{"对话分组"},
-					"summary":     "设置分组置顶",
-					"description": "设置或取消分组的置顶状态",
+					"tags":        []string{""},
+					"summary":     "",
+					"description": "",
 					"operationId": "updateGroupPinned",
 					"parameters": []map[string]interface{}{
 						{
 							"name":        "id",
 							"in":          "path",
 							"required":    true,
-							"description": "分组ID",
+							"description": "ID",
 							"schema": map[string]interface{}{
 								"type": "string",
 							},
@@ -3910,7 +3910,7 @@ func (h *OpenAPIHandler) GetOpenAPISpec(c *gin.Context) {
 									"properties": map[string]interface{}{
 										"pinned": map[string]interface{}{
 											"type":        "boolean",
-											"description": "是否置顶",
+											"description": "",
 										},
 									},
 								},
@@ -3919,29 +3919,29 @@ func (h *OpenAPIHandler) GetOpenAPISpec(c *gin.Context) {
 					},
 					"responses": map[string]interface{}{
 						"200": map[string]interface{}{
-							"description": "更新成功",
+							"description": "",
 						},
 						"404": map[string]interface{}{
-							"description": "分组不存在",
+							"description": "",
 						},
 						"401": map[string]interface{}{
-							"description": "未授权",
+							"description": "",
 						},
 					},
 				},
 			},
 			"/api/groups/{id}/conversations/{conversationId}/pinned": map[string]interface{}{
 				"put": map[string]interface{}{
-					"tags":        []string{"对话分组"},
-					"summary":     "设置分组中对话的置顶",
-					"description": "设置或取消分组中对话的置顶状态",
+					"tags":        []string{""},
+					"summary":     "",
+					"description": "",
 					"operationId": "updateConversationPinnedInGroup",
 					"parameters": []map[string]interface{}{
 						{
 							"name":        "id",
 							"in":          "path",
 							"required":    true,
-							"description": "分组ID",
+							"description": "ID",
 							"schema": map[string]interface{}{
 								"type": "string",
 							},
@@ -3950,7 +3950,7 @@ func (h *OpenAPIHandler) GetOpenAPISpec(c *gin.Context) {
 							"name":        "conversationId",
 							"in":          "path",
 							"required":    true,
-							"description": "对话ID",
+							"description": "ID",
 							"schema": map[string]interface{}{
 								"type": "string",
 							},
@@ -3966,7 +3966,7 @@ func (h *OpenAPIHandler) GetOpenAPISpec(c *gin.Context) {
 									"properties": map[string]interface{}{
 										"pinned": map[string]interface{}{
 											"type":        "boolean",
-											"description": "是否置顶",
+											"description": "",
 										},
 									},
 								},
@@ -3975,26 +3975,26 @@ func (h *OpenAPIHandler) GetOpenAPISpec(c *gin.Context) {
 					},
 					"responses": map[string]interface{}{
 						"200": map[string]interface{}{
-							"description": "更新成功",
+							"description": "",
 						},
 						"404": map[string]interface{}{
-							"description": "对话或分组不存在",
+							"description": "",
 						},
 						"401": map[string]interface{}{
-							"description": "未授权",
+							"description": "",
 						},
 					},
 				},
 			},
 			"/api/knowledge/categories": map[string]interface{}{
 				"get": map[string]interface{}{
-					"tags":        []string{"知识库"},
-					"summary":     "获取分类",
-					"description": "获取知识库的所有分类",
+					"tags":        []string{""},
+					"summary":     "",
+					"description": "",
 					"operationId": "getKnowledgeCategories",
 					"responses": map[string]interface{}{
 						"200": map[string]interface{}{
-							"description": "获取成功",
+							"description": "",
 							"content": map[string]interface{}{
 								"application/json": map[string]interface{}{
 									"schema": map[string]interface{}{
@@ -4002,14 +4002,14 @@ func (h *OpenAPIHandler) GetOpenAPISpec(c *gin.Context) {
 										"properties": map[string]interface{}{
 											"categories": map[string]interface{}{
 												"type":        "array",
-												"description": "分类列表",
+												"description": "",
 												"items": map[string]interface{}{
 													"type": "string",
 												},
 											},
 											"enabled": map[string]interface{}{
 												"type":        "boolean",
-												"description": "知识库是否启用",
+												"description": "",
 											},
 										},
 									},
@@ -4017,20 +4017,20 @@ func (h *OpenAPIHandler) GetOpenAPISpec(c *gin.Context) {
 							},
 						},
 						"401": map[string]interface{}{
-							"description": "未授权",
+							"description": "",
 						},
 					},
 				},
 			},
 			"/api/knowledge/items": map[string]interface{}{
 				"get": map[string]interface{}{
-					"tags":        []string{"知识库"},
-					"summary":     "列出知识项",
-					"description": "获取知识库中的所有知识项",
+					"tags":        []string{""},
+					"summary":     "",
+					"description": "",
 					"operationId": "getKnowledgeItems",
 					"responses": map[string]interface{}{
 						"200": map[string]interface{}{
-							"description": "获取成功",
+							"description": "",
 							"content": map[string]interface{}{
 								"application/json": map[string]interface{}{
 									"schema": map[string]interface{}{
@@ -4038,11 +4038,11 @@ func (h *OpenAPIHandler) GetOpenAPISpec(c *gin.Context) {
 										"properties": map[string]interface{}{
 											"items": map[string]interface{}{
 												"type":        "array",
-												"description": "知识项列表",
+												"description": "",
 											},
 											"enabled": map[string]interface{}{
 												"type":        "boolean",
-												"description": "知识库是否启用",
+												"description": "",
 											},
 										},
 									},
@@ -4050,14 +4050,14 @@ func (h *OpenAPIHandler) GetOpenAPISpec(c *gin.Context) {
 							},
 						},
 						"401": map[string]interface{}{
-							"description": "未授权",
+							"description": "",
 						},
 					},
 				},
 				"post": map[string]interface{}{
-					"tags":        []string{"知识库"},
-					"summary":     "创建知识项",
-					"description": "创建新的知识项",
+					"tags":        []string{""},
+					"summary":     "",
+					"description": "",
 					"operationId": "createKnowledgeItem",
 					"requestBody": map[string]interface{}{
 						"required": true,
@@ -4065,36 +4065,36 @@ func (h *OpenAPIHandler) GetOpenAPISpec(c *gin.Context) {
 							"application/json": map[string]interface{}{
 								"schema": map[string]interface{}{
 									"type":        "object",
-									"description": "知识项数据",
+									"description": "",
 								},
 							},
 						},
 					},
 					"responses": map[string]interface{}{
 						"200": map[string]interface{}{
-							"description": "创建成功",
+							"description": "",
 						},
 						"400": map[string]interface{}{
-							"description": "请求参数错误",
+							"description": "",
 						},
 						"401": map[string]interface{}{
-							"description": "未授权",
+							"description": "",
 						},
 					},
 				},
 			},
 			"/api/knowledge/items/{id}": map[string]interface{}{
 				"get": map[string]interface{}{
-					"tags":        []string{"知识库"},
-					"summary":     "获取知识项",
-					"description": "获取指定知识项的详细信息",
+					"tags":        []string{""},
+					"summary":     "",
+					"description": "",
 					"operationId": "getKnowledgeItem",
 					"parameters": []map[string]interface{}{
 						{
 							"name":        "id",
 							"in":          "path",
 							"required":    true,
-							"description": "知识项ID",
+							"description": "ID",
 							"schema": map[string]interface{}{
 								"type": "string",
 							},
@@ -4102,27 +4102,27 @@ func (h *OpenAPIHandler) GetOpenAPISpec(c *gin.Context) {
 					},
 					"responses": map[string]interface{}{
 						"200": map[string]interface{}{
-							"description": "获取成功",
+							"description": "",
 						},
 						"404": map[string]interface{}{
-							"description": "知识项不存在",
+							"description": "",
 						},
 						"401": map[string]interface{}{
-							"description": "未授权",
+							"description": "",
 						},
 					},
 				},
 				"put": map[string]interface{}{
-					"tags":        []string{"知识库"},
-					"summary":     "更新知识项",
-					"description": "更新指定知识项",
+					"tags":        []string{""},
+					"summary":     "",
+					"description": "",
 					"operationId": "updateKnowledgeItem",
 					"parameters": []map[string]interface{}{
 						{
 							"name":        "id",
 							"in":          "path",
 							"required":    true,
-							"description": "知识项ID",
+							"description": "ID",
 							"schema": map[string]interface{}{
 								"type": "string",
 							},
@@ -4134,34 +4134,34 @@ func (h *OpenAPIHandler) GetOpenAPISpec(c *gin.Context) {
 							"application/json": map[string]interface{}{
 								"schema": map[string]interface{}{
 									"type":        "object",
-									"description": "知识项数据",
+									"description": "",
 								},
 							},
 						},
 					},
 					"responses": map[string]interface{}{
 						"200": map[string]interface{}{
-							"description": "更新成功",
+							"description": "",
 						},
 						"404": map[string]interface{}{
-							"description": "知识项不存在",
+							"description": "",
 						},
 						"401": map[string]interface{}{
-							"description": "未授权",
+							"description": "",
 						},
 					},
 				},
 				"delete": map[string]interface{}{
-					"tags":        []string{"知识库"},
-					"summary":     "删除知识项",
-					"description": "删除指定知识项",
+					"tags":        []string{""},
+					"summary":     "",
+					"description": "",
 					"operationId": "deleteKnowledgeItem",
 					"parameters": []map[string]interface{}{
 						{
 							"name":        "id",
 							"in":          "path",
 							"required":    true,
-							"description": "知识项ID",
+							"description": "ID",
 							"schema": map[string]interface{}{
 								"type": "string",
 							},
@@ -4169,26 +4169,26 @@ func (h *OpenAPIHandler) GetOpenAPISpec(c *gin.Context) {
 					},
 					"responses": map[string]interface{}{
 						"200": map[string]interface{}{
-							"description": "删除成功",
+							"description": "",
 						},
 						"404": map[string]interface{}{
-							"description": "知识项不存在",
+							"description": "",
 						},
 						"401": map[string]interface{}{
-							"description": "未授权",
+							"description": "",
 						},
 					},
 				},
 			},
 			"/api/knowledge/index-status": map[string]interface{}{
 				"get": map[string]interface{}{
-					"tags":        []string{"知识库"},
-					"summary":     "获取索引状态",
-					"description": "获取知识库索引的构建状态",
+					"tags":        []string{""},
+					"summary":     "",
+					"description": "",
 					"operationId": "getIndexStatus",
 					"responses": map[string]interface{}{
 						"200": map[string]interface{}{
-							"description": "获取成功",
+							"description": "",
 							"content": map[string]interface{}{
 								"application/json": map[string]interface{}{
 									"schema": map[string]interface{}{
@@ -4196,23 +4196,23 @@ func (h *OpenAPIHandler) GetOpenAPISpec(c *gin.Context) {
 										"properties": map[string]interface{}{
 											"enabled": map[string]interface{}{
 												"type":        "boolean",
-												"description": "知识库是否启用",
+												"description": "",
 											},
 											"total_items": map[string]interface{}{
 												"type":        "integer",
-												"description": "总知识项数",
+												"description": "",
 											},
 											"indexed_items": map[string]interface{}{
 												"type":        "integer",
-												"description": "已索引知识项数",
+												"description": "",
 											},
 											"progress_percent": map[string]interface{}{
 												"type":        "number",
-												"description": "索引进度百分比",
+												"description": "",
 											},
 											"is_complete": map[string]interface{}{
 												"type":        "boolean",
-												"description": "索引是否完成",
+												"description": "",
 											},
 										},
 									},
@@ -4220,48 +4220,48 @@ func (h *OpenAPIHandler) GetOpenAPISpec(c *gin.Context) {
 							},
 						},
 						"401": map[string]interface{}{
-							"description": "未授权",
+							"description": "",
 						},
 					},
 				},
 			},
 			"/api/knowledge/index": map[string]interface{}{
 				"post": map[string]interface{}{
-					"tags":        []string{"知识库"},
-					"summary":     "重建索引",
-					"description": "重新构建知识库索引",
+					"tags":        []string{""},
+					"summary":     "",
+					"description": "",
 					"operationId": "rebuildIndex",
 					"responses": map[string]interface{}{
 						"200": map[string]interface{}{
-							"description": "重建索引任务已启动",
+							"description": "",
 						},
 						"401": map[string]interface{}{
-							"description": "未授权",
+							"description": "",
 						},
 					},
 				},
 			},
 			"/api/knowledge/scan": map[string]interface{}{
 				"post": map[string]interface{}{
-					"tags":        []string{"知识库"},
-					"summary":     "扫描知识库",
-					"description": "扫描知识库目录，导入新的知识文件",
+					"tags":        []string{""},
+					"summary":     "",
+					"description": "，",
 					"operationId": "scanKnowledgeBase",
 					"responses": map[string]interface{}{
 						"200": map[string]interface{}{
-							"description": "扫描任务已启动",
+							"description": "",
 						},
 						"401": map[string]interface{}{
-							"description": "未授权",
+							"description": "",
 						},
 					},
 				},
 			},
 			"/api/knowledge/search": map[string]interface{}{
 				"post": map[string]interface{}{
-					"tags":        []string{"知识库"},
-					"summary":     "搜索知识库",
-					"description": "在知识库中搜索相关内容。基于向量检索，按查询与知识片段的语义相似度（余弦）返回最相关结果。\n**搜索说明**：\n- 语义相似度搜索：嵌入向量 + 余弦相似度，可配置相似度阈值与 TopK\n- 可按风险类型等元数据过滤（如：SQL注入、XSS、文件上传等）\n- 建议先调用 `/api/knowledge/categories` 获取可用的风险类型列表\n**使用示例**：\n```json\n{\n  \"query\": \"SQL注入漏洞的检测方法\",\n  \"riskType\": \"SQL注入\",\n  \"topK\": 5,\n  \"threshold\": 0.7\n}\n```",
+					"tags":        []string{""},
+					"summary":     "",
+					"description": "。，（）。\n****：\n- ： + ， TopK\n- （：SQL、XSS、）\n-  `/api/knowledge/categories` \n****：\n```json\n{\n  \"query\": \"SQL\",\n  \"riskType\": \"SQL\",\n  \"topK\": 5,\n  \"threshold\": 0.7\n}\n```",
 					"operationId": "searchKnowledge",
 					"requestBody": map[string]interface{}{
 						"required": true,
@@ -4273,17 +4273,17 @@ func (h *OpenAPIHandler) GetOpenAPISpec(c *gin.Context) {
 									"properties": map[string]interface{}{
 										"query": map[string]interface{}{
 											"type":        "string",
-											"description": "搜索查询内容，描述你想要了解的安全知识主题（必需）",
-											"example":     "SQL注入漏洞的检测方法",
+											"description": "，（）",
+											"example":     "SQL",
 										},
 										"riskType": map[string]interface{}{
 											"type":        "string",
-											"description": "可选：指定风险类型（如：SQL注入、XSS、文件上传等）。建议先调用 `/api/knowledge/categories` 获取可用的风险类型列表，然后使用正确的风险类型进行精确搜索，这样可以大幅减少检索时间。如果不指定则搜索所有类型。",
-											"example":     "SQL注入",
+											"description": "：（：SQL、XSS、）。 `/api/knowledge/categories` ，，。。",
+											"example":     "SQL",
 										},
 										"topK": map[string]interface{}{
 											"type":        "integer",
-											"description": "可选：返回Top-K结果数量，默认5",
+											"description": "：Top-K，5",
 											"default":     5,
 											"minimum":     1,
 											"maximum":     50,
@@ -4292,7 +4292,7 @@ func (h *OpenAPIHandler) GetOpenAPISpec(c *gin.Context) {
 										"threshold": map[string]interface{}{
 											"type":        "number",
 											"format":      "float",
-											"description": "可选：相似度阈值（0-1之间），默认0.7。只有相似度大于等于此值的结果才会返回",
+											"description": "：（0-1），0.7。",
 											"default":     0.7,
 											"minimum":     0,
 											"maximum":     1,
@@ -4302,18 +4302,18 @@ func (h *OpenAPIHandler) GetOpenAPISpec(c *gin.Context) {
 								},
 								"examples": map[string]interface{}{
 									"basic": map[string]interface{}{
-										"summary":     "基础搜索",
-										"description": "最简单的搜索，只提供查询内容",
+										"summary":     "",
+										"description": "，",
 										"value": map[string]interface{}{
-											"query": "SQL注入漏洞的检测方法",
+											"query": "SQL",
 										},
 									},
 									"withRiskType": map[string]interface{}{
-										"summary":     "按风险类型搜索",
-										"description": "指定风险类型进行精确搜索",
+										"summary":     "",
+										"description": "",
 										"value": map[string]interface{}{
-											"query":     "SQL注入漏洞的检测方法",
-											"riskType":  "SQL注入",
+											"query":     "SQL",
+											"riskType":  "SQL",
 											"topK":      5,
 											"threshold": 0.7,
 										},
@@ -4324,7 +4324,7 @@ func (h *OpenAPIHandler) GetOpenAPISpec(c *gin.Context) {
 					},
 					"responses": map[string]interface{}{
 						"200": map[string]interface{}{
-							"description": "搜索成功",
+							"description": "",
 							"content": map[string]interface{}{
 								"application/json": map[string]interface{}{
 									"schema": map[string]interface{}{
@@ -4332,28 +4332,28 @@ func (h *OpenAPIHandler) GetOpenAPISpec(c *gin.Context) {
 										"properties": map[string]interface{}{
 											"results": map[string]interface{}{
 												"type":        "array",
-												"description": "搜索结果列表，每个结果包含：item（知识项信息）、chunks（匹配的知识片段）、score（相似度分数）",
+												"description": "，：item（）、chunks（）、score（）",
 												"items": map[string]interface{}{
 													"type": "object",
 													"properties": map[string]interface{}{
 														"item": map[string]interface{}{
 															"type":        "object",
-															"description": "知识项信息",
+															"description": "",
 														},
 														"chunks": map[string]interface{}{
 															"type":        "array",
-															"description": "匹配的知识片段列表",
+															"description": "",
 														},
 														"score": map[string]interface{}{
 															"type":        "number",
-															"description": "相似度分数（0-1之间）",
+															"description": "（0-1）",
 														},
 													},
 												},
 											},
 											"enabled": map[string]interface{}{
 												"type":        "boolean",
-												"description": "知识库是否启用",
+												"description": "",
 											},
 										},
 									},
@@ -4362,12 +4362,12 @@ func (h *OpenAPIHandler) GetOpenAPISpec(c *gin.Context) {
 											{
 												"item": map[string]interface{}{
 													"id":       "item-1",
-													"title":    "SQL注入漏洞检测",
-													"category": "SQL注入",
+													"title":    "SQL",
+													"category": "SQL",
 												},
 												"chunks": []map[string]interface{}{
 													{
-														"text": "SQL注入漏洞的检测方法包括...",
+														"text": "SQL...",
 													},
 												},
 												"score": 0.85,
@@ -4379,36 +4379,36 @@ func (h *OpenAPIHandler) GetOpenAPISpec(c *gin.Context) {
 							},
 						},
 						"400": map[string]interface{}{
-							"description": "请求参数错误（如query为空）",
+							"description": "（query）",
 							"content": map[string]interface{}{
 								"application/json": map[string]interface{}{
 									"schema": map[string]interface{}{
 										"$ref": "#/components/schemas/Error",
 									},
 									"example": map[string]interface{}{
-										"error": "查询不能为空",
+										"error": "",
 									},
 								},
 							},
 						},
 						"401": map[string]interface{}{
-							"description": "未授权",
+							"description": "",
 						},
 						"500": map[string]interface{}{
-							"description": "服务器内部错误（如知识库未启用或检索失败）",
+							"description": "（）",
 						},
 					},
 				},
 			},
 			"/api/knowledge/retrieval-logs": map[string]interface{}{
 				"get": map[string]interface{}{
-					"tags":        []string{"知识库"},
-					"summary":     "获取检索日志",
-					"description": "获取知识库检索日志",
+					"tags":        []string{""},
+					"summary":     "",
+					"description": "",
 					"operationId": "getRetrievalLogs",
 					"responses": map[string]interface{}{
 						"200": map[string]interface{}{
-							"description": "获取成功",
+							"description": "",
 							"content": map[string]interface{}{
 								"application/json": map[string]interface{}{
 									"schema": map[string]interface{}{
@@ -4416,11 +4416,11 @@ func (h *OpenAPIHandler) GetOpenAPISpec(c *gin.Context) {
 										"properties": map[string]interface{}{
 											"logs": map[string]interface{}{
 												"type":        "array",
-												"description": "检索日志列表",
+												"description": "",
 											},
 											"enabled": map[string]interface{}{
 												"type":        "boolean",
-												"description": "知识库是否启用",
+												"description": "",
 											},
 										},
 									},
@@ -4428,23 +4428,23 @@ func (h *OpenAPIHandler) GetOpenAPISpec(c *gin.Context) {
 							},
 						},
 						"401": map[string]interface{}{
-							"description": "未授权",
+							"description": "",
 						},
 					},
 				},
 			},
 			"/api/knowledge/retrieval-logs/{id}": map[string]interface{}{
 				"delete": map[string]interface{}{
-					"tags":        []string{"知识库"},
-					"summary":     "删除检索日志",
-					"description": "删除指定的检索日志",
+					"tags":        []string{""},
+					"summary":     "",
+					"description": "",
 					"operationId": "deleteRetrievalLog",
 					"parameters": []map[string]interface{}{
 						{
 							"name":        "id",
 							"in":          "path",
 							"required":    true,
-							"description": "日志ID",
+							"description": "ID",
 							"schema": map[string]interface{}{
 								"type": "string",
 							},
@@ -4452,13 +4452,13 @@ func (h *OpenAPIHandler) GetOpenAPISpec(c *gin.Context) {
 					},
 					"responses": map[string]interface{}{
 						"200": map[string]interface{}{
-							"description": "删除成功",
+							"description": "",
 						},
 						"404": map[string]interface{}{
-							"description": "日志不存在",
+							"description": "",
 						},
 						"401": map[string]interface{}{
-							"description": "未授权",
+							"description": "",
 						},
 					},
 				},
@@ -4466,16 +4466,16 @@ func (h *OpenAPIHandler) GetOpenAPISpec(c *gin.Context) {
 			// English note.
 			"/api/conversations/{id}/delete-turn": map[string]interface{}{
 				"post": map[string]interface{}{
-					"tags":        []string{"对话交互"},
-					"summary":     "删除对话轮次",
-					"description": "删除指定消息所在的对话轮次（从该轮 user 消息到下一轮 user 消息之前的所有消息），并清空 last_react 状态。",
+					"tags":        []string{""},
+					"summary":     "",
+					"description": "（ user  user ）， last_react 。",
 					"operationId": "deleteConversationTurn",
 					"parameters": []map[string]interface{}{
 						{
 							"name":        "id",
 							"in":          "path",
 							"required":    true,
-							"description": "对话ID",
+							"description": "ID",
 							"schema":      map[string]interface{}{"type": "string"},
 						},
 					},
@@ -4489,7 +4489,7 @@ func (h *OpenAPIHandler) GetOpenAPISpec(c *gin.Context) {
 									"properties": map[string]interface{}{
 										"messageId": map[string]interface{}{
 											"type":        "string",
-											"description": "锚点消息ID，标识要删除的轮次",
+											"description": "ID，",
 										},
 									},
 								},
@@ -4498,7 +4498,7 @@ func (h *OpenAPIHandler) GetOpenAPISpec(c *gin.Context) {
 					},
 					"responses": map[string]interface{}{
 						"200": map[string]interface{}{
-							"description": "删除成功",
+							"description": "",
 							"content": map[string]interface{}{
 								"application/json": map[string]interface{}{
 									"schema": map[string]interface{}{
@@ -4507,7 +4507,7 @@ func (h *OpenAPIHandler) GetOpenAPISpec(c *gin.Context) {
 											"deletedMessageIds": map[string]interface{}{
 												"type":        "array",
 												"items":       map[string]interface{}{"type": "string"},
-												"description": "被删除的消息ID列表",
+												"description": "ID",
 											},
 											"message": map[string]interface{}{
 												"type":    "string",
@@ -4518,30 +4518,30 @@ func (h *OpenAPIHandler) GetOpenAPISpec(c *gin.Context) {
 								},
 							},
 						},
-						"400": map[string]interface{}{"description": "参数错误或删除失败"},
-						"401": map[string]interface{}{"description": "未授权"},
-						"404": map[string]interface{}{"description": "对话不存在"},
+						"400": map[string]interface{}{"description": ""},
+						"401": map[string]interface{}{"description": ""},
+						"404": map[string]interface{}{"description": ""},
 					},
 				},
 			},
 			"/api/messages/{id}/process-details": map[string]interface{}{
 				"get": map[string]interface{}{
-					"tags":        []string{"对话交互"},
-					"summary":     "获取消息过程详情",
-					"description": "按需加载指定消息的执行过程详情，包括工具调用、思考过程等事件。",
+					"tags":        []string{""},
+					"summary":     "",
+					"description": "，、。",
 					"operationId": "getMessageProcessDetails",
 					"parameters": []map[string]interface{}{
 						{
 							"name":        "id",
 							"in":          "path",
 							"required":    true,
-							"description": "消息ID",
+							"description": "ID",
 							"schema":      map[string]interface{}{"type": "string"},
 						},
 					},
 					"responses": map[string]interface{}{
 						"200": map[string]interface{}{
-							"description": "获取成功",
+							"description": "",
 							"content": map[string]interface{}{
 								"application/json": map[string]interface{}{
 									"schema": map[string]interface{}{
@@ -4552,13 +4552,13 @@ func (h *OpenAPIHandler) GetOpenAPISpec(c *gin.Context) {
 												"items": map[string]interface{}{
 													"type": "object",
 													"properties": map[string]interface{}{
-														"id":             map[string]interface{}{"type": "string", "description": "详情记录ID"},
-														"messageId":      map[string]interface{}{"type": "string", "description": "所属消息ID"},
-														"conversationId": map[string]interface{}{"type": "string", "description": "所属对话ID"},
-														"eventType":      map[string]interface{}{"type": "string", "description": "事件类型（如tool_call, thinking等）"},
-														"message":        map[string]interface{}{"type": "string", "description": "事件消息"},
-														"data":           map[string]interface{}{"description": "事件附加数据（JSON对象）"},
-														"createdAt":      map[string]interface{}{"type": "string", "format": "date-time", "description": "创建时间"},
+														"id":             map[string]interface{}{"type": "string", "description": "ID"},
+														"messageId":      map[string]interface{}{"type": "string", "description": "ID"},
+														"conversationId": map[string]interface{}{"type": "string", "description": "ID"},
+														"eventType":      map[string]interface{}{"type": "string", "description": "（tool_call, thinking）"},
+														"message":        map[string]interface{}{"type": "string", "description": ""},
+														"data":           map[string]interface{}{"description": "（JSON）"},
+														"createdAt":      map[string]interface{}{"type": "string", "format": "date-time", "description": ""},
 													},
 												},
 											},
@@ -4567,8 +4567,8 @@ func (h *OpenAPIHandler) GetOpenAPISpec(c *gin.Context) {
 								},
 							},
 						},
-						"400": map[string]interface{}{"description": "参数错误"},
-						"401": map[string]interface{}{"description": "未授权"},
+						"400": map[string]interface{}{"description": ""},
+						"401": map[string]interface{}{"description": ""},
 					},
 				},
 			},
@@ -4576,52 +4576,52 @@ func (h *OpenAPIHandler) GetOpenAPISpec(c *gin.Context) {
 			// English note.
 			"/api/batch-tasks/{queueId}/rerun": map[string]interface{}{
 				"post": map[string]interface{}{
-					"tags":        []string{"批量任务"},
-					"summary":     "重跑批量任务队列",
-					"description": "重置已完成或已取消的批量任务队列，重新开始执行所有任务。",
+					"tags":        []string{""},
+					"summary":     "",
+					"description": "，。",
 					"operationId": "rerunBatchQueue",
 					"parameters": []map[string]interface{}{
 						{
 							"name":        "queueId",
 							"in":          "path",
 							"required":    true,
-							"description": "队列ID",
+							"description": "ID",
 							"schema":      map[string]interface{}{"type": "string"},
 						},
 					},
 					"responses": map[string]interface{}{
 						"200": map[string]interface{}{
-							"description": "重跑成功",
+							"description": "",
 							"content": map[string]interface{}{
 								"application/json": map[string]interface{}{
 									"schema": map[string]interface{}{
 										"type": "object",
 										"properties": map[string]interface{}{
-											"message": map[string]interface{}{"type": "string", "example": "批量任务已重新开始执行"},
-											"queueId": map[string]interface{}{"type": "string", "description": "队列ID"},
+											"message": map[string]interface{}{"type": "string", "example": ""},
+											"queueId": map[string]interface{}{"type": "string", "description": "ID"},
 										},
 									},
 								},
 							},
 						},
-						"400": map[string]interface{}{"description": "仅已完成或已取消的队列可以重跑"},
-						"401": map[string]interface{}{"description": "未授权"},
-						"404": map[string]interface{}{"description": "队列不存在"},
+						"400": map[string]interface{}{"description": ""},
+						"401": map[string]interface{}{"description": ""},
+						"404": map[string]interface{}{"description": ""},
 					},
 				},
 			},
 			"/api/batch-tasks/{queueId}/metadata": map[string]interface{}{
 				"put": map[string]interface{}{
-					"tags":        []string{"批量任务"},
-					"summary":     "修改队列元数据",
-					"description": "修改批量任务队列的标题、角色和代理模式。",
+					"tags":        []string{""},
+					"summary":     "",
+					"description": "、。",
 					"operationId": "updateBatchQueueMetadata",
 					"parameters": []map[string]interface{}{
 						{
 							"name":        "queueId",
 							"in":          "path",
 							"required":    true,
-							"description": "队列ID",
+							"description": "ID",
 							"schema":      map[string]interface{}{"type": "string"},
 						},
 					},
@@ -4632,9 +4632,9 @@ func (h *OpenAPIHandler) GetOpenAPISpec(c *gin.Context) {
 								"schema": map[string]interface{}{
 									"type": "object",
 									"properties": map[string]interface{}{
-										"title":     map[string]interface{}{"type": "string", "description": "队列标题"},
-										"role":      map[string]interface{}{"type": "string", "description": "使用的角色名称"},
-										"agentMode": map[string]interface{}{"type": "string", "description": "代理模式", "enum": []string{"single", "eino_single", "deep", "plan_execute", "supervisor"}},
+										"title":     map[string]interface{}{"type": "string", "description": ""},
+										"role":      map[string]interface{}{"type": "string", "description": ""},
+										"agentMode": map[string]interface{}{"type": "string", "description": "", "enum": []string{"single", "eino_single", "deep", "plan_execute", "supervisor"}},
 									},
 								},
 							},
@@ -4642,7 +4642,7 @@ func (h *OpenAPIHandler) GetOpenAPISpec(c *gin.Context) {
 					},
 					"responses": map[string]interface{}{
 						"200": map[string]interface{}{
-							"description": "更新成功",
+							"description": "",
 							"content": map[string]interface{}{
 								"application/json": map[string]interface{}{
 									"schema": map[string]interface{}{
@@ -4654,23 +4654,23 @@ func (h *OpenAPIHandler) GetOpenAPISpec(c *gin.Context) {
 								},
 							},
 						},
-						"400": map[string]interface{}{"description": "参数错误"},
-						"401": map[string]interface{}{"description": "未授权"},
+						"400": map[string]interface{}{"description": ""},
+						"401": map[string]interface{}{"description": ""},
 					},
 				},
 			},
 			"/api/batch-tasks/{queueId}/schedule": map[string]interface{}{
 				"put": map[string]interface{}{
-					"tags":        []string{"批量任务"},
-					"summary":     "修改队列调度配置",
-					"description": "修改批量任务队列的调度模式和Cron表达式。队列运行中无法修改。",
+					"tags":        []string{""},
+					"summary":     "",
+					"description": "Cron。。",
 					"operationId": "updateBatchQueueSchedule",
 					"parameters": []map[string]interface{}{
 						{
 							"name":        "queueId",
 							"in":          "path",
 							"required":    true,
-							"description": "队列ID",
+							"description": "ID",
 							"schema":      map[string]interface{}{"type": "string"},
 						},
 					},
@@ -4681,8 +4681,8 @@ func (h *OpenAPIHandler) GetOpenAPISpec(c *gin.Context) {
 								"schema": map[string]interface{}{
 									"type": "object",
 									"properties": map[string]interface{}{
-										"scheduleMode": map[string]interface{}{"type": "string", "description": "调度模式", "enum": []string{"manual", "cron"}},
-										"cronExpr":     map[string]interface{}{"type": "string", "description": "Cron表达式（scheduleMode为cron时必填）", "example": "0 2 * * *"},
+										"scheduleMode": map[string]interface{}{"type": "string", "description": "", "enum": []string{"manual", "cron"}},
+										"cronExpr":     map[string]interface{}{"type": "string", "description": "Cron（scheduleModecron）", "example": "0 2 * * *"},
 									},
 								},
 							},
@@ -4690,7 +4690,7 @@ func (h *OpenAPIHandler) GetOpenAPISpec(c *gin.Context) {
 					},
 					"responses": map[string]interface{}{
 						"200": map[string]interface{}{
-							"description": "更新成功",
+							"description": "",
 							"content": map[string]interface{}{
 								"application/json": map[string]interface{}{
 									"schema": map[string]interface{}{
@@ -4702,24 +4702,24 @@ func (h *OpenAPIHandler) GetOpenAPISpec(c *gin.Context) {
 								},
 							},
 						},
-						"400": map[string]interface{}{"description": "参数错误或队列正在运行中"},
-						"401": map[string]interface{}{"description": "未授权"},
-						"404": map[string]interface{}{"description": "队列不存在"},
+						"400": map[string]interface{}{"description": ""},
+						"401": map[string]interface{}{"description": ""},
+						"404": map[string]interface{}{"description": ""},
 					},
 				},
 			},
 			"/api/batch-tasks/{queueId}/schedule-enabled": map[string]interface{}{
 				"put": map[string]interface{}{
-					"tags":        []string{"批量任务"},
-					"summary":     "开关Cron自动调度",
-					"description": "开启或关闭批量任务队列的Cron自动调度功能，手工执行不受影响。",
+					"tags":        []string{""},
+					"summary":     "Cron",
+					"description": "Cron，。",
 					"operationId": "setBatchQueueScheduleEnabled",
 					"parameters": []map[string]interface{}{
 						{
 							"name":        "queueId",
 							"in":          "path",
 							"required":    true,
-							"description": "队列ID",
+							"description": "ID",
 							"schema":      map[string]interface{}{"type": "string"},
 						},
 					},
@@ -4731,7 +4731,7 @@ func (h *OpenAPIHandler) GetOpenAPISpec(c *gin.Context) {
 									"type": "object",
 									"required": []string{"scheduleEnabled"},
 									"properties": map[string]interface{}{
-										"scheduleEnabled": map[string]interface{}{"type": "boolean", "description": "是否启用自动调度"},
+										"scheduleEnabled": map[string]interface{}{"type": "boolean", "description": ""},
 									},
 								},
 							},
@@ -4739,7 +4739,7 @@ func (h *OpenAPIHandler) GetOpenAPISpec(c *gin.Context) {
 					},
 					"responses": map[string]interface{}{
 						"200": map[string]interface{}{
-							"description": "设置成功",
+							"description": "",
 							"content": map[string]interface{}{
 								"application/json": map[string]interface{}{
 									"schema": map[string]interface{}{
@@ -4751,8 +4751,8 @@ func (h *OpenAPIHandler) GetOpenAPISpec(c *gin.Context) {
 								},
 							},
 						},
-						"401": map[string]interface{}{"description": "未授权"},
-						"404": map[string]interface{}{"description": "队列不存在"},
+						"401": map[string]interface{}{"description": ""},
+						"404": map[string]interface{}{"description": ""},
 					},
 				},
 			},
@@ -4760,13 +4760,13 @@ func (h *OpenAPIHandler) GetOpenAPISpec(c *gin.Context) {
 			// English note.
 			"/api/groups/mappings": map[string]interface{}{
 				"get": map[string]interface{}{
-					"tags":        []string{"对话分组"},
-					"summary":     "获取所有分组映射",
-					"description": "获取所有对话与分组之间的映射关系列表。",
+					"tags":        []string{""},
+					"summary":     "",
+					"description": "。",
 					"operationId": "getAllGroupMappings",
 					"responses": map[string]interface{}{
 						"200": map[string]interface{}{
-							"description": "获取成功",
+							"description": "",
 							"content": map[string]interface{}{
 								"application/json": map[string]interface{}{
 									"schema": map[string]interface{}{
@@ -4774,16 +4774,16 @@ func (h *OpenAPIHandler) GetOpenAPISpec(c *gin.Context) {
 										"items": map[string]interface{}{
 											"type": "object",
 											"properties": map[string]interface{}{
-												"conversation_id": map[string]interface{}{"type": "string", "description": "对话ID"},
-												"group_id":        map[string]interface{}{"type": "string", "description": "分组ID"},
-												"pinned":          map[string]interface{}{"type": "boolean", "description": "是否置顶"},
+												"conversation_id": map[string]interface{}{"type": "string", "description": "ID"},
+												"group_id":        map[string]interface{}{"type": "string", "description": "ID"},
+												"pinned":          map[string]interface{}{"type": "boolean", "description": ""},
 											},
 										},
 									},
 								},
 							},
 						},
-						"401": map[string]interface{}{"description": "未授权"},
+						"401": map[string]interface{}{"description": ""},
 					},
 				},
 			},
@@ -4791,9 +4791,9 @@ func (h *OpenAPIHandler) GetOpenAPISpec(c *gin.Context) {
 			// English note.
 			"/api/fofa/search": map[string]interface{}{
 				"post": map[string]interface{}{
-					"tags":        []string{"FOFA信息收集"},
-					"summary":     "FOFA搜索",
-					"description": "通过后端代理执行FOFA搜索查询，返回资产信息。",
+					"tags":        []string{"FOFA"},
+					"summary":     "FOFA",
+					"description": "FOFA，。",
 					"operationId": "fofaSearch",
 					"requestBody": map[string]interface{}{
 						"required": true,
@@ -4803,11 +4803,11 @@ func (h *OpenAPIHandler) GetOpenAPISpec(c *gin.Context) {
 									"type": "object",
 									"required": []string{"query"},
 									"properties": map[string]interface{}{
-										"query":  map[string]interface{}{"type": "string", "description": "FOFA查询语法", "example": "domain=\"example.com\""},
-										"size":   map[string]interface{}{"type": "integer", "description": "返回数量（默认100，最大10000）", "default": 100},
-										"page":   map[string]interface{}{"type": "integer", "description": "页码（默认1）", "default": 1},
-										"fields": map[string]interface{}{"type": "string", "description": "返回字段，逗号分隔", "example": "host,ip,port,title"},
-										"full":   map[string]interface{}{"type": "boolean", "description": "是否查询全部数据", "default": false},
+										"query":  map[string]interface{}{"type": "string", "description": "FOFA", "example": "domain=\"example.com\""},
+										"size":   map[string]interface{}{"type": "integer", "description": "（100，10000）", "default": 100},
+										"page":   map[string]interface{}{"type": "integer", "description": "（1）", "default": 1},
+										"fields": map[string]interface{}{"type": "string", "description": "，", "example": "host,ip,port,title"},
+										"full":   map[string]interface{}{"type": "boolean", "description": "", "default": false},
 									},
 								},
 							},
@@ -4815,34 +4815,34 @@ func (h *OpenAPIHandler) GetOpenAPISpec(c *gin.Context) {
 					},
 					"responses": map[string]interface{}{
 						"200": map[string]interface{}{
-							"description": "搜索成功",
+							"description": "",
 							"content": map[string]interface{}{
 								"application/json": map[string]interface{}{
 									"schema": map[string]interface{}{
 										"type": "object",
 										"properties": map[string]interface{}{
-											"query":         map[string]interface{}{"type": "string", "description": "实际执行的查询"},
+											"query":         map[string]interface{}{"type": "string", "description": ""},
 											"size":          map[string]interface{}{"type": "integer"},
 											"page":          map[string]interface{}{"type": "integer"},
-											"total":         map[string]interface{}{"type": "integer", "description": "总匹配数"},
+											"total":         map[string]interface{}{"type": "integer", "description": ""},
 											"fields":        map[string]interface{}{"type": "array", "items": map[string]interface{}{"type": "string"}},
 											"results_count": map[string]interface{}{"type": "integer"},
-											"results":       map[string]interface{}{"type": "array", "items": map[string]interface{}{"type": "object"}, "description": "搜索结果列表"},
+											"results":       map[string]interface{}{"type": "array", "items": map[string]interface{}{"type": "object"}, "description": ""},
 										},
 									},
 								},
 							},
 						},
-						"400": map[string]interface{}{"description": "参数错误"},
-						"401": map[string]interface{}{"description": "未授权"},
+						"400": map[string]interface{}{"description": ""},
+						"401": map[string]interface{}{"description": ""},
 					},
 				},
 			},
 			"/api/fofa/parse": map[string]interface{}{
 				"post": map[string]interface{}{
-					"tags":        []string{"FOFA信息收集"},
-					"summary":     "自然语言解析为FOFA语法",
-					"description": "使用AI将自然语言描述解析为FOFA查询语法，需人工确认后再执行查询。",
+					"tags":        []string{"FOFA"},
+					"summary":     "FOFA",
+					"description": "AIFOFA，。",
 					"operationId": "fofaParse",
 					"requestBody": map[string]interface{}{
 						"required": true,
@@ -4852,7 +4852,7 @@ func (h *OpenAPIHandler) GetOpenAPISpec(c *gin.Context) {
 									"type": "object",
 									"required": []string{"text"},
 									"properties": map[string]interface{}{
-										"text": map[string]interface{}{"type": "string", "description": "自然语言描述", "example": "查找使用WordPress的网站"},
+										"text": map[string]interface{}{"type": "string", "description": "", "example": "WordPress"},
 									},
 								},
 							},
@@ -4860,22 +4860,22 @@ func (h *OpenAPIHandler) GetOpenAPISpec(c *gin.Context) {
 					},
 					"responses": map[string]interface{}{
 						"200": map[string]interface{}{
-							"description": "解析成功",
+							"description": "",
 							"content": map[string]interface{}{
 								"application/json": map[string]interface{}{
 									"schema": map[string]interface{}{
 										"type": "object",
 										"properties": map[string]interface{}{
-											"query":       map[string]interface{}{"type": "string", "description": "生成的FOFA查询语法"},
-											"explanation": map[string]interface{}{"type": "string", "description": "语法解释"},
-											"warnings":    map[string]interface{}{"type": "array", "items": map[string]interface{}{"type": "string"}, "description": "潜在风险或歧义提示"},
+											"query":       map[string]interface{}{"type": "string", "description": "FOFA"},
+											"explanation": map[string]interface{}{"type": "string", "description": ""},
+											"warnings":    map[string]interface{}{"type": "array", "items": map[string]interface{}{"type": "string"}, "description": ""},
 										},
 									},
 								},
 							},
 						},
-						"400": map[string]interface{}{"description": "参数错误"},
-						"401": map[string]interface{}{"description": "未授权"},
+						"400": map[string]interface{}{"description": ""},
+						"401": map[string]interface{}{"description": ""},
 					},
 				},
 			},
@@ -4883,9 +4883,9 @@ func (h *OpenAPIHandler) GetOpenAPISpec(c *gin.Context) {
 			// English note.
 			"/api/config/test-openai": map[string]interface{}{
 				"post": map[string]interface{}{
-					"tags":        []string{"配置管理"},
-					"summary":     "测试OpenAI API连接",
-					"description": "测试指定的OpenAI/Claude API配置是否可用，发送一个最小请求验证连通性。",
+					"tags":        []string{""},
+					"summary":     "OpenAI API",
+					"description": "OpenAI/Claude API，。",
 					"operationId": "testOpenAI",
 					"requestBody": map[string]interface{}{
 						"required": true,
@@ -4895,10 +4895,10 @@ func (h *OpenAPIHandler) GetOpenAPISpec(c *gin.Context) {
 									"type": "object",
 									"required": []string{"model"},
 									"properties": map[string]interface{}{
-										"provider": map[string]interface{}{"type": "string", "description": "LLM提供商（openai/claude）", "example": "openai"},
-										"base_url": map[string]interface{}{"type": "string", "description": "API基地址（可选，默认根据provider自动选择）"},
-										"api_key":  map[string]interface{}{"type": "string", "description": "API密钥"},
-										"model":    map[string]interface{}{"type": "string", "description": "模型名称", "example": "gpt-4"},
+										"provider": map[string]interface{}{"type": "string", "description": "LLM（openai/claude）", "example": "openai"},
+										"base_url": map[string]interface{}{"type": "string", "description": "API（，provider）"},
+										"api_key":  map[string]interface{}{"type": "string", "description": "API"},
+										"model":    map[string]interface{}{"type": "string", "description": "", "example": "gpt-4"},
 									},
 								},
 							},
@@ -4906,23 +4906,23 @@ func (h *OpenAPIHandler) GetOpenAPISpec(c *gin.Context) {
 					},
 					"responses": map[string]interface{}{
 						"200": map[string]interface{}{
-							"description": "测试结果",
+							"description": "",
 							"content": map[string]interface{}{
 								"application/json": map[string]interface{}{
 									"schema": map[string]interface{}{
 										"type": "object",
 										"properties": map[string]interface{}{
-											"success":    map[string]interface{}{"type": "boolean", "description": "是否连接成功"},
-											"error":      map[string]interface{}{"type": "string", "description": "失败原因（success=false时）"},
-											"model":      map[string]interface{}{"type": "string", "description": "实际使用的模型（success=true时）"},
-											"latency_ms": map[string]interface{}{"type": "number", "description": "延迟毫秒数（success=true时）"},
+											"success":    map[string]interface{}{"type": "boolean", "description": ""},
+											"error":      map[string]interface{}{"type": "string", "description": "（success=false）"},
+											"model":      map[string]interface{}{"type": "string", "description": "（success=true）"},
+											"latency_ms": map[string]interface{}{"type": "number", "description": "（success=true）"},
 										},
 									},
 								},
 							},
 						},
-						"400": map[string]interface{}{"description": "参数错误"},
-						"401": map[string]interface{}{"description": "未授权"},
+						"400": map[string]interface{}{"description": ""},
+						"401": map[string]interface{}{"description": ""},
 					},
 				},
 			},
@@ -4930,9 +4930,9 @@ func (h *OpenAPIHandler) GetOpenAPISpec(c *gin.Context) {
 			// English note.
 			"/api/terminal/run": map[string]interface{}{
 				"post": map[string]interface{}{
-					"tags":        []string{"终端"},
-					"summary":     "执行终端命令",
-					"description": "在服务器上执行Shell命令并返回结果。",
+					"tags":        []string{""},
+					"summary":     "",
+					"description": "Shell。",
 					"operationId": "terminalRun",
 					"requestBody": map[string]interface{}{
 						"required": true,
@@ -4942,9 +4942,9 @@ func (h *OpenAPIHandler) GetOpenAPISpec(c *gin.Context) {
 									"type": "object",
 									"required": []string{"command"},
 									"properties": map[string]interface{}{
-										"command": map[string]interface{}{"type": "string", "description": "要执行的命令"},
-										"shell":   map[string]interface{}{"type": "string", "description": "Shell类型（默认sh/cmd）"},
-										"cwd":     map[string]interface{}{"type": "string", "description": "工作目录（可选）"},
+										"command": map[string]interface{}{"type": "string", "description": ""},
+										"shell":   map[string]interface{}{"type": "string", "description": "Shell（sh/cmd）"},
+										"cwd":     map[string]interface{}{"type": "string", "description": "（）"},
 									},
 								},
 							},
@@ -4952,30 +4952,30 @@ func (h *OpenAPIHandler) GetOpenAPISpec(c *gin.Context) {
 					},
 					"responses": map[string]interface{}{
 						"200": map[string]interface{}{
-							"description": "执行完成",
+							"description": "",
 							"content": map[string]interface{}{
 								"application/json": map[string]interface{}{
 									"schema": map[string]interface{}{
 										"type": "object",
 										"properties": map[string]interface{}{
-											"stdout":    map[string]interface{}{"type": "string", "description": "标准输出"},
-											"stderr":    map[string]interface{}{"type": "string", "description": "标准错误"},
-											"exit_code": map[string]interface{}{"type": "integer", "description": "退出码"},
-											"error":     map[string]interface{}{"type": "string", "description": "执行错误（可选）"},
+											"stdout":    map[string]interface{}{"type": "string", "description": ""},
+											"stderr":    map[string]interface{}{"type": "string", "description": ""},
+											"exit_code": map[string]interface{}{"type": "integer", "description": ""},
+											"error":     map[string]interface{}{"type": "string", "description": "（）"},
 										},
 									},
 								},
 							},
 						},
-						"401": map[string]interface{}{"description": "未授权"},
+						"401": map[string]interface{}{"description": ""},
 					},
 				},
 			},
 			"/api/terminal/run/stream": map[string]interface{}{
 				"post": map[string]interface{}{
-					"tags":        []string{"终端"},
-					"summary":     "流式执行终端命令",
-					"description": "以SSE流式方式执行Shell命令，实时返回输出。每个事件包含 JSON: {\"t\": \"out\"|\"err\"|\"exit\", \"d\": \"数据\", \"c\": 退出码}",
+					"tags":        []string{""},
+					"summary":     "",
+					"description": "SSEShell，。 JSON: {\"t\": \"out\"|\"err\"|\"exit\", \"d\": \"\", \"c\": }",
 					"operationId": "terminalRunStream",
 					"requestBody": map[string]interface{}{
 						"required": true,
@@ -4985,9 +4985,9 @@ func (h *OpenAPIHandler) GetOpenAPISpec(c *gin.Context) {
 									"type": "object",
 									"required": []string{"command"},
 									"properties": map[string]interface{}{
-										"command": map[string]interface{}{"type": "string", "description": "要执行的命令"},
-										"shell":   map[string]interface{}{"type": "string", "description": "Shell类型（默认sh/cmd）"},
-										"cwd":     map[string]interface{}{"type": "string", "description": "工作目录（可选）"},
+										"command": map[string]interface{}{"type": "string", "description": ""},
+										"shell":   map[string]interface{}{"type": "string", "description": "Shell（sh/cmd）"},
+										"cwd":     map[string]interface{}{"type": "string", "description": "（）"},
 									},
 								},
 							},
@@ -4995,29 +4995,29 @@ func (h *OpenAPIHandler) GetOpenAPISpec(c *gin.Context) {
 					},
 					"responses": map[string]interface{}{
 						"200": map[string]interface{}{
-							"description": "SSE事件流",
+							"description": "SSE",
 							"content": map[string]interface{}{
 								"text/event-stream": map[string]interface{}{
 									"schema": map[string]interface{}{
 										"type":        "string",
-										"description": "Server-Sent Events流，每个事件为JSON: {\"t\":\"out|err|exit\",\"d\":\"data\",\"c\":exitCode}",
+										"description": "Server-Sent Events，JSON: {\"t\":\"out|err|exit\",\"d\":\"data\",\"c\":exitCode}",
 									},
 								},
 							},
 						},
-						"401": map[string]interface{}{"description": "未授权"},
+						"401": map[string]interface{}{"description": ""},
 					},
 				},
 			},
 			"/api/terminal/ws": map[string]interface{}{
 				"get": map[string]interface{}{
-					"tags":        []string{"终端"},
-					"summary":     "WebSocket终端",
-					"description": "通过WebSocket建立交互式终端连接，支持PTY。客户端发送文本/二进制数据作为命令输入，也可发送JSON: {\"type\":\"resize\",\"cols\":80,\"rows\":24} 调整终端大小。服务端返回二进制PTY输出。",
+					"tags":        []string{""},
+					"summary":     "WebSocket",
+					"description": "WebSocket，PTY。/，JSON: {\"type\":\"resize\",\"cols\":80,\"rows\":24} 。PTY。",
 					"operationId": "terminalWS",
 					"responses": map[string]interface{}{
-						"101": map[string]interface{}{"description": "WebSocket连接已建立"},
-						"401": map[string]interface{}{"description": "未授权"},
+						"101": map[string]interface{}{"description": "WebSocket"},
+						"401": map[string]interface{}{"description": ""},
 					},
 				},
 			},
@@ -5025,13 +5025,13 @@ func (h *OpenAPIHandler) GetOpenAPISpec(c *gin.Context) {
 			// English note.
 			"/api/webshell/connections": map[string]interface{}{
 				"get": map[string]interface{}{
-					"tags":        []string{"WebShell管理"},
-					"summary":     "列出WebShell连接",
-					"description": "获取所有已保存的WebShell连接配置列表。",
+					"tags":        []string{"WebShell"},
+					"summary":     "WebShell",
+					"description": "WebShell。",
 					"operationId": "listWebshellConnections",
 					"responses": map[string]interface{}{
 						"200": map[string]interface{}{
-							"description": "获取成功",
+							"description": "",
 							"content": map[string]interface{}{
 								"application/json": map[string]interface{}{
 									"schema": map[string]interface{}{
@@ -5039,13 +5039,13 @@ func (h *OpenAPIHandler) GetOpenAPISpec(c *gin.Context) {
 										"items": map[string]interface{}{
 											"type": "object",
 											"properties": map[string]interface{}{
-												"id":         map[string]interface{}{"type": "string", "description": "连接ID"},
+												"id":         map[string]interface{}{"type": "string", "description": "ID"},
 												"url":        map[string]interface{}{"type": "string", "description": "WebShell URL"},
-												"password":   map[string]interface{}{"type": "string", "description": "连接密码"},
-												"type":       map[string]interface{}{"type": "string", "description": "Shell类型", "enum": []string{"php", "asp", "aspx", "jsp", "custom"}},
-												"method":     map[string]interface{}{"type": "string", "description": "请求方法", "enum": []string{"get", "post"}},
-												"cmd_param":  map[string]interface{}{"type": "string", "description": "命令参数名"},
-												"remark":     map[string]interface{}{"type": "string", "description": "备注"},
+												"password":   map[string]interface{}{"type": "string", "description": ""},
+												"type":       map[string]interface{}{"type": "string", "description": "Shell", "enum": []string{"php", "asp", "aspx", "jsp", "custom"}},
+												"method":     map[string]interface{}{"type": "string", "description": "", "enum": []string{"get", "post"}},
+												"cmd_param":  map[string]interface{}{"type": "string", "description": ""},
+												"remark":     map[string]interface{}{"type": "string", "description": ""},
 												"created_at": map[string]interface{}{"type": "string", "format": "date-time"},
 											},
 										},
@@ -5053,13 +5053,13 @@ func (h *OpenAPIHandler) GetOpenAPISpec(c *gin.Context) {
 								},
 							},
 						},
-						"401": map[string]interface{}{"description": "未授权"},
+						"401": map[string]interface{}{"description": ""},
 					},
 				},
 				"post": map[string]interface{}{
-					"tags":        []string{"WebShell管理"},
-					"summary":     "创建WebShell连接",
-					"description": "保存一个新的WebShell连接配置。",
+					"tags":        []string{"WebShell"},
+					"summary":     "WebShell",
+					"description": "WebShell。",
 					"operationId": "createWebshellConnection",
 					"requestBody": map[string]interface{}{
 						"required": true,
@@ -5070,31 +5070,31 @@ func (h *OpenAPIHandler) GetOpenAPISpec(c *gin.Context) {
 									"required": []string{"url"},
 									"properties": map[string]interface{}{
 										"url":       map[string]interface{}{"type": "string", "description": "WebShell URL"},
-										"password":  map[string]interface{}{"type": "string", "description": "连接密码"},
-										"type":      map[string]interface{}{"type": "string", "description": "Shell类型", "enum": []string{"php", "asp", "aspx", "jsp", "custom"}},
-										"method":    map[string]interface{}{"type": "string", "description": "请求方法", "enum": []string{"get", "post"}},
-										"cmd_param": map[string]interface{}{"type": "string", "description": "命令参数名"},
-										"remark":    map[string]interface{}{"type": "string", "description": "备注"},
+										"password":  map[string]interface{}{"type": "string", "description": ""},
+										"type":      map[string]interface{}{"type": "string", "description": "Shell", "enum": []string{"php", "asp", "aspx", "jsp", "custom"}},
+										"method":    map[string]interface{}{"type": "string", "description": "", "enum": []string{"get", "post"}},
+										"cmd_param": map[string]interface{}{"type": "string", "description": ""},
+										"remark":    map[string]interface{}{"type": "string", "description": ""},
 									},
 								},
 							},
 						},
 					},
 					"responses": map[string]interface{}{
-						"200": map[string]interface{}{"description": "创建成功"},
-						"400": map[string]interface{}{"description": "参数错误"},
-						"401": map[string]interface{}{"description": "未授权"},
+						"200": map[string]interface{}{"description": ""},
+						"400": map[string]interface{}{"description": ""},
+						"401": map[string]interface{}{"description": ""},
 					},
 				},
 			},
 			"/api/webshell/connections/{id}": map[string]interface{}{
 				"put": map[string]interface{}{
-					"tags":        []string{"WebShell管理"},
-					"summary":     "更新WebShell连接",
-					"description": "更新已有的WebShell连接配置。",
+					"tags":        []string{"WebShell"},
+					"summary":     "WebShell",
+					"description": "WebShell。",
 					"operationId": "updateWebshellConnection",
 					"parameters": []map[string]interface{}{
-						{"name": "id", "in": "path", "required": true, "description": "连接ID", "schema": map[string]interface{}{"type": "string"}},
+						{"name": "id", "in": "path", "required": true, "description": "ID", "schema": map[string]interface{}{"type": "string"}},
 					},
 					"requestBody": map[string]interface{}{
 						"required": true,
@@ -5115,59 +5115,59 @@ func (h *OpenAPIHandler) GetOpenAPISpec(c *gin.Context) {
 						},
 					},
 					"responses": map[string]interface{}{
-						"200": map[string]interface{}{"description": "更新成功"},
-						"401": map[string]interface{}{"description": "未授权"},
-						"404": map[string]interface{}{"description": "连接不存在"},
+						"200": map[string]interface{}{"description": ""},
+						"401": map[string]interface{}{"description": ""},
+						"404": map[string]interface{}{"description": ""},
 					},
 				},
 				"delete": map[string]interface{}{
-					"tags":        []string{"WebShell管理"},
-					"summary":     "删除WebShell连接",
-					"description": "删除指定的WebShell连接配置。",
+					"tags":        []string{"WebShell"},
+					"summary":     "WebShell",
+					"description": "WebShell。",
 					"operationId": "deleteWebshellConnection",
 					"parameters": []map[string]interface{}{
-						{"name": "id", "in": "path", "required": true, "description": "连接ID", "schema": map[string]interface{}{"type": "string"}},
+						{"name": "id", "in": "path", "required": true, "description": "ID", "schema": map[string]interface{}{"type": "string"}},
 					},
 					"responses": map[string]interface{}{
-						"200": map[string]interface{}{"description": "删除成功"},
-						"401": map[string]interface{}{"description": "未授权"},
-						"404": map[string]interface{}{"description": "连接不存在"},
+						"200": map[string]interface{}{"description": ""},
+						"401": map[string]interface{}{"description": ""},
+						"404": map[string]interface{}{"description": ""},
 					},
 				},
 			},
 			"/api/webshell/connections/{id}/state": map[string]interface{}{
 				"get": map[string]interface{}{
-					"tags":        []string{"WebShell管理"},
-					"summary":     "获取连接状态",
-					"description": "获取WebShell连接的保存状态数据。",
+					"tags":        []string{"WebShell"},
+					"summary":     "",
+					"description": "WebShell。",
 					"operationId": "getWebshellConnectionState",
 					"parameters": []map[string]interface{}{
-						{"name": "id", "in": "path", "required": true, "description": "连接ID", "schema": map[string]interface{}{"type": "string"}},
+						{"name": "id", "in": "path", "required": true, "description": "ID", "schema": map[string]interface{}{"type": "string"}},
 					},
 					"responses": map[string]interface{}{
 						"200": map[string]interface{}{
-							"description": "获取成功",
+							"description": "",
 							"content": map[string]interface{}{
 								"application/json": map[string]interface{}{
 									"schema": map[string]interface{}{
 										"type": "object",
 										"properties": map[string]interface{}{
-											"state": map[string]interface{}{"type": "object", "description": "状态数据（任意JSON）"},
+											"state": map[string]interface{}{"type": "object", "description": "（JSON）"},
 										},
 									},
 								},
 							},
 						},
-						"401": map[string]interface{}{"description": "未授权"},
+						"401": map[string]interface{}{"description": ""},
 					},
 				},
 				"put": map[string]interface{}{
-					"tags":        []string{"WebShell管理"},
-					"summary":     "保存连接状态",
-					"description": "保存WebShell连接的状态数据。",
+					"tags":        []string{"WebShell"},
+					"summary":     "",
+					"description": "WebShell。",
 					"operationId": "saveWebshellConnectionState",
 					"parameters": []map[string]interface{}{
-						{"name": "id", "in": "path", "required": true, "description": "连接ID", "schema": map[string]interface{}{"type": "string"}},
+						{"name": "id", "in": "path", "required": true, "description": "ID", "schema": map[string]interface{}{"type": "string"}},
 					},
 					"requestBody": map[string]interface{}{
 						"required": true,
@@ -5176,30 +5176,30 @@ func (h *OpenAPIHandler) GetOpenAPISpec(c *gin.Context) {
 								"schema": map[string]interface{}{
 									"type": "object",
 									"properties": map[string]interface{}{
-										"state": map[string]interface{}{"type": "object", "description": "状态数据（任意JSON）"},
+										"state": map[string]interface{}{"type": "object", "description": "（JSON）"},
 									},
 								},
 							},
 						},
 					},
 					"responses": map[string]interface{}{
-						"200": map[string]interface{}{"description": "保存成功"},
-						"401": map[string]interface{}{"description": "未授权"},
+						"200": map[string]interface{}{"description": ""},
+						"401": map[string]interface{}{"description": ""},
 					},
 				},
 			},
 			"/api/webshell/connections/{id}/ai-history": map[string]interface{}{
 				"get": map[string]interface{}{
-					"tags":        []string{"WebShell管理"},
-					"summary":     "获取AI对话历史",
-					"description": "获取指定WebShell连接的AI辅助对话历史消息。",
+					"tags":        []string{"WebShell"},
+					"summary":     "AI",
+					"description": "WebShellAI。",
 					"operationId": "getWebshellAIHistory",
 					"parameters": []map[string]interface{}{
-						{"name": "id", "in": "path", "required": true, "description": "连接ID", "schema": map[string]interface{}{"type": "string"}},
+						{"name": "id", "in": "path", "required": true, "description": "ID", "schema": map[string]interface{}{"type": "string"}},
 					},
 					"responses": map[string]interface{}{
 						"200": map[string]interface{}{
-							"description": "获取成功",
+							"description": "",
 							"content": map[string]interface{}{
 								"application/json": map[string]interface{}{
 									"schema": map[string]interface{}{
@@ -5223,22 +5223,22 @@ func (h *OpenAPIHandler) GetOpenAPISpec(c *gin.Context) {
 								},
 							},
 						},
-						"401": map[string]interface{}{"description": "未授权"},
+						"401": map[string]interface{}{"description": ""},
 					},
 				},
 			},
 			"/api/webshell/connections/{id}/ai-conversations": map[string]interface{}{
 				"get": map[string]interface{}{
-					"tags":        []string{"WebShell管理"},
-					"summary":     "列出AI对话",
-					"description": "获取指定WebShell连接的所有AI辅助对话列表。",
+					"tags":        []string{"WebShell"},
+					"summary":     "AI",
+					"description": "WebShellAI。",
 					"operationId": "listWebshellAIConversations",
 					"parameters": []map[string]interface{}{
-						{"name": "id", "in": "path", "required": true, "description": "连接ID", "schema": map[string]interface{}{"type": "string"}},
+						{"name": "id", "in": "path", "required": true, "description": "ID", "schema": map[string]interface{}{"type": "string"}},
 					},
 					"responses": map[string]interface{}{
 						"200": map[string]interface{}{
-							"description": "获取成功",
+							"description": "",
 							"content": map[string]interface{}{
 								"application/json": map[string]interface{}{
 									"schema": map[string]interface{}{
@@ -5255,15 +5255,15 @@ func (h *OpenAPIHandler) GetOpenAPISpec(c *gin.Context) {
 								},
 							},
 						},
-						"401": map[string]interface{}{"description": "未授权"},
+						"401": map[string]interface{}{"description": ""},
 					},
 				},
 			},
 			"/api/webshell/exec": map[string]interface{}{
 				"post": map[string]interface{}{
-					"tags":        []string{"WebShell管理"},
-					"summary":     "执行WebShell命令",
-					"description": "通过指定的WebShell连接执行远程命令。",
+					"tags":        []string{"WebShell"},
+					"summary":     "WebShell",
+					"description": "WebShell。",
 					"operationId": "webshellExec",
 					"requestBody": map[string]interface{}{
 						"required": true,
@@ -5278,7 +5278,7 @@ func (h *OpenAPIHandler) GetOpenAPISpec(c *gin.Context) {
 										"type":      map[string]interface{}{"type": "string", "enum": []string{"php", "asp", "aspx", "jsp", "custom"}},
 										"method":    map[string]interface{}{"type": "string", "enum": []string{"get", "post"}},
 										"cmd_param": map[string]interface{}{"type": "string"},
-										"command":   map[string]interface{}{"type": "string", "description": "要执行的命令"},
+										"command":   map[string]interface{}{"type": "string", "description": ""},
 									},
 								},
 							},
@@ -5286,30 +5286,30 @@ func (h *OpenAPIHandler) GetOpenAPISpec(c *gin.Context) {
 					},
 					"responses": map[string]interface{}{
 						"200": map[string]interface{}{
-							"description": "执行结果",
+							"description": "",
 							"content": map[string]interface{}{
 								"application/json": map[string]interface{}{
 									"schema": map[string]interface{}{
 										"type": "object",
 										"properties": map[string]interface{}{
 											"ok":        map[string]interface{}{"type": "boolean"},
-											"output":    map[string]interface{}{"type": "string", "description": "命令输出"},
-											"error":     map[string]interface{}{"type": "string", "description": "错误信息"},
-											"http_code": map[string]interface{}{"type": "integer", "description": "HTTP响应码"},
+											"output":    map[string]interface{}{"type": "string", "description": ""},
+											"error":     map[string]interface{}{"type": "string", "description": ""},
+											"http_code": map[string]interface{}{"type": "integer", "description": "HTTP"},
 										},
 									},
 								},
 							},
 						},
-						"401": map[string]interface{}{"description": "未授权"},
+						"401": map[string]interface{}{"description": ""},
 					},
 				},
 			},
 			"/api/webshell/file": map[string]interface{}{
 				"post": map[string]interface{}{
-					"tags":        []string{"WebShell管理"},
-					"summary":     "WebShell文件操作",
-					"description": "通过WebShell执行远程文件操作（列目录、读写文件、创建目录、重命名、删除、上传等）。",
+					"tags":        []string{"WebShell"},
+					"summary":     "WebShell",
+					"description": "WebShell（、、、、、）。",
 					"operationId": "webshellFileOp",
 					"requestBody": map[string]interface{}{
 						"required": true,
@@ -5324,11 +5324,11 @@ func (h *OpenAPIHandler) GetOpenAPISpec(c *gin.Context) {
 										"type":        map[string]interface{}{"type": "string", "enum": []string{"php", "asp", "aspx", "jsp", "custom"}},
 										"method":      map[string]interface{}{"type": "string", "enum": []string{"get", "post"}},
 										"cmd_param":   map[string]interface{}{"type": "string"},
-										"action":      map[string]interface{}{"type": "string", "description": "操作类型", "enum": []string{"list", "read", "delete", "write", "mkdir", "rename", "upload", "upload_chunk"}},
-										"path":        map[string]interface{}{"type": "string", "description": "目标文件/目录路径"},
-										"target_path": map[string]interface{}{"type": "string", "description": "目标路径（rename时使用）"},
-										"content":     map[string]interface{}{"type": "string", "description": "文件内容（write/upload时使用）"},
-										"chunk_index": map[string]interface{}{"type": "integer", "description": "分块索引（upload_chunk时使用）"},
+										"action":      map[string]interface{}{"type": "string", "description": "", "enum": []string{"list", "read", "delete", "write", "mkdir", "rename", "upload", "upload_chunk"}},
+										"path":        map[string]interface{}{"type": "string", "description": "/"},
+										"target_path": map[string]interface{}{"type": "string", "description": "（rename）"},
+										"content":     map[string]interface{}{"type": "string", "description": "（write/upload）"},
+										"chunk_index": map[string]interface{}{"type": "integer", "description": "（upload_chunk）"},
 									},
 								},
 							},
@@ -5336,7 +5336,7 @@ func (h *OpenAPIHandler) GetOpenAPISpec(c *gin.Context) {
 					},
 					"responses": map[string]interface{}{
 						"200": map[string]interface{}{
-							"description": "操作结果",
+							"description": "",
 							"content": map[string]interface{}{
 								"application/json": map[string]interface{}{
 									"schema": map[string]interface{}{
@@ -5350,7 +5350,7 @@ func (h *OpenAPIHandler) GetOpenAPISpec(c *gin.Context) {
 								},
 							},
 						},
-						"401": map[string]interface{}{"description": "未授权"},
+						"401": map[string]interface{}{"description": ""},
 					},
 				},
 			},
@@ -5358,16 +5358,16 @@ func (h *OpenAPIHandler) GetOpenAPISpec(c *gin.Context) {
 			// English note.
 			"/api/chat-uploads": map[string]interface{}{
 				"get": map[string]interface{}{
-					"tags":        []string{"对话附件"},
-					"summary":     "列出附件",
-					"description": "获取对话附件文件列表，可按对话ID过滤。",
+					"tags":        []string{""},
+					"summary":     "",
+					"description": "，ID。",
 					"operationId": "listChatUploads",
 					"parameters": []map[string]interface{}{
-						{"name": "conversation", "in": "query", "required": false, "description": "按对话ID过滤", "schema": map[string]interface{}{"type": "string"}},
+						{"name": "conversation", "in": "query", "required": false, "description": "ID", "schema": map[string]interface{}{"type": "string"}},
 					},
 					"responses": map[string]interface{}{
 						"200": map[string]interface{}{
-							"description": "获取成功",
+							"description": "",
 							"content": map[string]interface{}{
 								"application/json": map[string]interface{}{
 									"schema": map[string]interface{}{
@@ -5395,13 +5395,13 @@ func (h *OpenAPIHandler) GetOpenAPISpec(c *gin.Context) {
 								},
 							},
 						},
-						"401": map[string]interface{}{"description": "未授权"},
+						"401": map[string]interface{}{"description": ""},
 					},
 				},
 				"post": map[string]interface{}{
-					"tags":        []string{"对话附件"},
-					"summary":     "上传附件",
-					"description": "上传文件到对话附件目录（multipart/form-data）。",
+					"tags":        []string{""},
+					"summary":     "",
+					"description": "（multipart/form-data）。",
 					"operationId": "uploadChatFile",
 					"requestBody": map[string]interface{}{
 						"required": true,
@@ -5411,9 +5411,9 @@ func (h *OpenAPIHandler) GetOpenAPISpec(c *gin.Context) {
 									"type": "object",
 									"required": []string{"file"},
 									"properties": map[string]interface{}{
-										"file":           map[string]interface{}{"type": "string", "format": "binary", "description": "上传的文件"},
-										"conversationId": map[string]interface{}{"type": "string", "description": "关联的对话ID（可选）"},
-										"relativeDir":    map[string]interface{}{"type": "string", "description": "目标目录相对路径（可选）"},
+										"file":           map[string]interface{}{"type": "string", "format": "binary", "description": ""},
+										"conversationId": map[string]interface{}{"type": "string", "description": "ID（）"},
+										"relativeDir":    map[string]interface{}{"type": "string", "description": "（）"},
 									},
 								},
 							},
@@ -5421,7 +5421,7 @@ func (h *OpenAPIHandler) GetOpenAPISpec(c *gin.Context) {
 					},
 					"responses": map[string]interface{}{
 						"200": map[string]interface{}{
-							"description": "上传成功",
+							"description": "",
 							"content": map[string]interface{}{
 								"application/json": map[string]interface{}{
 									"schema": map[string]interface{}{
@@ -5436,13 +5436,13 @@ func (h *OpenAPIHandler) GetOpenAPISpec(c *gin.Context) {
 								},
 							},
 						},
-						"401": map[string]interface{}{"description": "未授权"},
+						"401": map[string]interface{}{"description": ""},
 					},
 				},
 				"delete": map[string]interface{}{
-					"tags":        []string{"对话附件"},
-					"summary":     "删除附件",
-					"description": "删除指定的对话附件文件。",
+					"tags":        []string{""},
+					"summary":     "",
+					"description": "。",
 					"operationId": "deleteChatUpload",
 					"requestBody": map[string]interface{}{
 						"required": true,
@@ -5452,72 +5452,72 @@ func (h *OpenAPIHandler) GetOpenAPISpec(c *gin.Context) {
 									"type": "object",
 									"required": []string{"path"},
 									"properties": map[string]interface{}{
-										"path": map[string]interface{}{"type": "string", "description": "文件相对路径"},
+										"path": map[string]interface{}{"type": "string", "description": ""},
 									},
 								},
 							},
 						},
 					},
 					"responses": map[string]interface{}{
-						"200": map[string]interface{}{"description": "删除成功"},
-						"401": map[string]interface{}{"description": "未授权"},
+						"200": map[string]interface{}{"description": ""},
+						"401": map[string]interface{}{"description": ""},
 					},
 				},
 			},
 			"/api/chat-uploads/download": map[string]interface{}{
 				"get": map[string]interface{}{
-					"tags":        []string{"对话附件"},
-					"summary":     "下载附件",
-					"description": "下载指定的对话附件文件。",
+					"tags":        []string{""},
+					"summary":     "",
+					"description": "。",
 					"operationId": "downloadChatUpload",
 					"parameters": []map[string]interface{}{
-						{"name": "path", "in": "query", "required": true, "description": "文件相对路径", "schema": map[string]interface{}{"type": "string"}},
+						{"name": "path", "in": "query", "required": true, "description": "", "schema": map[string]interface{}{"type": "string"}},
 					},
 					"responses": map[string]interface{}{
 						"200": map[string]interface{}{
-							"description": "文件下载",
+							"description": "",
 							"content": map[string]interface{}{
 								"application/octet-stream": map[string]interface{}{
 									"schema": map[string]interface{}{"type": "string", "format": "binary"},
 								},
 							},
 						},
-						"401": map[string]interface{}{"description": "未授权"},
-						"404": map[string]interface{}{"description": "文件不存在"},
+						"401": map[string]interface{}{"description": ""},
+						"404": map[string]interface{}{"description": ""},
 					},
 				},
 			},
 			"/api/chat-uploads/content": map[string]interface{}{
 				"get": map[string]interface{}{
-					"tags":        []string{"对话附件"},
-					"summary":     "获取附件文本内容",
-					"description": "读取并返回文本文件的内容。",
+					"tags":        []string{""},
+					"summary":     "",
+					"description": "。",
 					"operationId": "getChatUploadContent",
 					"parameters": []map[string]interface{}{
-						{"name": "path", "in": "query", "required": true, "description": "文件相对路径", "schema": map[string]interface{}{"type": "string"}},
+						{"name": "path", "in": "query", "required": true, "description": "", "schema": map[string]interface{}{"type": "string"}},
 					},
 					"responses": map[string]interface{}{
 						"200": map[string]interface{}{
-							"description": "获取成功",
+							"description": "",
 							"content": map[string]interface{}{
 								"application/json": map[string]interface{}{
 									"schema": map[string]interface{}{
 										"type": "object",
 										"properties": map[string]interface{}{
-											"content": map[string]interface{}{"type": "string", "description": "文件文本内容"},
+											"content": map[string]interface{}{"type": "string", "description": ""},
 										},
 									},
 								},
 							},
 						},
-						"401": map[string]interface{}{"description": "未授权"},
-						"404": map[string]interface{}{"description": "文件不存在"},
+						"401": map[string]interface{}{"description": ""},
+						"404": map[string]interface{}{"description": ""},
 					},
 				},
 				"put": map[string]interface{}{
-					"tags":        []string{"对话附件"},
-					"summary":     "写入附件文本内容",
-					"description": "写入或覆盖文本文件的内容。",
+					"tags":        []string{""},
+					"summary":     "",
+					"description": "。",
 					"operationId": "putChatUploadContent",
 					"requestBody": map[string]interface{}{
 						"required": true,
@@ -5527,24 +5527,24 @@ func (h *OpenAPIHandler) GetOpenAPISpec(c *gin.Context) {
 									"type": "object",
 									"required": []string{"path", "content"},
 									"properties": map[string]interface{}{
-										"path":    map[string]interface{}{"type": "string", "description": "文件相对路径"},
-										"content": map[string]interface{}{"type": "string", "description": "文件文本内容"},
+										"path":    map[string]interface{}{"type": "string", "description": ""},
+										"content": map[string]interface{}{"type": "string", "description": ""},
 									},
 								},
 							},
 						},
 					},
 					"responses": map[string]interface{}{
-						"200": map[string]interface{}{"description": "写入成功"},
-						"401": map[string]interface{}{"description": "未授权"},
+						"200": map[string]interface{}{"description": ""},
+						"401": map[string]interface{}{"description": ""},
 					},
 				},
 			},
 			"/api/chat-uploads/mkdir": map[string]interface{}{
 				"post": map[string]interface{}{
-					"tags":        []string{"对话附件"},
-					"summary":     "创建附件目录",
-					"description": "在对话附件目录下创建子目录。",
+					"tags":        []string{""},
+					"summary":     "",
+					"description": "。",
 					"operationId": "mkdirChatUpload",
 					"requestBody": map[string]interface{}{
 						"required": true,
@@ -5554,8 +5554,8 @@ func (h *OpenAPIHandler) GetOpenAPISpec(c *gin.Context) {
 									"type": "object",
 									"required": []string{"name"},
 									"properties": map[string]interface{}{
-										"parent": map[string]interface{}{"type": "string", "description": "父目录相对路径"},
-										"name":   map[string]interface{}{"type": "string", "description": "目录名称"},
+										"parent": map[string]interface{}{"type": "string", "description": ""},
+										"name":   map[string]interface{}{"type": "string", "description": ""},
 									},
 								},
 							},
@@ -5563,7 +5563,7 @@ func (h *OpenAPIHandler) GetOpenAPISpec(c *gin.Context) {
 					},
 					"responses": map[string]interface{}{
 						"200": map[string]interface{}{
-							"description": "创建成功",
+							"description": "",
 							"content": map[string]interface{}{
 								"application/json": map[string]interface{}{
 									"schema": map[string]interface{}{
@@ -5576,15 +5576,15 @@ func (h *OpenAPIHandler) GetOpenAPISpec(c *gin.Context) {
 								},
 							},
 						},
-						"401": map[string]interface{}{"description": "未授权"},
+						"401": map[string]interface{}{"description": ""},
 					},
 				},
 			},
 			"/api/chat-uploads/rename": map[string]interface{}{
 				"put": map[string]interface{}{
-					"tags":        []string{"对话附件"},
-					"summary":     "重命名附件",
-					"description": "重命名对话附件文件或目录。",
+					"tags":        []string{""},
+					"summary":     "",
+					"description": "。",
 					"operationId": "renameChatUpload",
 					"requestBody": map[string]interface{}{
 						"required": true,
@@ -5594,8 +5594,8 @@ func (h *OpenAPIHandler) GetOpenAPISpec(c *gin.Context) {
 									"type": "object",
 									"required": []string{"path", "newName"},
 									"properties": map[string]interface{}{
-										"path":    map[string]interface{}{"type": "string", "description": "当前文件相对路径"},
-										"newName": map[string]interface{}{"type": "string", "description": "新名称"},
+										"path":    map[string]interface{}{"type": "string", "description": ""},
+										"newName": map[string]interface{}{"type": "string", "description": ""},
 									},
 								},
 							},
@@ -5603,7 +5603,7 @@ func (h *OpenAPIHandler) GetOpenAPISpec(c *gin.Context) {
 					},
 					"responses": map[string]interface{}{
 						"200": map[string]interface{}{
-							"description": "重命名成功",
+							"description": "",
 							"content": map[string]interface{}{
 								"application/json": map[string]interface{}{
 									"schema": map[string]interface{}{
@@ -5616,7 +5616,7 @@ func (h *OpenAPIHandler) GetOpenAPISpec(c *gin.Context) {
 								},
 							},
 						},
-						"401": map[string]interface{}{"description": "未授权"},
+						"401": map[string]interface{}{"description": ""},
 					},
 				},
 			},
@@ -5624,9 +5624,9 @@ func (h *OpenAPIHandler) GetOpenAPISpec(c *gin.Context) {
 			// English note.
 			"/api/robot/wecom": map[string]interface{}{
 				"get": map[string]interface{}{
-					"tags":        []string{"机器人集成"},
-					"summary":     "企业微信回调验证",
-					"description": "企业微信服务器URL验证回调（用于配置消息接收地址时的验证）。无需认证。",
+					"tags":        []string{""},
+					"summary":     "",
+					"description": "URL（）。。",
 					"operationId": "wecomCallbackVerify",
 					"security":    []map[string]interface{}{},
 					"parameters": []map[string]interface{}{
@@ -5636,49 +5636,49 @@ func (h *OpenAPIHandler) GetOpenAPISpec(c *gin.Context) {
 						{"name": "echostr", "in": "query", "required": true, "schema": map[string]interface{}{"type": "string"}},
 					},
 					"responses": map[string]interface{}{
-						"200": map[string]interface{}{"description": "验证成功，返回解密后的echostr"},
+						"200": map[string]interface{}{"description": "，echostr"},
 					},
 				},
 				"post": map[string]interface{}{
-					"tags":        []string{"机器人集成"},
-					"summary":     "企业微信消息回调",
-					"description": "接收企业微信推送的消息事件。无需认证，由企业微信服务器调用。",
+					"tags":        []string{""},
+					"summary":     "",
+					"description": "。，。",
 					"operationId": "wecomCallbackMessage",
 					"security":    []map[string]interface{}{},
 					"responses": map[string]interface{}{
-						"200": map[string]interface{}{"description": "处理成功"},
+						"200": map[string]interface{}{"description": ""},
 					},
 				},
 			},
 			"/api/robot/dingtalk": map[string]interface{}{
 				"post": map[string]interface{}{
-					"tags":        []string{"机器人集成"},
-					"summary":     "钉钉消息回调",
-					"description": "接收钉钉推送的消息事件。无需认证，由钉钉服务器调用。",
+					"tags":        []string{""},
+					"summary":     "",
+					"description": "。，。",
 					"operationId": "dingtalkCallback",
 					"security":    []map[string]interface{}{},
 					"responses": map[string]interface{}{
-						"200": map[string]interface{}{"description": "处理成功"},
+						"200": map[string]interface{}{"description": ""},
 					},
 				},
 			},
 			"/api/robot/lark": map[string]interface{}{
 				"post": map[string]interface{}{
-					"tags":        []string{"机器人集成"},
-					"summary":     "飞书消息回调",
-					"description": "接收飞书推送的消息事件。无需认证，由飞书服务器调用。",
+					"tags":        []string{""},
+					"summary":     "",
+					"description": "。，。",
 					"operationId": "larkCallback",
 					"security":    []map[string]interface{}{},
 					"responses": map[string]interface{}{
-						"200": map[string]interface{}{"description": "处理成功"},
+						"200": map[string]interface{}{"description": ""},
 					},
 				},
 			},
 			"/api/robot/test": map[string]interface{}{
 				"post": map[string]interface{}{
-					"tags":        []string{"机器人集成"},
-					"summary":     "测试机器人消息处理",
-					"description": "模拟机器人消息处理流程，用于调试和验证。需要登录认证。",
+					"tags":        []string{""},
+					"summary":     "",
+					"description": "，。。",
 					"operationId": "testRobot",
 					"requestBody": map[string]interface{}{
 						"required": true,
@@ -5688,17 +5688,17 @@ func (h *OpenAPIHandler) GetOpenAPISpec(c *gin.Context) {
 									"type": "object",
 									"required": []string{"platform", "text"},
 									"properties": map[string]interface{}{
-										"platform": map[string]interface{}{"type": "string", "description": "平台类型", "enum": []string{"dingtalk", "lark", "wecom"}},
-										"user_id":  map[string]interface{}{"type": "string", "description": "模拟用户ID", "example": "test"},
-										"text":     map[string]interface{}{"type": "string", "description": "消息文本", "example": "帮助"},
+										"platform": map[string]interface{}{"type": "string", "description": "", "enum": []string{"dingtalk", "lark", "wecom"}},
+										"user_id":  map[string]interface{}{"type": "string", "description": "ID", "example": "test"},
+										"text":     map[string]interface{}{"type": "string", "description": "", "example": ""},
 									},
 								},
 							},
 						},
 					},
 					"responses": map[string]interface{}{
-						"200": map[string]interface{}{"description": "处理成功"},
-						"401": map[string]interface{}{"description": "未授权"},
+						"200": map[string]interface{}{"description": ""},
+						"401": map[string]interface{}{"description": ""},
 					},
 				},
 			},
@@ -5706,13 +5706,13 @@ func (h *OpenAPIHandler) GetOpenAPISpec(c *gin.Context) {
 			// English note.
 			"/api/multi-agent/markdown-agents": map[string]interface{}{
 				"get": map[string]interface{}{
-					"tags":        []string{"多代理Markdown"},
-					"summary":     "列出Markdown代理",
-					"description": "获取所有多代理Markdown定义文件列表。",
+					"tags":        []string{"Markdown"},
+					"summary":     "Markdown",
+					"description": "Markdown。",
 					"operationId": "listMarkdownAgents",
 					"responses": map[string]interface{}{
 						"200": map[string]interface{}{
-							"description": "获取成功",
+							"description": "",
 							"content": map[string]interface{}{
 								"application/json": map[string]interface{}{
 									"schema": map[string]interface{}{
@@ -5723,28 +5723,28 @@ func (h *OpenAPIHandler) GetOpenAPISpec(c *gin.Context) {
 												"items": map[string]interface{}{
 													"type": "object",
 													"properties": map[string]interface{}{
-														"filename":        map[string]interface{}{"type": "string", "description": "文件名"},
-														"id":              map[string]interface{}{"type": "string", "description": "代理ID"},
-														"name":            map[string]interface{}{"type": "string", "description": "代理名称"},
-														"description":     map[string]interface{}{"type": "string", "description": "代理描述"},
-														"is_orchestrator": map[string]interface{}{"type": "boolean", "description": "是否为编排器"},
-														"kind":            map[string]interface{}{"type": "string", "description": "编排类型"},
+														"filename":        map[string]interface{}{"type": "string", "description": ""},
+														"id":              map[string]interface{}{"type": "string", "description": "ID"},
+														"name":            map[string]interface{}{"type": "string", "description": ""},
+														"description":     map[string]interface{}{"type": "string", "description": ""},
+														"is_orchestrator": map[string]interface{}{"type": "boolean", "description": ""},
+														"kind":            map[string]interface{}{"type": "string", "description": ""},
 													},
 												},
 											},
-											"dir": map[string]interface{}{"type": "string", "description": "代理定义目录路径"},
+											"dir": map[string]interface{}{"type": "string", "description": ""},
 										},
 									},
 								},
 							},
 						},
-						"401": map[string]interface{}{"description": "未授权"},
+						"401": map[string]interface{}{"description": ""},
 					},
 				},
 				"post": map[string]interface{}{
-					"tags":        []string{"多代理Markdown"},
-					"summary":     "创建Markdown代理",
-					"description": "创建新的多代理Markdown定义文件。",
+					"tags":        []string{"Markdown"},
+					"summary":     "Markdown",
+					"description": "Markdown。",
 					"operationId": "createMarkdownAgent",
 					"requestBody": map[string]interface{}{
 						"required": true,
@@ -5754,16 +5754,16 @@ func (h *OpenAPIHandler) GetOpenAPISpec(c *gin.Context) {
 									"type": "object",
 									"required": []string{"name"},
 									"properties": map[string]interface{}{
-										"filename":       map[string]interface{}{"type": "string", "description": "文件名（可选，自动生成）"},
-										"id":             map[string]interface{}{"type": "string", "description": "代理ID"},
-										"name":           map[string]interface{}{"type": "string", "description": "代理名称"},
-										"description":    map[string]interface{}{"type": "string", "description": "代理描述"},
-										"tools":          map[string]interface{}{"type": "array", "items": map[string]interface{}{"type": "string"}, "description": "可用工具列表"},
-										"instruction":    map[string]interface{}{"type": "string", "description": "代理指令"},
-										"bind_role":      map[string]interface{}{"type": "string", "description": "绑定角色"},
-										"max_iterations": map[string]interface{}{"type": "integer", "description": "最大迭代次数"},
-										"kind":           map[string]interface{}{"type": "string", "description": "编排类型"},
-										"raw":            map[string]interface{}{"type": "string", "description": "原始Markdown内容"},
+										"filename":       map[string]interface{}{"type": "string", "description": "（，）"},
+										"id":             map[string]interface{}{"type": "string", "description": "ID"},
+										"name":           map[string]interface{}{"type": "string", "description": ""},
+										"description":    map[string]interface{}{"type": "string", "description": ""},
+										"tools":          map[string]interface{}{"type": "array", "items": map[string]interface{}{"type": "string"}, "description": ""},
+										"instruction":    map[string]interface{}{"type": "string", "description": ""},
+										"bind_role":      map[string]interface{}{"type": "string", "description": ""},
+										"max_iterations": map[string]interface{}{"type": "integer", "description": ""},
+										"kind":           map[string]interface{}{"type": "string", "description": ""},
+										"raw":            map[string]interface{}{"type": "string", "description": "Markdown"},
 									},
 								},
 							},
@@ -5771,43 +5771,43 @@ func (h *OpenAPIHandler) GetOpenAPISpec(c *gin.Context) {
 					},
 					"responses": map[string]interface{}{
 						"200": map[string]interface{}{
-							"description": "创建成功",
+							"description": "",
 							"content": map[string]interface{}{
 								"application/json": map[string]interface{}{
 									"schema": map[string]interface{}{
 										"type": "object",
 										"properties": map[string]interface{}{
 											"filename": map[string]interface{}{"type": "string"},
-											"message":  map[string]interface{}{"type": "string", "example": "已创建"},
+											"message":  map[string]interface{}{"type": "string", "example": ""},
 										},
 									},
 								},
 							},
 						},
-						"400": map[string]interface{}{"description": "参数错误"},
-						"401": map[string]interface{}{"description": "未授权"},
+						"400": map[string]interface{}{"description": ""},
+						"401": map[string]interface{}{"description": ""},
 					},
 				},
 			},
 			"/api/multi-agent/markdown-agents/{filename}": map[string]interface{}{
 				"get": map[string]interface{}{
-					"tags":        []string{"多代理Markdown"},
-					"summary":     "获取Markdown代理详情",
-					"description": "获取指定Markdown代理定义文件的详细内容。",
+					"tags":        []string{"Markdown"},
+					"summary":     "Markdown",
+					"description": "Markdown。",
 					"operationId": "getMarkdownAgent",
 					"parameters": []map[string]interface{}{
-						{"name": "filename", "in": "path", "required": true, "description": "文件名", "schema": map[string]interface{}{"type": "string"}},
+						{"name": "filename", "in": "path", "required": true, "description": "", "schema": map[string]interface{}{"type": "string"}},
 					},
 					"responses": map[string]interface{}{
 						"200": map[string]interface{}{
-							"description": "获取成功",
+							"description": "",
 							"content": map[string]interface{}{
 								"application/json": map[string]interface{}{
 									"schema": map[string]interface{}{
 										"type": "object",
 										"properties": map[string]interface{}{
 											"filename":        map[string]interface{}{"type": "string"},
-											"raw":             map[string]interface{}{"type": "string", "description": "原始Markdown内容"},
+											"raw":             map[string]interface{}{"type": "string", "description": "Markdown"},
 											"id":              map[string]interface{}{"type": "string"},
 											"name":            map[string]interface{}{"type": "string"},
 											"description":     map[string]interface{}{"type": "string"},
@@ -5822,17 +5822,17 @@ func (h *OpenAPIHandler) GetOpenAPISpec(c *gin.Context) {
 								},
 							},
 						},
-						"401": map[string]interface{}{"description": "未授权"},
-						"404": map[string]interface{}{"description": "代理不存在"},
+						"401": map[string]interface{}{"description": ""},
+						"404": map[string]interface{}{"description": ""},
 					},
 				},
 				"put": map[string]interface{}{
-					"tags":        []string{"多代理Markdown"},
-					"summary":     "更新Markdown代理",
-					"description": "更新指定的Markdown代理定义。",
+					"tags":        []string{"Markdown"},
+					"summary":     "Markdown",
+					"description": "Markdown。",
 					"operationId": "updateMarkdownAgent",
 					"parameters": []map[string]interface{}{
-						{"name": "filename", "in": "path", "required": true, "description": "文件名", "schema": map[string]interface{}{"type": "string"}},
+						{"name": "filename", "in": "path", "required": true, "description": "", "schema": map[string]interface{}{"type": "string"}},
 					},
 					"requestBody": map[string]interface{}{
 						"required": true,
@@ -5856,46 +5856,46 @@ func (h *OpenAPIHandler) GetOpenAPISpec(c *gin.Context) {
 					},
 					"responses": map[string]interface{}{
 						"200": map[string]interface{}{
-							"description": "更新成功",
+							"description": "",
 							"content": map[string]interface{}{
 								"application/json": map[string]interface{}{
 									"schema": map[string]interface{}{
 										"type": "object",
 										"properties": map[string]interface{}{
-											"message": map[string]interface{}{"type": "string", "example": "已保存"},
+											"message": map[string]interface{}{"type": "string", "example": ""},
 										},
 									},
 								},
 							},
 						},
-						"401": map[string]interface{}{"description": "未授权"},
-						"404": map[string]interface{}{"description": "代理不存在"},
+						"401": map[string]interface{}{"description": ""},
+						"404": map[string]interface{}{"description": ""},
 					},
 				},
 				"delete": map[string]interface{}{
-					"tags":        []string{"多代理Markdown"},
-					"summary":     "删除Markdown代理",
-					"description": "删除指定的Markdown代理定义文件。",
+					"tags":        []string{"Markdown"},
+					"summary":     "Markdown",
+					"description": "Markdown。",
 					"operationId": "deleteMarkdownAgent",
 					"parameters": []map[string]interface{}{
-						{"name": "filename", "in": "path", "required": true, "description": "文件名", "schema": map[string]interface{}{"type": "string"}},
+						{"name": "filename", "in": "path", "required": true, "description": "", "schema": map[string]interface{}{"type": "string"}},
 					},
 					"responses": map[string]interface{}{
 						"200": map[string]interface{}{
-							"description": "删除成功",
+							"description": "",
 							"content": map[string]interface{}{
 								"application/json": map[string]interface{}{
 									"schema": map[string]interface{}{
 										"type": "object",
 										"properties": map[string]interface{}{
-											"message": map[string]interface{}{"type": "string", "example": "已删除"},
+											"message": map[string]interface{}{"type": "string", "example": ""},
 										},
 									},
 								},
 							},
 						},
-						"401": map[string]interface{}{"description": "未授权"},
-						"404": map[string]interface{}{"description": "代理不存在"},
+						"401": map[string]interface{}{"description": ""},
+						"404": map[string]interface{}{"description": ""},
 					},
 				},
 			},
@@ -5903,68 +5903,68 @@ func (h *OpenAPIHandler) GetOpenAPISpec(c *gin.Context) {
 			// English note.
 			"/api/skills/{name}/files": map[string]interface{}{
 				"get": map[string]interface{}{
-					"tags":        []string{"Skills管理"},
-					"summary":     "列出技能包文件",
-					"description": "获取指定技能包目录下的所有文件列表。",
+					"tags":        []string{"Skills"},
+					"summary":     "",
+					"description": "。",
 					"operationId": "listSkillPackageFiles",
 					"parameters": []map[string]interface{}{
-						{"name": "name", "in": "path", "required": true, "description": "技能名称/ID", "schema": map[string]interface{}{"type": "string"}},
+						{"name": "name", "in": "path", "required": true, "description": "/ID", "schema": map[string]interface{}{"type": "string"}},
 					},
 					"responses": map[string]interface{}{
 						"200": map[string]interface{}{
-							"description": "获取成功",
+							"description": "",
 							"content": map[string]interface{}{
 								"application/json": map[string]interface{}{
 									"schema": map[string]interface{}{
 										"type": "object",
 										"properties": map[string]interface{}{
-											"files": map[string]interface{}{"type": "array", "items": map[string]interface{}{"type": "string"}, "description": "文件路径列表"},
+											"files": map[string]interface{}{"type": "array", "items": map[string]interface{}{"type": "string"}, "description": ""},
 										},
 									},
 								},
 							},
 						},
-						"401": map[string]interface{}{"description": "未授权"},
-						"404": map[string]interface{}{"description": "技能不存在"},
+						"401": map[string]interface{}{"description": ""},
+						"404": map[string]interface{}{"description": ""},
 					},
 				},
 			},
 			"/api/skills/{name}/file": map[string]interface{}{
 				"get": map[string]interface{}{
-					"tags":        []string{"Skills管理"},
-					"summary":     "获取技能包文件内容",
-					"description": "读取技能包中指定文件的内容。",
+					"tags":        []string{"Skills"},
+					"summary":     "",
+					"description": "。",
 					"operationId": "getSkillPackageFile",
 					"parameters": []map[string]interface{}{
-						{"name": "name", "in": "path", "required": true, "description": "技能名称/ID", "schema": map[string]interface{}{"type": "string"}},
-						{"name": "path", "in": "query", "required": true, "description": "文件相对路径", "schema": map[string]interface{}{"type": "string"}},
+						{"name": "name", "in": "path", "required": true, "description": "/ID", "schema": map[string]interface{}{"type": "string"}},
+						{"name": "path", "in": "query", "required": true, "description": "", "schema": map[string]interface{}{"type": "string"}},
 					},
 					"responses": map[string]interface{}{
 						"200": map[string]interface{}{
-							"description": "获取成功",
+							"description": "",
 							"content": map[string]interface{}{
 								"application/json": map[string]interface{}{
 									"schema": map[string]interface{}{
 										"type": "object",
 										"properties": map[string]interface{}{
-											"path":    map[string]interface{}{"type": "string", "description": "文件路径"},
-											"content": map[string]interface{}{"type": "string", "description": "文件内容"},
+											"path":    map[string]interface{}{"type": "string", "description": ""},
+											"content": map[string]interface{}{"type": "string", "description": ""},
 										},
 									},
 								},
 							},
 						},
-						"401": map[string]interface{}{"description": "未授权"},
-						"404": map[string]interface{}{"description": "文件不存在"},
+						"401": map[string]interface{}{"description": ""},
+						"404": map[string]interface{}{"description": ""},
 					},
 				},
 				"put": map[string]interface{}{
-					"tags":        []string{"Skills管理"},
-					"summary":     "写入技能包文件",
-					"description": "写入或更新技能包中的文件内容。",
+					"tags":        []string{"Skills"},
+					"summary":     "",
+					"description": "。",
 					"operationId": "putSkillPackageFile",
 					"parameters": []map[string]interface{}{
-						{"name": "name", "in": "path", "required": true, "description": "技能名称/ID", "schema": map[string]interface{}{"type": "string"}},
+						{"name": "name", "in": "path", "required": true, "description": "/ID", "schema": map[string]interface{}{"type": "string"}},
 					},
 					"requestBody": map[string]interface{}{
 						"required": true,
@@ -5974,8 +5974,8 @@ func (h *OpenAPIHandler) GetOpenAPISpec(c *gin.Context) {
 									"type": "object",
 									"required": []string{"path"},
 									"properties": map[string]interface{}{
-										"path":    map[string]interface{}{"type": "string", "description": "文件相对路径"},
-										"content": map[string]interface{}{"type": "string", "description": "文件内容"},
+										"path":    map[string]interface{}{"type": "string", "description": ""},
+										"content": map[string]interface{}{"type": "string", "description": ""},
 									},
 								},
 							},
@@ -5983,7 +5983,7 @@ func (h *OpenAPIHandler) GetOpenAPISpec(c *gin.Context) {
 					},
 					"responses": map[string]interface{}{
 						"200": map[string]interface{}{
-							"description": "保存成功",
+							"description": "",
 							"content": map[string]interface{}{
 								"application/json": map[string]interface{}{
 									"schema": map[string]interface{}{
@@ -5996,7 +5996,7 @@ func (h *OpenAPIHandler) GetOpenAPISpec(c *gin.Context) {
 								},
 							},
 						},
-						"401": map[string]interface{}{"description": "未授权"},
+						"401": map[string]interface{}{"description": ""},
 					},
 				},
 			},
@@ -6004,9 +6004,9 @@ func (h *OpenAPIHandler) GetOpenAPISpec(c *gin.Context) {
 			// English note.
 			"/api/monitor/executions/names": map[string]interface{}{
 				"post": map[string]interface{}{
-					"tags":        []string{"监控"},
-					"summary":     "批量获取工具名称",
-					"description": "根据执行ID列表批量获取对应的工具名称，消除前端N+1请求问题。",
+					"tags":        []string{""},
+					"summary":     "",
+					"description": "ID，N+1。",
 					"operationId": "batchGetToolNames",
 					"requestBody": map[string]interface{}{
 						"required": true,
@@ -6019,7 +6019,7 @@ func (h *OpenAPIHandler) GetOpenAPISpec(c *gin.Context) {
 										"ids": map[string]interface{}{
 											"type":        "array",
 											"items":       map[string]interface{}{"type": "string"},
-											"description": "执行记录ID列表",
+											"description": "ID",
 										},
 									},
 								},
@@ -6028,20 +6028,20 @@ func (h *OpenAPIHandler) GetOpenAPISpec(c *gin.Context) {
 					},
 					"responses": map[string]interface{}{
 						"200": map[string]interface{}{
-							"description": "获取成功，返回ID到工具名称的映射",
+							"description": "，ID",
 							"content": map[string]interface{}{
 								"application/json": map[string]interface{}{
 									"schema": map[string]interface{}{
 										"type":                 "object",
 										"additionalProperties": map[string]interface{}{"type": "string"},
-										"description":          "键为执行ID，值为工具名称",
+										"description":          "ID，",
 										"example":              map[string]interface{}{"exec-001": "nmap", "exec-002": "sqlmap"},
 									},
 								},
 							},
 						},
-						"400": map[string]interface{}{"description": "参数错误"},
-						"401": map[string]interface{}{"description": "未授权"},
+						"400": map[string]interface{}{"description": ""},
+						"401": map[string]interface{}{"description": ""},
 					},
 				},
 			},
@@ -6049,27 +6049,27 @@ func (h *OpenAPIHandler) GetOpenAPISpec(c *gin.Context) {
 			// English note.
 			"/api/knowledge/stats": map[string]interface{}{
 				"get": map[string]interface{}{
-					"tags":        []string{"知识库"},
-					"summary":     "获取知识库统计",
-					"description": "获取知识库的总体统计信息，包括分类数和条目数。",
+					"tags":        []string{""},
+					"summary":     "",
+					"description": "，。",
 					"operationId": "getKnowledgeStats",
 					"responses": map[string]interface{}{
 						"200": map[string]interface{}{
-							"description": "获取成功",
+							"description": "",
 							"content": map[string]interface{}{
 								"application/json": map[string]interface{}{
 									"schema": map[string]interface{}{
 										"type": "object",
 										"properties": map[string]interface{}{
-											"enabled":          map[string]interface{}{"type": "boolean", "description": "知识库是否启用"},
-											"total_categories": map[string]interface{}{"type": "integer", "description": "分类总数"},
-											"total_items":      map[string]interface{}{"type": "integer", "description": "条目总数"},
+											"enabled":          map[string]interface{}{"type": "boolean", "description": ""},
+											"total_categories": map[string]interface{}{"type": "integer", "description": ""},
+											"total_items":      map[string]interface{}{"type": "integer", "description": ""},
 										},
 									},
 								},
 							},
 						},
-						"401": map[string]interface{}{"description": "未授权"},
+						"401": map[string]interface{}{"description": ""},
 					},
 				},
 			},
@@ -6077,8 +6077,8 @@ func (h *OpenAPIHandler) GetOpenAPISpec(c *gin.Context) {
 			"/api/mcp": map[string]interface{}{
 				"post": map[string]interface{}{
 					"tags":        []string{"MCP"},
-					"summary":     "MCP端点",
-					"description": "MCP (Model Context Protocol) 端点，用于处理MCP协议请求。\n**协议说明**：\n本端点遵循 JSON-RPC 2.0 规范，支持以下方法：\n**1. initialize** - 初始化MCP连接\n```json\n{\n  \"jsonrpc\": \"2.0\",\n  \"id\": \"init-1\",\n  \"method\": \"initialize\",\n  \"params\": {\n    \"protocolVersion\": \"2024-11-05\",\n    \"capabilities\": {},\n    \"clientInfo\": {\n      \"name\": \"MyClient\",\n      \"version\": \"1.0.0\"\n    }\n  }\n}\n```\n**2. tools/list** - 列出所有可用工具\n```json\n{\n  \"jsonrpc\": \"2.0\",\n  \"id\": \"list-1\",\n  \"method\": \"tools/list\",\n  \"params\": {}\n}\n```\n**3. tools/call** - 调用工具\n```json\n{\n  \"jsonrpc\": \"2.0\",\n  \"id\": \"call-1\",\n  \"method\": \"tools/call\",\n  \"params\": {\n    \"name\": \"nmap\",\n    \"arguments\": {\n      \"target\": \"192.168.1.1\",\n      \"ports\": \"80,443\"\n    }\n  }\n}\n```\n**4. prompts/list** - 列出所有提示词模板\n```json\n{\n  \"jsonrpc\": \"2.0\",\n  \"id\": \"prompts-list-1\",\n  \"method\": \"prompts/list\",\n  \"params\": {}\n}\n```\n**5. prompts/get** - 获取提示词模板\n```json\n{\n  \"jsonrpc\": \"2.0\",\n  \"id\": \"prompt-get-1\",\n  \"method\": \"prompts/get\",\n  \"params\": {\n    \"name\": \"prompt-name\",\n    \"arguments\": {}\n  }\n}\n```\n**6. resources/list** - 列出所有资源\n```json\n{\n  \"jsonrpc\": \"2.0\",\n  \"id\": \"resources-list-1\",\n  \"method\": \"resources/list\",\n  \"params\": {}\n}\n```\n**7. resources/read** - 读取资源内容\n```json\n{\n  \"jsonrpc\": \"2.0\",\n  \"id\": \"resource-read-1\",\n  \"method\": \"resources/read\",\n  \"params\": {\n    \"uri\": \"resource://example\"\n  }\n}\n```\n**错误代码说明**：\n- `-32700`: Parse error - JSON解析错误\n- `-32600`: Invalid Request - 无效请求\n- `-32601`: Method not found - 方法不存在\n- `-32602`: Invalid params - 参数无效\n- `-32603`: Internal error - 内部错误",
+					"summary":     "MCP",
+					"description": "MCP (Model Context Protocol) ，MCP。\n****：\n JSON-RPC 2.0 ，：\n**1. initialize** - MCP\n```json\n{\n  \"jsonrpc\": \"2.0\",\n  \"id\": \"init-1\",\n  \"method\": \"initialize\",\n  \"params\": {\n    \"protocolVersion\": \"2024-11-05\",\n    \"capabilities\": {},\n    \"clientInfo\": {\n      \"name\": \"MyClient\",\n      \"version\": \"1.0.0\"\n    }\n  }\n}\n```\n**2. tools/list** - \n```json\n{\n  \"jsonrpc\": \"2.0\",\n  \"id\": \"list-1\",\n  \"method\": \"tools/list\",\n  \"params\": {}\n}\n```\n**3. tools/call** - \n```json\n{\n  \"jsonrpc\": \"2.0\",\n  \"id\": \"call-1\",\n  \"method\": \"tools/call\",\n  \"params\": {\n    \"name\": \"nmap\",\n    \"arguments\": {\n      \"target\": \"192.168.1.1\",\n      \"ports\": \"80,443\"\n    }\n  }\n}\n```\n**4. prompts/list** - \n```json\n{\n  \"jsonrpc\": \"2.0\",\n  \"id\": \"prompts-list-1\",\n  \"method\": \"prompts/list\",\n  \"params\": {}\n}\n```\n**5. prompts/get** - \n```json\n{\n  \"jsonrpc\": \"2.0\",\n  \"id\": \"prompt-get-1\",\n  \"method\": \"prompts/get\",\n  \"params\": {\n    \"name\": \"prompt-name\",\n    \"arguments\": {}\n  }\n}\n```\n**6. resources/list** - \n```json\n{\n  \"jsonrpc\": \"2.0\",\n  \"id\": \"resources-list-1\",\n  \"method\": \"resources/list\",\n  \"params\": {}\n}\n```\n**7. resources/read** - \n```json\n{\n  \"jsonrpc\": \"2.0\",\n  \"id\": \"resource-read-1\",\n  \"method\": \"resources/read\",\n  \"params\": {\n    \"uri\": \"resource://example\"\n  }\n}\n```\n****：\n- `-32700`: Parse error - JSON\n- `-32600`: Invalid Request - \n- `-32601`: Method not found - \n- `-32602`: Invalid params - \n- `-32603`: Internal error - ",
 					"operationId": "mcpEndpoint",
 					"requestBody": map[string]interface{}{
 						"required": true,
@@ -6089,8 +6089,8 @@ func (h *OpenAPIHandler) GetOpenAPISpec(c *gin.Context) {
 								},
 								"examples": map[string]interface{}{
 									"listTools": map[string]interface{}{
-										"summary":     "列出所有工具",
-										"description": "获取系统中所有可用的MCP工具列表",
+										"summary":     "",
+										"description": "MCP",
 										"value": map[string]interface{}{
 											"jsonrpc": "2.0",
 											"id":      "list-tools-1",
@@ -6099,8 +6099,8 @@ func (h *OpenAPIHandler) GetOpenAPISpec(c *gin.Context) {
 										},
 									},
 									"callTool": map[string]interface{}{
-										"summary":     "调用工具",
-										"description": "调用指定的MCP工具",
+										"summary":     "",
+										"description": "MCP",
 										"value": map[string]interface{}{
 											"jsonrpc": "2.0",
 											"id":      "call-tool-1",
@@ -6115,8 +6115,8 @@ func (h *OpenAPIHandler) GetOpenAPISpec(c *gin.Context) {
 										},
 									},
 									"initialize": map[string]interface{}{
-										"summary":     "初始化连接",
-										"description": "初始化MCP连接，获取服务器能力",
+										"summary":     "",
+										"description": "MCP，",
 										"value": map[string]interface{}{
 											"jsonrpc": "2.0",
 											"id":      "init-1",
@@ -6137,7 +6137,7 @@ func (h *OpenAPIHandler) GetOpenAPISpec(c *gin.Context) {
 					},
 					"responses": map[string]interface{}{
 						"200": map[string]interface{}{
-							"description": "MCP响应（JSON-RPC 2.0格式）",
+							"description": "MCP（JSON-RPC 2.0）",
 							"content": map[string]interface{}{
 								"application/json": map[string]interface{}{
 									"schema": map[string]interface{}{
@@ -6145,8 +6145,8 @@ func (h *OpenAPIHandler) GetOpenAPISpec(c *gin.Context) {
 									},
 									"examples": map[string]interface{}{
 										"success": map[string]interface{}{
-											"summary":     "成功响应",
-											"description": "工具调用成功的响应示例",
+											"summary":     "",
+											"description": "",
 											"value": map[string]interface{}{
 												"jsonrpc": "2.0",
 												"id":      "call-tool-1",
@@ -6154,7 +6154,7 @@ func (h *OpenAPIHandler) GetOpenAPISpec(c *gin.Context) {
 													"content": []map[string]interface{}{
 														{
 															"type": "text",
-															"text": "工具执行结果...",
+															"text": "...",
 														},
 													},
 													"isError": false,
@@ -6162,15 +6162,15 @@ func (h *OpenAPIHandler) GetOpenAPISpec(c *gin.Context) {
 											},
 										},
 										"error": map[string]interface{}{
-											"summary":     "错误响应",
-											"description": "工具调用失败的响应示例",
+											"summary":     "",
+											"description": "",
 											"value": map[string]interface{}{
 												"jsonrpc": "2.0",
 												"id":      "call-tool-1",
 												"error": map[string]interface{}{
 													"code":    -32601,
 													"message": "Tool not found",
-													"data":    "工具 'unknown-tool' 不存在",
+													"data":    " 'unknown-tool' ",
 												},
 											},
 										},
@@ -6179,7 +6179,7 @@ func (h *OpenAPIHandler) GetOpenAPISpec(c *gin.Context) {
 							},
 						},
 						"400": map[string]interface{}{
-							"description": "请求格式错误（JSON解析失败）",
+							"description": "（JSON）",
 							"content": map[string]interface{}{
 								"application/json": map[string]interface{}{
 									"schema": map[string]interface{}{
@@ -6198,10 +6198,10 @@ func (h *OpenAPIHandler) GetOpenAPISpec(c *gin.Context) {
 							},
 						},
 						"401": map[string]interface{}{
-							"description": "未授权，需要有效的Token",
+							"description": "，Token",
 						},
 						"405": map[string]interface{}{
-							"description": "方法不允许（仅支持POST请求）",
+							"description": "（POST）",
 						},
 					},
 				},
@@ -6222,15 +6222,15 @@ func (h *OpenAPIHandler) GetConversationResults(c *gin.Context) {
 	// English note.
 	conv, err := h.db.GetConversation(conversationID)
 	if err != nil {
-		h.logger.Error("获取对话失败", zap.Error(err))
-		c.JSON(http.StatusNotFound, gin.H{"error": "对话不存在"})
+		h.logger.Error("", zap.Error(err))
+		c.JSON(http.StatusNotFound, gin.H{"error": ""})
 		return
 	}
 
 	// English note.
 	messages, err := h.db.GetMessages(conversationID)
 	if err != nil {
-		h.logger.Error("获取消息失败", zap.Error(err))
+		h.logger.Error("", zap.Error(err))
 		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		return
 	}
@@ -6238,7 +6238,7 @@ func (h *OpenAPIHandler) GetConversationResults(c *gin.Context) {
 	// English note.
 	vulnList, err := h.db.ListVulnerabilities(1000, 0, "", conversationID, "", "")
 	if err != nil {
-		h.logger.Warn("获取漏洞列表失败", zap.Error(err))
+		h.logger.Warn("", zap.Error(err))
 		vulnList = []*database.Vulnerability{}
 	}
 	vulnerabilities := make([]database.Vulnerability, len(vulnList))

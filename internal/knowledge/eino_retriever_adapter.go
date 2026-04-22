@@ -48,7 +48,7 @@ func (h *VectorEinoRetriever) Retrieve(ctx context.Context, query string, opts .
 	}
 	q := strings.TrimSpace(query)
 	if q == "" {
-		return nil, fmt.Errorf("查询不能为空")
+		return nil, fmt.Errorf("")
 	}
 
 	ro := retriever.GetCommonOptions(nil, opts...)
@@ -124,7 +124,7 @@ func (h *VectorEinoRetriever) Retrieve(ctx context.Context, query string, opts .
 		reranked, rerr := rr.Rerank(ctx, q, out)
 		if rerr != nil {
 			if h.inner.logger != nil {
-				h.inner.logger.Warn("知识检索重排失败，已使用向量序", zap.Error(rerr))
+				h.inner.logger.Warn("，", zap.Error(rerr))
 			}
 		} else if len(reranked) > 0 {
 			out = reranked

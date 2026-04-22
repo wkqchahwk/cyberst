@@ -56,19 +56,19 @@ func toolExecutionRetryHint() *schema.Message {
 
 Please carefully review the available tools and sub-agents listed in your context, use only exact registered names (case-sensitive), and ensure all arguments are well-formed JSON objects. Then retry your action.
 
-[系统提示] 上一次工具调用失败，可能原因：
-- 你使用的工具名或子代理名称不存在；
-- 工具调用参数不是合法 JSON。
+[] ，：
+- ；
+-  JSON。
 
-请仔细检查上下文中列出的可用工具和子代理名称（须完全匹配、区分大小写），确保所有参数均为合法的 JSON 对象，然后重新执行。`)
+（、）， JSON ，。`)
 }
 
 // toolExecutionRecoveryTimelineMessage returns a message for the eino_recovery event
 // displayed in the UI timeline when a tool execution error triggers a retry.
 func toolExecutionRecoveryTimelineMessage(attempt int) string {
 	return fmt.Sprintf(
-		"工具调用执行失败（工具/子代理名称不存在或参数 JSON 无效）。已向对话追加纠错提示并要求模型重新生成。"+
-			"当前为第 %d/%d 轮完整运行。\n\n"+
+		"（/ JSON ）。。"+
+			" %d/%d 。\n\n"+
 			"Tool call execution failed (unknown tool/sub-agent name or invalid JSON arguments). "+
 			"A corrective hint was appended. This is full run %d of %d.",
 		attempt+1, maxToolCallRecoveryAttempts, attempt+1, maxToolCallRecoveryAttempts,

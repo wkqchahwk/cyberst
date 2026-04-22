@@ -166,7 +166,7 @@ function showSubmenuPopup(navItem, menuId) {
     const existingPopup = document.querySelector('.submenu-popup');
     if (existingPopup) {
         existingPopup.remove();
-        return; // 如果已经打开，点击时关闭
+        return; // ，
     }
     
     const navItemContent = navItem.querySelector('.nav-item-content');
@@ -268,7 +268,7 @@ async function initPage(pageId) {
             // English note.
             if (typeof loadExternalMCPs === 'function') {
                 loadExternalMCPs().catch(err => {
-                    console.warn('加载外部MCP列表失败:', err);
+                    console.warn('MCP:', err);
                 });
             }
             // English note.
@@ -281,7 +281,7 @@ async function initPage(pageId) {
                 // English note.
                 setTimeout(() => {
                     loadToolsList(1, '').catch(err => {
-                        console.error('加载工具列表失败:', err);
+                        console.error(':', err);
                     });
                 }, 100);
             }

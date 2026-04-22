@@ -39,10 +39,10 @@ func RunEinoSingleChatModelAgent(
 	progress func(eventType, message string, data interface{}),
 ) (*RunResult, error) {
 	if appCfg == nil || ag == nil {
-		return nil, fmt.Errorf("eino single: 配置或 Agent 为空")
+		return nil, fmt.Errorf("eino single:  Agent ")
 	}
 	if ma == nil {
-		return nil, fmt.Errorf("eino single: multi_agent 配置为空")
+		return nil, fmt.Errorf("eino single: multi_agent ")
 	}
 
 	einoLoc, einoSkillMW, einoFSTools, skillsRoot, einoErr := prepareEinoSkills(ctx, appCfg.SkillsDir, ma, logger)
@@ -94,7 +94,7 @@ func RunEinoSingleChatModelAgent(
 
 	mainToolsForCfg, mainOrchestratorPre, err := prependEinoMiddlewares(ctx, &ma.EinoMiddleware, einoMWMain, mainTools, einoLoc, skillsRoot, conversationID, logger)
 	if err != nil {
-		return nil, fmt.Errorf("eino single eino 中间件: %w", err)
+		return nil, fmt.Errorf("eino single eino : %w", err)
 	}
 
 	httpClient := &http.Client{
@@ -122,7 +122,7 @@ func RunEinoSingleChatModelAgent(
 
 	mainModel, err := einoopenai.NewChatModel(ctx, baseModelCfg)
 	if err != nil {
-		return nil, fmt.Errorf("eino single 模型: %w", err)
+		return nil, fmt.Errorf("eino single : %w", err)
 	}
 
 	mainSumMw, err := newEinoSummarizationMiddleware(ctx, mainModel, appCfg, logger)
@@ -138,7 +138,7 @@ func RunEinoSingleChatModelAgent(
 		if einoFSTools && einoLoc != nil {
 			fsMw, fsErr := subAgentFilesystemMiddleware(ctx, einoLoc)
 			if fsErr != nil {
-				return nil, fmt.Errorf("eino single filesystem 中间件: %w", fsErr)
+				return nil, fmt.Errorf("eino single filesystem : %w", fsErr)
 			}
 			handlers = append(handlers, fsMw)
 		}
@@ -212,6 +212,6 @@ func RunEinoSingleChatModelAgent(
 		McpIDs:               &mcpIDs,
 		DA:                   chatAgent,
 		EmptyResponseMessage: "(Eino ADK single-agent session completed but no assistant text was captured. Check process details or logs.) " +
-			"（Eino ADK 单代理会话已完成，但未捕获到助手文本输出。请查看过程详情或日志。）",
+			"（Eino ADK ，。。）",
 	}, baseMsgs)
 }

@@ -17,7 +17,7 @@ async function refreshDashboard() {
     setEl('dashboard-kpi-tools-calls', '…');
     setEl('dashboard-kpi-success-rate', '…');
     var chartPlaceholder = document.getElementById('dashboard-tools-pie-placeholder');
-    if (chartPlaceholder) { chartPlaceholder.style.removeProperty('display'); chartPlaceholder.textContent = (typeof window.t === 'function' ? window.t('common.loading') : '加载中…'); }
+    if (chartPlaceholder) { chartPlaceholder.style.removeProperty('display'); chartPlaceholder.textContent = (typeof window.t === 'function' ? window.t('common.loading') : '…'); }
     var barChartEl = document.getElementById('dashboard-tools-bar-chart');
     if (barChartEl) { barChartEl.style.display = 'none'; barChartEl.innerHTML = ''; }
 
@@ -92,7 +92,7 @@ async function refreshDashboard() {
             setEl('dashboard-batch-pending', String(pending));
             setEl('dashboard-batch-running', String(running));
             setEl('dashboard-batch-done', String(done));
-            setEl('dashboard-batch-total', total > 0 ? (typeof window.t === 'function' ? window.t('dashboard.totalCount', { count: total }) : `共 ${total} 个`) : (typeof window.t === 'function' ? window.t('dashboard.noTasks') : '暂无任务'));
+            setEl('dashboard-batch-total', total > 0 ? (typeof window.t === 'function' ? window.t('dashboard.totalCount', { count: total }) : ` ${total} `) : (typeof window.t === 'function' ? window.t('dashboard.noTasks') : ''));
             
             // English note.
             if (total > 0) {
@@ -135,7 +135,7 @@ async function refreshDashboard() {
             setEl('dashboard-kpi-tools-calls', String(totalCalls));
             var rateStr = totalCalls > 0 ? ((totalSuccess / totalCalls) * 100).toFixed(1) + '%' : '-';
             setEl('dashboard-kpi-success-rate', rateStr);
-            setEl('dashboard-tools-success-rate', rateStr !== '-' ? `成功率 ${rateStr}` : '-');
+            setEl('dashboard-tools-success-rate', rateStr !== '-' ? ` ${rateStr}` : '-');
             renderDashboardToolsBar(monitorRes);
         } else {
             setEl('dashboard-tools-count', '-');
@@ -153,7 +153,7 @@ async function refreshDashboard() {
         if (knowledgeRes && typeof knowledgeRes === 'object') {
             if (knowledgeRes.enabled === false) {
                 // English note.
-                if (knowledgeStatusEl) knowledgeStatusEl.textContent = (typeof window.t === 'function' ? window.t('dashboard.notEnabled') : '未启用');
+                if (knowledgeStatusEl) knowledgeStatusEl.textContent = (typeof window.t === 'function' ? window.t('dashboard.notEnabled') : '');
                 if (knowledgeItemsEl) knowledgeItemsEl.textContent = '-';
                 if (knowledgeCategoriesEl) knowledgeCategoriesEl.textContent = '-';
             } else {
@@ -164,9 +164,9 @@ async function refreshDashboard() {
                 // English note.
                 if (knowledgeStatusEl) {
                     if (items > 0 || categories > 0) {
-                        knowledgeStatusEl.textContent = (typeof window.t === 'function' ? window.t('dashboard.enabled') : '已启用');
+                        knowledgeStatusEl.textContent = (typeof window.t === 'function' ? window.t('dashboard.enabled') : '');
                     } else {
-                        knowledgeStatusEl.textContent = (typeof window.t === 'function' ? window.t('dashboard.toConfigure') : '待配置');
+                        knowledgeStatusEl.textContent = (typeof window.t === 'function' ? window.t('dashboard.toConfigure') : '');
                     }
                 }
             }
@@ -187,15 +187,15 @@ async function refreshDashboard() {
             const statusEl = document.getElementById('dashboard-skills-status');
             if (statusEl) {
                 if (totalCalls === 0) {
-                    statusEl.textContent = (typeof window.t === 'function' ? window.t('dashboard.toUse') : '待使用');
+                    statusEl.textContent = (typeof window.t === 'function' ? window.t('dashboard.toUse') : '');
                     statusEl.style.background = 'rgba(0, 0, 0, 0.05)';
                     statusEl.style.color = 'var(--text-secondary)';
                 } else if (totalCalls < 10) {
-                    statusEl.textContent = (typeof window.t === 'function' ? window.t('dashboard.active') : '活跃');
+                    statusEl.textContent = (typeof window.t === 'function' ? window.t('dashboard.active') : '');
                     statusEl.style.background = 'rgba(16, 185, 129, 0.1)';
                     statusEl.style.color = '#10b981';
                 } else {
-                    statusEl.textContent = (typeof window.t === 'function' ? window.t('dashboard.highFreq') : '高频');
+                    statusEl.textContent = (typeof window.t === 'function' ? window.t('dashboard.highFreq') : '');
                     statusEl.style.background = 'rgba(59, 130, 246, 0.1)';
                     statusEl.style.color = '#3b82f6';
                 }
@@ -207,7 +207,7 @@ async function refreshDashboard() {
             if (statusEl) statusEl.textContent = '-';
         }
     } catch (e) {
-        console.warn('仪表盘拉取统计失败', e);
+        console.warn('', e);
         if (runningEl) runningEl.textContent = '-';
         if (vulnTotalEl) vulnTotalEl.textContent = '-';
         setDashboardOverviewPlaceholder('-');
@@ -215,7 +215,7 @@ async function refreshDashboard() {
         setEl('dashboard-kpi-tools-calls', '-');
         renderDashboardToolsBar(null);
         var ph = document.getElementById('dashboard-tools-pie-placeholder');
-        if (ph) { ph.style.removeProperty('display'); ph.textContent = (typeof window.t === 'function' ? window.t('dashboard.noCallData') : '暂无调用数据'); }
+        if (ph) { ph.style.removeProperty('display'); ph.textContent = (typeof window.t === 'function' ? window.t('dashboard.noCallData') : ''); }
     }
 }
 
@@ -272,7 +272,7 @@ function renderDashboardToolsBar(monitorRes) {
 
     if (!monitorRes || typeof monitorRes !== 'object') {
         placeholder.style.removeProperty('display');
-        placeholder.textContent = (typeof window.t === 'function' ? window.t('dashboard.noCallData') : '暂无调用数据');
+        placeholder.textContent = (typeof window.t === 'function' ? window.t('dashboard.noCallData') : '');
         barChartEl.style.display = 'none';
         barChartEl.innerHTML = '';
         return;
@@ -288,7 +288,7 @@ function renderDashboardToolsBar(monitorRes) {
 
     if (entries.length === 0) {
         placeholder.style.removeProperty('display');
-        placeholder.textContent = (typeof window.t === 'function' ? window.t('dashboard.noCallData') : '暂无调用数据');
+        placeholder.textContent = (typeof window.t === 'function' ? window.t('dashboard.noCallData') : '');
         barChartEl.style.display = 'none';
         barChartEl.innerHTML = '';
         return;

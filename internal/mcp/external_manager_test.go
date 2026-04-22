@@ -26,7 +26,7 @@ func TestExternalMCPManager_AddOrUpdateConfig(t *testing.T) {
 
 	err := manager.AddOrUpdateConfig("test-stdio", stdioCfg)
 	if err != nil {
-		t.Fatalf("添加stdio配置失败: %v", err)
+		t.Fatalf("stdio: %v", err)
 	}
 
 	// English note.
@@ -40,21 +40,21 @@ func TestExternalMCPManager_AddOrUpdateConfig(t *testing.T) {
 
 	err = manager.AddOrUpdateConfig("test-http", httpCfg)
 	if err != nil {
-		t.Fatalf("添加HTTP配置失败: %v", err)
+		t.Fatalf("HTTP: %v", err)
 	}
 
 	// English note.
 	configs := manager.GetConfigs()
 	if len(configs) != 2 {
-		t.Fatalf("期望2个配置，实际%d个", len(configs))
+		t.Fatalf("2，%d", len(configs))
 	}
 
 	if configs["test-stdio"].Command != stdioCfg.Command {
-		t.Errorf("stdio配置命令不匹配")
+		t.Errorf("stdio")
 	}
 
 	if configs["test-http"].URL != httpCfg.URL {
-		t.Errorf("HTTP配置URL不匹配")
+		t.Errorf("HTTPURL")
 	}
 }
 
@@ -73,12 +73,12 @@ func TestExternalMCPManager_RemoveConfig(t *testing.T) {
 	// English note.
 	err := manager.RemoveConfig("test-remove")
 	if err != nil {
-		t.Fatalf("移除配置失败: %v", err)
+		t.Fatalf(": %v", err)
 	}
 
 	configs := manager.GetConfigs()
 	if _, exists := configs["test-remove"]; exists {
-		t.Error("配置应该已被移除")
+		t.Error("")
 	}
 }
 
@@ -100,21 +100,21 @@ func TestExternalMCPManager_GetStats(t *testing.T) {
 	manager.AddOrUpdateConfig("disabled1", config.ExternalMCPServerConfig{
 		Command:  "python3",
 		Enabled:  false,
-		Disabled: true, // 明确设置为禁用
+		Disabled: true, // 
 	})
 
 	stats := manager.GetStats()
 
 	if stats["total"].(int) != 3 {
-		t.Errorf("期望总数3，实际%d", stats["total"])
+		t.Errorf("3，%d", stats["total"])
 	}
 
 	if stats["enabled"].(int) != 2 {
-		t.Errorf("期望启用数2，实际%d", stats["enabled"])
+		t.Errorf("2，%d", stats["enabled"])
 	}
 
 	if stats["disabled"].(int) != 1 {
-		t.Errorf("期望停用数1，实际%d", stats["disabled"])
+		t.Errorf("1，%d", stats["disabled"])
 	}
 }
 
@@ -139,15 +139,15 @@ func TestExternalMCPManager_LoadConfigs(t *testing.T) {
 
 	configs := manager.GetConfigs()
 	if len(configs) != 2 {
-		t.Fatalf("期望2个配置，实际%d个", len(configs))
+		t.Fatalf("2，%d", len(configs))
 	}
 
 	if configs["loaded1"].Command != "python3" {
-		t.Error("配置1加载失败")
+		t.Error("1")
 	}
 
 	if configs["loaded2"].URL != "http://127.0.0.1:8081/mcp" {
-		t.Error("配置2加载失败")
+		t.Error("2")
 	}
 }
 
@@ -189,19 +189,19 @@ func TestExternalMCPManager_StartStopClient(t *testing.T) {
 	// English note.
 	err := manager.StartClient("test-start-stop")
 	if err != nil {
-		t.Logf("启动失败（可能是没有服务器）: %v", err)
+		t.Logf("（）: %v", err)
 	}
 
 	// English note.
 	err = manager.StopClient("test-start-stop")
 	if err != nil {
-		t.Fatalf("停止失败: %v", err)
+		t.Fatalf(": %v", err)
 	}
 
 	// English note.
 	configs := manager.GetConfigs()
 	if configs["test-start-stop"].Enabled {
-		t.Error("配置应该已被禁用")
+		t.Error("")
 	}
 }
 
@@ -212,13 +212,13 @@ func TestExternalMCPManager_CallTool(t *testing.T) {
 	// English note.
 	_, _, err := manager.CallTool(context.Background(), "nonexistent::tool", map[string]interface{}{})
 	if err == nil {
-		t.Error("应该返回错误")
+		t.Error("")
 	}
 
 	// English note.
 	_, _, err = manager.CallTool(context.Background(), "invalid-tool-name", map[string]interface{}{})
 	if err == nil {
-		t.Error("应该返回错误（无效格式）")
+		t.Error("（）")
 	}
 }
 
@@ -229,11 +229,11 @@ func TestExternalMCPManager_GetAllTools(t *testing.T) {
 	ctx := context.Background()
 	tools, err := manager.GetAllTools(ctx)
 	if err != nil {
-		t.Fatalf("获取工具列表失败: %v", err)
+		t.Fatalf(": %v", err)
 	}
 
 	// English note.
 	if len(tools) != 0 {
-		t.Logf("获取到%d个工具", len(tools))
+		t.Logf("%d", len(tools))
 	}
 }

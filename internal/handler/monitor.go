@@ -26,7 +26,7 @@ type MonitorHandler struct {
 func NewMonitorHandler(mcpServer *mcp.Server, executor *security.Executor, db *database.DB, logger *zap.Logger) *MonitorHandler {
 	return &MonitorHandler{
 		mcpServer:      mcpServer,
-		externalMCPMgr: nil, // 将在创建后设置
+		externalMCPMgr: nil, // 
 		executor:       executor,
 		db:             db,
 		logger:         logger,
@@ -125,7 +125,7 @@ func (h *MonitorHandler) loadExecutionsWithPagination(page, pageSize int, status
 	offset := (page - 1) * pageSize
 	executions, err := h.db.LoadToolExecutionsWithPagination(offset, pageSize, status, toolName)
 	if err != nil {
-		h.logger.Warn("从数据库加载执行记录失败，回退到内存数据", zap.Error(err))
+		h.logger.Warn("，", zap.Error(err))
 		allExecutions := h.mcpServer.GetAllExecutions()
 		// English note.
 		if status != "" || toolName != "" {
@@ -155,7 +155,7 @@ func (h *MonitorHandler) loadExecutionsWithPagination(page, pageSize int, status
 	// English note.
 	total, err := h.db.CountToolExecutions(status, toolName)
 	if err != nil {
-		h.logger.Warn("获取执行记录总数失败", zap.Error(err))
+		h.logger.Warn("", zap.Error(err))
 		// English note.
 		total = offset + len(executions)
 		if len(executions) == pageSize {
@@ -179,7 +179,7 @@ func (h *MonitorHandler) loadStats() map[string]*mcp.ToolStats {
 	} else {
 		dbStats, err := h.db.LoadToolStats()
 		if err != nil {
-			h.logger.Warn("从数据库加载统计信息失败，回退到内存数据", zap.Error(err))
+			h.logger.Warn("，", zap.Error(err))
 			internalStats := h.mcpServer.GetStats()
 			for k, v := range internalStats {
 				stats[k] = v
@@ -243,7 +243,7 @@ func (h *MonitorHandler) GetExecution(c *gin.Context) {
 		}
 	}
 
-	c.JSON(http.StatusNotFound, gin.H{"error": "执行记录未找到"})
+	c.JSON(http.StatusNotFound, gin.H{"error": ""})
 }
 
 // English note.
@@ -291,7 +291,7 @@ func (h *MonitorHandler) GetStats(c *gin.Context) {
 func (h *MonitorHandler) DeleteExecution(c *gin.Context) {
 	id := c.Param("id")
 	if id == "" {
-		c.JSON(http.StatusBadRequest, gin.H{"error": "执行记录ID不能为空"})
+		c.JSON(http.StatusBadRequest, gin.H{"error": "ID"})
 		return
 	}
 
@@ -301,16 +301,16 @@ func (h *MonitorHandler) DeleteExecution(c *gin.Context) {
 		exec, err := h.db.GetToolExecution(id)
 		if err != nil {
 			// English note.
-			h.logger.Warn("执行记录不存在，可能已被删除", zap.String("executionId", id), zap.Error(err))
-			c.JSON(http.StatusOK, gin.H{"message": "执行记录不存在或已被删除"})
+			h.logger.Warn("，", zap.String("executionId", id), zap.Error(err))
+			c.JSON(http.StatusOK, gin.H{"message": ""})
 			return
 		}
 
 		// English note.
 		err = h.db.DeleteToolExecution(id)
 		if err != nil {
-			h.logger.Error("删除执行记录失败", zap.Error(err), zap.String("executionId", id))
-			c.JSON(http.StatusInternalServerError, gin.H{"error": "删除执行记录失败: " + err.Error()})
+			h.logger.Error("", zap.Error(err), zap.String("executionId", id))
+			c.JSON(http.StatusInternalServerError, gin.H{"error": ": " + err.Error()})
 			return
 		}
 
@@ -326,20 +326,20 @@ func (h *MonitorHandler) DeleteExecution(c *gin.Context) {
 
 		if exec.ToolName != "" {
 			if err := h.db.DecreaseToolStats(exec.ToolName, totalCalls, successCalls, failedCalls); err != nil {
-				h.logger.Warn("更新统计信息失败", zap.Error(err), zap.String("toolName", exec.ToolName))
+				h.logger.Warn("", zap.Error(err), zap.String("toolName", exec.ToolName))
 				// English note.
 			}
 		}
 
-		h.logger.Info("执行记录已从数据库删除", zap.String("executionId", id), zap.String("toolName", exec.ToolName))
-		c.JSON(http.StatusOK, gin.H{"message": "执行记录已删除"})
+		h.logger.Info("", zap.String("executionId", id), zap.String("toolName", exec.ToolName))
+		c.JSON(http.StatusOK, gin.H{"message": ""})
 		return
 	}
 
 	// English note.
 	// English note.
-	h.logger.Info("尝试删除内存中的执行记录", zap.String("executionId", id))
-	c.JSON(http.StatusOK, gin.H{"message": "执行记录已删除（如果存在）"})
+	h.logger.Info("", zap.String("executionId", id))
+	c.JSON(http.StatusOK, gin.H{"message": "（）"})
 }
 
 // English note.
@@ -349,12 +349,12 @@ func (h *MonitorHandler) DeleteExecutions(c *gin.Context) {
 	}
 
 	if err := c.ShouldBindJSON(&request); err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"error": "请求参数无效: " + err.Error()})
+		c.JSON(http.StatusBadRequest, gin.H{"error": ": " + err.Error()})
 		return
 	}
 
 	if len(request.IDs) == 0 {
-		c.JSON(http.StatusBadRequest, gin.H{"error": "执行记录ID列表不能为空"})
+		c.JSON(http.StatusBadRequest, gin.H{"error": "ID"})
 		return
 	}
 
@@ -363,8 +363,8 @@ func (h *MonitorHandler) DeleteExecutions(c *gin.Context) {
 		// English note.
 		executions, err := h.db.GetToolExecutionsByIds(request.IDs)
 		if err != nil {
-			h.logger.Error("获取执行记录失败", zap.Error(err))
-			c.JSON(http.StatusInternalServerError, gin.H{"error": "获取执行记录失败: " + err.Error()})
+			h.logger.Error("", zap.Error(err))
+			c.JSON(http.StatusInternalServerError, gin.H{"error": ": " + err.Error()})
 			return
 		}
 
@@ -393,28 +393,28 @@ func (h *MonitorHandler) DeleteExecutions(c *gin.Context) {
 		// English note.
 		err = h.db.DeleteToolExecutions(request.IDs)
 		if err != nil {
-			h.logger.Error("批量删除执行记录失败", zap.Error(err), zap.Int("count", len(request.IDs)))
-			c.JSON(http.StatusInternalServerError, gin.H{"error": "批量删除执行记录失败: " + err.Error()})
+			h.logger.Error("", zap.Error(err), zap.Int("count", len(request.IDs)))
+			c.JSON(http.StatusInternalServerError, gin.H{"error": ": " + err.Error()})
 			return
 		}
 
 		// English note.
 		for toolName, stats := range toolStats {
 			if err := h.db.DecreaseToolStats(toolName, stats.totalCalls, stats.successCalls, stats.failedCalls); err != nil {
-				h.logger.Warn("更新统计信息失败", zap.Error(err), zap.String("toolName", toolName))
+				h.logger.Warn("", zap.Error(err), zap.String("toolName", toolName))
 				// English note.
 			}
 		}
 
-		h.logger.Info("批量删除执行记录成功", zap.Int("count", len(request.IDs)))
-		c.JSON(http.StatusOK, gin.H{"message": "成功删除执行记录", "deleted": len(executions)})
+		h.logger.Info("", zap.Int("count", len(request.IDs)))
+		c.JSON(http.StatusOK, gin.H{"message": "", "deleted": len(executions)})
 		return
 	}
 
 	// English note.
 	// English note.
-	h.logger.Info("尝试批量删除内存中的执行记录", zap.Int("count", len(request.IDs)))
-	c.JSON(http.StatusOK, gin.H{"message": "执行记录已删除（如果存在）"})
+	h.logger.Info("", zap.Int("count", len(request.IDs)))
+	c.JSON(http.StatusOK, gin.H{"message": "（）"})
 }
 
 

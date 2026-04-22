@@ -21,7 +21,7 @@ type RoleHandler struct {
 	config        *config.Config
 	configPath    string
 	logger        *zap.Logger
-	skillsManager SkillsManager // Skills管理器接口（可选）
+	skillsManager SkillsManager // Skills（）
 }
 
 // English note.
@@ -54,7 +54,7 @@ func (h *RoleHandler) GetSkills(c *gin.Context) {
 
 	skills, err := h.skillsManager.ListSkills()
 	if err != nil {
-		h.logger.Warn("获取skills列表失败", zap.Error(err))
+		h.logger.Warn("skills", zap.Error(err))
 		c.JSON(http.StatusOK, gin.H{
 			"skills": []string{},
 		})
@@ -90,18 +90,18 @@ func (h *RoleHandler) GetRoles(c *gin.Context) {
 func (h *RoleHandler) GetRole(c *gin.Context) {
 	roleName := c.Param("name")
 	if roleName == "" {
-		c.JSON(http.StatusBadRequest, gin.H{"error": "角色名称不能为空"})
+		c.JSON(http.StatusBadRequest, gin.H{"error": ""})
 		return
 	}
 
 	if h.config.Roles == nil {
-		c.JSON(http.StatusNotFound, gin.H{"error": "角色不存在"})
+		c.JSON(http.StatusNotFound, gin.H{"error": ""})
 		return
 	}
 
 	role, exists := h.config.Roles[roleName]
 	if !exists {
-		c.JSON(http.StatusNotFound, gin.H{"error": "角色不存在"})
+		c.JSON(http.StatusNotFound, gin.H{"error": ""})
 		return
 	}
 
@@ -119,13 +119,13 @@ func (h *RoleHandler) GetRole(c *gin.Context) {
 func (h *RoleHandler) UpdateRole(c *gin.Context) {
 	roleName := c.Param("name")
 	if roleName == "" {
-		c.JSON(http.StatusBadRequest, gin.H{"error": "角色名称不能为空"})
+		c.JSON(http.StatusBadRequest, gin.H{"error": ""})
 		return
 	}
 
 	var req config.RoleConfig
 	if err := c.ShouldBindJSON(&req); err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"error": "无效的请求参数: " + err.Error()})
+		c.JSON(http.StatusBadRequest, gin.H{"error": ": " + err.Error()})
 		return
 	}
 
@@ -159,7 +159,7 @@ func (h *RoleHandler) UpdateRole(c *gin.Context) {
 	// English note.
 	for _, key := range keysToDelete {
 		delete(h.config.Roles, key)
-		h.logger.Info("删除重复的角色", zap.String("oldKey", key), zap.String("name", req.Name))
+		h.logger.Info("", zap.String("oldKey", key), zap.String("name", req.Name))
 	}
 
 	// English note.
@@ -172,7 +172,7 @@ func (h *RoleHandler) UpdateRole(c *gin.Context) {
 		configDir := filepath.Dir(h.configPath)
 		rolesDir := h.config.RolesDir
 		if rolesDir == "" {
-			rolesDir = "roles" // 默认目录
+			rolesDir = "roles" // 
 		}
 
 		// English note.
@@ -187,12 +187,12 @@ func (h *RoleHandler) UpdateRole(c *gin.Context) {
 
 		if _, err := os.Stat(oldRoleFileYaml); err == nil {
 			if err := os.Remove(oldRoleFileYaml); err != nil {
-				h.logger.Warn("删除旧角色配置文件失败", zap.String("file", oldRoleFileYaml), zap.Error(err))
+				h.logger.Warn("", zap.String("file", oldRoleFileYaml), zap.Error(err))
 			}
 		}
 		if _, err := os.Stat(oldRoleFileYml); err == nil {
 			if err := os.Remove(oldRoleFileYml); err != nil {
-				h.logger.Warn("删除旧角色配置文件失败", zap.String("file", oldRoleFileYml), zap.Error(err))
+				h.logger.Warn("", zap.String("file", oldRoleFileYml), zap.Error(err))
 			}
 		}
 	}
@@ -202,14 +202,14 @@ func (h *RoleHandler) UpdateRole(c *gin.Context) {
 
 	// English note.
 	if err := h.saveConfig(); err != nil {
-		h.logger.Error("保存配置失败", zap.Error(err))
-		c.JSON(http.StatusInternalServerError, gin.H{"error": "保存配置失败: " + err.Error()})
+		h.logger.Error("", zap.Error(err))
+		c.JSON(http.StatusInternalServerError, gin.H{"error": ": " + err.Error()})
 		return
 	}
 
-	h.logger.Info("更新角色", zap.String("oldKey", roleName), zap.String("newKey", finalKey), zap.String("name", req.Name))
+	h.logger.Info("", zap.String("oldKey", roleName), zap.String("newKey", finalKey), zap.String("name", req.Name))
 	c.JSON(http.StatusOK, gin.H{
-		"message": "角色已更新",
+		"message": "",
 		"role":    req,
 	})
 }
@@ -218,12 +218,12 @@ func (h *RoleHandler) UpdateRole(c *gin.Context) {
 func (h *RoleHandler) CreateRole(c *gin.Context) {
 	var req config.RoleConfig
 	if err := c.ShouldBindJSON(&req); err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"error": "无效的请求参数: " + err.Error()})
+		c.JSON(http.StatusBadRequest, gin.H{"error": ": " + err.Error()})
 		return
 	}
 
 	if req.Name == "" {
-		c.JSON(http.StatusBadRequest, gin.H{"error": "角色名称不能为空"})
+		c.JSON(http.StatusBadRequest, gin.H{"error": ""})
 		return
 	}
 
@@ -234,7 +234,7 @@ func (h *RoleHandler) CreateRole(c *gin.Context) {
 
 	// English note.
 	if _, exists := h.config.Roles[req.Name]; exists {
-		c.JSON(http.StatusBadRequest, gin.H{"error": "角色已存在"})
+		c.JSON(http.StatusBadRequest, gin.H{"error": ""})
 		return
 	}
 
@@ -247,14 +247,14 @@ func (h *RoleHandler) CreateRole(c *gin.Context) {
 
 	// English note.
 	if err := h.saveConfig(); err != nil {
-		h.logger.Error("保存配置失败", zap.Error(err))
-		c.JSON(http.StatusInternalServerError, gin.H{"error": "保存配置失败: " + err.Error()})
+		h.logger.Error("", zap.Error(err))
+		c.JSON(http.StatusInternalServerError, gin.H{"error": ": " + err.Error()})
 		return
 	}
 
-	h.logger.Info("创建角色", zap.String("roleName", req.Name))
+	h.logger.Info("", zap.String("roleName", req.Name))
 	c.JSON(http.StatusOK, gin.H{
-		"message": "角色已创建",
+		"message": "",
 		"role":    req,
 	})
 }
@@ -263,23 +263,23 @@ func (h *RoleHandler) CreateRole(c *gin.Context) {
 func (h *RoleHandler) DeleteRole(c *gin.Context) {
 	roleName := c.Param("name")
 	if roleName == "" {
-		c.JSON(http.StatusBadRequest, gin.H{"error": "角色名称不能为空"})
+		c.JSON(http.StatusBadRequest, gin.H{"error": ""})
 		return
 	}
 
 	if h.config.Roles == nil {
-		c.JSON(http.StatusNotFound, gin.H{"error": "角色不存在"})
+		c.JSON(http.StatusNotFound, gin.H{"error": ""})
 		return
 	}
 
 	if _, exists := h.config.Roles[roleName]; !exists {
-		c.JSON(http.StatusNotFound, gin.H{"error": "角色不存在"})
+		c.JSON(http.StatusNotFound, gin.H{"error": ""})
 		return
 	}
 
 	// English note.
-	if roleName == "默认" {
-		c.JSON(http.StatusBadRequest, gin.H{"error": "不能删除默认角色"})
+	if roleName == "" {
+		c.JSON(http.StatusBadRequest, gin.H{"error": ""})
 		return
 	}
 
@@ -289,7 +289,7 @@ func (h *RoleHandler) DeleteRole(c *gin.Context) {
 	configDir := filepath.Dir(h.configPath)
 	rolesDir := h.config.RolesDir
 	if rolesDir == "" {
-		rolesDir = "roles" // 默认目录
+		rolesDir = "roles" // 
 	}
 
 	// English note.
@@ -305,24 +305,24 @@ func (h *RoleHandler) DeleteRole(c *gin.Context) {
 	// English note.
 	if _, err := os.Stat(roleFileYaml); err == nil {
 		if err := os.Remove(roleFileYaml); err != nil {
-			h.logger.Warn("删除角色配置文件失败", zap.String("file", roleFileYaml), zap.Error(err))
+			h.logger.Warn("", zap.String("file", roleFileYaml), zap.Error(err))
 		} else {
-			h.logger.Info("已删除角色配置文件", zap.String("file", roleFileYaml))
+			h.logger.Info("", zap.String("file", roleFileYaml))
 		}
 	}
 
 	// English note.
 	if _, err := os.Stat(roleFileYml); err == nil {
 		if err := os.Remove(roleFileYml); err != nil {
-			h.logger.Warn("删除角色配置文件失败", zap.String("file", roleFileYml), zap.Error(err))
+			h.logger.Warn("", zap.String("file", roleFileYml), zap.Error(err))
 		} else {
-			h.logger.Info("已删除角色配置文件", zap.String("file", roleFileYml))
+			h.logger.Info("", zap.String("file", roleFileYml))
 		}
 	}
 
-	h.logger.Info("删除角色", zap.String("roleName", roleName))
+	h.logger.Info("", zap.String("roleName", roleName))
 	c.JSON(http.StatusOK, gin.H{
-		"message": "角色已删除",
+		"message": "",
 	})
 }
 
@@ -331,7 +331,7 @@ func (h *RoleHandler) saveConfig() error {
 	configDir := filepath.Dir(h.configPath)
 	rolesDir := h.config.RolesDir
 	if rolesDir == "" {
-		rolesDir = "roles" // 默认目录
+		rolesDir = "roles" // 
 	}
 
 	// English note.
@@ -341,7 +341,7 @@ func (h *RoleHandler) saveConfig() error {
 
 	// English note.
 	if err := os.MkdirAll(rolesDir, 0755); err != nil {
-		return fmt.Errorf("创建角色目录失败: %w", err)
+		return fmt.Errorf(": %w", err)
 	}
 
 	// English note.
@@ -359,7 +359,7 @@ func (h *RoleHandler) saveConfig() error {
 			// English note.
 			roleData, err := yaml.Marshal(&role)
 			if err != nil {
-				h.logger.Error("序列化角色配置失败", zap.String("role", roleName), zap.Error(err))
+				h.logger.Error("", zap.String("role", roleName), zap.Error(err))
 				continue
 			}
 
@@ -375,11 +375,11 @@ func (h *RoleHandler) saveConfig() error {
 
 			// English note.
 			if err := os.WriteFile(roleFile, roleData, 0644); err != nil {
-				h.logger.Error("保存角色配置文件失败", zap.String("role", roleName), zap.String("file", roleFile), zap.Error(err))
+				h.logger.Error("", zap.String("role", roleName), zap.String("file", roleFile), zap.Error(err))
 				continue
 			}
 
-			h.logger.Info("角色配置已保存到文件", zap.String("role", roleName), zap.String("file", roleFile))
+			h.logger.Info("", zap.String("role", roleName), zap.String("file", roleFile))
 		}
 	}
 

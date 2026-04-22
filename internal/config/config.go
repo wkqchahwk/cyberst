@@ -15,7 +15,7 @@ import (
 )
 
 type Config struct {
-	Version     string                `yaml:"version,omitempty" json:"version,omitempty"` // ?띸ク?양ㅊ?꾤뎵?у뤇竊뚦쫩 v1.3.3
+	Version     string                `yaml:"version,omitempty" json:"version,omitempty"` // ?띸ク?양ㅊ?꾤뎵?у뤇뚦쫩 v1.3.3
 	Server      ServerConfig          `yaml:"server"`
 	Log         LogConfig             `yaml:"log"`
 	MCP         MCPConfig             `yaml:"mcp"`
@@ -27,23 +27,23 @@ type Config struct {
 	Auth        AuthConfig            `yaml:"auth"`
 	ExternalMCP ExternalMCPConfig     `yaml:"external_mcp,omitempty"`
 	Knowledge   KnowledgeConfig       `yaml:"knowledge,omitempty"`
-	Robots      RobotsConfig          `yaml:"robots,omitempty" json:"robots,omitempty"`         // 鴉곦툣孃?에/?됮뭺/繇욂묘嶺됪쑛?ⓧ볶?띸쉰
-	RolesDir    string                `yaml:"roles_dir,omitempty" json:"roles_dir,omitempty"`   // 鰲믦돯?띸쉰?뉏뻑??퐬竊덃뼭?밧폀竊?
-	Roles       map[string]RoleConfig `yaml:"roles,omitempty" json:"roles,omitempty"`           // ?묈릮?쇔?竊싨뵱?곩쑉訝삯뀓營?뻼餓뜸릎若싦퉱鰲믦돯
-	SkillsDir   string                `yaml:"skills_dir,omitempty" json:"skills_dir,omitempty"` // Skills?띸쉰?뉏뻑??퐬
-	AgentsDir   string                `yaml:"agents_dir,omitempty" json:"agents_dir,omitempty"` // 鸚싦빰?녶춴 Agent Markdown 若싦퉱??퐬竊?.md竊똜AML front matter竊?
+	Robots      RobotsConfig          `yaml:"robots,omitempty" json:"robots,omitempty"`         // 곦툣?에/?됮뭺/욂묘됪쑛?ⓧ볶?띸쉰
+	RolesDir    string                `yaml:"roles_dir,omitempty" json:"roles_dir,omitempty"`   // 믦돯?띸쉰?뉏뻑Total퐬덃뼭?밧폀?
+	Roles       map[string]RoleConfig `yaml:"roles,omitempty" json:"roles,omitempty"`           // ?묈릮?쇔?싨뵱?곩쑉삯뀓?뻼뜸릎싦퉱믦돯
+	SkillsDir   string                `yaml:"skills_dir,omitempty" json:"skills_dir,omitempty"` // Skills?띸쉰?뉏뻑Total퐬
+	AgentsDir   string                `yaml:"agents_dir,omitempty" json:"agents_dir,omitempty"` // 싦빰?녶춴 Agent Markdown 싦퉱Total퐬?.md똜AML front matter?
 	MultiAgent  MultiAgentConfig      `yaml:"multi_agent,omitempty" json:"multi_agent,omitempty"`
 }
 
 // English note.
 type MultiAgentConfig struct {
 	Enabled            bool   `yaml:"enabled" json:"enabled"`
-	DefaultMode        string `yaml:"default_mode" json:"default_mode"`                   // single | multi竊뚥풘?띸ク容섋?掠뺟ㅊ
-	RobotUseMultiAgent bool   `yaml:"robot_use_multi_agent" json:"robot_use_multi_agent"` // 訝?true ?띌뭺??繇욂묘/鴉곩쒜?뷴솳雅븃뎔 Eino 鸚싦빰??
-	BatchUseMultiAgent bool   `yaml:"batch_use_multi_agent" json:"batch_use_multi_agent"` // 訝?true ?뜻돶?뤶뻣?↓삜?쀤릎驪뤷춴餓삣뒦壅?Eino 鸚싦빰??
+	DefaultMode        string `yaml:"default_mode" json:"default_mode"`                   // single | multi뚥풘?띸ク섋?뺟ㅊ
+	RobotUseMultiAgent bool   `yaml:"robot_use_multi_agent" json:"robot_use_multi_agent"` // ?true ?띌뭺Total욂묘/곩쒜?뷴솳븃뎔 Eino 싦빰Total
+	BatchUseMultiAgent bool   `yaml:"batch_use_multi_agent" json:"batch_use_multi_agent"` // ?true ?뜻돶?뤶뻣?↓삜?쀤릎뤷춴삣뒦?Eino 싦빰Total
 	// English note.
 	Orchestration string `yaml:"orchestration,omitempty" json:"orchestration,omitempty"`
-	MaxIteration  int    `yaml:"max_iteration" json:"max_iteration"` // 訝삡빰??/ ?㎬죱?ⓩ?鸚㎪렓?녻쉰轝∽펷Deep?갨upervisor?걈lan_execute ??Executor竊?
+	MaxIteration  int    `yaml:"max_iteration" json:"max_iteration"` // 삡빰Total/ ?㎬죱?ⓩ?㎪렓?녻쉰∽펷Deep?갨upervisor?걈lan_execute TotalExecutor?
 	// English note.
 	PlanExecuteLoopMaxIterations int                   `yaml:"plan_execute_loop_max_iterations,omitempty" json:"plan_execute_loop_max_iterations,omitempty"`
 	SubAgentMaxIterations        int                   `yaml:"sub_agent_max_iterations" json:"sub_agent_max_iterations"`
@@ -120,10 +120,10 @@ type MultiAgentSubConfig struct {
 	Name          string   `yaml:"name" json:"name"`
 	Description   string   `yaml:"description" json:"description"`
 	Instruction   string   `yaml:"instruction" json:"instruction"`
-	BindRole      string   `yaml:"bind_role,omitempty" json:"bind_role,omitempty"` // ??됵폏?녘걫訝삯뀓營?roles 訝?쉪鰲믦돯?랃폑?ら뀓 role_tools ?뜻꼬?②?鰲믦돯??tools竊뚦뭉??skills ?쇿뀯?뉏빱?먪ㅊ
-	RoleTools     []string `yaml:"role_tools" json:"role_tools"`                   // 訝롥뜒 Agent 鰲믦돯藥ε끁?멨릪 key竊쏁㈉烏①ㅊ?③깿藥ε끁竊늒ind_role ??‥??tools竊?
+	BindRole      string   `yaml:"bind_role,omitempty" json:"bind_role,omitempty"` // Total됵폏?녘걫삯뀓?roles ?쉪믦돯?랃폑?ら뀓 role_tools ?뜻꼬?②?믦돯Totaltools뚦뭉Totalskills ?쇿뀯?뉏빱?먪ㅊ
+	RoleTools     []string `yaml:"role_tools" json:"role_tools"`                   // 롥뜒 Agent 믦돯ε끁?멨릪 key쏁㈉①ㅊ?③깿ε끁늒ind_role Total‥Totaltools?
 	MaxIterations int      `yaml:"max_iterations" json:"max_iterations"`
-	Kind          string   `yaml:"kind,omitempty" json:"kind,omitempty"` // 餓?Markdown竊쉓ind=orchestrator 烏①ㅊ Deep 訝삡빰?놅펷訝?orchestrator.md 雅뚪됦?瀛?츣竊?
+	Kind          string   `yaml:"kind,omitempty" json:"kind,omitempty"` // ?Markdown쉓ind=orchestrator ①ㅊ Deep 삡빰?놅펷?orchestrator.md 뚪됦??츣?
 }
 
 // English note.
@@ -161,9 +161,9 @@ type MultiAgentAPIUpdate struct {
 
 // English note.
 type RobotsConfig struct {
-	Wecom    RobotWecomConfig    `yaml:"wecom,omitempty" json:"wecom,omitempty"`       // 鴉곦툣孃?에
+	Wecom    RobotWecomConfig    `yaml:"wecom,omitempty" json:"wecom,omitempty"`       // 곦툣?에
 	Dingtalk RobotDingtalkConfig `yaml:"dingtalk,omitempty" json:"dingtalk,omitempty"` // ?됮뭺
-	Lark     RobotLarkConfig     `yaml:"lark,omitempty" json:"lark,omitempty"`         // 繇욂묘
+	Lark     RobotLarkConfig     `yaml:"lark,omitempty" json:"lark,omitempty"`         // 욂묘
 }
 
 // English note.
@@ -171,24 +171,24 @@ type RobotWecomConfig struct {
 	Enabled        bool   `yaml:"enabled" json:"enabled"`
 	Token          string `yaml:"token" json:"token"`                       // ?욆컘 URL ?↓챿 Token
 	EncodingAESKey string `yaml:"encoding_aes_key" json:"encoding_aes_key"` // EncodingAESKey
-	CorpID         string `yaml:"corp_id" json:"corp_id"`                   // 鴉곦툣 ID
-	Secret         string `yaml:"secret" json:"secret"`                     // 佯붺뵪 Secret
-	AgentID        int64  `yaml:"agent_id" json:"agent_id"`                 // 佯붺뵪 AgentId
+	CorpID         string `yaml:"corp_id" json:"corp_id"`                   // 곦툣 ID
+	Secret         string `yaml:"secret" json:"secret"`                     // 붺뵪 Secret
+	AgentID        int64  `yaml:"agent_id" json:"agent_id"`                 // 붺뵪 AgentId
 }
 
 // English note.
 type RobotDingtalkConfig struct {
 	Enabled      bool   `yaml:"enabled" json:"enabled"`
-	ClientID     string `yaml:"client_id" json:"client_id"`         // 佯붺뵪 Key (AppKey)
-	ClientSecret string `yaml:"client_secret" json:"client_secret"` // 佯붺뵪 Secret
+	ClientID     string `yaml:"client_id" json:"client_id"`         // 붺뵪 Key (AppKey)
+	ClientSecret string `yaml:"client_secret" json:"client_secret"` // 붺뵪 Secret
 }
 
 // English note.
 type RobotLarkConfig struct {
 	Enabled     bool   `yaml:"enabled" json:"enabled"`
-	AppID       string `yaml:"app_id" json:"app_id"`             // 佯붺뵪 App ID
-	AppSecret   string `yaml:"app_secret" json:"app_secret"`     // 佯붺뵪 App Secret
-	VerifyToken string `yaml:"verify_token" json:"verify_token"` // 雅뗤뻑溫?쁾 Verification Token竊덂룾?됵펹
+	AppID       string `yaml:"app_id" json:"app_id"`             // 붺뵪 App ID
+	AppSecret   string `yaml:"app_secret" json:"app_secret"`     // 붺뵪 App Secret
+	VerifyToken string `yaml:"verify_token" json:"verify_token"` // 뗤뻑?쁾 Verification Token덂룾?됵펹
 }
 
 type ServerConfig struct {
@@ -205,12 +205,12 @@ type MCPConfig struct {
 	Enabled         bool   `yaml:"enabled"`
 	Host            string `yaml:"host"`
 	Port            int    `yaml:"port"`
-	AuthHeader      string `yaml:"auth_header,omitempty"`       // ?닸쓢 header ?랃펽?숂㈉烏①ㅊ訝띺돱??
-	AuthHeaderValue string `yaml:"auth_header_value,omitempty"` // ?닸쓢 header ?쇽펽?訝롨?黎귚릎瑥?header 訝??
+	AuthHeader      string `yaml:"auth_header,omitempty"`       // ?닸쓢 header ?랃펽?숂㈉①ㅊ띺돱Total
+	AuthHeaderValue string `yaml:"auth_header_value,omitempty"` // ?닸쓢 header ?쇽펽?롨?귚릎?header Total
 }
 
 type OpenAIConfig struct {
-	Provider       string `yaml:"provider,omitempty" json:"provider,omitempty"` // API ?먧풘?? "openai"(容섋?) ??"claude"竊똠laude ?띈눎?ⓩ‥?δ맏 Anthropic Messages API
+	Provider       string `yaml:"provider,omitempty" json:"provider,omitempty"` // API ?먧풘Total "openai"(섋?) Total"claude"똠laude ?띈눎?ⓩ‥?δ맏 Anthropic Messages API
 	APIKey         string `yaml:"api_key" json:"api_key"`
 	BaseURL        string `yaml:"base_url" json:"base_url"`
 	Model          string `yaml:"model" json:"model"`
@@ -221,26 +221,26 @@ type FofaConfig struct {
 	// English note.
 	Email   string `yaml:"email,omitempty" json:"email,omitempty"`
 	APIKey  string `yaml:"api_key,omitempty" json:"api_key,omitempty"`
-	BaseURL string `yaml:"base_url,omitempty" json:"base_url,omitempty"` // 容섋? https://fofa.info/api/v1/search/all
+	BaseURL string `yaml:"base_url,omitempty" json:"base_url,omitempty"` // 섋? https://fofa.info/api/v1/search/all
 }
 
 type SecurityConfig struct {
-	Tools               []ToolConfig `yaml:"tools,omitempty"`                 // ?묈릮?쇔?竊싨뵱?곩쑉訝삯뀓營?뻼餓뜸릎若싦퉱藥ε끁
-	ToolsDir            string       `yaml:"tools_dir,omitempty"`             // 藥ε끁?띸쉰?뉏뻑??퐬竊덃뼭?밧폀竊?
-	ToolDescriptionMode string       `yaml:"tool_description_mode,omitempty"` // 藥ε끁?뤺염與▼폀: "short" | "full"竊뚪퍡溫?short
+	Tools               []ToolConfig `yaml:"tools,omitempty"`                 // ?묈릮?쇔?싨뵱?곩쑉삯뀓?뻼뜸릎싦퉱ε끁
+	ToolsDir            string       `yaml:"tools_dir,omitempty"`             // ε끁?띸쉰?뉏뻑Total퐬덃뼭?밧폀?
+	ToolDescriptionMode string       `yaml:"tool_description_mode,omitempty"` // ε끁?뤺염▼폀: "short" | "full"뚪퍡?short
 	ActionEnabled       bool         `yaml:"action_enabled,omitempty" json:"action_enabled,omitempty"`
 }
 
 type DatabaseConfig struct {
-	Path            string `yaml:"path"`                        // 鴉싪캕?경뜮佯볢러孃?
-	KnowledgeDBPath string `yaml:"knowledge_db_path,omitempty"` // ?θ칳佯볠빊??틩瓮?푶竊덂룾?됵펽訝븀㈉?쇾슴?ⓧ폏瑥앮빊??틩竊?
+	Path            string `yaml:"path"`                        // 싪캕?경뜮볢러?
+	KnowledgeDBPath string `yaml:"knowledge_db_path,omitempty"` // ?θ칳볠빊Total틩?푶덂룾?됵펽븀㈉?쇾슴?ⓧ폏앮빊Total틩?
 }
 
 type AgentConfig struct {
 	MaxIterations        int    `yaml:"max_iterations" json:"max_iterations"`
-	LargeResultThreshold int    `yaml:"large_result_threshold" json:"large_result_threshold"` // 鸚㎫퍜?쒒삁?쇽펷耶쀨뒄竊됵펽容섋?50KB
-	ResultStorageDir     string `yaml:"result_storage_dir" json:"result_storage_dir"`         // 瀯볠옖耶섇궓??퐬竊뚪퍡溫쨟mp
-	ToolTimeoutMinutes   int    `yaml:"tool_timeout_minutes" json:"tool_timeout_minutes"`     // ?뺞А藥ε끁?㎬죱?鸚㎪뿶?울펷?녽뮓竊됵펽擁끾뿶?ゅ뒯瀯덃?竊뚪삻閭?빣?띌뿴?귟돈竊? 烏①ㅊ訝띺솏?띰펷訝띷렓?먲펹
+	LargeResultThreshold int    `yaml:"large_result_threshold" json:"large_result_threshold"` // ㎫퍜?쒒삁?쇽펷쀨뒄됵펽섋?50KB
+	ResultStorageDir     string `yaml:"result_storage_dir" json:"result_storage_dir"`         // 볠옖섇궓Total퐬뚪퍡쨟mp
+	ToolTimeoutMinutes   int    `yaml:"tool_timeout_minutes" json:"tool_timeout_minutes"`     // ?뺞Аε끁?㎬죱?㎪뿶?울펷?녽뮓됵펽끾뿶?ゅ뒯덃?뚪삻?빣?띌뿴?귟돈? ①ㅊ띺솏?띰펷띷렓?먲펹
 	// English note.
 	SystemPromptPath string `yaml:"system_prompt_path,omitempty" json:"system_prompt_path,omitempty"`
 }
@@ -263,49 +263,49 @@ type ExternalMCPServerConfig struct {
 	// English note.
 	Command string            `yaml:"command,omitempty" json:"command,omitempty"`
 	Args    []string          `yaml:"args,omitempty" json:"args,omitempty"`
-	Env     map[string]string `yaml:"env,omitempty" json:"env,omitempty"` // ??쥊?섌뇧竊덄뵪雅럖tdio與▼폀竊?
+	Env     map[string]string `yaml:"env,omitempty" json:"env,omitempty"` // Total쥊?섌뇧덄뵪럖tdio▼폀?
 
 	// English note.
-	Transport string            `yaml:"transport,omitempty" json:"transport,omitempty"` // "stdio" | "sse" | "http"(Streamable) | "simple_http"(?ゅ뻠/嶸?뷥OST塋?궧竊뚦쫩?ф쑛 http://127.0.0.1:8081/mcp)
+	Transport string            `yaml:"transport,omitempty" json:"transport,omitempty"` // "stdio" | "sse" | "http"(Streamable) | "simple_http"(?ゅ뻠/?뷥OST?궧뚦쫩?ф쑛 http://127.0.0.1:8081/mcp)
 	URL       string            `yaml:"url,omitempty" json:"url,omitempty"`
-	Headers   map[string]string `yaml:"headers,omitempty" json:"headers,omitempty"` // HTTP/SSE 瑥룡콆鸚댐펷倻?x-api-key竊?
+	Headers   map[string]string `yaml:"headers,omitempty" json:"headers,omitempty"` // HTTP/SSE 룡콆댐펷?x-api-key?
 
 	// English note.
 	Description       string          `yaml:"description,omitempty" json:"description,omitempty"`
-	Timeout           int             `yaml:"timeout,omitempty" json:"timeout,omitempty"`                         // 擁끾뿶?띌뿴竊덄쭜竊?
-	ExternalMCPEnable bool            `yaml:"external_mcp_enable,omitempty" json:"external_mcp_enable,omitempty"` // ??맔??뵪鸚뽭깿MCP
-	ToolEnabled       map[string]bool `yaml:"tool_enabled,omitempty" json:"tool_enabled,omitempty"`               // 驪뤶릉藥ε끁?꾢맦?①듁?곻펷藥ε끁?띸㎞ -> ??맔??뵪竊?
+	Timeout           int             `yaml:"timeout,omitempty" json:"timeout,omitempty"`                         // 끾뿶?띌뿴덄쭜?
+	ExternalMCPEnable bool            `yaml:"external_mcp_enable,omitempty" json:"external_mcp_enable,omitempty"` // Total맔Total뵪뽭깿MCP
+	ToolEnabled       map[string]bool `yaml:"tool_enabled,omitempty" json:"tool_enabled,omitempty"`               // 뤶릉ε끁?꾢맦?①듁?곻펷ε끁?띸㎞ -> Total맔Total뵪?
 
 	// English note.
-	Enabled  bool `yaml:"enabled,omitempty" json:"enabled,omitempty"`   // 藥꿨틹凉껓펽鵝욜뵪 external_mcp_enable
-	Disabled bool `yaml:"disabled,omitempty" json:"disabled,omitempty"` // 藥꿨틹凉껓펽鵝욜뵪 external_mcp_enable
+	Enabled  bool `yaml:"enabled,omitempty" json:"enabled,omitempty"`   // 꿨틹껓펽욜뵪 external_mcp_enable
+	Disabled bool `yaml:"disabled,omitempty" json:"disabled,omitempty"` // 꿨틹껓펽욜뵪 external_mcp_enable
 }
 type ToolConfig struct {
 	Name             string            `yaml:"name"`
 	Command          string            `yaml:"command"`
-	Args             []string          `yaml:"args,omitempty"`              // ?뷴츣?귝빊竊덂룾?됵펹
-	ShortDescription string            `yaml:"short_description,omitempty"` // 嶸??룒瓦곤펷?ⓧ틢藥ε끁?쀨〃竊뚦뇧弱몋oken易덅쀯펹
-	Description      string            `yaml:"description"`                 // 瑥?퍏?뤺염竊덄뵪雅롥램?룡뻼旅ｏ펹
+	Args             []string          `yaml:"args,omitempty"`              // ?뷴츣?귝빊덂룾?됵펹
+	ShortDescription string            `yaml:"short_description,omitempty"` // Total룒곤펷?ⓧ틢ε끁?쀨〃뚦뇧몋oken덅쀯펹
+	Description      string            `yaml:"description"`                 // ?퍏?뤺염덄뵪롥램?룡뻼ｏ펹
 	Enabled          bool              `yaml:"enabled"`
 	RequiresActionEnabled bool         `yaml:"requires_action_enabled,omitempty" json:"requires_action_enabled,omitempty"`
-	Parameters       []ParameterConfig `yaml:"parameters,omitempty"`         // ?귝빊若싦퉱竊덂룾?됵펹
-	ArgMapping       string            `yaml:"arg_mapping,omitempty"`        // ?귝빊?졾컙?밧폀: "auto", "manual", "template"竊덂룾?됵펹
-	AllowedExitCodes []int             `yaml:"allowed_exit_codes,omitempty"` // ?곮??꾦?븀쟻?쀨〃竊덃윇雅쎾램?룟쑉?먨뒣?뜸튋瓦붷썮?욇쎏??븀쟻竊?
+	Parameters       []ParameterConfig `yaml:"parameters,omitempty"`         // ?귝빊싦퉱덂룾?됵펹
+	ArgMapping       string            `yaml:"arg_mapping,omitempty"`        // ?귝빊?졾컙?밧폀: "auto", "manual", "template"덂룾?됵펹
+	AllowedExitCodes []int             `yaml:"allowed_exit_codes,omitempty"` // ?곮Total꾦?븀쟻?쀨〃덃윇쎾램?룟쑉?먨뒣?뜸튋붷썮?욇쎏??븀쟻?
 }
 
 // English note.
 type ParameterConfig struct {
 	Name        string      `yaml:"name"`                // ?귝빊?띸㎞
-	Type        string      `yaml:"type"`                // ?귝빊映삣엹: string, int, bool, array
+	Type        string      `yaml:"type"`                // ?귝빊삣엹: string, int, bool, array
 	Description string      `yaml:"description"`         // ?귝빊?뤺염
-	Required    bool        `yaml:"required,omitempty"`  // ??맔恙낂?
-	Default     interface{} `yaml:"default,omitempty"`   // 容섋???
-	ItemType    string      `yaml:"item_type,omitempty"` // 壤?type 訝?array ?띰펽?곁퍍?껆킔映삣엹竊뚦쫩 string, number, object
-	Flag        string      `yaml:"flag,omitempty"`      // ?썰빱烏뚧젃恙쀯펽倻?"-u", "--url", "-p"
-	Position    *int        `yaml:"position,omitempty"`  // 鵝띸쉰?귝빊?꾡퐤營?펷餓?凉冶뗰펹
+	Required    bool        `yaml:"required,omitempty"`  // Total맔낂?
+	Default     interface{} `yaml:"default,omitempty"`   // 섋Offset
+	ItemType    string      `yaml:"item_type,omitempty"` // ?type ?array ?띰펽?곁퍍?껆킔삣엹뚦쫩 string, number, object
+	Flag        string      `yaml:"flag,omitempty"`      // ?썰빱뚧젃쀯펽?"-u", "--url", "-p"
+	Position    *int        `yaml:"position,omitempty"`  // 띸쉰?귝빊?꾡퐤?펷?뗰펹
 	Format      string      `yaml:"format,omitempty"`    // ?귝빊?쇔폀: "flag", "positional", "combined" (flag=value), "template"
-	Template    string      `yaml:"template,omitempty"`  // 與→씮耶쀧Е訝뀐펽倻?"{flag} {value}" ??"{value}"
-	Options     []string    `yaml:"options,omitempty"`   // ??됧쇔닓烏⑨펷?ⓧ틢?싦맘竊?
+	Template    string      `yaml:"template,omitempty"`  // →씮쀧Е뀐펽?"{flag} {value}" Total"{value}"
+	Options     []string    `yaml:"options,omitempty"`   // Total됧쇔닓⑨펷?ⓧ틢?싦맘?
 }
 
 func Load(path string) (*Config, error) {
@@ -645,7 +645,7 @@ func LoadToolsFromDir(dir string) ([]ToolConfig, error) {
 
 	// English note.
 	if _, err := os.Stat(dir); os.IsNotExist(err) {
-		return tools, nil // ??퐬訝띶춼?ⓩ뿶瓦붷썮令뷴닓烏⑨펽訝띷뒫??
+		return tools, nil // Total퐬띶춼?ⓩ뿶붷썮뷴닓⑨펽띷뒫Total
 	}
 
 	// English note.
@@ -706,7 +706,7 @@ func LoadRolesFromDir(dir string) (map[string]RoleConfig, error) {
 
 	// English note.
 	if _, err := os.Stat(dir); os.IsNotExist(err) {
-		return roles, nil // ??퐬訝띶춼?ⓩ뿶瓦붷썮令튾ap竊뚥툖?ι뵗
+		return roles, nil // Total퐬띶춼?ⓩ뿶붷썮튾ap뚥툖?ι뵗
 	}
 
 	// English note.
@@ -812,16 +812,16 @@ func Default() *Config {
 			MaxTotalTokens: 120000,
 		},
 		Agent: AgentConfig{
-			MaxIterations:      30, // 容섋??鸚㎬열餓ｆА??
-			ToolTimeoutMinutes: 10, // ?뺞А藥ε끁?㎬죱容섋??鸚?10 ?녽뮓竊뚪겳?띶펰躍면빣?띌뿴?좂뵪
+			MaxIterations:      30, // 섋Total㎬열ｆАTotal
+			ToolTimeoutMinutes: 10, // ?뺞Аε끁?㎬죱섋Total?10 ?녽뮓뚪겳?띶펰면빣?띌뿴?좂뵪
 		},
 		Security: SecurityConfig{
-			Tools:    []ToolConfig{}, // 藥ε끁?띸쉰佯붻?餓?config.yaml ??tools/ ??퐬?좄슬
-			ToolsDir: "tools",        // 容섋?藥ε끁??퐬
+			Tools:    []ToolConfig{}, // ε끁?띸쉰붻??config.yaml Totaltools/ Total퐬?좄슬
+			ToolsDir: "tools",        // 섋?ε끁Total퐬
 		},
 		Database: DatabaseConfig{
 			Path:            "data/conversations.db",
-			KnowledgeDBPath: "data/knowledge.db", // 容섋??θ칳佯볠빊??틩瓮?푶
+			KnowledgeDBPath: "data/knowledge.db", // 섋Totalθ칳볠빊Total틩?푶
 		},
 		Auth: AuthConfig{
 			SessionDurationHours: 12,
@@ -836,18 +836,18 @@ func Default() *Config {
 			},
 			Retrieval: RetrievalConfig{
 				TopK:                5,
-				SimilarityThreshold: 0.65, // ?띴퐥?덂쇔댆 0.65竊뚦뇧弱묉폀汝
+				SimilarityThreshold: 0.65, // ?띴퐥?덂쇔댆 0.65뚦뇧묉폀
 			},
 			Indexing: IndexingConfig{
 				ChunkStrategy:         "markdown_then_recursive",
 				RequestTimeoutSeconds: 120,
-				ChunkSize:             768, // 罌욃뒥??768竊뚧쎍也썹쉪訝듾툔?뉏퓷??
+				ChunkSize:             768, // 욃뒥Total768뚧쎍썹쉪듾툔?뉏퓷Total
 				ChunkOverlap:          50,
-				MaxChunksPerItem:      20, // ?먨댍?뺜릉?θ칳窈방?鸚?20 訝ゅ쓼竊뚪겳?띷텋?쀨퓝鸚싮뀓窯?
+				MaxChunksPerItem:      20, // ?먨댍?뺜릉?θ칳방??20 ゅ쓼뚪겳?띷텋?쀨퓝싮뀓?
 				BatchSize:             64,
 				PreferSourceFile:      false,
-				MaxRPM:                100, // 容섋? 100 RPM竊뚪겳??429 ?숃?
-				RateLimitDelayMs:      600, // 600ms ?닻슂竊뚦?佯?100 RPM
+				MaxRPM:                100, // 섋? 100 RPM뚪겳Total429 ?숃?
+				RateLimitDelayMs:      600, // 600ms ?닻슂뚦??100 RPM
 				MaxRetries:            3,
 				RetryDelayMs:          1000,
 				SubIndexes:            nil,
@@ -858,11 +858,11 @@ func Default() *Config {
 
 // English note.
 type KnowledgeConfig struct {
-	Enabled   bool            `yaml:"enabled" json:"enabled"`     // ??맔??뵪?θ칳汝榮?
-	BasePath  string          `yaml:"base_path" json:"base_path"` // ?θ칳佯볢러孃?
+	Enabled   bool            `yaml:"enabled" json:"enabled"`     // Total맔Total뵪?θ칳?
+	BasePath  string          `yaml:"base_path" json:"base_path"` // ?θ칳볢러?
 	Embedding EmbeddingConfig `yaml:"embedding" json:"embedding"`
 	Retrieval RetrievalConfig `yaml:"retrieval" json:"retrieval"`
-	Indexing  IndexingConfig  `yaml:"indexing,omitempty" json:"indexing,omitempty"` // 榮℡폊?꾢뻠?띸쉰
+	Indexing  IndexingConfig  `yaml:"indexing,omitempty" json:"indexing,omitempty"` // ℡폊?꾢뻠?띸쉰
 }
 
 // English note.
@@ -872,20 +872,20 @@ type IndexingConfig struct {
 	// English note.
 	RequestTimeoutSeconds int `yaml:"request_timeout_seconds,omitempty" json:"request_timeout_seconds,omitempty"`
 	// English note.
-	ChunkSize        int `yaml:"chunk_size,omitempty" json:"chunk_size,omitempty"`                   // 驪뤶릉?쀧쉪?鸚?token ?곤펷鴉곁츞竊됵펽容섋? 512
-	ChunkOverlap     int `yaml:"chunk_overlap,omitempty" json:"chunk_overlap,omitempty"`             // ?쀤퉳?당쉪?띶룧 token ?곤펽容섋? 50
-	MaxChunksPerItem int `yaml:"max_chunks_per_item,omitempty" json:"max_chunks_per_item,omitempty"` // ?뺜릉?θ칳窈밭쉪?鸚㎩쓼?곈뇧竊? 烏①ㅊ訝띺솏??
+	ChunkSize        int `yaml:"chunk_size,omitempty" json:"chunk_size,omitempty"`                   // 뤶릉?쀧쉪??token ?곤펷곁츞됵펽섋? 512
+	ChunkOverlap     int `yaml:"chunk_overlap,omitempty" json:"chunk_overlap,omitempty"`             // ?쀤퉳?당쉪?띶룧 token ?곤펽섋? 50
+	MaxChunksPerItem int `yaml:"max_chunks_per_item,omitempty" json:"max_chunks_per_item,omitempty"` // ?뺜릉?θ칳밭쉪?㎩쓼?곈뇧? ①ㅊ띺솏Total
 
 	// English note.
 	PreferSourceFile bool `yaml:"prefer_source_file,omitempty" json:"prefer_source_file,omitempty"`
 
 	// English note.
-	RateLimitDelayMs int `yaml:"rate_limit_delay_ms,omitempty" json:"rate_limit_delay_ms,omitempty"` // 瑥룡콆?닻슂?띌뿴竊덃?燁믭펹竊? 烏①ㅊ訝띴슴?ⓨ쎓若싧뻑瓦?
-	MaxRPM           int `yaml:"max_rpm,omitempty" json:"max_rpm,omitempty"`                         // 驪뤷늽?잍?鸚㎬?黎귝빊竊? 烏①ㅊ訝띺솏??
+	RateLimitDelayMs int `yaml:"rate_limit_delay_ms,omitempty" json:"rate_limit_delay_ms,omitempty"` // 룡콆?닻슂?띌뿴덃?믭펹? ①ㅊ띴슴?ⓨ쎓싧뻑?
+	MaxRPM           int `yaml:"max_rpm,omitempty" json:"max_rpm,omitempty"`                         // 뤷늽?잍?㎬?귝빊? ①ㅊ띺솏Total
 
 	// English note.
-	MaxRetries   int `yaml:"max_retries,omitempty" json:"max_retries,omitempty"`       // ?鸚㏝뇥瑥뺞А?곤펽容섋? 3
-	RetryDelayMs int `yaml:"retry_delay_ms,omitempty" json:"retry_delay_ms,omitempty"` // ?띹캊?닻슂竊덃?燁믭펹竊뚪퍡溫?1000
+	MaxRetries   int `yaml:"max_retries,omitempty" json:"max_retries,omitempty"`       // ?㏝뇥뺞А?곤펽섋? 3
+	RetryDelayMs int `yaml:"retry_delay_ms,omitempty" json:"retry_delay_ms,omitempty"` // ?띹캊?닻슂덃?믭펹뚪퍡?1000
 
 	// English note.
 	BatchSize int `yaml:"batch_size,omitempty" json:"batch_size,omitempty"`
@@ -895,10 +895,10 @@ type IndexingConfig struct {
 
 // English note.
 type EmbeddingConfig struct {
-	Provider string `yaml:"provider" json:"provider"` // 葯뚦뀯與▼엹?먧풘??
-	Model    string `yaml:"model" json:"model"`       // 與▼엹?띸㎞
+	Provider string `yaml:"provider" json:"provider"` // 뚦뀯▼엹?먧풘Total
+	Model    string `yaml:"model" json:"model"`       // ▼엹?띸㎞
 	BaseURL  string `yaml:"base_url" json:"base_url"` // API Base URL
-	APIKey   string `yaml:"api_key" json:"api_key"`   // API Key竊덁퍗OpenAI?띸쉰瀯㎪돽竊?
+	APIKey   string `yaml:"api_key" json:"api_key"`   // API Key덁퍗OpenAI?띸쉰㎪돽?
 }
 
 // English note.
@@ -913,8 +913,8 @@ type PostRetrieveConfig struct {
 
 // English note.
 type RetrievalConfig struct {
-	TopK                int     `yaml:"top_k" json:"top_k"`                               // 汝榮줥op-K
-	SimilarityThreshold float64 `yaml:"similarity_threshold" json:"similarity_threshold"` // 鵝쇿샷?멧세佯?삁??
+	TopK                int     `yaml:"top_k" json:"top_k"`                               // 줥op-K
+	SimilarityThreshold float64 `yaml:"similarity_threshold" json:"similarity_threshold"` // 쇿샷?멧세?삁Total
 	// English note.
 	SubIndexFilter string `yaml:"sub_index_filter,omitempty" json:"sub_index_filter,omitempty"`
 	// English note.
@@ -929,13 +929,13 @@ type RolesConfig struct {
 
 // English note.
 type RoleConfig struct {
-	Name        string   `yaml:"name" json:"name"`                         // 鰲믦돯?띸㎞
-	Description string   `yaml:"description" json:"description"`           // 鰲믦돯?뤺염
-	UserPrompt  string   `yaml:"user_prompt" json:"user_prompt"`           // ?ⓩ댎?먪ㅊ瑥?瓦썲뒥?곁뵪?룡텋??뎺)
-	Icon        string   `yaml:"icon,omitempty" json:"icon,omitempty"`     // 鰲믦돯?얏젃竊덂룾?됵펹
-	Tools       []string `yaml:"tools,omitempty" json:"tools,omitempty"`   // ?녘걫?꾢램?룟닓烏⑨펷toolKey?쇔폀竊뚦쫩 "toolName" ??"mcpName::toolName"竊?
-	MCPs        []string `yaml:"mcps,omitempty" json:"mcps,omitempty"`     // ?묈릮?쇔?竊싧뀽?붺쉪MCP?띶뒦?ⓨ닓烏⑨펷藥꿨틹凉껓펽鵝욜뵪tools?요빰竊?
-	Skills      []string `yaml:"skills,omitempty" json:"skills,omitempty"` // ?녘걫?꼜kills?쀨〃竊늮kill?띸㎞?쀨〃竊뚦쑉?㎬죱餓삣뒦?띴폏瑥삣룚瓦쇾틳skills?꾢냵若뱄펹
-	Enabled     bool     `yaml:"enabled" json:"enabled"`                   // ??맔??뵪
+	Name        string   `yaml:"name" json:"name"`                         // 믦돯?띸㎞
+	Description string   `yaml:"description" json:"description"`           // 믦돯?뤺염
+	UserPrompt  string   `yaml:"user_prompt" json:"user_prompt"`           // ?ⓩ댎?먪ㅊ?썲뒥?곁뵪?룡텋Total뎺)
+	Icon        string   `yaml:"icon,omitempty" json:"icon,omitempty"`     // 믦돯?얏젃덂룾?됵펹
+	Tools       []string `yaml:"tools,omitempty" json:"tools,omitempty"`   // ?녘걫?꾢램?룟닓⑨펷toolKey?쇔폀뚦쫩 "toolName" Total"mcpName::toolName"?
+	MCPs        []string `yaml:"mcps,omitempty" json:"mcps,omitempty"`     // ?묈릮?쇔?싧뀽?붺쉪MCP?띶뒦?ⓨ닓⑨펷꿨틹껓펽욜뵪tools?요빰?
+	Skills      []string `yaml:"skills,omitempty" json:"skills,omitempty"` // ?녘걫?꼜kills?쀨〃늮kill?띸㎞?쀨〃뚦쑉?㎬죱삣뒦?띴폏삣룚쇾틳skills?꾢냵뱄펹
+	Enabled     bool     `yaml:"enabled" json:"enabled"`                   // Total맔Total뵪
 }
 

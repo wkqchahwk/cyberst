@@ -17,8 +17,8 @@ import (
 )
 
 const (
-	larkReconnectInitial = 5 * time.Second  // 首次重连间隔
-	larkReconnectMax     = 60 * time.Second // 最大重连间隔
+	larkReconnectInitial = 5 * time.Second  // 
+	larkReconnectMax     = 60 * time.Second // 
 )
 
 type larkTextContent struct {
@@ -47,14 +47,14 @@ func runLarkLoop(ctx context.Context, cfg config.RobotLarkConfig, h MessageHandl
 			larkws.WithEventHandler(eventHandler),
 			larkws.WithLogLevel(larkcore.LogLevelInfo),
 		)
-		logger.Info("飞书长连接正在连接…", zap.String("app_id", cfg.AppID))
+		logger.Info("…", zap.String("app_id", cfg.AppID))
 		err := wsClient.Start(ctx)
 		if ctx.Err() != nil {
-			logger.Info("飞书长连接已按配置重启关闭")
+			logger.Info("")
 			return
 		}
 		if err != nil {
-			logger.Warn("飞书长连接断开（如睡眠/断网），将自动重连", zap.Error(err), zap.Duration("retry_after", backoff))
+			logger.Warn("（/），", zap.Error(err), zap.Duration("retry_after", backoff))
 		}
 		select {
 		case <-ctx.Done():
@@ -77,12 +77,12 @@ func handleLarkMessage(ctx context.Context, event *larkim.P2MessageReceiveV1, h 
 	msg := event.Event.Message
 	msgType := larkcore.StringValue(msg.MessageType)
 	if msgType != larkim.MsgTypeText {
-		logger.Debug("飞书暂仅处理文本消息", zap.String("msg_type", msgType))
+		logger.Debug("", zap.String("msg_type", msgType))
 		return
 	}
 	var textBody larkTextContent
 	if err := json.Unmarshal([]byte(larkcore.StringValue(msg.Content)), &textBody); err != nil {
-		logger.Warn("飞书消息 Content 解析失败", zap.Error(err))
+		logger.Warn(" Content ", zap.Error(err))
 		return
 	}
 	text := strings.TrimSpace(textBody.Text)
@@ -104,8 +104,8 @@ func handleLarkMessage(ctx context.Context, event *larkim.P2MessageReceiveV1, h 
 			Build()).
 		Build())
 	if err != nil {
-		logger.Warn("飞书回复失败", zap.String("message_id", messageID), zap.Error(err))
+		logger.Warn("", zap.String("message_id", messageID), zap.Error(err))
 		return
 	}
-	logger.Debug("飞书已回复", zap.String("message_id", messageID))
+	logger.Debug("", zap.String("message_id", messageID))
 }

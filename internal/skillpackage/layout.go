@@ -40,7 +40,18 @@ type DirLister struct {
 
 // ListSkills implements the role handler dependency.
 func (d DirLister) ListSkills() ([]string, error) {
-	return ListSkillDirNames(d.SkillsRoot)
+	summaries, err := ListSkillSummaries(d.SkillsRoot)
+	if err != nil {
+		return nil, err
+	}
+	out := make([]string, 0, len(summaries))
+	for _, s := range summaries {
+		if !s.Enabled {
+			continue
+		}
+		out = append(out, s.DirName)
+	}
+	return out, nil
 }
 
 // ListSkillDirNames returns subdirectory names under skillsRoot that contain SKILL.md.

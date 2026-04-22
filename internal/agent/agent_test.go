@@ -27,7 +27,7 @@ func setupTestAgent(t *testing.T) (*Agent, *storage.FileResultStorage) {
 	
 	agentCfg := &config.AgentConfig{
 		MaxIterations:        10,
-		LargeResultThreshold: 100, // 设置较小的阈值便于测试
+		LargeResultThreshold: 100, // 
 		ResultStorageDir:     "",
 	}
 	
@@ -37,7 +37,7 @@ func setupTestAgent(t *testing.T) (*Agent, *storage.FileResultStorage) {
 	tmpDir := filepath.Join(os.TempDir(), "test_agent_storage_"+time.Now().Format("20060102_150405"))
 	testStorage, err := storage.NewFileResultStorage(tmpDir, logger)
 	if err != nil {
-		t.Fatalf("创建测试存储失败: %v", err)
+		t.Fatalf(": %v", err)
 	}
 	
 	agent.SetResultStorage(testStorage)
@@ -47,7 +47,7 @@ func setupTestAgent(t *testing.T) (*Agent, *storage.FileResultStorage) {
 
 func TestAgent_FormatMinimalNotification(t *testing.T) {
 	agent, testStorage := setupTestAgent(t)
-	_ = testStorage // 避免未使用变量警告
+	_ = testStorage // 
 	
 	executionID := "test_exec_001"
 	toolName := "nmap_scan"
@@ -59,23 +59,23 @@ func TestAgent_FormatMinimalNotification(t *testing.T) {
 	
 	// English note.
 	if !strings.Contains(notification, executionID) {
-		t.Errorf("通知中应该包含执行ID: %s", executionID)
+		t.Errorf("ID: %s", executionID)
 	}
 	
 	if !strings.Contains(notification, toolName) {
-		t.Errorf("通知中应该包含工具名称: %s", toolName)
+		t.Errorf(": %s", toolName)
 	}
 	
 	if !strings.Contains(notification, "50000") {
-		t.Errorf("通知中应该包含大小信息")
+		t.Errorf("")
 	}
 	
 	if !strings.Contains(notification, "1000") {
-		t.Errorf("通知中应该包含行数信息")
+		t.Errorf("")
 	}
 	
 	if !strings.Contains(notification, "query_execution_result") {
-		t.Errorf("通知中应该包含查询工具的使用说明")
+		t.Errorf("")
 	}
 }
 
@@ -87,7 +87,7 @@ func TestAgent_ExecuteToolViaMCP_LargeResult(t *testing.T) {
 		Content: []mcp.Content{
 			{
 				Type: "text",
-				Text: strings.Repeat("This is a test line with some content.\n", 1000), // 约50KB
+				Text: strings.Repeat("This is a test line with some content.\n", 1000), // 50KB
 			},
 		},
 		IsError: false,
@@ -99,7 +99,7 @@ func TestAgent_ExecuteToolViaMCP_LargeResult(t *testing.T) {
 	
 	// English note.
 	agent.mu.Lock()
-	agent.largeResultThreshold = 1000 // 设置较小的阈值
+	agent.largeResultThreshold = 1000 // 
 	agent.mu.Unlock()
 	
 	// English note.
@@ -126,7 +126,7 @@ func TestAgent_ExecuteToolViaMCP_LargeResult(t *testing.T) {
 		// English note.
 		err := storage.SaveResult(executionID, toolName, resultStr)
 		if err != nil {
-			t.Fatalf("保存大结果失败: %v", err)
+			t.Fatalf(": %v", err)
 		}
 		
 		// English note.
@@ -136,20 +136,20 @@ func TestAgent_ExecuteToolViaMCP_LargeResult(t *testing.T) {
 		
 		// English note.
 		if !strings.Contains(notification, executionID) {
-			t.Errorf("通知中应该包含执行ID")
+			t.Errorf("ID")
 		}
 		
 		// English note.
 		savedResult, err := storage.GetResult(executionID)
 		if err != nil {
-			t.Fatalf("获取保存的结果失败: %v", err)
+			t.Fatalf(": %v", err)
 		}
 		
 		if savedResult != resultStr {
-			t.Errorf("保存的结果与原始结果不匹配")
+			t.Errorf("")
 		}
 	} else {
-		t.Fatal("大结果应该被检测到并保存")
+		t.Fatal("")
 	}
 }
 
@@ -189,14 +189,14 @@ func TestAgent_ExecuteToolViaMCP_SmallResult(t *testing.T) {
 	agent.mu.RUnlock()
 	
 	if resultSize > threshold && storage != nil {
-		t.Fatal("小结果不应该被保存")
+		t.Fatal("")
 	}
 	
 	// English note.
 	if resultSize <= threshold {
 		// English note.
 		if resultStr == "" {
-			t.Fatal("小结果应该直接返回，不应该为空")
+			t.Fatal("，")
 		}
 	}
 }
@@ -208,7 +208,7 @@ func TestAgent_SetResultStorage(t *testing.T) {
 	tmpDir := filepath.Join(os.TempDir(), "test_new_storage_"+time.Now().Format("20060102_150405"))
 	newStorage, err := storage.NewFileResultStorage(tmpDir, zap.NewNop())
 	if err != nil {
-		t.Fatalf("创建新存储失败: %v", err)
+		t.Fatalf(": %v", err)
 	}
 	
 	// English note.
@@ -220,7 +220,7 @@ func TestAgent_SetResultStorage(t *testing.T) {
 	agent.mu.RUnlock()
 	
 	if currentStorage != newStorage {
-		t.Fatal("存储未正确更新")
+		t.Fatal("")
 	}
 	
 	// English note.
@@ -241,7 +241,7 @@ func TestAgent_NewAgent_DefaultValues(t *testing.T) {
 	agent := NewAgent(openAICfg, nil, mcpServer, nil, logger, 0)
 	
 	if agent.maxIterations != 30 {
-		t.Errorf("默认迭代次数不匹配。期望: 30, 实际: %d", agent.maxIterations)
+		t.Errorf("。: 30, : %d", agent.maxIterations)
 	}
 	
 	agent.mu.RLock()
@@ -249,7 +249,7 @@ func TestAgent_NewAgent_DefaultValues(t *testing.T) {
 	agent.mu.RUnlock()
 	
 	if threshold != 50*1024 {
-		t.Errorf("默认阈值不匹配。期望: %d, 实际: %d", 50*1024, threshold)
+		t.Errorf("。: %d, : %d", 50*1024, threshold)
 	}
 }
 
@@ -272,7 +272,7 @@ func TestAgent_NewAgent_CustomConfig(t *testing.T) {
 	agent := NewAgent(openAICfg, agentCfg, mcpServer, nil, logger, 15)
 	
 	if agent.maxIterations != 15 {
-		t.Errorf("迭代次数不匹配。期望: 15, 实际: %d", agent.maxIterations)
+		t.Errorf("。: 15, : %d", agent.maxIterations)
 	}
 	
 	agent.mu.RLock()
@@ -280,7 +280,7 @@ func TestAgent_NewAgent_CustomConfig(t *testing.T) {
 	agent.mu.RUnlock()
 	
 	if threshold != 100*1024 {
-		t.Errorf("阈值不匹配。期望: %d, 实际: %d", 100*1024, threshold)
+		t.Errorf("。: %d, : %d", 100*1024, threshold)
 	}
 }
 

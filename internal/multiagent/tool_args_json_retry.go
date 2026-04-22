@@ -14,7 +14,7 @@ const maxToolCallRecoveryAttempts = 5
 
 // English note.
 func toolCallArgumentsJSONRetryHint() *schema.Message {
-	return schema.UserMessage(`[系统提示] 上一次输出中，工具调用的 function.arguments 不是合法 JSON，接口已拒绝。请重新生成：每个 tool call 的 arguments 必须是完整、可解析的 JSON 对象字符串（键名用双引号，无多余逗号，括号配对）。不要输出截断或不完整的 JSON。
+	return schema.UserMessage(`[] ， function.arguments  JSON，。： tool call  arguments 、 JSON （，，）。 JSON。
 
 [System] Your previous tool call used invalid JSON in function.arguments and was rejected by the API. Regenerate with strictly valid JSON objects only (double-quoted keys, matched braces, no trailing commas).`)
 }
@@ -22,8 +22,8 @@ func toolCallArgumentsJSONRetryHint() *schema.Message {
 // English note.
 func toolCallArgumentsJSONRecoveryTimelineMessage(attempt int) string {
 	return fmt.Sprintf(
-		"接口拒绝了无效的工具参数 JSON。已向对话追加系统提示并要求模型重新生成合法的 function.arguments。"+
-			"当前为第 %d/%d 轮完整运行。\n\n"+
+		" JSON。 function.arguments。"+
+			" %d/%d 。\n\n"+
 			"The API rejected invalid JSON in tool arguments. A system hint was appended. This is full run %d of %d.",
 		attempt+1, maxToolCallRecoveryAttempts, attempt+1, maxToolCallRecoveryAttempts,
 	)

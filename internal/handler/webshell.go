@@ -290,7 +290,7 @@ func (h *WebShellHandler) GetAIHistory(c *gin.Context) {
 	}
 	conv, err := h.db.GetConversationByWebshellConnectionID(id)
 	if err != nil {
-		h.logger.Warn("获取 WebShell AI 对话失败", zap.String("connectionId", id), zap.Error(err))
+		h.logger.Warn(" WebShell AI ", zap.String("connectionId", id), zap.Error(err))
 		c.JSON(http.StatusOK, gin.H{"conversationId": nil, "messages": []database.Message{}})
 		return
 	}
@@ -314,7 +314,7 @@ func (h *WebShellHandler) ListAIConversations(c *gin.Context) {
 	}
 	list, err := h.db.ListConversationsByWebshellConnectionID(id)
 	if err != nil {
-		h.logger.Warn("列出 WebShell AI 对话失败", zap.String("connectionId", id), zap.Error(err))
+		h.logger.Warn(" WebShell AI ", zap.String("connectionId", id), zap.Error(err))
 		c.JSON(http.StatusOK, []database.WebShellConversationItem{})
 		return
 	}
@@ -329,8 +329,8 @@ type ExecRequest struct {
 	URL      string `json:"url" binding:"required"`
 	Password string `json:"password"`
 	Type     string `json:"type"`      // php, asp, aspx, jsp, custom
-	Method   string `json:"method"`    // GET 或 POST，空则默认 POST
-	CmdParam string `json:"cmd_param"` // 命令参数名，如 cmd/xxx，空则默认 cmd
+	Method   string `json:"method"`    // GET  POST， POST
+	CmdParam string `json:"cmd_param"` // ， cmd/xxx， cmd
 	Command  string `json:"command" binding:"required"`
 }
 
@@ -347,13 +347,13 @@ type FileOpRequest struct {
 	URL        string `json:"url" binding:"required"`
 	Password   string `json:"password"`
 	Type       string `json:"type"`
-	Method     string `json:"method"`                    // GET 或 POST，空则默认 POST
-	CmdParam   string `json:"cmd_param"`                 // 命令参数名，如 cmd/xxx，空则默认 cmd
+	Method     string `json:"method"`                    // GET  POST， POST
+	CmdParam   string `json:"cmd_param"`                 // ， cmd/xxx， cmd
 	Action     string `json:"action" binding:"required"` // list, read, delete, write, mkdir, rename, upload, upload_chunk
 	Path       string `json:"path"`
-	TargetPath string `json:"target_path"` // rename 时目标路径
-	Content    string `json:"content"`     // write/upload 时使用
-	ChunkIndex int    `json:"chunk_index"` // upload_chunk 时，0 表示首块
+	TargetPath string `json:"target_path"` // rename 
+	Content    string `json:"content"`     // write/upload 
+	ChunkIndex int    `json:"chunk_index"` // upload_chunk ，0 
 }
 
 // English note.

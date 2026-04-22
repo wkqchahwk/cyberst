@@ -74,7 +74,7 @@ function resolveWebshellAiStreamRequest() {
 
 // English note.
 
-let wsRolesCache = null; // 缓存 /api/roles 结果
+let wsRolesCache = null; //  /api/roles 
 
 function wsLoadRoles() {
     if (typeof apiFetch === 'undefined') return;
@@ -92,7 +92,7 @@ function wsUpdateRoleSelectorDisplay() {
     var cur = (typeof getCurrentRole === 'function') ? getCurrentRole() : (localStorage.getItem('currentRole') || '');
     if (!cur) {
         iconEl.textContent = '\ud83d\udd35';
-        textEl.textContent = (typeof window.t === 'function' ? window.t('chat.defaultRole') : '') || '默认';
+        textEl.textContent = (typeof window.t === 'function' ? window.t('chat.defaultRole') : '') || '';
         return;
     }
     if (wsRolesCache) {
@@ -118,9 +118,9 @@ function wsRenderRoleList() {
     html += '<button type="button" class="role-selection-item-main' + defSelected + '" onclick="wsSelectRole(\'\')">' +
         '<div class="role-selection-item-icon-main">\ud83d\udd35</div>' +
         '<div class="role-selection-item-content-main"><div class="role-selection-item-name-main">' +
-        (wsTOr('chat.defaultRole', '默认')) +
+        (wsTOr('chat.defaultRole', '')) +
         '</div><div class="role-selection-item-description-main">' +
-        (wsTOr('roles.defaultRoleDescription', '默认角色，不额外携带用户提示词，使用所有工具')) +
+        (wsTOr('roles.defaultRoleDescription', '，，')) +
         '</div></div>' +
         (defSelected ? '<div class="role-selection-checkmark-main">\u2713</div>' : '') +
         '</button>';
@@ -128,7 +128,7 @@ function wsRenderRoleList() {
         for (var i = 0; i < wsRolesCache.length; i++) {
             var r = wsRolesCache[i];
             if (!r.enabled) continue;
-            if (r.name === '默认') continue; // 已在上方硬编码默认角色，跳过 API 返回的默认项
+            if (r.name === '') continue; // ， API 
             var sel = (r.name === cur) ? ' selected' : '';
             html += '<button type="button" class="role-selection-item-main' + sel + '" onclick="wsSelectRole(\'' + r.name.replace(/'/g, "\\'") + '\')">' +
                 '<div class="role-selection-item-icon-main">' + (r.icon || '\ud83d\udd35') + '</div>' +
@@ -312,7 +312,7 @@ function getWebshellConnections() {
         .then(function (r) { return r.json(); })
         .then(function (list) { return Array.isArray(list) ? list : []; })
         .catch(function (e) {
-            console.warn('读取 WebShell 连接列表失败', e);
+            console.warn(' WebShell ', e);
             return [];
         });
 }
@@ -331,120 +331,120 @@ function wsT(key) {
     var globalT = typeof window !== 'undefined' ? window.t : null;
     if (typeof globalT === 'function' && globalT !== wsT) return globalT(key);
     var fallback = {
-        'webshell.title': 'WebShell 管理',
-        'webshell.addConnection': '添加连接',
-        'webshell.cmdParam': '命令参数名',
-        'webshell.cmdParamPlaceholder': '不填默认为 cmd，如填 xxx 则请求为 xxx=命令',
-        'webshell.connections': '连接列表',
-        'webshell.noConnections': '暂无连接，请点击「添加连接」',
-        'webshell.selectOrAdd': '请从左侧选择连接，或添加新的 WebShell 连接',
-        'webshell.deleteConfirm': '确定要删除该连接吗？',
-        'webshell.editConnection': '编辑',
-        'webshell.editConnectionTitle': '编辑连接',
-        'webshell.tabTerminal': '虚拟终端',
-        'webshell.tabFileManager': '文件管理',
-        'webshell.tabAiAssistant': 'AI 助手',
-        'webshell.tabDbManager': '数据库管理',
-        'webshell.tabMemo': '备忘录',
-        'webshell.dbType': '数据库类型',
-        'webshell.dbHost': '主机',
-        'webshell.dbPort': '端口',
-        'webshell.dbUsername': '用户名',
-        'webshell.dbPassword': '密码',
-        'webshell.dbName': '数据库名',
-        'webshell.dbSqlitePath': 'SQLite 文件路径',
-        'webshell.dbSqlPlaceholder': '输入 SQL，例如：SELECT version();',
-        'webshell.dbRunSql': '执行 SQL',
-        'webshell.dbTest': '测试连接',
-        'webshell.dbOutput': '执行输出',
-        'webshell.dbNoConn': '请先选择 WebShell 连接',
-        'webshell.dbSqlRequired': '请输入 SQL',
-        'webshell.dbRunning': '数据库命令执行中，请稍候',
-        'webshell.dbCliHint': '如果提示命令不存在，请先在目标主机安装对应客户端（mysql/psql/sqlite3/sqlcmd）',
-        'webshell.dbExecFailed': '数据库执行失败',
-        'webshell.dbSchema': '数据库结构',
-        'webshell.dbLoadSchema': '加载结构',
-        'webshell.dbNoSchema': '暂无数据库结构，请先加载',
-        'webshell.dbSelectTableHint': '点击表名可展开列信息并生成查询 SQL',
-        'webshell.dbNoColumns': '暂无列信息',
-        'webshell.dbResultTable': '结果表格',
-        'webshell.dbClearSql': '清空 SQL',
-        'webshell.dbTemplateSql': '示例 SQL',
-        'webshell.dbRows': '行',
-        'webshell.dbColumns': '列',
-        'webshell.dbSchemaFailed': '加载数据库结构失败',
-        'webshell.dbSchemaLoaded': '结构加载完成',
-        'webshell.dbAddProfile': '新增连接',
-        'webshell.dbExecSuccess': 'SQL 执行成功',
-        'webshell.dbNoOutput': '执行完成（无输出）',
-        'webshell.dbRenameProfile': '重命名',
-        'webshell.dbDeleteProfile': '删除连接',
-        'webshell.dbDeleteProfileConfirm': '确定删除该数据库连接配置吗？',
-        'webshell.dbProfileNamePrompt': '请输入连接名称',
-        'webshell.dbProfileName': '连接名称',
-        'webshell.dbProfiles': '数据库连接',
-        'webshell.aiSystemReadyMessage': '系统已就绪。请输入您的测试需求，系统将自动执行相应的安全测试。',
-        'webshell.aiPlaceholder': '例如：列出当前目录下的文件',
-        'webshell.aiSend': '发送',
-        'webshell.aiMemo': '备忘录',
-        'webshell.aiMemoPlaceholder': '记录关键命令、测试思路、复现步骤...',
-        'webshell.aiMemoClear': '清空',
-        'webshell.aiMemoSaving': '保存中...',
-        'webshell.aiMemoSaved': '已保存到本地',
-        'webshell.terminalWelcome': 'WebShell 虚拟终端 — 输入命令后按回车执行（Ctrl+L 清屏）',
-        'webshell.quickCommands': '快捷命令',
-        'webshell.downloadFile': '下载',
-        'webshell.filePath': '当前路径',
-        'webshell.listDir': '列出目录',
-        'webshell.readFile': '读取',
-        'webshell.editFile': '编辑',
-        'webshell.deleteFile': '删除',
-        'webshell.saveFile': '保存',
-        'webshell.cancelEdit': '取消',
-        'webshell.parentDir': '上级目录',
-        'webshell.execError': '执行失败',
-        'webshell.testConnectivity': '测试连通性',
-        'webshell.testSuccess': '连通性正常，Shell 可访问',
-        'webshell.testFailed': '连通性测试失败',
-        'webshell.testNoExpectedOutput': 'Shell 返回了响应但未得到预期输出，请检查连接密码与命令参数名',
-        'webshell.clearScreen': '清屏',
-        'webshell.copyTerminalLog': '复制日志',
-        'webshell.terminalIdle': '空闲',
-        'webshell.terminalRunning': '执行中',
-        'webshell.terminalCopyOk': '日志已复制',
-        'webshell.terminalCopyFail': '复制失败',
-        'webshell.terminalNewWindow': '新终端',
-        'webshell.terminalWindowPrefix': '终端',
-        'webshell.running': '执行中…',
-        'webshell.waitFinish': '请等待当前命令执行完成',
-        'webshell.newDir': '新建目录',
-        'webshell.rename': '重命名',
-        'webshell.upload': '上传',
-        'webshell.newFile': '新建文件',
-        'webshell.filterPlaceholder': '过滤文件名',
-        'webshell.batchDelete': '批量删除',
-        'webshell.batchDownload': '批量下载',
-        'webshell.moreActions': '更多操作',
-        'webshell.refresh': '刷新',
-        'webshell.selectAll': '全选',
-        'webshell.breadcrumbHome': '根',
-        'webshell.dirTree': '目录列表',
-        'webshell.searchPlaceholder': '搜索连接...',
-        'webshell.noMatchConnections': '暂无匹配连接',
-        'webshell.batchProbe': '一键批量探活',
-        'webshell.probeRunning': '探活中',
-        'webshell.probeOnline': '在线',
-        'webshell.probeOffline': '离线',
-        'webshell.probeNoConnections': '暂无可探活连接',
-        'webshell.back': '返回',
-        'webshell.colModifiedAt': '修改时间',
-        'webshell.colPerms': '权限',
-        'webshell.colOwner': '所有者',
-        'webshell.colGroup': '用户组',
-        'webshell.colType': '类型',
-        'common.delete': '删除',
-        'common.refresh': '刷新',
-        'common.actions': '操作'
+        'webshell.title': 'WebShell ',
+        'webshell.addConnection': '',
+        'webshell.cmdParam': '',
+        'webshell.cmdParamPlaceholder': ' cmd， xxx  xxx=',
+        'webshell.connections': '',
+        'webshell.noConnections': '，「」',
+        'webshell.selectOrAdd': '， WebShell ',
+        'webshell.deleteConfirm': '？',
+        'webshell.editConnection': '',
+        'webshell.editConnectionTitle': '',
+        'webshell.tabTerminal': '',
+        'webshell.tabFileManager': '',
+        'webshell.tabAiAssistant': 'AI ',
+        'webshell.tabDbManager': '',
+        'webshell.tabMemo': '',
+        'webshell.dbType': '',
+        'webshell.dbHost': '',
+        'webshell.dbPort': '',
+        'webshell.dbUsername': '',
+        'webshell.dbPassword': '',
+        'webshell.dbName': '',
+        'webshell.dbSqlitePath': 'SQLite ',
+        'webshell.dbSqlPlaceholder': ' SQL，：SELECT version();',
+        'webshell.dbRunSql': ' SQL',
+        'webshell.dbTest': '',
+        'webshell.dbOutput': '',
+        'webshell.dbNoConn': ' WebShell ',
+        'webshell.dbSqlRequired': ' SQL',
+        'webshell.dbRunning': '，',
+        'webshell.dbCliHint': '，（mysql/psql/sqlite3/sqlcmd）',
+        'webshell.dbExecFailed': '',
+        'webshell.dbSchema': '',
+        'webshell.dbLoadSchema': '',
+        'webshell.dbNoSchema': '，',
+        'webshell.dbSelectTableHint': ' SQL',
+        'webshell.dbNoColumns': '',
+        'webshell.dbResultTable': '',
+        'webshell.dbClearSql': ' SQL',
+        'webshell.dbTemplateSql': ' SQL',
+        'webshell.dbRows': '',
+        'webshell.dbColumns': '',
+        'webshell.dbSchemaFailed': '',
+        'webshell.dbSchemaLoaded': '',
+        'webshell.dbAddProfile': '',
+        'webshell.dbExecSuccess': 'SQL ',
+        'webshell.dbNoOutput': '（）',
+        'webshell.dbRenameProfile': '',
+        'webshell.dbDeleteProfile': '',
+        'webshell.dbDeleteProfileConfirm': '？',
+        'webshell.dbProfileNamePrompt': '',
+        'webshell.dbProfileName': '',
+        'webshell.dbProfiles': '',
+        'webshell.aiSystemReadyMessage': '。，。',
+        'webshell.aiPlaceholder': '：',
+        'webshell.aiSend': '',
+        'webshell.aiMemo': '',
+        'webshell.aiMemoPlaceholder': '、、...',
+        'webshell.aiMemoClear': '',
+        'webshell.aiMemoSaving': '...',
+        'webshell.aiMemoSaved': '',
+        'webshell.terminalWelcome': 'WebShell  — （Ctrl+L ）',
+        'webshell.quickCommands': '',
+        'webshell.downloadFile': '',
+        'webshell.filePath': '',
+        'webshell.listDir': '',
+        'webshell.readFile': '',
+        'webshell.editFile': '',
+        'webshell.deleteFile': '',
+        'webshell.saveFile': '',
+        'webshell.cancelEdit': '',
+        'webshell.parentDir': '',
+        'webshell.execError': '',
+        'webshell.testConnectivity': '',
+        'webshell.testSuccess': '，Shell ',
+        'webshell.testFailed': '',
+        'webshell.testNoExpectedOutput': 'Shell ，',
+        'webshell.clearScreen': '',
+        'webshell.copyTerminalLog': '',
+        'webshell.terminalIdle': '',
+        'webshell.terminalRunning': '',
+        'webshell.terminalCopyOk': '',
+        'webshell.terminalCopyFail': '',
+        'webshell.terminalNewWindow': '',
+        'webshell.terminalWindowPrefix': '',
+        'webshell.running': '…',
+        'webshell.waitFinish': '',
+        'webshell.newDir': '',
+        'webshell.rename': '',
+        'webshell.upload': '',
+        'webshell.newFile': '',
+        'webshell.filterPlaceholder': '',
+        'webshell.batchDelete': '',
+        'webshell.batchDownload': '',
+        'webshell.moreActions': '',
+        'webshell.refresh': '',
+        'webshell.selectAll': '',
+        'webshell.breadcrumbHome': '',
+        'webshell.dirTree': '',
+        'webshell.searchPlaceholder': '...',
+        'webshell.noMatchConnections': '',
+        'webshell.batchProbe': '',
+        'webshell.probeRunning': '',
+        'webshell.probeOnline': '',
+        'webshell.probeOffline': '',
+        'webshell.probeNoConnections': '',
+        'webshell.back': '',
+        'webshell.colModifiedAt': '',
+        'webshell.colPerms': '',
+        'webshell.colOwner': '',
+        'webshell.colGroup': '',
+        'webshell.colType': '',
+        'common.delete': '',
+        'common.refresh': '',
+        'common.actions': ''
     };
     return fallback[key] || key;
 }
@@ -641,7 +641,7 @@ function renderWebshellList() {
         : webshellConnections;
 
     if (filtered.length === 0) {
-        listEl.innerHTML = '<div class="webshell-empty">' + (wsT('webshell.noMatchConnections') || '暂无匹配连接') + '</div>';
+        listEl.innerHTML = '<div class="webshell-empty">' + (wsT('webshell.noMatchConnections') || '') + '</div>';
         return;
     }
 
@@ -651,15 +651,15 @@ function renderWebshellList() {
         const urlTitle = (conn.url || '').replace(/&/g, '&amp;').replace(/"/g, '&quot;').replace(/</g, '&lt;');
         const active = currentWebshellId === conn.id ? ' active' : '';
         const safeId = escapeHtml(conn.id);
-        const actionsLabel = wsT('common.actions') || '操作';
+        const actionsLabel = wsT('common.actions') || '';
         const probe = webshellProbeStatusById[conn.id] || null;
         var probeHtml = '';
         if (probe && probe.state === 'probing') {
-            probeHtml = '<span class="webshell-probe-badge probing">' + (wsT('webshell.probeRunning') || '探活中') + '</span>';
+            probeHtml = '<span class="webshell-probe-badge probing">' + (wsT('webshell.probeRunning') || '') + '</span>';
         } else if (probe && probe.state === 'ok') {
-            probeHtml = '<span class="webshell-probe-badge ok">' + (wsT('webshell.probeOnline') || '在线') + '</span>';
+            probeHtml = '<span class="webshell-probe-badge ok">' + (wsT('webshell.probeOnline') || '') + '</span>';
         } else if (probe && probe.state === 'fail') {
-            probeHtml = '<span class="webshell-probe-badge fail" title="' + escapeHtml(probe.message || '') + '">' + (wsT('webshell.probeOffline') || '离线') + '</span>';
+            probeHtml = '<span class="webshell-probe-badge fail" title="' + escapeHtml(probe.message || '') + '">' + (wsT('webshell.probeOffline') || '') + '</span>';
         }
         return (
             '<div class="webshell-item' + active + '" data-id="' + safeId + '">' +
@@ -698,7 +698,7 @@ function renderWebshellList() {
 
 function probeWebshellConnection(conn) {
     if (!conn || typeof apiFetch === 'undefined') {
-        return Promise.resolve({ ok: false, message: wsT('webshell.testFailed') || '连通性测试失败' });
+        return Promise.resolve({ ok: false, message: wsT('webshell.testFailed') || '' });
     }
     return apiFetch('/api/webshell/exec', {
         method: 'POST',
@@ -716,8 +716,8 @@ function probeWebshellConnection(conn) {
         .then(function (data) {
             var output = (data && data.output != null) ? String(data.output).trim() : '';
             var ok = !!(data && data.ok && output === '1');
-            if (ok) return { ok: true, message: wsT('webshell.testSuccess') || '连通性正常，Shell 可访问' };
-            var msg = (data && data.error) ? data.error : (wsT('webshell.testFailed') || '连通性测试失败');
+            if (ok) return { ok: true, message: wsT('webshell.testSuccess') || '，Shell ' };
+            var msg = (data && data.error) ? data.error : (wsT('webshell.testFailed') || '');
             return { ok: false, message: msg };
         })
         .catch(function (e) {
@@ -732,21 +732,21 @@ function updateWebshellBatchProbeButton(done, total, okCount) {
         var d = typeof done === 'number' ? done : 0;
         var t = typeof total === 'number' ? total : webshellConnections.length;
         btn.disabled = true;
-        btn.textContent = (wsT('webshell.probeRunning') || '探活中') + ' ' + d + '/' + t;
+        btn.textContent = (wsT('webshell.probeRunning') || '') + ' ' + d + '/' + t;
         return;
     }
     btn.disabled = false;
     if (typeof done === 'number' && typeof total === 'number' && total > 0 && typeof okCount === 'number') {
-        btn.textContent = (wsT('webshell.batchProbe') || '一键批量探活') + ' (' + okCount + '/' + total + ')';
+        btn.textContent = (wsT('webshell.batchProbe') || '') + ' (' + okCount + '/' + total + ')';
     } else {
-        btn.textContent = wsT('webshell.batchProbe') || '一键批量探活';
+        btn.textContent = wsT('webshell.batchProbe') || '';
     }
 }
 
 function runBatchProbeWebshellConnections() {
     if (webshellBatchProbeRunning) return;
     if (!Array.isArray(webshellConnections) || webshellConnections.length === 0) {
-        alert(wsT('webshell.probeNoConnections') || '暂无可探活连接');
+        alert(wsT('webshell.probeNoConnections') || '');
         return;
     }
     webshellBatchProbeRunning = true;
@@ -827,11 +827,11 @@ function normalizeWebshellTerminalSessions(raw) {
     var state = raw && typeof raw === 'object' ? raw : {};
     var list = Array.isArray(state.sessions) ? state.sessions.slice() : [];
     if (!list.length) {
-        list = [{ id: 't1', name: (wsT('webshell.terminalWindowPrefix') || '终端') + '1' }];
+        list = [{ id: 't1', name: (wsT('webshell.terminalWindowPrefix') || '') + '1' }];
     }
     list = list.map(function (s, i) {
         var id = (s && s.id ? String(s.id) : ('t' + (i + 1)));
-        var name = (s && s.name ? String(s.name) : ((wsT('webshell.terminalWindowPrefix') || '终端') + (i + 1)));
+        var name = (s && s.name ? String(s.name) : ((wsT('webshell.terminalWindowPrefix') || '') + (i + 1)));
         return { id: id, name: name };
     });
     var activeId = state.activeId;
@@ -938,7 +938,7 @@ function setWebshellTerminalStatus(running) {
     if (!el) return;
     el.classList.toggle('running', !!running);
     el.classList.toggle('idle', !running);
-    el.textContent = running ? (wsT('webshell.terminalRunning') || '执行中') : (wsT('webshell.terminalIdle') || '空闲');
+    el.textContent = running ? (wsT('webshell.terminalRunning') || '') : (wsT('webshell.terminalIdle') || '');
 }
 
 function renderWebshellTerminalSessions(conn) {
@@ -952,10 +952,10 @@ function renderWebshellTerminalSessions(conn) {
         var active = s.id === state.activeId;
         html += '<div class="webshell-terminal-session' + (active ? ' active' : '') + '">' +
             '<button type="button" class="webshell-terminal-session-main" data-action="switch" data-terminal-id="' + escapeHtml(s.id) + '">' + escapeHtml(s.name) + '</button>' +
-            '<button type="button" class="webshell-terminal-session-close" data-action="close" data-terminal-id="' + escapeHtml(s.id) + '" title="' + escapeHtml(wsT('common.close') || '关闭') + '">×</button>' +
+            '<button type="button" class="webshell-terminal-session-close" data-action="close" data-terminal-id="' + escapeHtml(s.id) + '" title="' + escapeHtml(wsT('common.close') || '') + '">×</button>' +
             '</div>';
     });
-    html += '<button type="button" class="webshell-terminal-session-add" data-action="add" title="' + escapeHtml(wsT('webshell.terminalNewWindow') || '新终端') + '">+</button>';
+    html += '<button type="button" class="webshell-terminal-session-add" data-action="add" title="' + escapeHtml(wsT('webshell.terminalNewWindow') || '') + '">+</button>';
     tabsEl.innerHTML = html;
     tabsEl.querySelectorAll('[data-action]').forEach(function (btn) {
         btn.addEventListener('click', function () {
@@ -966,7 +966,7 @@ function renderWebshellTerminalSessions(conn) {
                 var nextState = getWebshellTerminalSessions(connId);
                 var seq = nextState.sessions.length + 1;
                 var nextId = 't' + Date.now().toString(36) + Math.random().toString(36).slice(2, 6);
-                var prefix = wsT('webshell.terminalWindowPrefix') || '终端';
+                var prefix = wsT('webshell.terminalWindowPrefix') || '';
                 nextState.sessions.push({ id: nextId, name: prefix + seq });
                 nextState.activeId = nextId;
                 saveWebshellTerminalSessions(connId, nextState);
@@ -1206,9 +1206,9 @@ function webshellDbRenderTable(rawOutput) {
     }
     html += '</tbody></table>';
     if (rows.length > maxRows) {
-        html += '<div class="webshell-db-table-meta">仅展示前 ' + maxRows + ' 行，共 ' + rows.length + ' 行</div>';
+        html += '<div class="webshell-db-table-meta"> ' + maxRows + ' ， ' + rows.length + ' </div>';
     } else {
-        html += '<div class="webshell-db-table-meta">共 ' + rows.length + ' 行，' + header.length + ' 列</div>';
+        html += '<div class="webshell-db-table-meta"> ' + rows.length + ' ，' + header.length + ' </div>';
     }
     wrap.innerHTML = html;
     return true;
@@ -1230,7 +1230,7 @@ function buildWebshellDbCommand(cfg, isTestOnly, options) {
     options = options || {};
     var type = cfg.type || 'mysql';
     var sql = String(isTestOnly ? 'SELECT 1;' : (options.sql || cfg.sql || '')).trim();
-    if (!sql) return { error: wsT('webshell.dbSqlRequired') || '请输入 SQL' };
+    if (!sql) return { error: wsT('webshell.dbSqlRequired') || ' SQL' };
 
     var sqlB64 = btoa(unescape(encodeURIComponent(sql)));
     var sqlB64Arg = escapeSingleQuotedShellArg(sqlB64);
@@ -1266,7 +1266,7 @@ function buildWebshellDbCommand(cfg, isTestOnly, options) {
         var server = escapeSingleQuotedShellArg(sHost + ',' + sPort);
         command = decodeToFile + '; sqlcmd -S ' + server + ' -U ' + sUser + ' -P ' + sPass + ' -W -s "|" -d ' + sDb + ' -i ' + tmpFile + cleanup;
     } else {
-        return { error: (wsT('webshell.dbExecFailed') || '数据库执行失败') + ': unsupported type ' + type };
+        return { error: (wsT('webshell.dbExecFailed') || '') + ': unsupported type ' + type };
     }
 
     return { command: command };
@@ -1284,7 +1284,7 @@ function buildWebshellDbSchemaCommand(cfg) {
     } else if (type === 'mssql') {
         schemaSQL = "SELECT TABLE_SCHEMA AS db_name, TABLE_NAME AS table_name, '' AS column_name FROM INFORMATION_SCHEMA.TABLES WHERE TABLE_TYPE='BASE TABLE' UNION ALL SELECT TABLE_SCHEMA AS db_name, TABLE_NAME AS table_name, COLUMN_NAME AS column_name FROM INFORMATION_SCHEMA.COLUMNS ORDER BY db_name, table_name, column_name;";
     } else {
-        return { error: (wsT('webshell.dbExecFailed') || '数据库执行失败') + ': unsupported type ' + type };
+        return { error: (wsT('webshell.dbExecFailed') || '') + ': unsupported type ' + type };
     }
     return buildWebshellDbCommand(cfg, false, { sql: schemaSQL });
 }
@@ -1301,7 +1301,7 @@ function buildWebshellDbColumnsCommand(cfg, dbName, tableName) {
     } else if (type === 'mssql') {
         sql = "SELECT COLUMN_NAME AS column_name FROM INFORMATION_SCHEMA.COLUMNS WHERE TABLE_SCHEMA=" + webshellDbQuoteLiteral(dbName) + " AND TABLE_NAME=" + webshellDbQuoteLiteral(tableName) + " ORDER BY ORDINAL_POSITION;";
     } else {
-        return { error: (wsT('webshell.dbExecFailed') || '数据库执行失败') + ': unsupported type ' + type };
+        return { error: (wsT('webshell.dbExecFailed') || '') + ': unsupported type ' + type };
     }
     return buildWebshellDbCommand(cfg, false, { sql: sql });
 }
@@ -1318,7 +1318,7 @@ function buildWebshellDbColumnsByDatabaseCommand(cfg, dbName) {
     } else if (type === 'mssql') {
         sql = "SELECT TABLE_NAME AS table_name, COLUMN_NAME AS column_name FROM INFORMATION_SCHEMA.COLUMNS WHERE TABLE_SCHEMA=" + webshellDbQuoteLiteral(dbName) + " ORDER BY TABLE_NAME, ORDINAL_POSITION;";
     } else {
-        return { error: (wsT('webshell.dbExecFailed') || '数据库执行失败') + ': unsupported type ' + type };
+        return { error: (wsT('webshell.dbExecFailed') || '') + ': unsupported type ' + type };
     }
     return buildWebshellDbCommand(cfg, false, { sql: sql });
 }
@@ -1469,15 +1469,15 @@ function simplifyWebshellAiError(rawMessage) {
     var lower = msg.toLowerCase();
     if ((lower.indexOf('401') !== -1 || lower.indexOf('unauthorized') !== -1) &&
         (lower.indexOf('api key') !== -1 || lower.indexOf('apikey') !== -1)) {
-        return '鉴权失败：API Key 未配置或无效（401）';
+        return '：API Key （401）';
     }
     if (lower.indexOf('timeout') !== -1 || lower.indexOf('timed out') !== -1) {
-        return '请求超时，请稍后重试';
+        return '，';
     }
     if (lower.indexOf('network') !== -1 || lower.indexOf('failed to fetch') !== -1) {
-        return '网络异常，请检查服务连通性';
+        return '，';
     }
-    return msg || '请求失败';
+    return msg || '';
 }
 
 function renderWebshellAiErrorMessage(targetEl, rawMessage) {
@@ -1494,7 +1494,7 @@ function renderWebshellAiErrorMessage(targetEl, rawMessage) {
         var detail = document.createElement('details');
         detail.className = 'webshell-ai-error-detail';
         var summary = document.createElement('summary');
-        summary.textContent = '查看详细错误';
+        summary.textContent = '';
         var pre = document.createElement('pre');
         pre.textContent = full;
         detail.appendChild(summary);
@@ -1507,9 +1507,9 @@ function isLikelyWebshellAiErrorMessage(content, msg) {
     var text = String(content || '').trim();
     if (!text) return false;
     var lower = text.toLowerCase();
-    if (/^(执行失败|请求失败|请求异常|error)\s*[:：]/i.test(text)) return true;
+    if (/^(|||error)\s*[:：]/i.test(text)) return true;
     if (/(status code\s*:\s*4\d{2}|unauthorized|forbidden|apikey|api key|invalid api key)/i.test(lower)) return true;
-    if (/(noderunerror|tool[-_ ]?error|agent[-_ ]?error|执行失败)/i.test(lower)) return true;
+    if (/(noderunerror|tool[-_ ]?error|agent[-_ ]?error|)/i.test(lower)) return true;
     var details = msg && Array.isArray(msg.processDetails) ? msg.processDetails : [];
     return details.some(function (d) { return String((d && d.eventType) || '').toLowerCase() === 'error'; });
 }
@@ -1537,22 +1537,22 @@ function buildWebshellTimelineItemFromDetail(detail) {
     var data = detail.data || {};
     var ap = webshellAgentPx(data);
     if (eventType === 'iteration') {
-        title = ap + ((typeof window.t === 'function') ? window.t('chat.iterationRound', { n: data.iteration || 1 }) : ('第 ' + (data.iteration || 1) + ' 轮迭代'));
+        title = ap + ((typeof window.t === 'function') ? window.t('chat.iterationRound', { n: data.iteration || 1 }) : (' ' + (data.iteration || 1) + ' '));
     } else if (eventType === 'thinking') {
-        title = ap + '🤔 ' + ((typeof window.t === 'function') ? window.t('chat.aiThinking') : 'AI 思考');
+        title = ap + '🤔 ' + ((typeof window.t === 'function') ? window.t('chat.aiThinking') : 'AI ');
     } else if (eventType === 'tool_calls_detected') {
-        title = ap + '🔧 ' + ((typeof window.t === 'function') ? window.t('chat.toolCallsDetected', { count: data.count || 0 }) : ('检测到 ' + (data.count || 0) + ' 个工具调用'));
+        title = ap + '🔧 ' + ((typeof window.t === 'function') ? window.t('chat.toolCallsDetected', { count: data.count || 0 }) : (' ' + (data.count || 0) + ' '));
     } else if (eventType === 'tool_call') {
-        var tn = data.toolName || ((typeof window.t === 'function') ? window.t('chat.unknownTool') : '未知工具');
+        var tn = data.toolName || ((typeof window.t === 'function') ? window.t('chat.unknownTool') : '');
         var idx = data.index || 0;
         var total = data.total || 0;
-        title = ap + '🔧 ' + ((typeof window.t === 'function') ? window.t('chat.callTool', { name: tn, index: idx, total: total }) : ('调用: ' + tn + (total ? ' (' + idx + '/' + total + ')' : '')));
+        title = ap + '🔧 ' + ((typeof window.t === 'function') ? window.t('chat.callTool', { name: tn, index: idx, total: total }) : (': ' + tn + (total ? ' (' + idx + '/' + total + ')' : '')));
     } else if (eventType === 'tool_result') {
         var success = data.success !== false;
-        var tname = data.toolName || '工具';
-        title = ap + (success ? '✅ ' : '❌ ') + ((typeof window.t === 'function') ? (success ? window.t('chat.toolExecComplete', { name: tname }) : window.t('chat.toolExecFailed', { name: tname })) : (tname + (success ? ' 执行完成' : ' 执行失败')));
+        var tname = data.toolName || '';
+        title = ap + (success ? '✅ ' : '❌ ') + ((typeof window.t === 'function') ? (success ? window.t('chat.toolExecComplete', { name: tname }) : window.t('chat.toolExecFailed', { name: tname })) : (tname + (success ? ' ' : ' ')));
     } else if (eventType === 'eino_agent_reply') {
-        title = ap + '💬 ' + ((typeof window.t === 'function') ? window.t('chat.einoAgentReplyTitle') : '子代理回复');
+        title = ap + '💬 ' + ((typeof window.t === 'function') ? window.t('chat.einoAgentReplyTitle') : '');
     } else if (eventType === 'progress') {
         title = (typeof window.translateProgressMessage === 'function') ? window.translateProgressMessage(detail.message || '') : (detail.message || '');
     }
@@ -1571,17 +1571,17 @@ function buildWebshellTimelineItemFromDetail(detail) {
                 }
             }
             if (args && typeof args === 'object') {
-                var paramsLabel = (typeof window.t === 'function') ? window.t('timeline.params') : '参数:';
+                var paramsLabel = (typeof window.t === 'function') ? window.t('timeline.params') : ':';
                 html += '<div class="webshell-ai-timeline-msg"><div class="tool-arg-section"><strong>' + escapeHtml(paramsLabel) + '</strong><pre class="tool-args">' + escapeHtml(JSON.stringify(args, null, 2)) + '</pre></div></div>';
             }
         } catch (e) {}
     } else if (eventType === 'tool_result' && data) {
         var isError = data.isError || data.success === false;
-        var noResultText = (typeof window.t === 'function') ? window.t('timeline.noResult') : '无结果';
+        var noResultText = (typeof window.t === 'function') ? window.t('timeline.noResult') : '';
         var result = data.result != null ? data.result : (data.error != null ? data.error : noResultText);
         var resultStr = (typeof result === 'string') ? result : JSON.stringify(result);
-        var execResultLabel = (typeof window.t === 'function') ? window.t('timeline.executionResult') : '执行结果:';
-        var execIdLabel = (typeof window.t === 'function') ? window.t('timeline.executionId') : '执行ID:';
+        var execResultLabel = (typeof window.t === 'function') ? window.t('timeline.executionResult') : ':';
+        var execIdLabel = (typeof window.t === 'function') ? window.t('timeline.executionId') : 'ID:';
         html += '<div class="webshell-ai-timeline-msg"><div class="tool-result-section ' + (isError ? 'error' : 'success') + '"><strong>' + escapeHtml(execResultLabel) + '</strong><pre class="tool-result">' + escapeHtml(resultStr) + '</pre>' + (data.executionId ? '<div class="tool-execution-id"><span>' + escapeHtml(execIdLabel) + '</span> <code>' + escapeHtml(String(data.executionId)) + '</code></div>' : '') + '</div></div>';
     } else if (detail.message && detail.message !== title) {
         html += '<div class="webshell-ai-timeline-msg">' + escapeHtml(detail.message) + '</div>';
@@ -1592,9 +1592,9 @@ function buildWebshellTimelineItemFromDetail(detail) {
 // English note.
 function renderWebshellProcessDetailsBlock(processDetails, defaultCollapsed) {
     if (!processDetails || processDetails.length === 0) return null;
-    var expandLabel = (typeof window.t === 'function') ? window.t('chat.expandDetail') : '展开详情';
-    var collapseLabel = (typeof window.t === 'function') ? window.t('tasks.collapseDetail') : '收起详情';
-    var headerLabel = (typeof window.t === 'function') ? (window.t('chat.penetrationTestDetail') || '执行过程及调用工具') : '执行过程及调用工具';
+    var expandLabel = (typeof window.t === 'function') ? window.t('chat.expandDetail') : '';
+    var collapseLabel = (typeof window.t === 'function') ? window.t('tasks.collapseDetail') : '';
+    var headerLabel = (typeof window.t === 'function') ? (window.t('chat.penetrationTestDetail') || '') : '';
     var wrapper = document.createElement('div');
     wrapper.className = 'process-details-container webshell-ai-process-block';
     var collapsed = defaultCollapsed !== false;
@@ -1639,10 +1639,10 @@ function fetchAndRenderWebshellAiConvList(conn, listEl) {
                 delBtn.type = 'button';
                 delBtn.className = 'btn-ghost btn-sm webshell-ai-conv-del';
                 delBtn.textContent = '×';
-                delBtn.title = wsT('webshell.aiDeleteConversation') || '删除对话';
+                delBtn.title = wsT('webshell.aiDeleteConversation') || '';
                 delBtn.addEventListener('click', function (e) {
                     e.stopPropagation();
-                    if (!confirm(wsT('webshell.aiDeleteConversationConfirm') || '确定删除该对话？')) return;
+                    if (!confirm(wsT('webshell.aiDeleteConversationConfirm') || '？')) return;
                     var deletedId = item.id;
                     apiFetch('/api/conversations/' + encodeURIComponent(deletedId), { method: 'DELETE' })
                         .then(function (r) {
@@ -1658,13 +1658,13 @@ function fetchAndRenderWebshellAiConvList(conn, listEl) {
                                 } catch (err) { /* ignore */ }
                             }
                         })
-                        .catch(function (e) { console.warn('删除对话失败', e); });
+                        .catch(function (e) { console.warn('', e); });
                 });
                 row.appendChild(delBtn);
                 listEl.appendChild(row);
             });
         })
-        .catch(function (e) { console.warn('加载对话列表失败', e); });
+        .catch(function (e) { console.warn('', e); });
 }
 
 function webshellAiConvListSelect(conn, convId, messagesContainer, listEl) {
@@ -1703,7 +1703,7 @@ function webshellAiConvListSelect(conn, convId, messagesContainer, listEl) {
                 }
             });
             if (list.length === 0) {
-                var readyMsg = wsT('webshell.aiSystemReadyMessage') || '系统已就绪。请输入您的测试需求，系统将自动执行相应的安全测试。';
+                var readyMsg = wsT('webshell.aiSystemReadyMessage') || '。，。';
                 var readyDiv = document.createElement('div');
                 readyDiv.className = 'webshell-ai-msg assistant';
                 readyDiv.textContent = readyMsg;
@@ -1711,7 +1711,7 @@ function webshellAiConvListSelect(conn, convId, messagesContainer, listEl) {
             }
             messagesContainer.scrollTop = messagesContainer.scrollHeight;
         })
-        .catch(function (e) { console.warn('加载对话失败', e); });
+        .catch(function (e) { console.warn('', e); });
 }
 
 // English note.
@@ -1739,16 +1739,16 @@ function selectWebshell(id, stateReady) {
         '<div class="webshell-tabs">' +
         '<button type="button" class="webshell-tab active" data-tab="terminal">' + wsT('webshell.tabTerminal') + '</button>' +
         '<button type="button" class="webshell-tab" data-tab="file">' + wsT('webshell.tabFileManager') + '</button>' +
-        '<button type="button" class="webshell-tab" data-tab="db">' + (wsT('webshell.tabDbManager') || '数据库管理') + '</button>' +
-        '<button type="button" class="webshell-tab" data-tab="ai">' + (wsT('webshell.tabAiAssistant') || 'AI 助手') + '</button>' +
-        '<button type="button" class="webshell-tab" data-tab="memo">' + (wsT('webshell.tabMemo') || '备忘录') + '</button>' +
+        '<button type="button" class="webshell-tab" data-tab="db">' + (wsT('webshell.tabDbManager') || '') + '</button>' +
+        '<button type="button" class="webshell-tab" data-tab="ai">' + (wsT('webshell.tabAiAssistant') || 'AI ') + '</button>' +
+        '<button type="button" class="webshell-tab" data-tab="memo">' + (wsT('webshell.tabMemo') || '') + '</button>' +
         '</div>' +
         '<div id="webshell-pane-terminal" class="webshell-pane active">' +
         '<div class="webshell-terminal-toolbar">' +
-        '<button type="button" class="btn-ghost btn-sm" id="webshell-terminal-clear" title="' + (wsT('webshell.clearScreen') || '清屏') + '">' + (wsT('webshell.clearScreen') || '清屏') + '</button> ' +
-        '<button type="button" class="btn-ghost btn-sm" id="webshell-terminal-copy-log" title="' + (wsT('webshell.copyTerminalLog') || '复制日志') + '">' + (wsT('webshell.copyTerminalLog') || '复制日志') + '</button> ' +
-        '<span id="webshell-terminal-status" class="webshell-terminal-status idle">' + (wsT('webshell.terminalIdle') || '空闲') + '</span> ' +
-        '<span class="webshell-quick-label">' + (wsT('webshell.quickCommands') || '快捷命令') + ':</span> ' +
+        '<button type="button" class="btn-ghost btn-sm" id="webshell-terminal-clear" title="' + (wsT('webshell.clearScreen') || '') + '">' + (wsT('webshell.clearScreen') || '') + '</button> ' +
+        '<button type="button" class="btn-ghost btn-sm" id="webshell-terminal-copy-log" title="' + (wsT('webshell.copyTerminalLog') || '') + '">' + (wsT('webshell.copyTerminalLog') || '') + '</button> ' +
+        '<span id="webshell-terminal-status" class="webshell-terminal-status idle">' + (wsT('webshell.terminalIdle') || '') + '</span> ' +
+        '<span class="webshell-quick-label">' + (wsT('webshell.quickCommands') || '') + ':</span> ' +
         '<button type="button" class="btn-ghost btn-sm webshell-quick-cmd" data-cmd="whoami">whoami</button> ' +
         '<button type="button" class="btn-ghost btn-sm webshell-quick-cmd" data-cmd="id">id</button> ' +
         '<button type="button" class="btn-ghost btn-sm webshell-quick-cmd" data-cmd="pwd">pwd</button> ' +
@@ -1769,7 +1769,7 @@ function selectWebshell(id, stateReady) {
         '<div id="webshell-pane-file" class="webshell-pane">' +
         '<div class="webshell-file-layout">' +
         '<aside class="webshell-file-sidebar">' +
-        '<div class="webshell-file-sidebar-title">' + wsTOr('webshell.dirTree', '目录列表') + '</div>' +
+        '<div class="webshell-file-sidebar-title">' + wsTOr('webshell.dirTree', '') + '</div>' +
         '<div id="webshell-dir-tree" class="webshell-dir-tree"></div>' +
         '</aside>' +
         '<section class="webshell-file-main">' +
@@ -1777,20 +1777,20 @@ function selectWebshell(id, stateReady) {
         '<div class="webshell-file-breadcrumb" id="webshell-file-breadcrumb"></div>' +
         '<div class="webshell-file-toolbar-main">' +
         '<label class="webshell-file-path-field"><span>' + wsT('webshell.filePath') + '</span> <input type="text" id="webshell-file-path" class="form-control" value="." /></label>' +
-        '<input type="text" id="webshell-file-filter" class="form-control webshell-file-filter" placeholder="' + (wsT('webshell.filterPlaceholder') || '过滤文件名') + '" />' +
+        '<input type="text" id="webshell-file-filter" class="form-control webshell-file-filter" placeholder="' + (wsT('webshell.filterPlaceholder') || '') + '" />' +
         '<button type="button" class="btn-secondary" id="webshell-list-dir">' + wsT('webshell.listDir') + '</button>' +
         '<button type="button" class="btn-ghost" id="webshell-parent-dir">' + wsT('webshell.parentDir') + '</button>' +
         '</div>' +
         '<div class="webshell-file-toolbar-actions">' +
-        '<button type="button" class="btn-ghost" id="webshell-file-refresh" title="' + (wsT('webshell.refresh') || '刷新') + '">' + (wsT('webshell.refresh') || '刷新') + '</button>' +
+        '<button type="button" class="btn-ghost" id="webshell-file-refresh" title="' + (wsT('webshell.refresh') || '') + '">' + (wsT('webshell.refresh') || '') + '</button>' +
         '<details class="webshell-toolbar-actions">' +
-        '<summary class="btn-ghost webshell-toolbar-actions-btn">' + (wsT('webshell.moreActions') || '更多操作') + '</summary>' +
+        '<summary class="btn-ghost webshell-toolbar-actions-btn">' + (wsT('webshell.moreActions') || '') + '</summary>' +
         '<div class="webshell-row-actions-menu">' +
-        '<button type="button" class="btn-ghost" id="webshell-mkdir-btn">' + (wsT('webshell.newDir') || '新建目录') + '</button>' +
-        '<button type="button" class="btn-ghost" id="webshell-newfile-btn">' + (wsT('webshell.newFile') || '新建文件') + '</button>' +
-        '<button type="button" class="btn-ghost" id="webshell-upload-btn">' + (wsT('webshell.upload') || '上传') + '</button>' +
-        '<button type="button" class="btn-ghost" id="webshell-batch-delete-btn">' + (wsT('webshell.batchDelete') || '批量删除') + '</button>' +
-        '<button type="button" class="btn-ghost" id="webshell-batch-download-btn">' + (wsT('webshell.batchDownload') || '批量下载') + '</button>' +
+        '<button type="button" class="btn-ghost" id="webshell-mkdir-btn">' + (wsT('webshell.newDir') || '') + '</button>' +
+        '<button type="button" class="btn-ghost" id="webshell-newfile-btn">' + (wsT('webshell.newFile') || '') + '</button>' +
+        '<button type="button" class="btn-ghost" id="webshell-upload-btn">' + (wsT('webshell.upload') || '') + '</button>' +
+        '<button type="button" class="btn-ghost" id="webshell-batch-delete-btn">' + (wsT('webshell.batchDelete') || '') + '</button>' +
+        '<button type="button" class="btn-ghost" id="webshell-batch-download-btn">' + (wsT('webshell.batchDownload') || '') + '</button>' +
         '</div></details>' +
         '</div>' +
         '</div>' +
@@ -1800,7 +1800,7 @@ function selectWebshell(id, stateReady) {
         '</div>' +
         '<div id="webshell-pane-ai" class="webshell-pane webshell-pane-ai-with-sidebar">' +
         '<div class="webshell-ai-sidebar">' +
-        '<button type="button" class="btn-primary btn-sm webshell-ai-new-btn" id="webshell-ai-new-conv">' + (wsT('webshell.aiNewConversation') || '新对话') + '</button>' +
+        '<button type="button" class="btn-primary btn-sm webshell-ai-new-btn" id="webshell-ai-new-conv">' + (wsT('webshell.aiNewConversation') || '') + '</button>' +
         '<div class="webshell-ai-conv-list" id="webshell-ai-conv-list"></div>' +
         '</div>' +
         '<div class="webshell-ai-main">' +
@@ -1810,11 +1810,11 @@ function selectWebshell(id, stateReady) {
         '<div class="ws-role-selector-wrapper">' +
         '<button type="button" class="role-selector-btn ws-role-selector-btn" id="ws-role-selector-btn" onclick="wsToggleRolePanel()">' +
         '<span id="ws-role-selector-icon" class="role-selector-icon">\ud83d\udd35</span>' +
-        '<span id="ws-role-selector-text" class="role-selector-text">' + (wsT('chat.defaultRole') || '默认') + '</span>' +
+        '<span id="ws-role-selector-text" class="role-selector-text">' + (wsT('chat.defaultRole') || '') + '</span>' +
         '<svg class="role-selector-arrow" width="10" height="10" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M6 9l6 6 6-6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>' +
         '</button>' +
         '<div id="ws-role-selection-panel" class="role-selection-panel" style="display:none;">' +
-        '<div class="role-selection-panel-header"><h3 class="role-selection-panel-title">' + (wsT('chatGroup.rolePanelTitle') || '选择角色') + '</h3>' +
+        '<div class="role-selection-panel-header"><h3 class="role-selection-panel-title">' + (wsT('chatGroup.rolePanelTitle') || '') + '</h3>' +
         '<button type="button" class="role-selection-panel-close" onclick="wsCloseRolePanel()"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M18 6L6 18M6 6l12 12" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></button>' +
         '</div><div id="ws-role-selection-list" class="role-selection-list-main"></div></div>' +
         '</div>' +
@@ -1822,70 +1822,70 @@ function selectWebshell(id, stateReady) {
         '<div class="agent-mode-inner">' +
         '<button type="button" class="role-selector-btn agent-mode-btn" id="ws-agent-mode-btn" onclick="wsToggleAgentModePanel()">' +
         '<span id="ws-agent-mode-icon" class="role-selector-icon">\ud83e\udd16</span>' +
-        '<span id="ws-agent-mode-text" class="role-selector-text">' + (wsT('chat.agentModeReactNative') || '原生 ReAct') + '</span>' +
+        '<span id="ws-agent-mode-text" class="role-selector-text">' + (wsT('chat.agentModeReactNative') || ' ReAct') + '</span>' +
         '<svg class="role-selector-arrow" width="10" height="10" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M6 9l6 6 6-6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>' +
         '</button>' +
         '<div id="ws-agent-mode-panel" class="agent-mode-panel" style="display:none;" role="listbox">' +
-        '<div class="role-selection-panel-header agent-mode-panel-header"><h3 class="role-selection-panel-title">' + (wsT('chat.agentModePanelTitle') || '对话模式') + '</h3>' +
+        '<div class="role-selection-panel-header agent-mode-panel-header"><h3 class="role-selection-panel-title">' + (wsT('chat.agentModePanelTitle') || '') + '</h3>' +
         '<button type="button" class="role-selection-panel-close" onclick="wsCloseAgentModePanel()"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M18 6L6 18M6 6l12 12" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></button>' +
         '</div>' +
         '<div class="agent-mode-options">' +
-        '<button type="button" class="role-selection-item-main agent-mode-option ws-agent-mode-option" data-value="react" role="option" onclick="wsSelectAgentMode(\'react\')"><div class="role-selection-item-icon-main">\ud83e\udd16</div><div class="role-selection-item-content-main"><div class="role-selection-item-name-main">' + (wsT('chat.agentModeReactNative') || '原生 ReAct 模式') + '</div><div class="role-selection-item-description-main">' + (wsT('chat.agentModeReactNativeHint') || '经典单代理 ReAct 与 MCP 工具') + '</div></div><div class="role-selection-checkmark-main agent-mode-check" data-agent-mode-check="react">\u2713</div></button>' +
-        '<button type="button" class="role-selection-item-main agent-mode-option ws-agent-mode-option" data-value="eino_single" role="option" onclick="wsSelectAgentMode(\'eino_single\')"><div class="role-selection-item-icon-main">\u26a1</div><div class="role-selection-item-content-main"><div class="role-selection-item-name-main">' + (wsT('chat.agentModeEinoSingle') || 'Eino 单代理（ADK）') + '</div><div class="role-selection-item-description-main">' + (wsT('chat.agentModeEinoSingleHint') || 'Eino ChatModelAgent + Runner') + '</div></div><div class="role-selection-checkmark-main agent-mode-check" data-agent-mode-check="eino_single">\u2713</div></button>' +
-        '<button type="button" class="role-selection-item-main agent-mode-option ws-agent-mode-option" data-value="deep" role="option" onclick="wsSelectAgentMode(\'deep\')"><div class="role-selection-item-icon-main">\ud83e\udde9</div><div class="role-selection-item-content-main"><div class="role-selection-item-name-main">' + (wsT('chat.agentModeDeep') || 'Deep（DeepAgent）') + '</div><div class="role-selection-item-description-main">' + (wsT('chat.agentModeDeepHint') || 'Eino DeepAgent，task 调度子代理') + '</div></div><div class="role-selection-checkmark-main agent-mode-check" data-agent-mode-check="deep">\u2713</div></button>' +
-        '<button type="button" class="role-selection-item-main agent-mode-option ws-agent-mode-option" data-value="plan_execute" role="option" onclick="wsSelectAgentMode(\'plan_execute\')"><div class="role-selection-item-icon-main">\ud83d\udccb</div><div class="role-selection-item-content-main"><div class="role-selection-item-name-main">' + (wsT('chat.agentModePlanExecuteLabel') || 'Plan-Execute') + '</div><div class="role-selection-item-description-main">' + (wsT('chat.agentModePlanExecuteHint') || '规划 → 执行 → 重规划') + '</div></div><div class="role-selection-checkmark-main agent-mode-check" data-agent-mode-check="plan_execute">\u2713</div></button>' +
-        '<button type="button" class="role-selection-item-main agent-mode-option ws-agent-mode-option" data-value="supervisor" role="option" onclick="wsSelectAgentMode(\'supervisor\')"><div class="role-selection-item-icon-main">\ud83c\udfaf</div><div class="role-selection-item-content-main"><div class="role-selection-item-name-main">' + (wsT('chat.agentModeSupervisorLabel') || 'Supervisor') + '</div><div class="role-selection-item-description-main">' + (wsT('chat.agentModeSupervisorHint') || '监督者协调，transfer 委派子代理') + '</div></div><div class="role-selection-checkmark-main agent-mode-check" data-agent-mode-check="supervisor">\u2713</div></button>' +
+        '<button type="button" class="role-selection-item-main agent-mode-option ws-agent-mode-option" data-value="react" role="option" onclick="wsSelectAgentMode(\'react\')"><div class="role-selection-item-icon-main">\ud83e\udd16</div><div class="role-selection-item-content-main"><div class="role-selection-item-name-main">' + (wsT('chat.agentModeReactNative') || ' ReAct ') + '</div><div class="role-selection-item-description-main">' + (wsT('chat.agentModeReactNativeHint') || ' ReAct  MCP ') + '</div></div><div class="role-selection-checkmark-main agent-mode-check" data-agent-mode-check="react">\u2713</div></button>' +
+        '<button type="button" class="role-selection-item-main agent-mode-option ws-agent-mode-option" data-value="eino_single" role="option" onclick="wsSelectAgentMode(\'eino_single\')"><div class="role-selection-item-icon-main">\u26a1</div><div class="role-selection-item-content-main"><div class="role-selection-item-name-main">' + (wsT('chat.agentModeEinoSingle') || 'Eino （ADK）') + '</div><div class="role-selection-item-description-main">' + (wsT('chat.agentModeEinoSingleHint') || 'Eino ChatModelAgent + Runner') + '</div></div><div class="role-selection-checkmark-main agent-mode-check" data-agent-mode-check="eino_single">\u2713</div></button>' +
+        '<button type="button" class="role-selection-item-main agent-mode-option ws-agent-mode-option" data-value="deep" role="option" onclick="wsSelectAgentMode(\'deep\')"><div class="role-selection-item-icon-main">\ud83e\udde9</div><div class="role-selection-item-content-main"><div class="role-selection-item-name-main">' + (wsT('chat.agentModeDeep') || 'Deep（DeepAgent）') + '</div><div class="role-selection-item-description-main">' + (wsT('chat.agentModeDeepHint') || 'Eino DeepAgent，task ') + '</div></div><div class="role-selection-checkmark-main agent-mode-check" data-agent-mode-check="deep">\u2713</div></button>' +
+        '<button type="button" class="role-selection-item-main agent-mode-option ws-agent-mode-option" data-value="plan_execute" role="option" onclick="wsSelectAgentMode(\'plan_execute\')"><div class="role-selection-item-icon-main">\ud83d\udccb</div><div class="role-selection-item-content-main"><div class="role-selection-item-name-main">' + (wsT('chat.agentModePlanExecuteLabel') || 'Plan-Execute') + '</div><div class="role-selection-item-description-main">' + (wsT('chat.agentModePlanExecuteHint') || ' →  → ') + '</div></div><div class="role-selection-checkmark-main agent-mode-check" data-agent-mode-check="plan_execute">\u2713</div></button>' +
+        '<button type="button" class="role-selection-item-main agent-mode-option ws-agent-mode-option" data-value="supervisor" role="option" onclick="wsSelectAgentMode(\'supervisor\')"><div class="role-selection-item-icon-main">\ud83c\udfaf</div><div class="role-selection-item-content-main"><div class="role-selection-item-name-main">' + (wsT('chat.agentModeSupervisorLabel') || 'Supervisor') + '</div><div class="role-selection-item-description-main">' + (wsT('chat.agentModeSupervisorHint') || '，transfer ') + '</div></div><div class="role-selection-checkmark-main agent-mode-check" data-agent-mode-check="supervisor">\u2713</div></button>' +
         '</div></div></div>' +
         '<input type="hidden" id="ws-agent-mode-select" value="react" autocomplete="off" />' +
         '</div>' +
         '</div>' +
         '<div class="webshell-ai-input-row">' +
-        '<textarea id="webshell-ai-input" class="webshell-ai-input form-control" rows="2" placeholder="' + (wsT('webshell.aiPlaceholder') || '例如：列出当前目录下的文件') + '"></textarea>' +
-        '<button type="button" class="btn-primary" id="webshell-ai-send">' + (wsT('webshell.aiSend') || '发送') + '</button>' +
-        '<button type="button" class="btn-danger webshell-ai-stop-btn" id="webshell-ai-stop" style="display:none;">' + wsTOr('webshell.aiStop', '停止') + '</button>' +
+        '<textarea id="webshell-ai-input" class="webshell-ai-input form-control" rows="2" placeholder="' + (wsT('webshell.aiPlaceholder') || '：') + '"></textarea>' +
+        '<button type="button" class="btn-primary" id="webshell-ai-send">' + (wsT('webshell.aiSend') || '') + '</button>' +
+        '<button type="button" class="btn-danger webshell-ai-stop-btn" id="webshell-ai-stop" style="display:none;">' + wsTOr('webshell.aiStop', '') + '</button>' +
         '</div>' +
         '</div>' +
         '</div>' +
         '</div>' +
         '<div id="webshell-pane-memo" class="webshell-pane webshell-pane-memo">' +
         '<div class="webshell-memo-layout">' +
-        '<div class="webshell-memo-head"><span>' + (wsT('webshell.aiMemo') || '备忘录') + '</span><button type="button" class="btn-ghost btn-sm" id="webshell-ai-memo-clear">' + (wsT('webshell.aiMemoClear') || '清空') + '</button></div>' +
-        '<textarea id="webshell-ai-memo-input" class="webshell-memo-input form-control" rows="18" placeholder="' + (wsT('webshell.aiMemoPlaceholder') || '记录关键命令、测试思路、复现步骤...') + '"></textarea>' +
-        '<div id="webshell-ai-memo-status" class="webshell-memo-status">' + (wsT('webshell.aiMemoSaved') || '已保存到本地') + '</div>' +
+        '<div class="webshell-memo-head"><span>' + (wsT('webshell.aiMemo') || '') + '</span><button type="button" class="btn-ghost btn-sm" id="webshell-ai-memo-clear">' + (wsT('webshell.aiMemoClear') || '') + '</button></div>' +
+        '<textarea id="webshell-ai-memo-input" class="webshell-memo-input form-control" rows="18" placeholder="' + (wsT('webshell.aiMemoPlaceholder') || '、、...') + '"></textarea>' +
+        '<div id="webshell-ai-memo-status" class="webshell-memo-status">' + (wsT('webshell.aiMemoSaved') || '') + '</div>' +
         '</div>' +
         '</div>' +
         '<div id="webshell-pane-db" class="webshell-pane webshell-pane-db">' +
-        '<div class="webshell-db-profiles-bar"><div id="webshell-db-profiles" class="webshell-db-profiles"></div><div class="webshell-db-profile-actions"><button type="button" class="btn-ghost btn-sm" id="webshell-db-add-profile-btn">+ ' + (wsT('webshell.dbAddProfile') || '新增连接') + '</button></div></div>' +
+        '<div class="webshell-db-profiles-bar"><div id="webshell-db-profiles" class="webshell-db-profiles"></div><div class="webshell-db-profile-actions"><button type="button" class="btn-ghost btn-sm" id="webshell-db-add-profile-btn">+ ' + (wsT('webshell.dbAddProfile') || '') + '</button></div></div>' +
         '<div class="webshell-db-layout">' +
         '<aside class="webshell-db-sidebar">' +
-        '<div class="webshell-db-sidebar-head"><span>' + (wsT('webshell.dbSchema') || '数据库结构') + '</span><button type="button" class="btn-ghost btn-sm" id="webshell-db-load-schema-btn">' + (wsT('webshell.dbLoadSchema') || '加载结构') + '</button></div>' +
-        '<div id="webshell-db-schema-tree" class="webshell-db-schema-tree"><div class="webshell-empty">' + (wsT('webshell.dbNoSchema') || '暂无数据库结构，请先加载') + '</div></div>' +
-        '<div class="webshell-db-sidebar-hint">' + (wsT('webshell.dbSelectTableHint') || '点击表名可生成查询 SQL') + '</div>' +
+        '<div class="webshell-db-sidebar-head"><span>' + (wsT('webshell.dbSchema') || '') + '</span><button type="button" class="btn-ghost btn-sm" id="webshell-db-load-schema-btn">' + (wsT('webshell.dbLoadSchema') || '') + '</button></div>' +
+        '<div id="webshell-db-schema-tree" class="webshell-db-schema-tree"><div class="webshell-empty">' + (wsT('webshell.dbNoSchema') || '，') + '</div></div>' +
+        '<div class="webshell-db-sidebar-hint">' + (wsT('webshell.dbSelectTableHint') || ' SQL') + '</div>' +
         '</aside>' +
         '<section class="webshell-db-main">' +
-        '<div class="webshell-db-sql-tools"><button type="button" class="btn-ghost btn-sm" id="webshell-db-template-btn">' + (wsT('webshell.dbTemplateSql') || '示例 SQL') + '</button><button type="button" class="btn-ghost btn-sm" id="webshell-db-clear-btn">' + (wsT('webshell.dbClearSql') || '清空 SQL') + '</button></div>' +
-        '<textarea id="webshell-db-sql" class="webshell-db-sql form-control" rows="8" placeholder="' + (wsT('webshell.dbSqlPlaceholder') || '输入 SQL，例如：SELECT version();') + '"></textarea>' +
+        '<div class="webshell-db-sql-tools"><button type="button" class="btn-ghost btn-sm" id="webshell-db-template-btn">' + (wsT('webshell.dbTemplateSql') || ' SQL') + '</button><button type="button" class="btn-ghost btn-sm" id="webshell-db-clear-btn">' + (wsT('webshell.dbClearSql') || ' SQL') + '</button></div>' +
+        '<textarea id="webshell-db-sql" class="webshell-db-sql form-control" rows="8" placeholder="' + (wsT('webshell.dbSqlPlaceholder') || ' SQL，：SELECT version();') + '"></textarea>' +
         '<div class="webshell-db-actions">' +
-        '<button type="button" class="btn-ghost" id="webshell-db-test-btn">' + (wsT('webshell.dbTest') || '测试连接') + '</button>' +
-        '<button type="button" class="btn-primary" id="webshell-db-run-btn">' + (wsT('webshell.dbRunSql') || '执行 SQL') + '</button>' +
+        '<button type="button" class="btn-ghost" id="webshell-db-test-btn">' + (wsT('webshell.dbTest') || '') + '</button>' +
+        '<button type="button" class="btn-primary" id="webshell-db-run-btn">' + (wsT('webshell.dbRunSql') || ' SQL') + '</button>' +
         '</div>' +
-        '<div class="webshell-db-output-wrap"><div class="webshell-db-output-title">' + (wsT('webshell.dbOutput') || '执行输出') + '</div><div id="webshell-db-result-table" class="webshell-db-result-table"></div><pre id="webshell-db-output" class="webshell-db-output"></pre><div class="webshell-db-hint">' + (wsT('webshell.dbCliHint') || '如果提示命令不存在，请先在目标主机安装对应客户端（mysql/psql/sqlite3/sqlcmd）') + '</div></div>' +
+        '<div class="webshell-db-output-wrap"><div class="webshell-db-output-title">' + (wsT('webshell.dbOutput') || '') + '</div><div id="webshell-db-result-table" class="webshell-db-result-table"></div><pre id="webshell-db-output" class="webshell-db-output"></pre><div class="webshell-db-hint">' + (wsT('webshell.dbCliHint') || '，（mysql/psql/sqlite3/sqlcmd）') + '</div></div>' +
         '<div id="webshell-db-profile-modal" class="modal">' +
         '<div class="modal-content webshell-db-profile-modal-content">' +
-        '<div class="modal-header"><h2 id="webshell-db-profile-modal-title">' + (wsT('webshell.editConnectionTitle') || '编辑连接') + '</h2><span class="modal-close" id="webshell-db-profile-modal-close">&times;</span></div>' +
+        '<div class="modal-header"><h2 id="webshell-db-profile-modal-title">' + (wsT('webshell.editConnectionTitle') || '') + '</h2><span class="modal-close" id="webshell-db-profile-modal-close">&times;</span></div>' +
         '<div class="modal-body">' +
         '<div class="webshell-db-toolbar">' +
-        '<label><span>' + (wsT('webshell.dbProfileName') || '连接名称') + '</span><input id="webshell-db-profile-name" class="form-control" type="text" maxlength="30" /></label>' +
-        '<label><span>' + (wsT('webshell.dbType') || '数据库类型') + '</span><select id="webshell-db-type" class="form-control"><option value="mysql">MySQL</option><option value="pgsql">PostgreSQL</option><option value="sqlite">SQLite</option><option value="mssql">SQL Server</option></select></label>' +
-        '<label class="webshell-db-common-field"><span>' + (wsT('webshell.dbHost') || '主机') + '</span><input id="webshell-db-host" class="form-control" type="text" value="127.0.0.1" /></label>' +
-        '<label class="webshell-db-common-field"><span>' + (wsT('webshell.dbPort') || '端口') + '</span><input id="webshell-db-port" class="form-control" type="text" /></label>' +
-        '<label class="webshell-db-common-field"><span>' + (wsT('webshell.dbUsername') || '用户名') + '</span><input id="webshell-db-user" class="form-control" type="text" /></label>' +
-        '<label class="webshell-db-common-field"><span>' + (wsT('webshell.dbPassword') || '密码') + '</span><input id="webshell-db-pass" class="form-control" type="password" /></label>' +
-        '<label class="webshell-db-common-field"><span>' + (wsT('webshell.dbName') || '数据库名') + '</span><input id="webshell-db-name" class="form-control" type="text" /></label>' +
-        '<label id="webshell-db-sqlite-row"><span>' + (wsT('webshell.dbSqlitePath') || 'SQLite 文件路径') + '</span><input id="webshell-db-sqlite-path" class="form-control" type="text" value="/tmp/test.db" /></label>' +
+        '<label><span>' + (wsT('webshell.dbProfileName') || '') + '</span><input id="webshell-db-profile-name" class="form-control" type="text" maxlength="30" /></label>' +
+        '<label><span>' + (wsT('webshell.dbType') || '') + '</span><select id="webshell-db-type" class="form-control"><option value="mysql">MySQL</option><option value="pgsql">PostgreSQL</option><option value="sqlite">SQLite</option><option value="mssql">SQL Server</option></select></label>' +
+        '<label class="webshell-db-common-field"><span>' + (wsT('webshell.dbHost') || '') + '</span><input id="webshell-db-host" class="form-control" type="text" value="127.0.0.1" /></label>' +
+        '<label class="webshell-db-common-field"><span>' + (wsT('webshell.dbPort') || '') + '</span><input id="webshell-db-port" class="form-control" type="text" /></label>' +
+        '<label class="webshell-db-common-field"><span>' + (wsT('webshell.dbUsername') || '') + '</span><input id="webshell-db-user" class="form-control" type="text" /></label>' +
+        '<label class="webshell-db-common-field"><span>' + (wsT('webshell.dbPassword') || '') + '</span><input id="webshell-db-pass" class="form-control" type="password" /></label>' +
+        '<label class="webshell-db-common-field"><span>' + (wsT('webshell.dbName') || '') + '</span><input id="webshell-db-name" class="form-control" type="text" /></label>' +
+        '<label id="webshell-db-sqlite-row"><span>' + (wsT('webshell.dbSqlitePath') || 'SQLite ') + '</span><input id="webshell-db-sqlite-path" class="form-control" type="text" value="/tmp/test.db" /></label>' +
         '</div>' +
         '</div>' +
-        '<div class="modal-footer"><button type="button" class="btn-secondary" id="webshell-db-profile-cancel-btn">取消</button><button type="button" class="btn-primary" id="webshell-db-profile-save-btn">保存</button></div>' +
+        '<div class="modal-footer"><button type="button" class="btn-secondary" id="webshell-db-profile-cancel-btn"></button><button type="button" class="btn-primary" id="webshell-db-profile-save-btn"></button></div>' +
         '</div>' +
         '</div>' +
         '</section>' +
@@ -1935,12 +1935,12 @@ function selectWebshell(id, stateReady) {
             var log = getWebshellTerminalLog(getWebshellTerminalSessionKey(webshellCurrentConn.id, activeId)) || '';
             if (navigator && navigator.clipboard && navigator.clipboard.writeText) {
                 navigator.clipboard.writeText(log).then(function () {
-                    terminalCopyLogBtn.title = wsT('webshell.terminalCopyOk') || '日志已复制';
+                    terminalCopyLogBtn.title = wsT('webshell.terminalCopyOk') || '';
                     setTimeout(function () {
-                        terminalCopyLogBtn.title = wsT('webshell.copyTerminalLog') || '复制日志';
+                        terminalCopyLogBtn.title = wsT('webshell.copyTerminalLog') || '';
                     }, 1200);
                 }).catch(function () {
-                    terminalCopyLogBtn.title = wsT('webshell.terminalCopyFail') || '复制失败';
+                    terminalCopyLogBtn.title = wsT('webshell.terminalCopyFail') || '';
                 });
                 return;
             }
@@ -2000,14 +2000,14 @@ function selectWebshell(id, stateReady) {
     function flushWebshellAiMemo() {
         if (!aiMemoInput) return;
         saveWebshellAiMemo(conn, aiMemoInput.value || '');
-        setWebshellAiMemoStatus(wsT('webshell.aiMemoSaved') || '已保存到本地', false);
+        setWebshellAiMemoStatus(wsT('webshell.aiMemoSaved') || '', false);
     }
 
     if (aiMemoInput) {
         aiMemoInput.value = getWebshellAiMemo(conn);
-        setWebshellAiMemoStatus(wsT('webshell.aiMemoSaved') || '已保存到本地', false);
+        setWebshellAiMemoStatus(wsT('webshell.aiMemoSaved') || '', false);
         aiMemoInput.addEventListener('input', function () {
-            setWebshellAiMemoStatus(wsT('webshell.aiMemoSaving') || '保存中...', false);
+            setWebshellAiMemoStatus(wsT('webshell.aiMemoSaving') || '...', false);
             if (aiMemoSaveTimer) clearTimeout(aiMemoSaveTimer);
             aiMemoSaveTimer = setTimeout(function () {
                 aiMemoSaveTimer = null;
@@ -2036,7 +2036,7 @@ function selectWebshell(id, stateReady) {
             delete webshellAiConvMap[conn.id];
             if (aiMessages) {
                 aiMessages.innerHTML = '';
-                var readyMsg = wsT('webshell.aiSystemReadyMessage') || '系统已就绪。请输入您的测试需求，系统将自动执行相应的安全测试。';
+                var readyMsg = wsT('webshell.aiSystemReadyMessage') || '。，。';
                 var div = document.createElement('div');
                 div.className = 'webshell-ai-msg assistant';
                 div.textContent = readyMsg;
@@ -2112,8 +2112,8 @@ function selectWebshell(id, stateReady) {
         if (!dbProfileModalEl) return;
         dbProfileModalEl.style.display = visible ? 'block' : 'none';
         if (dbProfileModalTitleEl) {
-            if (mode === 'add') dbProfileModalTitleEl.textContent = wsT('webshell.dbAddProfile') || '新增连接';
-            else dbProfileModalTitleEl.textContent = wsT('webshell.editConnectionTitle') || '编辑连接';
+            if (mode === 'add') dbProfileModalTitleEl.textContent = wsT('webshell.dbAddProfile') || '';
+            else dbProfileModalTitleEl.textContent = wsT('webshell.editConnectionTitle') || '';
         }
     }
 
@@ -2142,8 +2142,8 @@ function selectWebshell(id, stateReady) {
             var active = p.id === state.activeProfileId;
             html += '<div class="webshell-db-profile-tab' + (active ? ' active' : '') + '" data-id="' + escapeHtml(p.id) + '">' +
                 '<button type="button" class="webshell-db-profile-main" data-action="switch" data-id="' + escapeHtml(p.id) + '">' + escapeHtml(p.name || 'DB') + '</button>' +
-                '<button type="button" class="webshell-db-profile-menu" data-action="edit" data-id="' + escapeHtml(p.id) + '" title="' + escapeHtml(wsT('webshell.editConnection') || '编辑') + '">⚙</button>' +
-                '<button type="button" class="webshell-db-profile-menu" data-action="delete" data-id="' + escapeHtml(p.id) + '" title="' + escapeHtml(wsT('webshell.dbDeleteProfile') || '删除连接') + '">×</button>' +
+                '<button type="button" class="webshell-db-profile-menu" data-action="edit" data-id="' + escapeHtml(p.id) + '" title="' + escapeHtml(wsT('webshell.editConnection') || '') + '">⚙</button>' +
+                '<button type="button" class="webshell-db-profile-menu" data-action="delete" data-id="' + escapeHtml(p.id) + '" title="' + escapeHtml(wsT('webshell.dbDeleteProfile') || '') + '">×</button>' +
                 '</div>';
         });
         dbProfilesEl.innerHTML = html;
@@ -2174,7 +2174,7 @@ function selectWebshell(id, stateReady) {
                 }
                 if (action === 'delete') {
                     if (state.profiles.length <= 1) return;
-                    if (!confirm(wsT('webshell.dbDeleteProfileConfirm') || '确定删除该数据库连接配置吗？')) return;
+                    if (!confirm(wsT('webshell.dbDeleteProfileConfirm') || '？')) return;
                     state.profiles.splice(idx, 1);
                     if (!state.profiles.some(function (p) { return p.id === state.activeProfileId; })) {
                         state.activeProfileId = state.profiles[0].id;
@@ -2202,7 +2202,7 @@ function selectWebshell(id, stateReady) {
             openTableKeys[openDb + '::' + openTable] = true;
         });
         if (!dbs.length) {
-            dbSchemaTreeEl.innerHTML = '<div class="webshell-empty">' + escapeHtml(wsT('webshell.dbNoSchema') || '暂无数据库结构，请先加载') + '</div>';
+            dbSchemaTreeEl.innerHTML = '<div class="webshell-empty">' + escapeHtml(wsT('webshell.dbNoSchema') || '，') + '</div>';
             return;
         }
         var selectedDb = (cfg.selectedDatabase || '').trim();
@@ -2228,7 +2228,7 @@ function selectWebshell(id, stateReady) {
                     });
                     html += '</div>';
                 } else {
-                    html += '<div class="webshell-db-column-empty">' + escapeHtml(wsT('webshell.dbNoColumns') || '暂无列信息') + '</div>';
+                    html += '<div class="webshell-db-column-empty">' + escapeHtml(wsT('webshell.dbNoColumns') || '') + '</div>';
                 }
                 html += '</details>';
             });
@@ -2387,38 +2387,38 @@ function selectWebshell(id, stateReady) {
 
     function loadDbSchema() {
         if (!conn || !conn.id) {
-            webshellDbSetOutput(wsT('webshell.dbNoConn') || '请先选择 WebShell 连接', true);
+            webshellDbSetOutput(wsT('webshell.dbNoConn') || ' WebShell ', true);
             return;
         }
         if (webshellRunning) {
-            webshellDbSetOutput(wsT('webshell.dbRunning') || '数据库命令执行中，请稍候', true);
+            webshellDbSetOutput(wsT('webshell.dbRunning') || '，', true);
             return;
         }
         var cfg = webshellDbCollectConfig(conn);
         resetDbColumnLoadCache();
         var built = buildWebshellDbSchemaCommand(cfg);
         if (!built.command) {
-            webshellDbSetOutput(built.error || (wsT('webshell.dbSchemaFailed') || '加载数据库结构失败'), true);
+            webshellDbSetOutput(built.error || (wsT('webshell.dbSchemaFailed') || ''), true);
             return;
         }
-        webshellDbSetOutput(wsT('webshell.running') || '执行中…', false);
+        webshellDbSetOutput(wsT('webshell.running') || '…', false);
         webshellRunning = true;
         setDbActionButtonsDisabled(true);
         execWebshellCommand(conn, built.command).then(function (out) {
             var parsed = parseWebshellDbExecOutput(out);
             var success = parsed.rc === 0 || (parsed.rc == null && parsed.output && !/error|failed|denied|unknown|not found|access/i.test(parsed.output));
             if (!success) {
-                webshellDbSetOutput((wsT('webshell.dbSchemaFailed') || '加载数据库结构失败') + ':\n' + (parsed.output || ''), true);
+                webshellDbSetOutput((wsT('webshell.dbSchemaFailed') || '') + ':\n' + (parsed.output || ''), true);
                 return;
             }
             cfg.schema = parseWebshellDbSchema(parsed.output);
-            cfg.output = wsT('webshell.dbSchemaLoaded') || '结构加载完成';
+            cfg.output = wsT('webshell.dbSchemaLoaded') || '';
             cfg.outputIsError = false;
             saveWebshellDbConfig(conn, cfg);
             renderDbSchemaTree();
-            webshellDbSetOutput(wsT('webshell.dbSchemaLoaded') || '结构加载完成', false);
+            webshellDbSetOutput(wsT('webshell.dbSchemaLoaded') || '', false);
         }).catch(function (err) {
-            webshellDbSetOutput((wsT('webshell.dbSchemaFailed') || '加载数据库结构失败') + ': ' + (err && err.message ? err.message : String(err)), true);
+            webshellDbSetOutput((wsT('webshell.dbSchemaFailed') || '') + ': ' + (err && err.message ? err.message : String(err)), true);
         }).finally(function () {
             webshellRunning = false;
             setDbActionButtonsDisabled(false);
@@ -2427,20 +2427,20 @@ function selectWebshell(id, stateReady) {
 
     function runDbQuery(isTestOnly) {
         if (!conn || !conn.id) {
-            webshellDbSetOutput(wsT('webshell.dbNoConn') || '请先选择 WebShell 连接', true);
+            webshellDbSetOutput(wsT('webshell.dbNoConn') || ' WebShell ', true);
             return;
         }
         if (webshellRunning) {
-            webshellDbSetOutput(wsT('webshell.dbRunning') || '数据库命令执行中，请稍候', true);
+            webshellDbSetOutput(wsT('webshell.dbRunning') || '，', true);
             return;
         }
         var cfg = webshellDbCollectConfig(conn);
         var built = buildWebshellDbCommand(cfg, !!isTestOnly);
         if (!built.command) {
-            webshellDbSetOutput(built.error || (wsT('webshell.dbExecFailed') || '数据库执行失败'), true);
+            webshellDbSetOutput(built.error || (wsT('webshell.dbExecFailed') || ''), true);
             return;
         }
-        webshellDbSetOutput(wsT('webshell.running') || '执行中…', false);
+        webshellDbSetOutput(wsT('webshell.running') || '…', false);
         webshellRunning = true;
         setDbActionButtonsDisabled(true);
         execWebshellCommand(conn, built.command).then(function (out) {
@@ -2450,12 +2450,12 @@ function selectWebshell(id, stateReady) {
             var success = (code === 0) || (code == null && content && !/error|failed|denied|unknown|not found|access/i.test(content));
             if (isTestOnly) {
                 if (success) {
-                    cfg.output = '连接测试通过';
+                    cfg.output = '';
                     cfg.outputIsError = false;
                     saveWebshellDbConfig(conn, cfg);
                     webshellDbSetOutput(cfg.output, false);
                 } else {
-                    cfg.output = '连接测试失败' + (content ? (':\n' + content) : '');
+                    cfg.output = '' + (content ? (':\n' + content) : '');
                     cfg.outputIsError = true;
                     saveWebshellDbConfig(conn, cfg);
                     webshellDbSetOutput(cfg.output, true);
@@ -2463,7 +2463,7 @@ function selectWebshell(id, stateReady) {
                 return;
             }
             if (!success) {
-                cfg.output = (wsT('webshell.dbExecFailed') || '数据库执行失败') + (content ? (':\n' + content) : '');
+                cfg.output = (wsT('webshell.dbExecFailed') || '') + (content ? (':\n' + content) : '');
                 cfg.outputIsError = true;
                 saveWebshellDbConfig(conn, cfg);
                 webshellDbSetOutput(cfg.output, true);
@@ -2471,18 +2471,18 @@ function selectWebshell(id, stateReady) {
             }
             var hasTable = webshellDbRenderTable(content);
             if (hasTable) {
-                cfg.output = wsT('webshell.dbExecSuccess') || 'SQL 执行成功';
+                cfg.output = wsT('webshell.dbExecSuccess') || 'SQL ';
                 cfg.outputIsError = false;
                 saveWebshellDbConfig(conn, cfg);
                 webshellDbSetOutput(cfg.output, false);
             } else {
-                cfg.output = content || (wsT('webshell.dbNoOutput') || '执行完成（无输出）');
+                cfg.output = content || (wsT('webshell.dbNoOutput') || '（）');
                 cfg.outputIsError = false;
                 saveWebshellDbConfig(conn, cfg);
                 webshellDbSetOutput(cfg.output, false);
             }
         }).catch(function (err) {
-            cfg.output = (wsT('webshell.dbExecFailed') || '数据库执行失败') + ': ' + (err && err.message ? err.message : String(err));
+            cfg.output = (wsT('webshell.dbExecFailed') || '') + ': ' + (err && err.message ? err.message : String(err));
             cfg.outputIsError = true;
             saveWebshellDbConfig(conn, cfg);
             webshellDbSetOutput(cfg.output, true);
@@ -2598,7 +2598,7 @@ function loadWebshellAiHistory(conn, messagesContainer) {
                 }
             });
             if (list.length === 0) {
-                var readyMsg = wsT('webshell.aiSystemReadyMessage') || '系统已就绪。请输入您的测试需求，系统将自动执行相应的安全测试。';
+                var readyMsg = wsT('webshell.aiSystemReadyMessage') || '。，。';
                 var readyDiv = document.createElement('div');
                 readyDiv.className = 'webshell-ai-msg assistant';
                 readyDiv.textContent = readyMsg;
@@ -2607,7 +2607,7 @@ function loadWebshellAiHistory(conn, messagesContainer) {
             messagesContainer.scrollTop = messagesContainer.scrollHeight;
         })
         .catch(function (e) {
-            console.warn('加载 WebShell AI 历史失败', conn.id, e);
+            console.warn(' WebShell AI ', conn.id, e);
         });
 }
 
@@ -2620,7 +2620,7 @@ function runWebshellAiSend(conn, inputEl, sendBtn, messagesContainer) {
         if (messagesContainer) {
             var errDiv = document.createElement('div');
             errDiv.className = 'webshell-ai-msg assistant';
-            errDiv.textContent = '无法发送：未登录或 apiFetch 不可用';
+            errDiv.textContent = '： apiFetch ';
             messagesContainer.appendChild(errDiv);
             messagesContainer.scrollTop = messagesContainer.scrollHeight;
         }
@@ -2664,7 +2664,7 @@ function runWebshellAiSend(conn, inputEl, sendBtn, messagesContainer) {
                     }
                 }
                 if (args && typeof args === 'object') {
-                    var paramsLabel = (typeof window.t === 'function') ? window.t('timeline.params') : '参数:';
+                    var paramsLabel = (typeof window.t === 'function') ? window.t('timeline.params') : ':';
                     html += '<div class="webshell-ai-timeline-msg"><div class="tool-arg-section"><strong>' +
                         escapeHtml(paramsLabel) +
                         '</strong><pre class="tool-args">' +
@@ -2679,11 +2679,11 @@ function runWebshellAiSend(conn, inputEl, sendBtn, messagesContainer) {
         } else if (type === 'tool_result' && data) {
             // English note.
             var isError = data.isError || data.success === false;
-            var noResultText = (typeof window.t === 'function') ? window.t('timeline.noResult') : '无结果';
+            var noResultText = (typeof window.t === 'function') ? window.t('timeline.noResult') : '';
             var result = data.result != null ? data.result : (data.error != null ? data.error : noResultText);
             var resultStr = (typeof result === 'string') ? result : JSON.stringify(result);
-            var execResultLabel = (typeof window.t === 'function') ? window.t('timeline.executionResult') : '执行结果:';
-            var execIdLabel = (typeof window.t === 'function') ? window.t('timeline.executionId') : '执行ID:';
+            var execResultLabel = (typeof window.t === 'function') ? window.t('timeline.executionResult') : ':';
+            var execIdLabel = (typeof window.t === 'function') ? window.t('timeline.executionId') : 'ID:';
             html += '<div class="webshell-ai-timeline-msg"><div class="tool-result-section ' +
                 (isError ? 'error' : 'success') +
                 '"><strong>' + escapeHtml(execResultLabel) + '</strong><pre class="tool-result">' +
@@ -2722,8 +2722,8 @@ function runWebshellAiSend(conn, inputEl, sendBtn, messagesContainer) {
     };
 
     // English note.
-    var streamingTarget = '';  // 当前要打字显示的目标全文（用于打字机效果）
-    var streamingTypingId = 0;  // 防重入，每次新 response 自增
+    var streamingTarget = '';  // （）
+    var streamingTypingId = 0;  // ， response 
 
     resolveWebshellAiStreamRequest().then(function (info) {
         if (info && info.orchestration) {
@@ -2737,7 +2737,7 @@ function runWebshellAiSend(conn, inputEl, sendBtn, messagesContainer) {
         });
     }).then(function (response) {
         if (!response.ok) {
-            renderWebshellAiErrorMessage(assistantDiv, '请求失败: HTTP ' + response.status);
+            renderWebshellAiErrorMessage(assistantDiv, ': HTTP ' + response.status);
             return;
         }
         return response.body.getReader();
@@ -2797,12 +2797,12 @@ function runWebshellAiSend(conn, inputEl, sendBtn, messagesContainer) {
                     // ─── Terminal events ───
                     } else if (_et === 'error' && _em) {
                         streamingTypingId += 1;
-                        var errLabel = wsTOr('chat.error', '错误');
+                        var errLabel = wsTOr('chat.error', '');
                         appendTimelineItem('error', '❌ ' + errLabel, _em, _ed);
                         renderWebshellAiErrorMessage(assistantDiv, errLabel + ': ' + _em);
                     } else if (_et === 'cancelled') {
                         streamingTypingId += 1;
-                        var cancelLabel = wsTOr('chat.taskCancelled', '任务已取消');
+                        var cancelLabel = wsTOr('chat.taskCancelled', '');
                         appendTimelineItem('cancelled', '⛔ ' + cancelLabel, _em, _ed);
                         if (!streamingTarget && !assistantDiv.dataset.hasContent) {
                             assistantDiv.textContent = cancelLabel;
@@ -2821,7 +2821,7 @@ function runWebshellAiSend(conn, inputEl, sendBtn, messagesContainer) {
                         if (!streamingTarget) assistantDiv.textContent = '…';
                     } else if (_et === 'iteration') {
                         var iterN = _ed.iteration || 0;
-                        var iterTitle = wsTOr('chat.iterationRound', '') || (iterN ? ('第 ' + iterN + ' 轮迭代') : (_em || '迭代'));
+                        var iterTitle = wsTOr('chat.iterationRound', '') || (iterN ? (' ' + iterN + ' ') : (_em || ''));
                         if (typeof window.t === 'function' && iterN) {
                             iterTitle = window.t('chat.iterationRound', { n: iterN });
                         }
@@ -2834,7 +2834,7 @@ function runWebshellAiSend(conn, inputEl, sendBtn, messagesContainer) {
 
                     // ─── Thinking (non-stream + stream) ───
                     } else if (_et === 'thinking_stream_start' && _ed.streamId) {
-                        var thinkSLabel = wsTOr('chat.aiThinking', 'AI 思考');
+                        var thinkSLabel = wsTOr('chat.aiThinking', 'AI ');
                         var thinkSItem = document.createElement('div');
                         thinkSItem.className = 'webshell-ai-timeline-item webshell-ai-timeline-thinking';
                         thinkSItem.innerHTML = '<span class="webshell-ai-timeline-title">' + escapeHtml(webshellAgentPx(_ed) + '🤔 ' + thinkSLabel) + '</span>';
@@ -2872,7 +2872,7 @@ function runWebshellAiSend(conn, inputEl, sendBtn, messagesContainer) {
                         if (_ed.streamId && wsThinkingStreams.has(_ed.streamId)) {
                             // English note.
                         } else {
-                            var thinkLabel = wsTOr('chat.aiThinking', 'AI 思考');
+                            var thinkLabel = wsTOr('chat.aiThinking', 'AI ');
                             appendTimelineItem('thinking', webshellAgentPx(_ed) + '🤔 ' + thinkLabel, _em, _ed);
                         }
                         if (!streamingTarget) assistantDiv.textContent = '…';
@@ -2886,7 +2886,7 @@ function runWebshellAiSend(conn, inputEl, sendBtn, messagesContainer) {
                         var runIdx = _ed.runIndex != null ? _ed.runIndex : (_ed.einoRetry != null ? _ed.einoRetry + 1 : 1);
                         var maxRuns = _ed.maxRuns != null ? _ed.maxRuns : 3;
                         var recTitle = wsTOr('chat.einoRecoveryTitle', '') ||
-                            ('🔄 工具参数无效 · 第 ' + runIdx + '/' + maxRuns + ' 轮（已追加提示）');
+                            ('🔄  ·  ' + runIdx + '/' + maxRuns + ' （）');
                         if (typeof window.t === 'function') {
                             try { recTitle = window.t('chat.einoRecoveryTitle', { n: runIdx, max: maxRuns }); } catch (e) { /* */ }
                         }
@@ -2895,17 +2895,17 @@ function runWebshellAiSend(conn, inputEl, sendBtn, messagesContainer) {
                     // ─── Tool calls ───
                     } else if (_et === 'tool_calls_detected' && _ed) {
                         var count = _ed.count || 0;
-                        var detectedLabel = wsTOr('chat.toolCallsDetected', '') || ('检测到 ' + count + ' 个工具调用');
+                        var detectedLabel = wsTOr('chat.toolCallsDetected', '') || (' ' + count + ' ');
                         if (typeof window.t === 'function') {
                             try { detectedLabel = window.t('chat.toolCallsDetected', { count: count }); } catch (e) { /* */ }
                         }
                         appendTimelineItem('tool_calls_detected', webshellAgentPx(_ed) + '🔧 ' + detectedLabel, _em || '', _ed);
                         if (!streamingTarget) assistantDiv.textContent = '…';
                     } else if (_et === 'tool_call' && _ed) {
-                        var tn = _ed.toolName || '未知工具';
+                        var tn = _ed.toolName || '';
                         var idx = _ed.index || 0;
                         var total = _ed.total || 0;
-                        var callTitle = wsTOr('chat.callTool', '') || ('调用工具: ' + tn + (total ? ' (' + idx + '/' + total + ')' : ''));
+                        var callTitle = wsTOr('chat.callTool', '') || (': ' + tn + (total ? ' (' + idx + '/' + total + ')' : ''));
                         if (typeof window.t === 'function') {
                             try { callTitle = window.t('chat.callTool', { name: tn, index: idx, total: total }); } catch (e) { /* */ }
                         }
@@ -2919,8 +2919,8 @@ function runWebshellAiSend(conn, inputEl, sendBtn, messagesContainer) {
                         if (trdDelta) {
                             var trdState = wsToolResultStreams.get(trdKey);
                             if (!trdState) {
-                                var trdName = _ed.toolName || '工具';
-                                var runLabel = wsTOr('timeline.running', '执行中...');
+                                var trdName = _ed.toolName || '';
+                                var runLabel = wsTOr('timeline.running', '...');
                                 var trdItem = document.createElement('div');
                                 trdItem.className = 'webshell-ai-timeline-item webshell-ai-timeline-tool_result';
                                 trdItem.innerHTML = '<span class="webshell-ai-timeline-title">' +
@@ -2941,9 +2941,9 @@ function runWebshellAiSend(conn, inputEl, sendBtn, messagesContainer) {
                     // ─── Tool result (final) ───
                     } else if (_et === 'tool_result' && _ed) {
                         var success = _ed.success !== false;
-                        var tname = _ed.toolName || '工具';
+                        var tname = _ed.toolName || '';
                         var titleText = wsTOr(success ? 'chat.toolExecComplete' : 'chat.toolExecFailed', '') ||
-                            (tname + (success ? ' 执行完成' : ' 执行失败'));
+                            (tname + (success ? ' ' : ' '));
                         if (typeof window.t === 'function') {
                             try { titleText = window.t(success ? 'chat.toolExecComplete' : 'chat.toolExecFailed', { name: tname }); } catch (e) { /* */ }
                         }
@@ -2969,8 +2969,8 @@ function runWebshellAiSend(conn, inputEl, sendBtn, messagesContainer) {
 
                     // ─── Eino sub-agent reply streaming ───
                     } else if (_et === 'eino_agent_reply_stream_start' && _ed.streamId) {
-                        var repTS = wsTOr('chat.einoAgentReplyTitle', '子代理回复');
-                        var runTS = wsTOr('timeline.running', '执行中...');
+                        var repTS = wsTOr('chat.einoAgentReplyTitle', '');
+                        var runTS = wsTOr('timeline.running', '...');
                         var itemS = document.createElement('div');
                         itemS.className = 'webshell-ai-timeline-item webshell-ai-timeline-eino_agent_reply';
                         itemS.innerHTML = '<span class="webshell-ai-timeline-title">' + escapeHtml(webshellAgentPx(_ed) + '💬 ' + repTS + ' · ' + runTS) + '</span>';
@@ -3000,7 +3000,7 @@ function runWebshellAiSend(conn, inputEl, sendBtn, messagesContainer) {
                         var stE = einoSubReplyStreams.get(_ed.streamId);
                         if (stE) {
                             var fullE = (_em != null && _em !== '') ? String(_em) : stE.buf;
-                            var repTE = wsTOr('chat.einoAgentReplyTitle', '子代理回复');
+                            var repTE = wsTOr('chat.einoAgentReplyTitle', '');
                             var titE = stE.el.querySelector('.webshell-ai-timeline-title');
                             if (titE) titE.textContent = webshellAgentPx(_ed) + '💬 ' + repTE;
                             var preE = stE.el.querySelector('.webshell-eino-reply-stream-body');
@@ -3019,7 +3019,7 @@ function runWebshellAiSend(conn, inputEl, sendBtn, messagesContainer) {
                         }
                         if (!streamingTarget) assistantDiv.textContent = '…';
                     } else if (_et === 'eino_agent_reply' && _em) {
-                        var replyT = wsTOr('chat.einoAgentReplyTitle', '子代理回复');
+                        var replyT = wsTOr('chat.einoAgentReplyTitle', '');
                         appendTimelineItem('eino_agent_reply', webshellAgentPx(_ed) + '💬 ' + replyT, _em, _ed);
                         if (!streamingTarget) assistantDiv.textContent = '…';
                     }
@@ -3032,7 +3032,7 @@ function runWebshellAiSend(conn, inputEl, sendBtn, messagesContainer) {
         var msg = err && err.message ? err.message : String(err);
         var isAbort = /abort/i.test(msg);
         if (!isAbort) {
-            renderWebshellAiErrorMessage(assistantDiv, '请求异常: ' + msg);
+            renderWebshellAiErrorMessage(assistantDiv, ': ' + msg);
         }
     }).then(function () {
         webshellAiAbortController = null;
@@ -3040,7 +3040,7 @@ function runWebshellAiSend(conn, inputEl, sendBtn, messagesContainer) {
         wsSetAiSendingState(false);
         if (assistantDiv.textContent === '…' && !streamingTarget) {
             // English note.
-            assistantDiv.textContent = '无回复内容';
+            assistantDiv.textContent = '';
         } else if (streamingTarget) {
             // English note.
             webshellStreamingTypingId += 1;
@@ -3053,7 +3053,7 @@ function runWebshellAiSend(conn, inputEl, sendBtn, messagesContainer) {
         }
         // English note.
         if (timelineContainer && timelineContainer.classList.contains('has-items') && !timelineContainer.closest('.webshell-ai-process-block')) {
-            var headerLabel = (typeof window.t === 'function') ? (window.t('chat.penetrationTestDetail') || '执行过程及调用工具') : '执行过程及调用工具';
+            var headerLabel = (typeof window.t === 'function') ? (window.t('chat.penetrationTestDetail') || '') : '';
             var wrap = document.createElement('div');
             wrap.className = 'process-details-container webshell-ai-process-block';
             wrap.innerHTML = '<button type="button" class="webshell-ai-process-toggle" aria-expanded="false">' + escapeHtml(headerLabel) + ' <span class="ws-toggle-icon">▶</span></button><div class="process-details-content"></div>';
@@ -3144,7 +3144,7 @@ function initWebshellTerminal(conn) {
     const container = document.getElementById('webshell-terminal-container');
     if (!container || typeof Terminal === 'undefined') {
         if (container) {
-            container.innerHTML = '<p class="terminal-error">' + escapeHtml('未加载 xterm.js，请刷新页面') + '</p>';
+            container.innerHTML = '<p class="terminal-error">' + escapeHtml(' xterm.js，') + '</p>';
         }
         return;
     }
@@ -3215,8 +3215,8 @@ function initWebshellTerminal(conn) {
         // English note.
         if (data === '\x03') {
             if (webshellTerminalRunning) {
-                writeWebshellOutput(term, '^C (当前版本暂不支持中断远程命令)', true);
-                appendWebshellTerminalLog(terminalKey, '^C (当前版本暂不支持中断远程命令)\n');
+                writeWebshellOutput(term, '^C ()', true);
+                appendWebshellTerminalLog(terminalKey, '^C ()\n');
             }
             webshellLineBuffer = '';
             webshellHistoryIndex = -1;
@@ -3256,7 +3256,7 @@ function initWebshellTerminal(conn) {
             if (cmd) {
                 if (webshellRunning) {
                     writeWebshellOutput(term, wsT('webshell.waitFinish'), true);
-                    appendWebshellTerminalLog(terminalKey, (wsT('webshell.waitFinish') || '请等待当前命令执行完成') + '\n');
+                    appendWebshellTerminalLog(terminalKey, (wsT('webshell.waitFinish') || '') + '\n');
                     term.write(WEBSHELL_PROMPT);
                     return;
                 }
@@ -3364,7 +3364,7 @@ function initWebshellTerminal(conn) {
 function execWebshellCommand(conn, command) {
     return new Promise(function (resolve, reject) {
         if (typeof apiFetch === 'undefined') {
-            reject(new Error('apiFetch 未定义'));
+            reject(new Error('apiFetch '));
             return;
         }
         apiFetch('/api/webshell/exec', {
@@ -3395,7 +3395,7 @@ function webshellFileListDir(conn, path) {
     listEl.innerHTML = '<div class="webshell-loading">' + wsT('common.refresh') + '...</div>';
 
     if (typeof apiFetch === 'undefined') {
-        listEl.innerHTML = '<div class="webshell-file-error">apiFetch 未定义</div>';
+        listEl.innerHTML = '<div class="webshell-file-error">apiFetch </div>';
         return;
     }
 
@@ -3465,7 +3465,7 @@ function parseWebshellListItems(rawOutput) {
         var line = lines[i];
         var trimmedLine = String(line || '').trim();
         // English note.
-        if (/^(total|总计)\s+\d+$/i.test(trimmedLine)) continue;
+        if (/^(total|)\s+\d+$/i.test(trimmedLine)) continue;
         var name = '';
         var isDir = false;
         var size = '';
@@ -3535,7 +3535,7 @@ function renderFileList(listEl, currentPath, rawOutput, conn, nameFilter) {
     var breadcrumbEl = document.getElementById('webshell-file-breadcrumb');
     if (breadcrumbEl) {
         var parts = (currentPath === '.' || currentPath === '') ? [] : currentPath.replace(/^\//, '').split('/');
-        breadcrumbEl.innerHTML = '<a href="#" class="webshell-breadcrumb-item" data-path=".">' + (wsT('webshell.breadcrumbHome') || '根') + '</a>' +
+        breadcrumbEl.innerHTML = '<a href="#" class="webshell-breadcrumb-item" data-path=".">' + (wsT('webshell.breadcrumbHome') || '') + '</a>' +
             parts.map(function (p, idx) {
                 var path = parts.slice(0, idx + 1).join('/');
                 return ' / <a href="#" class="webshell-breadcrumb-item" data-path="' + escapeHtml(path) + '">' + escapeHtml(p) + '</a>';
@@ -3548,12 +3548,12 @@ function renderFileList(listEl, currentPath, rawOutput, conn, nameFilter) {
         if (rawOutput.trim() && !nameFilter) {
             html = '<pre class="webshell-file-raw">' + escapeHtml(rawOutput) + '</pre>';
         } else {
-            html = '<table class="webshell-file-table"><thead><tr><th class="webshell-col-check"><input type="checkbox" id="webshell-file-select-all" title="' + (wsT('webshell.selectAll') || '全选') + '" /></th><th>' + wsT('webshell.filePath') + '</th><th class="webshell-col-size">大小</th><th class="webshell-col-mtime">' + (wsT('webshell.colModifiedAt') || '修改时间') + '</th><th class="webshell-col-owner">' + (wsT('webshell.colOwner') || '所有者') + '</th><th class="webshell-col-perms">' + (wsT('webshell.colPerms') || '权限') + '</th><th class="webshell-col-actions"></th></tr></thead><tbody>' +
-                '<tr><td colspan="7" class="webshell-file-empty-state">' + (wsT('common.noData') || '暂无文件') + '</td></tr>' +
+            html = '<table class="webshell-file-table"><thead><tr><th class="webshell-col-check"><input type="checkbox" id="webshell-file-select-all" title="' + (wsT('webshell.selectAll') || '') + '" /></th><th>' + wsT('webshell.filePath') + '</th><th class="webshell-col-size"></th><th class="webshell-col-mtime">' + (wsT('webshell.colModifiedAt') || '') + '</th><th class="webshell-col-owner">' + (wsT('webshell.colOwner') || '') + '</th><th class="webshell-col-perms">' + (wsT('webshell.colPerms') || '') + '</th><th class="webshell-col-actions"></th></tr></thead><tbody>' +
+                '<tr><td colspan="7" class="webshell-file-empty-state">' + (wsT('common.noData') || '') + '</td></tr>' +
                 '</tbody></table>';
         }
     } else {
-        html = '<table class="webshell-file-table"><thead><tr><th class="webshell-col-check"><input type="checkbox" id="webshell-file-select-all" title="' + (wsT('webshell.selectAll') || '全选') + '" /></th><th>' + wsT('webshell.filePath') + '</th><th class="webshell-col-size">大小</th><th class="webshell-col-mtime">' + (wsT('webshell.colModifiedAt') || '修改时间') + '</th><th class="webshell-col-owner">' + (wsT('webshell.colOwner') || '所有者') + '</th><th class="webshell-col-perms">' + (wsT('webshell.colPerms') || '权限') + '</th><th class="webshell-col-actions"></th></tr></thead><tbody>';
+        html = '<table class="webshell-file-table"><thead><tr><th class="webshell-col-check"><input type="checkbox" id="webshell-file-select-all" title="' + (wsT('webshell.selectAll') || '') + '" /></th><th>' + wsT('webshell.filePath') + '</th><th class="webshell-col-size"></th><th class="webshell-col-mtime">' + (wsT('webshell.colModifiedAt') || '') + '</th><th class="webshell-col-owner">' + (wsT('webshell.colOwner') || '') + '</th><th class="webshell-col-perms">' + (wsT('webshell.colPerms') || '') + '</th><th class="webshell-col-actions"></th></tr></thead><tbody>';
         if (currentPath !== '.' && currentPath !== '') {
             html += '<tr><td></td><td><a href="#" class="webshell-file-link" data-path="' + escapeHtml(currentPath.replace(/\/[^/]+$/, '') || '.') + '" data-isdir="1">..</a></td><td></td><td></td><td></td><td></td><td></td></tr>';
         }
@@ -3569,15 +3569,15 @@ function renderFileList(listEl, currentPath, rawOutput, conn, nameFilter) {
             html += '<td class="webshell-col-perms">' + escapeHtml(item.mode || '') + '</td>';
             html += '<td class="webshell-col-actions">';
             if (item.isDir) {
-                html += '<button type="button" class="btn-ghost btn-sm webshell-file-rename" data-path="' + escapeHtml(pathNext) + '" data-name="' + escapeHtml(item.name) + '">' + (wsT('webshell.rename') || '重命名') + '</button>';
+                html += '<button type="button" class="btn-ghost btn-sm webshell-file-rename" data-path="' + escapeHtml(pathNext) + '" data-name="' + escapeHtml(item.name) + '">' + (wsT('webshell.rename') || '') + '</button>';
             } else {
-                var actionsLabel = wsT('common.actions') || '操作';
+                var actionsLabel = wsT('common.actions') || '';
                 html += '<details class="webshell-row-actions"><summary class="btn-ghost btn-sm webshell-row-actions-btn" title="' + actionsLabel + '">' + actionsLabel + '</summary>' +
                     '<div class="webshell-row-actions-menu">' +
                     '<button type="button" class="btn-ghost btn-sm webshell-file-read" data-path="' + escapeHtml(pathNext) + '">' + wsT('webshell.readFile') + '</button>' +
                     '<button type="button" class="btn-ghost btn-sm webshell-file-download" data-path="' + escapeHtml(pathNext) + '">' + wsT('webshell.downloadFile') + '</button>' +
                     '<button type="button" class="btn-ghost btn-sm webshell-file-edit" data-path="' + escapeHtml(pathNext) + '">' + wsT('webshell.editFile') + '</button>' +
-                    '<button type="button" class="btn-ghost btn-sm webshell-file-rename" data-path="' + escapeHtml(pathNext) + '" data-name="' + escapeHtml(item.name) + '">' + (wsT('webshell.rename') || '重命名') + '</button>' +
+                    '<button type="button" class="btn-ghost btn-sm webshell-file-rename" data-path="' + escapeHtml(pathNext) + '" data-name="' + escapeHtml(item.name) + '">' + (wsT('webshell.rename') || '') + '</button>' +
                     '<button type="button" class="btn-ghost btn-sm webshell-file-del" data-path="' + escapeHtml(pathNext) + '">' + wsT('webshell.deleteFile') + '</button>' +
                     '</div></details>';
             }
@@ -3661,7 +3661,7 @@ function renderDirectoryTree(currentPath, items, conn) {
     var curr = normalizeWebshellPath(currentPath);
     var dirs = (items || []).filter(function (item) { return item && item.isDir; });
     if (!state) {
-        treeEl.innerHTML = '<div class="webshell-empty">暂无目录</div>';
+        treeEl.innerHTML = '<div class="webshell-empty"></div>';
         return;
     }
     var tree = state.tree;
@@ -3809,7 +3809,7 @@ function webshellFileListApplyFilter() {
 function webshellFileMkdir(conn, pathInput) {
     if (!conn || typeof apiFetch === 'undefined') return;
     var base = (pathInput && pathInput.value.trim()) || '.';
-    var name = prompt(wsT('webshell.newDir') || '新建目录', 'newdir');
+    var name = prompt(wsT('webshell.newDir') || '', 'newdir');
     if (name == null || !name.trim()) return;
     var path = base === '.' ? name.trim() : base + '/' + name.trim();
     apiFetch('/api/webshell/file', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ url: conn.url, password: conn.password || '', type: conn.type || 'php', method: (conn.method || 'post').toLowerCase(), cmd_param: conn.cmdParam || '', action: 'mkdir', path: path }) })
@@ -3821,10 +3821,10 @@ function webshellFileMkdir(conn, pathInput) {
 function webshellFileNewFile(conn, pathInput) {
     if (!conn || typeof apiFetch === 'undefined') return;
     var base = (pathInput && pathInput.value.trim()) || '.';
-    var name = prompt(wsT('webshell.newFile') || '新建文件', 'newfile.txt');
+    var name = prompt(wsT('webshell.newFile') || '', 'newfile.txt');
     if (name == null || !name.trim()) return;
     var path = base === '.' ? name.trim() : base + '/' + name.trim();
-    var content = prompt('初始内容（可选）', '');
+    var content = prompt('（）', '');
     if (content === null) return;
     var listEl = document.getElementById('webshell-file-list');
     webshellFileWrite(conn, path, content || '', function () { webshellFileListDir(conn, base); }, listEl);
@@ -3852,7 +3852,7 @@ function webshellFileUpload(conn, pathInput) {
             }
             var path = base === '.' ? file.name : base + '/' + file.name;
             var listEl = document.getElementById('webshell-file-list');
-            if (listEl) listEl.innerHTML = '<div class="webshell-loading">' + (wsT('webshell.upload') || '上传') + '...</div>';
+            if (listEl) listEl.innerHTML = '<div class="webshell-loading">' + (wsT('webshell.upload') || '') + '...</div>';
             var idx = 0;
             function sendNext() {
                 if (idx >= base64Chunks.length) {
@@ -3873,7 +3873,7 @@ function webshellFileUpload(conn, pathInput) {
 
 function webshellFileRename(conn, oldPath, oldName, listEl) {
     if (!conn || typeof apiFetch === 'undefined') return;
-    var newName = prompt((wsT('webshell.rename') || '重命名') + ': ' + oldName, oldName);
+    var newName = prompt((wsT('webshell.rename') || '') + ': ' + oldName, oldName);
     if (newName == null || newName.trim() === '') return;
     var parts = oldPath.split('/');
     var dir = parts.length > 1 ? parts.slice(0, -1).join('/') + '/' : '';
@@ -3890,8 +3890,8 @@ function webshellBatchDelete(conn, pathInput) {
     var checked = listEl ? listEl.querySelectorAll('.webshell-file-cb:checked') : [];
     var paths = [];
     checked.forEach(function (cb) { paths.push(cb.getAttribute('data-path')); });
-    if (paths.length === 0) { alert(wsT('webshell.batchDelete') + '：请先勾选文件'); return; }
-    if (!confirm(wsT('webshell.batchDelete') + '：确定删除 ' + paths.length + ' 个文件？')) return;
+    if (paths.length === 0) { alert(wsT('webshell.batchDelete') + '：'); return; }
+    if (!confirm(wsT('webshell.batchDelete') + '： ' + paths.length + ' ？')) return;
     var base = (pathInput && pathInput.value.trim()) || '.';
     var i = 0;
     function delNext() {
@@ -3907,7 +3907,7 @@ function webshellBatchDownload(conn, pathInput) {
     var checked = listEl ? listEl.querySelectorAll('.webshell-file-cb:checked') : [];
     var paths = [];
     checked.forEach(function (cb) { paths.push(cb.getAttribute('data-path')); });
-    if (paths.length === 0) { alert(wsT('webshell.batchDownload') + '：请先勾选文件'); return; }
+    if (paths.length === 0) { alert(wsT('webshell.batchDownload') + '：'); return; }
     paths.forEach(function (path) { webshellFileDownload(conn, path); });
 }
 
@@ -4060,7 +4060,7 @@ function deleteWebshell(id) {
             }
         })
         .catch(function (e) {
-            console.warn('删除 WebShell 连接失败', e);
+            console.warn(' WebShell ', e);
             refreshWebshellConnectionsFromServer();
         });
 }
@@ -4126,21 +4126,21 @@ function refreshWebshellUIOnLanguageChange() {
             var tabMemo = workspace.querySelector('.webshell-tab[data-tab="memo"]');
             if (tabTerminal) tabTerminal.textContent = wsT('webshell.tabTerminal');
             if (tabFile) tabFile.textContent = wsT('webshell.tabFileManager');
-            if (tabAi) tabAi.textContent = wsT('webshell.tabAiAssistant') || 'AI 助手';
-            if (tabDb) tabDb.textContent = wsT('webshell.tabDbManager') || '数据库管理';
-            if (tabMemo) tabMemo.textContent = wsT('webshell.tabMemo') || '备忘录';
+            if (tabAi) tabAi.textContent = wsT('webshell.tabAiAssistant') || 'AI ';
+            if (tabDb) tabDb.textContent = wsT('webshell.tabDbManager') || '';
+            if (tabMemo) tabMemo.textContent = wsT('webshell.tabMemo') || '';
 
             var quickLabel = workspace.querySelector('.webshell-quick-label');
-            if (quickLabel) quickLabel.textContent = (wsT('webshell.quickCommands') || '快捷命令') + ':';
+            if (quickLabel) quickLabel.textContent = (wsT('webshell.quickCommands') || '') + ':';
             var terminalClearBtn = document.getElementById('webshell-terminal-clear');
             if (terminalClearBtn) {
-                terminalClearBtn.title = wsT('webshell.clearScreen') || '清屏';
-                terminalClearBtn.textContent = wsT('webshell.clearScreen') || '清屏';
+                terminalClearBtn.title = wsT('webshell.clearScreen') || '';
+                terminalClearBtn.textContent = wsT('webshell.clearScreen') || '';
             }
             var terminalCopyBtn = document.getElementById('webshell-terminal-copy-log');
             if (terminalCopyBtn) {
-                terminalCopyBtn.title = wsT('webshell.copyTerminalLog') || '复制日志';
-                terminalCopyBtn.textContent = wsT('webshell.copyTerminalLog') || '复制日志';
+                terminalCopyBtn.title = wsT('webshell.copyTerminalLog') || '';
+                terminalCopyBtn.textContent = wsT('webshell.copyTerminalLog') || '';
             }
             setWebshellTerminalStatus(webshellTerminalRunning);
             if (webshellCurrentConn) renderWebshellTerminalSessions(webshellCurrentConn);
@@ -4150,8 +4150,8 @@ function refreshWebshellUIOnLanguageChange() {
             var listDirBtn = document.getElementById('webshell-list-dir');
             var parentDirBtn = document.getElementById('webshell-parent-dir');
             if (pathLabel) pathLabel.textContent = wsT('webshell.filePath');
-            if (fileSidebarTitle) fileSidebarTitle.textContent = wsT('webshell.dirTree') || '目录列表';
-            if (fileMoreActionsBtn) fileMoreActionsBtn.textContent = wsT('webshell.moreActions') || '更多操作';
+            if (fileSidebarTitle) fileSidebarTitle.textContent = wsT('webshell.dirTree') || '';
+            if (fileMoreActionsBtn) fileMoreActionsBtn.textContent = wsT('webshell.moreActions') || '';
             if (listDirBtn) listDirBtn.textContent = wsT('webshell.listDir');
             if (parentDirBtn) parentDirBtn.textContent = wsT('webshell.parentDir');
             // English note.
@@ -4162,86 +4162,86 @@ function refreshWebshellUIOnLanguageChange() {
             var batchDeleteBtn = document.getElementById('webshell-batch-delete-btn');
             var batchDownloadBtn = document.getElementById('webshell-batch-download-btn');
             var filterInput = document.getElementById('webshell-file-filter');
-            if (refreshBtn) { refreshBtn.title = wsT('webshell.refresh') || '刷新'; refreshBtn.textContent = wsT('webshell.refresh') || '刷新'; }
-            if (mkdirBtn) mkdirBtn.textContent = wsT('webshell.newDir') || '新建目录';
-            if (newFileBtn) newFileBtn.textContent = wsT('webshell.newFile') || '新建文件';
-            if (uploadBtn) uploadBtn.textContent = wsT('webshell.upload') || '上传';
-            if (batchDeleteBtn) batchDeleteBtn.textContent = wsT('webshell.batchDelete') || '批量删除';
-            if (batchDownloadBtn) batchDownloadBtn.textContent = wsT('webshell.batchDownload') || '批量下载';
-            if (filterInput) filterInput.placeholder = wsT('webshell.filterPlaceholder') || '过滤文件名';
+            if (refreshBtn) { refreshBtn.title = wsT('webshell.refresh') || ''; refreshBtn.textContent = wsT('webshell.refresh') || ''; }
+            if (mkdirBtn) mkdirBtn.textContent = wsT('webshell.newDir') || '';
+            if (newFileBtn) newFileBtn.textContent = wsT('webshell.newFile') || '';
+            if (uploadBtn) uploadBtn.textContent = wsT('webshell.upload') || '';
+            if (batchDeleteBtn) batchDeleteBtn.textContent = wsT('webshell.batchDelete') || '';
+            if (batchDownloadBtn) batchDownloadBtn.textContent = wsT('webshell.batchDownload') || '';
+            if (filterInput) filterInput.placeholder = wsT('webshell.filterPlaceholder') || '';
 
             // English note.
             var aiNewConvBtn = document.getElementById('webshell-ai-new-conv');
-            if (aiNewConvBtn) aiNewConvBtn.textContent = wsT('webshell.aiNewConversation') || '新对话';
+            if (aiNewConvBtn) aiNewConvBtn.textContent = wsT('webshell.aiNewConversation') || '';
             var aiInput = document.getElementById('webshell-ai-input');
-            if (aiInput) aiInput.placeholder = wsT('webshell.aiPlaceholder') || '例如：列出当前目录下的文件';
+            if (aiInput) aiInput.placeholder = wsT('webshell.aiPlaceholder') || '：';
             var aiSendBtn = document.getElementById('webshell-ai-send');
-            if (aiSendBtn) aiSendBtn.textContent = wsT('webshell.aiSend') || '发送';
+            if (aiSendBtn) aiSendBtn.textContent = wsT('webshell.aiSend') || '';
             var aiMemoTitle = document.querySelector('.webshell-memo-head span');
-            if (aiMemoTitle) aiMemoTitle.textContent = wsT('webshell.aiMemo') || '备忘录';
+            if (aiMemoTitle) aiMemoTitle.textContent = wsT('webshell.aiMemo') || '';
             var aiMemoClearBtn = document.getElementById('webshell-ai-memo-clear');
-            if (aiMemoClearBtn) aiMemoClearBtn.textContent = wsT('webshell.aiMemoClear') || '清空';
+            if (aiMemoClearBtn) aiMemoClearBtn.textContent = wsT('webshell.aiMemoClear') || '';
             var aiMemoInput = document.getElementById('webshell-ai-memo-input');
-            if (aiMemoInput) aiMemoInput.placeholder = wsT('webshell.aiMemoPlaceholder') || '记录关键命令、测试思路、复现步骤...';
+            if (aiMemoInput) aiMemoInput.placeholder = wsT('webshell.aiMemoPlaceholder') || '、、...';
             var aiMemoStatus = document.getElementById('webshell-ai-memo-status');
             if (aiMemoStatus && !aiMemoStatus.classList.contains('error')) {
-                var savingText = wsT('webshell.aiMemoSaving') || '保存中...';
-                var savedText = wsT('webshell.aiMemoSaved') || '已保存到本地';
+                var savingText = wsT('webshell.aiMemoSaving') || '...';
+                var savedText = wsT('webshell.aiMemoSaved') || '';
                 aiMemoStatus.textContent = aiMemoStatus.textContent === savingText ? savingText : savedText;
             }
             var dbTypeLabel = document.querySelector('#webshell-db-type') ? document.querySelector('#webshell-db-type').closest('label') : null;
-            if (dbTypeLabel && dbTypeLabel.querySelector('span')) dbTypeLabel.querySelector('span').textContent = wsT('webshell.dbType') || '数据库类型';
+            if (dbTypeLabel && dbTypeLabel.querySelector('span')) dbTypeLabel.querySelector('span').textContent = wsT('webshell.dbType') || '';
             var dbProfileNameLabel = document.querySelector('#webshell-db-profile-name') ? document.querySelector('#webshell-db-profile-name').closest('label') : null;
-            if (dbProfileNameLabel && dbProfileNameLabel.querySelector('span')) dbProfileNameLabel.querySelector('span').textContent = wsT('webshell.dbProfileName') || '连接名称';
+            if (dbProfileNameLabel && dbProfileNameLabel.querySelector('span')) dbProfileNameLabel.querySelector('span').textContent = wsT('webshell.dbProfileName') || '';
             var dbHostLabel = document.querySelector('#webshell-db-host') ? document.querySelector('#webshell-db-host').closest('label') : null;
-            if (dbHostLabel && dbHostLabel.querySelector('span')) dbHostLabel.querySelector('span').textContent = wsT('webshell.dbHost') || '主机';
+            if (dbHostLabel && dbHostLabel.querySelector('span')) dbHostLabel.querySelector('span').textContent = wsT('webshell.dbHost') || '';
             var dbPortLabel = document.querySelector('#webshell-db-port') ? document.querySelector('#webshell-db-port').closest('label') : null;
-            if (dbPortLabel && dbPortLabel.querySelector('span')) dbPortLabel.querySelector('span').textContent = wsT('webshell.dbPort') || '端口';
+            if (dbPortLabel && dbPortLabel.querySelector('span')) dbPortLabel.querySelector('span').textContent = wsT('webshell.dbPort') || '';
             var dbUserLabel = document.querySelector('#webshell-db-user') ? document.querySelector('#webshell-db-user').closest('label') : null;
-            if (dbUserLabel && dbUserLabel.querySelector('span')) dbUserLabel.querySelector('span').textContent = wsT('webshell.dbUsername') || '用户名';
+            if (dbUserLabel && dbUserLabel.querySelector('span')) dbUserLabel.querySelector('span').textContent = wsT('webshell.dbUsername') || '';
             var dbPassLabel = document.querySelector('#webshell-db-pass') ? document.querySelector('#webshell-db-pass').closest('label') : null;
-            if (dbPassLabel && dbPassLabel.querySelector('span')) dbPassLabel.querySelector('span').textContent = wsT('webshell.dbPassword') || '密码';
+            if (dbPassLabel && dbPassLabel.querySelector('span')) dbPassLabel.querySelector('span').textContent = wsT('webshell.dbPassword') || '';
             var dbNameLabel = document.querySelector('#webshell-db-name') ? document.querySelector('#webshell-db-name').closest('label') : null;
-            if (dbNameLabel && dbNameLabel.querySelector('span')) dbNameLabel.querySelector('span').textContent = wsT('webshell.dbName') || '数据库名';
+            if (dbNameLabel && dbNameLabel.querySelector('span')) dbNameLabel.querySelector('span').textContent = wsT('webshell.dbName') || '';
             var dbSqliteLabel = document.querySelector('#webshell-db-sqlite-path') ? document.querySelector('#webshell-db-sqlite-path').closest('label') : null;
-            if (dbSqliteLabel && dbSqliteLabel.querySelector('span')) dbSqliteLabel.querySelector('span').textContent = wsT('webshell.dbSqlitePath') || 'SQLite 文件路径';
+            if (dbSqliteLabel && dbSqliteLabel.querySelector('span')) dbSqliteLabel.querySelector('span').textContent = wsT('webshell.dbSqlitePath') || 'SQLite ';
             var dbSchemaTitle = document.querySelector('.webshell-db-sidebar-head span');
-            if (dbSchemaTitle) dbSchemaTitle.textContent = wsT('webshell.dbSchema') || '数据库结构';
+            if (dbSchemaTitle) dbSchemaTitle.textContent = wsT('webshell.dbSchema') || '';
             var dbLoadSchemaBtn = document.getElementById('webshell-db-load-schema-btn');
-            if (dbLoadSchemaBtn) dbLoadSchemaBtn.textContent = wsT('webshell.dbLoadSchema') || '加载结构';
+            if (dbLoadSchemaBtn) dbLoadSchemaBtn.textContent = wsT('webshell.dbLoadSchema') || '';
             var dbTemplateBtn = document.getElementById('webshell-db-template-btn');
-            if (dbTemplateBtn) dbTemplateBtn.textContent = wsT('webshell.dbTemplateSql') || '示例 SQL';
+            if (dbTemplateBtn) dbTemplateBtn.textContent = wsT('webshell.dbTemplateSql') || ' SQL';
             var dbClearBtn = document.getElementById('webshell-db-clear-btn');
-            if (dbClearBtn) dbClearBtn.textContent = wsT('webshell.dbClearSql') || '清空 SQL';
+            if (dbClearBtn) dbClearBtn.textContent = wsT('webshell.dbClearSql') || ' SQL';
             var dbRunBtn = document.getElementById('webshell-db-run-btn');
-            if (dbRunBtn) dbRunBtn.textContent = wsT('webshell.dbRunSql') || '执行 SQL';
+            if (dbRunBtn) dbRunBtn.textContent = wsT('webshell.dbRunSql') || ' SQL';
             var dbTestBtn = document.getElementById('webshell-db-test-btn');
-            if (dbTestBtn) dbTestBtn.textContent = wsT('webshell.dbTest') || '测试连接';
+            if (dbTestBtn) dbTestBtn.textContent = wsT('webshell.dbTest') || '';
             var dbSql = document.getElementById('webshell-db-sql');
-            if (dbSql) dbSql.placeholder = wsT('webshell.dbSqlPlaceholder') || '输入 SQL，例如：SELECT version();';
+            if (dbSql) dbSql.placeholder = wsT('webshell.dbSqlPlaceholder') || ' SQL，：SELECT version();';
             var dbTitle = document.querySelector('.webshell-db-output-title');
-            if (dbTitle) dbTitle.textContent = wsT('webshell.dbOutput') || '执行输出';
+            if (dbTitle) dbTitle.textContent = wsT('webshell.dbOutput') || '';
             var dbHint = document.querySelector('.webshell-db-hint');
-            if (dbHint) dbHint.textContent = wsT('webshell.dbCliHint') || '如果提示命令不存在，请先在目标主机安装对应客户端（mysql/psql/sqlite3/sqlcmd）';
+            if (dbHint) dbHint.textContent = wsT('webshell.dbCliHint') || '，（mysql/psql/sqlite3/sqlcmd）';
             var dbTreeHint = document.querySelector('.webshell-db-sidebar-hint');
-            if (dbTreeHint) dbTreeHint.textContent = wsT('webshell.dbSelectTableHint') || '点击表名可生成查询 SQL';
+            if (dbTreeHint) dbTreeHint.textContent = wsT('webshell.dbSelectTableHint') || ' SQL';
             var dbAddProfileBtn = document.getElementById('webshell-db-add-profile-btn');
-            if (dbAddProfileBtn) dbAddProfileBtn.textContent = '+ ' + (wsT('webshell.dbAddProfile') || '新增连接');
+            if (dbAddProfileBtn) dbAddProfileBtn.textContent = '+ ' + (wsT('webshell.dbAddProfile') || '');
             var dbProfileModalTitle = document.getElementById('webshell-db-profile-modal-title');
-            if (dbProfileModalTitle) dbProfileModalTitle.textContent = wsT('webshell.editConnectionTitle') || '编辑连接';
+            if (dbProfileModalTitle) dbProfileModalTitle.textContent = wsT('webshell.editConnectionTitle') || '';
             var dbProfileCancelBtn = document.getElementById('webshell-db-profile-cancel-btn');
-            if (dbProfileCancelBtn) dbProfileCancelBtn.textContent = '取消';
+            if (dbProfileCancelBtn) dbProfileCancelBtn.textContent = '';
             var dbProfileSaveBtn = document.getElementById('webshell-db-profile-save-btn');
-            if (dbProfileSaveBtn) dbProfileSaveBtn.textContent = '保存';
+            if (dbProfileSaveBtn) dbProfileSaveBtn.textContent = '';
             document.querySelectorAll('.webshell-db-profile-menu[data-action="edit"]').forEach(function (el) {
-                el.title = wsT('webshell.editConnection') || '编辑';
+                el.title = wsT('webshell.editConnection') || '';
             });
             document.querySelectorAll('.webshell-db-profile-menu[data-action="delete"]').forEach(function (el) {
-                el.title = wsT('webshell.dbDeleteProfile') || '删除连接';
+                el.title = wsT('webshell.dbDeleteProfile') || '';
             });
             var dbTree = document.getElementById('webshell-db-schema-tree');
             if (dbTree && !dbTree.querySelector('.webshell-db-group')) {
-                dbTree.innerHTML = '<div class="webshell-empty">' + escapeHtml(wsT('webshell.dbNoSchema') || '暂无数据库结构，请先加载') + '</div>';
+                dbTree.innerHTML = '<div class="webshell-empty">' + escapeHtml(wsT('webshell.dbNoSchema') || '，') + '</div>';
             }
 
             // English note.
@@ -4250,7 +4250,7 @@ function refreshWebshellUIOnLanguageChange() {
                 var hasUserMsg = !!aiMessages.querySelector('.webshell-ai-msg.user');
                 var msgNodes = aiMessages.querySelectorAll('.webshell-ai-msg');
                 if (!hasUserMsg && msgNodes.length <= 1) {
-                    var readyMsg = wsT('webshell.aiSystemReadyMessage') || '系统已就绪。请输入您的测试需求，系统将自动执行相应的安全测试。';
+                    var readyMsg = wsT('webshell.aiSystemReadyMessage') || '。，。';
                     aiMessages.innerHTML = '';
                     var readyDiv = document.createElement('div');
                     readyDiv.className = 'webshell-ai-msg assistant';
@@ -4268,7 +4268,7 @@ function refreshWebshellUIOnLanguageChange() {
             // English note.
             var connSearchEl = document.getElementById('webshell-conn-search');
             if (connSearchEl) {
-                var ph = wsT('webshell.searchPlaceholder') || '搜索连接...';
+                var ph = wsT('webshell.searchPlaceholder') || '...';
                 connSearchEl.setAttribute('placeholder', ph);
                 connSearchEl.placeholder = ph;
             }
@@ -4310,7 +4310,7 @@ function testWebshellConnection() {
     var url = (document.getElementById('webshell-url') || {}).value;
     if (url && typeof url.trim === 'function') url = url.trim();
     if (!url) {
-        alert(wsT('webshell.url') ? (wsT('webshell.url') + ' 必填') : '请填写 Shell 地址');
+        alert(wsT('webshell.url') ? (wsT('webshell.url') + ' ') : ' Shell ');
         return;
     }
     var password = (document.getElementById('webshell-password') || {}).value;
@@ -4320,10 +4320,10 @@ function testWebshellConnection() {
     var cmdParam = (document.getElementById('webshell-cmd-param') || {}).value;
     if (cmdParam && typeof cmdParam.trim === 'function') cmdParam = cmdParam.trim(); else cmdParam = '';
     var btn = document.getElementById('webshell-test-btn');
-    if (btn) { btn.disabled = true; btn.textContent = (typeof wsT === 'function' ? wsT('common.refresh') : '刷新') + '...'; }
+    if (btn) { btn.disabled = true; btn.textContent = (typeof wsT === 'function' ? wsT('common.refresh') : '') + '...'; }
     if (typeof apiFetch === 'undefined') {
         if (btn) { btn.disabled = false; btn.textContent = wsT('webshell.testConnectivity'); }
-        alert(wsT('webshell.testFailed') || '连通性测试失败');
+        alert(wsT('webshell.testFailed') || '');
         return;
     }
     apiFetch('/api/webshell/exec', {
@@ -4342,27 +4342,27 @@ function testWebshellConnection() {
         .then(function (data) {
             if (btn) { btn.disabled = false; btn.textContent = wsT('webshell.testConnectivity'); }
             if (!data) {
-                alert(wsT('webshell.testFailed') || '连通性测试失败');
+                alert(wsT('webshell.testFailed') || '');
                 return;
             }
             // English note.
             var output = (data.output != null) ? String(data.output).trim() : '';
             var reallyOk = data.ok && output === '1';
             if (reallyOk) {
-                alert(wsT('webshell.testSuccess') || '连通性正常，Shell 可访问');
+                alert(wsT('webshell.testSuccess') || '，Shell ');
             } else {
                 var msg;
                 if (data.ok && output !== '1')
-                    msg = wsT('webshell.testNoExpectedOutput') || 'Shell 返回了响应但未得到预期输出，请检查连接密码与命令参数名';
+                    msg = wsT('webshell.testNoExpectedOutput') || 'Shell ，';
                 else
-                    msg = (data.error) ? data.error : (wsT('webshell.testFailed') || '连通性测试失败');
+                    msg = (data.error) ? data.error : (wsT('webshell.testFailed') || '');
                 if (data.http_code) msg += ' (HTTP ' + data.http_code + ')';
                 alert(msg);
             }
         })
         .catch(function (e) {
             if (btn) { btn.disabled = false; btn.textContent = wsT('webshell.testConnectivity'); }
-            alert((wsT('webshell.testFailed') || '连通性测试失败') + ': ' + (e && e.message ? e.message : String(e)));
+            alert((wsT('webshell.testFailed') || '') + ': ' + (e && e.message ? e.message : String(e)));
         });
 }
 
@@ -4371,7 +4371,7 @@ function saveWebshellConnection() {
     var url = (document.getElementById('webshell-url') || {}).value;
     if (url && typeof url.trim === 'function') url = url.trim();
     if (!url) {
-        alert('请填写 Shell 地址');
+        alert(' Shell ');
         return;
     }
     var password = (document.getElementById('webshell-password') || {}).value;
@@ -4408,7 +4408,7 @@ function saveWebshellConnection() {
             }
         })
         .catch(function (e) {
-            console.warn('保存 WebShell 连接失败', e);
-            alert(e && e.message ? e.message : '保存失败');
+            console.warn(' WebShell ', e);
+            alert(e && e.message ? e.message : '');
         });
 }

@@ -487,7 +487,7 @@ body {
 .conversation-sidebar-header .new-chat-btn {
     flex: 1;
     min-width: 0;
-    width: auto; /* 覆盖 .new-chat-btn 的 width:100%，让 flex 分配剩余空间 */
+    width: auto; /*  .new-chat-btn  width:100%， flex  */
 }
 
 .conversation-sidebar-collapse-btn {
@@ -545,7 +545,7 @@ body {
 }
 
 .conversation-sidebar.collapsed .new-chat-btn {
-    order: 1; /* 窄条：先「+」再折叠，纵向排列 */
+    order: 1; /* ：「+」， */
     width: 40px;
     height: 40px;
     min-width: 40px;
@@ -1578,7 +1578,7 @@ header {
 .message-meta-footer {
     display: flex;
     flex-direction: row;
-    align-items: center; /* 与时间戳、删除钮统一垂直居中 */
+    align-items: center; /* 、 */
     gap: 8px;
     margin-top: 6px;
     flex-wrap: wrap;
@@ -1959,30 +1959,30 @@ header {
     vertical-align: middle;
     /* English note. */
     scrollbar-width: thin; /* Firefox */
-    scrollbar-color: transparent transparent; /* Firefox - 隐藏滚动条 */
+    scrollbar-color: transparent transparent; /* Firefox -  */
 }
 
 /* English note. */
 .chat-input-container textarea::-webkit-scrollbar {
-    width: 4px; /* 最窄的滚动条 */
+    width: 4px; /*  */
 }
 
 .chat-input-container textarea::-webkit-scrollbar-track {
-    background: transparent; /* 隐藏轨道 */
+    background: transparent; /*  */
 }
 
 .chat-input-container textarea::-webkit-scrollbar-thumb {
-    background: transparent; /* 默认隐藏滑块 */
+    background: transparent; /*  */
     border-radius: 2px;
 }
 
 /* English note. */
 .chat-input-container textarea:hover::-webkit-scrollbar-thumb {
-    background: var(--text-muted); /* 悬停时显示 */
+    background: var(--text-muted); /*  */
 }
 
 .chat-input-container textarea:focus::-webkit-scrollbar-thumb {
-    background: var(--text-muted); /* 聚焦时显示 */
+    background: var(--text-muted); /*  */
 }
 
 .chat-input-container textarea:focus {
@@ -14980,7 +14980,7 @@ header {
 .form-group textarea.info-collect-query-input {
     min-height: 36px;
     max-height: 96px;
-    overflow: hidden; /* 配合 JS 自动增高 */
+    overflow: hidden; /*  JS  */
     resize: none;
     padding: 10px 12px;
 }
@@ -14993,7 +14993,7 @@ header {
 
 .info-collect-nl-row .info-collect-query-input {
     flex: 1 1 auto;
-    min-width: 0; /* 允许在 flex 中收缩，避免撑破布局 */
+    min-width: 0; /*  flex ， */
 }
 
 .info-collect-nl-row button {
@@ -15144,13 +15144,13 @@ header {
 .info-collect-table thead th.info-collect-col-actions {
     background: var(--bg-secondary);
     z-index: 3;
-    text-align: center; /* 表头“操作”居中 */
+    text-align: center; /* “” */
 }
 
 .info-collect-actions {
     display: flex;
     gap: 8px;
-    justify-content: flex-start; /* 按钮向左 */
+    justify-content: flex-start; /*  */
 }
 
 .info-collect-actions .btn-icon {
@@ -15169,7 +15169,7 @@ header {
     min-height: 40px;
     max-height: 110px;
     line-height: 1.45;
-    overflow: hidden; /* 配合 JS 自动增高 */
+    overflow: hidden; /*  JS  */
     resize: none;
 }
 

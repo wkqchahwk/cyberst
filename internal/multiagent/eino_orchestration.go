@@ -38,14 +38,14 @@ type PlanExecuteRootArgs struct {
 // English note.
 func NewPlanExecuteRoot(ctx context.Context, a *PlanExecuteRootArgs) (adk.ResumableAgent, error) {
 	if a == nil {
-		return nil, fmt.Errorf("plan_execute: args 为空")
+		return nil, fmt.Errorf("plan_execute: args ")
 	}
 	if a.MainToolCallingModel == nil || a.ExecModel == nil {
-		return nil, fmt.Errorf("plan_execute: 模型为空")
+		return nil, fmt.Errorf("plan_execute: ")
 	}
 	tcm, ok := interface{}(a.MainToolCallingModel).(model.ToolCallingChatModel)
 	if !ok {
-		return nil, fmt.Errorf("plan_execute: 主模型需实现 ToolCallingChatModel")
+		return nil, fmt.Errorf("plan_execute:  ToolCallingChatModel")
 	}
 	plannerCfg := &planexecute.PlannerConfig{
 		ToolCallingChatModel: tcm,

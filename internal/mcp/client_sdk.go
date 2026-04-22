@@ -49,7 +49,7 @@ func newSDKClientFromSession(session *mcp.ClientSession, client *mcp.Client, log
 type lazySDKClient struct {
 	serverCfg config.ExternalMCPServerConfig
 	logger    *zap.Logger
-	inner     ExternalMCPClient // 连接成功后为 *sdkClient
+	inner     ExternalMCPClient //  *sdkClient
 	mu        sync.RWMutex
 	status    string
 }
@@ -113,7 +113,7 @@ func (c *lazySDKClient) ListTools(ctx context.Context) ([]Tool, error) {
 	inner := c.inner
 	c.mu.RUnlock()
 	if inner == nil {
-		return nil, fmt.Errorf("未连接")
+		return nil, fmt.Errorf("")
 	}
 	return inner.ListTools(ctx)
 }
@@ -123,7 +123,7 @@ func (c *lazySDKClient) CallTool(ctx context.Context, name string, args map[stri
 	inner := c.inner
 	c.mu.RUnlock()
 	if inner == nil {
-		return nil, fmt.Errorf("未连接")
+		return nil, fmt.Errorf("")
 	}
 	return inner.CallTool(ctx, name, args)
 }
@@ -164,7 +164,7 @@ func (c *sdkClient) Initialize(ctx context.Context) error {
 
 func (c *sdkClient) ListTools(ctx context.Context) ([]Tool, error) {
 	if c.session == nil {
-		return nil, fmt.Errorf("未连接")
+		return nil, fmt.Errorf("")
 	}
 	res, err := c.session.ListTools(ctx, nil)
 	if err != nil {
@@ -178,7 +178,7 @@ func (c *sdkClient) ListTools(ctx context.Context) ([]Tool, error) {
 
 func (c *sdkClient) CallTool(ctx context.Context, name string, args map[string]interface{}) (*ToolResult, error) {
 	if c.session == nil {
-		return nil, fmt.Errorf("未连接")
+		return nil, fmt.Errorf("")
 	}
 	params := &mcp.CallToolParams{
 		Name:      name,
@@ -311,7 +311,7 @@ func (c *simpleHTTPClient) IsConnected() bool {
 }
 
 func (c *simpleHTTPClient) Initialize(context.Context) error {
-	return nil // 已在 newSimpleHTTPClient 中完成
+	return nil //  newSimpleHTTPClient 
 }
 
 func (c *simpleHTTPClient) initialize(ctx context.Context) error {
@@ -449,7 +449,7 @@ func createSDKClient(ctx context.Context, serverCfg config.ExternalMCPServerConf
 		} else if serverCfg.URL != "" {
 			transport = "http"
 		} else {
-			return nil, fmt.Errorf("配置缺少 command 或 url")
+			return nil, fmt.Errorf(" command  url")
 		}
 	}
 
@@ -462,7 +462,7 @@ func createSDKClient(ctx context.Context, serverCfg config.ExternalMCPServerConf
 	switch transport {
 	case "stdio":
 		if serverCfg.Command == "" {
-			return nil, fmt.Errorf("stdio 模式需要配置 command")
+			return nil, fmt.Errorf("stdio  command")
 		}
 		// English note.
 		// English note.
@@ -473,7 +473,7 @@ func createSDKClient(ctx context.Context, serverCfg config.ExternalMCPServerConf
 		t = &mcp.CommandTransport{Command: cmd}
 	case "sse":
 		if serverCfg.URL == "" {
-			return nil, fmt.Errorf("sse 模式需要配置 url")
+			return nil, fmt.Errorf("sse  url")
 		}
 		httpClient := httpClientWithTimeoutAndHeaders(timeout, serverCfg.Headers)
 		t = &mcp.SSEClientTransport{
@@ -482,7 +482,7 @@ func createSDKClient(ctx context.Context, serverCfg config.ExternalMCPServerConf
 		}
 	case "http":
 		if serverCfg.URL == "" {
-			return nil, fmt.Errorf("http 模式需要配置 url")
+			return nil, fmt.Errorf("http  url")
 		}
 		httpClient := httpClientWithTimeoutAndHeaders(timeout, serverCfg.Headers)
 		t = &mcp.StreamableClientTransport{
@@ -492,16 +492,16 @@ func createSDKClient(ctx context.Context, serverCfg config.ExternalMCPServerConf
 	case "simple_http":
 		// English note.
 		if serverCfg.URL == "" {
-			return nil, fmt.Errorf("simple_http 模式需要配置 url")
+			return nil, fmt.Errorf("simple_http  url")
 		}
 		return newSimpleHTTPClient(ctx, serverCfg.URL, timeout, serverCfg.Headers, logger)
 	default:
-		return nil, fmt.Errorf("不支持的传输模式: %s", transport)
+		return nil, fmt.Errorf(": %s", transport)
 	}
 
 	session, err := client.Connect(ctx, t, nil)
 	if err != nil {
-		return nil, fmt.Errorf("连接失败: %w", err)
+		return nil, fmt.Errorf(": %w", err)
 	}
 
 	return newSDKClientFromSession(session, client, logger), nil

@@ -18,7 +18,7 @@ import (
 
 const (
 	chatUploadsRootDirName = "chat_uploads"
-	maxChatUploadEditBytes = 2 * 1024 * 1024 // 文本编辑上限
+	maxChatUploadEditBytes = 2 * 1024 * 1024 // 
 )
 
 // English note.
@@ -68,7 +68,7 @@ func (h *ChatUploadsHandler) resolveUnderChatUploads(relativePath string) (abs s
 // English note.
 type ChatUploadFileItem struct {
 	RelativePath   string `json:"relativePath"`
-	AbsolutePath   string `json:"absolutePath"` // 服务器上的绝对路径，便于在对话中引用（与附件落盘路径一致）
+	AbsolutePath   string `json:"absolutePath"` // ，（）
 	Name           string `json:"name"`
 	Size           int64  `json:"size"`
 	ModifiedUnix   int64  `json:"modifiedUnix"`
@@ -88,7 +88,7 @@ func (h *ChatUploadsHandler) List(c *gin.Context) {
 	}
 	// English note.
 	if err := os.MkdirAll(root, 0755); err != nil {
-		h.logger.Warn("创建 chat_uploads 根目录失败", zap.Error(err))
+		h.logger.Warn(" chat_uploads ", zap.Error(err))
 		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		return
 	}
@@ -143,7 +143,7 @@ func (h *ChatUploadsHandler) List(c *gin.Context) {
 		return nil
 	})
 	if err != nil {
-		h.logger.Warn("列举对话附件失败", zap.Error(err))
+		h.logger.Warn("", zap.Error(err))
 		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		return
 	}

@@ -30,15 +30,15 @@ type Agent struct {
 	agentConfig           *config.AgentConfig
 	memoryCompressor      *MemoryCompressor
 	mcpServer             *mcp.Server
-	externalMCPMgr        *mcp.ExternalMCPManager // 外部MCP管理器
+	externalMCPMgr        *mcp.ExternalMCPManager // MCP
 	logger                *zap.Logger
 	maxIterations         int
-	resultStorage         ResultStorage     // 结果存储
-	largeResultThreshold  int               // 大结果阈值（字节）
-	mu                    sync.RWMutex      // 添加互斥锁以支持并发更新
-	toolNameMapping       map[string]string // 工具名称映射：OpenAI格式 -> 原始格式（用于外部MCP工具）
-	currentConversationID string            // 当前对话ID（用于自动传递给工具）
-	promptBaseDir         string            // 解析 system_prompt_path 时相对路径的基准目录（通常为 config.yaml 所在目录）
+	resultStorage         ResultStorage     // 
+	largeResultThreshold  int               // （）
+	mu                    sync.RWMutex      // 
+	toolNameMapping       map[string]string // ：OpenAI -> （MCP）
+	currentConversationID string            // ID（）
+	promptBaseDir         string            //  system_prompt_path （ config.yaml ）
 }
 
 // English note.
@@ -90,14 +90,14 @@ func NewAgent(cfg *config.OpenAIConfig, agentCfg *config.AgentConfig, mcpServer 
 		MaxIdleConnsPerHost:   10,
 		IdleConnTimeout:       90 * time.Second,
 		TLSHandshakeTimeout:   30 * time.Second,
-		ResponseHeaderTimeout: 60 * time.Minute, // 响应头超时：增加到15分钟，应对大响应
-		DisableKeepAlives:     false,            // 启用连接复用
+		ResponseHeaderTimeout: 60 * time.Minute, // ：15，
+		DisableKeepAlives:     false,            // 
 	}
 
 	// English note.
 	// English note.
 	httpClient := &http.Client{
-		Timeout:   30 * time.Minute, // 从5分钟增加到30分钟
+		Timeout:   30 * time.Minute, // 530
 		Transport: transport,
 	}
 	llmClient := openai.NewClient(cfg, httpClient, logger)
@@ -111,12 +111,12 @@ func NewAgent(cfg *config.OpenAIConfig, agentCfg *config.AgentConfig, mcpServer 
 			Logger:         logger,
 		})
 		if err != nil {
-			logger.Warn("初始化MemoryCompressor失败，将跳过上下文压缩", zap.Error(err))
+			logger.Warn("MemoryCompressor，", zap.Error(err))
 		} else {
 			memoryCompressor = mc
 		}
 	} else {
-		logger.Warn("OpenAI配置为空，无法初始化MemoryCompressor")
+		logger.Warn("OpenAI，MemoryCompressor")
 	}
 
 	return &Agent{
@@ -130,7 +130,7 @@ func NewAgent(cfg *config.OpenAIConfig, agentCfg *config.AgentConfig, mcpServer 
 		maxIterations:        maxIterations,
 		resultStorage:        resultStorage,
 		largeResultThreshold: largeResultThreshold,
-		toolNameMapping:      make(map[string]string), // 初始化工具名称映射
+		toolNameMapping:      make(map[string]string), // 
 	}
 }
 
@@ -307,8 +307,8 @@ func (fc *FunctionCall) UnmarshalJSON(data []byte) error {
 type AgentLoopResult struct {
 	Response        string
 	MCPExecutionIDs []string
-	LastReActInput  string // 最后一轮ReAct的输入（压缩后的messages，JSON格式）
-	LastReActOutput string // 最终大模型的输出
+	LastReActInput  string // ReAct（messages，JSON）
+	LastReActOutput string // 
 }
 
 // English note.
@@ -337,7 +337,7 @@ func (a *Agent) EinoSingleAgentSystemInstruction(roleSkills []string) string {
 				path = filepath.Join(base, path)
 			}
 			if b, err := os.ReadFile(path); err != nil {
-				a.logger.Warn("读取单代理 system_prompt_path 失败，使用内置提示", zap.String("path", path), zap.Error(err))
+				a.logger.Warn(" system_prompt_path ，", zap.String("path", path), zap.Error(err))
 			} else if s := strings.TrimSpace(string(b)); s != "" {
 				systemPrompt = s
 			}
@@ -345,7 +345,7 @@ func (a *Agent) EinoSingleAgentSystemInstruction(roleSkills []string) string {
 	}
 	if len(roleSkills) > 0 {
 		var skillsHint strings.Builder
-		skillsHint.WriteString("\n\n本角色推荐使用的Skills：\n")
+		skillsHint.WriteString("\n\nSkills：\n")
 		for i, skillName := range roleSkills {
 			if i > 0 {
 				skillsHint.WriteString("、")
@@ -354,9 +354,9 @@ func (a *Agent) EinoSingleAgentSystemInstruction(roleSkills []string) string {
 			skillsHint.WriteString(skillName)
 			skillsHint.WriteString("`")
 		}
-		skillsHint.WriteString("\n- 这些名称与 skills/ 下 SKILL.md 的 `name` 一致。")
-		skillsHint.WriteString("\n- 若当前会话已启用 Eino 内置 `skill` 工具，请按需加载；否则以 MCP 与文本工作流完成。")
-		skillsHint.WriteString("\n- 例如传入 skill 参数为 `")
+		skillsHint.WriteString("\n-  skills/  SKILL.md  `name` 。")
+		skillsHint.WriteString("\n-  Eino  `skill` ，； MCP 。")
+		skillsHint.WriteString("\n-  skill  `")
 		skillsHint.WriteString(roleSkills[0])
 		skillsHint.WriteString("`")
 		systemPrompt += skillsHint.String()
@@ -389,7 +389,7 @@ func (a *Agent) AgentLoopWithProgress(ctx context.Context, userInput string, his
 				path = filepath.Join(base, path)
 			}
 			if b, err := os.ReadFile(path); err != nil {
-				a.logger.Warn("读取单代理 system_prompt_path 失败，使用内置提示", zap.String("path", path), zap.Error(err))
+				a.logger.Warn(" system_prompt_path ，", zap.String("path", path), zap.Error(err))
 			} else if s := strings.TrimSpace(string(b)); s != "" {
 				systemPrompt = s
 			}
@@ -399,7 +399,7 @@ func (a *Agent) AgentLoopWithProgress(ctx context.Context, userInput string, his
 	// English note.
 	if len(roleSkills) > 0 {
 		var skillsHint strings.Builder
-		skillsHint.WriteString("\n\n本角色推荐使用的Skills：\n")
+		skillsHint.WriteString("\n\nSkills：\n")
 		for i, skillName := range roleSkills {
 			if i > 0 {
 				skillsHint.WriteString("、")
@@ -408,11 +408,11 @@ func (a *Agent) AgentLoopWithProgress(ctx context.Context, userInput string, his
 			skillsHint.WriteString(skillName)
 			skillsHint.WriteString("`")
 		}
-		skillsHint.WriteString("\n- 这些名称与 skills/ 下 SKILL.md 的 `name` 一致；在 **Eino 多代理** 会话中请用内置 `skill` 工具按需加载全文")
-		skillsHint.WriteString("\n- 例如：在支持 Eino skill 工具时传入 skill 参数为 `")
+		skillsHint.WriteString("\n-  skills/  SKILL.md  `name` ； **Eino **  `skill` ")
+		skillsHint.WriteString("\n- ： Eino skill  skill  `")
 		skillsHint.WriteString(roleSkills[0])
 		skillsHint.WriteString("`")
-		skillsHint.WriteString("\n- 单代理 MCP 模式不会注入 skill 工具；需要时请使用多代理（DeepAgent）")
+		skillsHint.WriteString("\n-  MCP  skill ；（DeepAgent）")
 		systemPrompt += skillsHint.String()
 	}
 
@@ -424,7 +424,7 @@ func (a *Agent) AgentLoopWithProgress(ctx context.Context, userInput string, his
 	}
 
 	// English note.
-	a.logger.Info("处理历史消息",
+	a.logger.Info("",
 		zap.Int("count", len(historyMessages)),
 	)
 	addedCount := 0
@@ -443,7 +443,7 @@ func (a *Agent) AgentLoopWithProgress(ctx context.Context, userInput string, his
 			if len(contentPreview) > 50 {
 				contentPreview = contentPreview[:50] + "..."
 			}
-			a.logger.Info("添加历史消息到上下文",
+			a.logger.Info("",
 				zap.Int("index", i),
 				zap.String("role", msg.Role),
 				zap.String("content", contentPreview),
@@ -453,7 +453,7 @@ func (a *Agent) AgentLoopWithProgress(ctx context.Context, userInput string, his
 		}
 	}
 
-	a.logger.Info("构建消息数组",
+	a.logger.Info("",
 		zap.Int("historyMessages", len(historyMessages)),
 		zap.Int("addedMessages", addedCount),
 		zap.Int("totalMessages", len(messages)),
@@ -463,7 +463,7 @@ func (a *Agent) AgentLoopWithProgress(ctx context.Context, userInput string, his
 	// English note.
 	if len(messages) > 0 {
 		if fixed := a.repairOrphanToolMessages(&messages); fixed {
-			a.logger.Info("修复了历史消息中的失配tool消息")
+			a.logger.Info("tool")
 		}
 	}
 
@@ -495,7 +495,7 @@ func (a *Agent) AgentLoopWithProgress(ctx context.Context, userInput string, his
 		// English note.
 		messagesJSON, err := json.Marshal(messages)
 		if err != nil {
-			a.logger.Warn("序列化ReAct输入失败", zap.Error(err))
+			a.logger.Warn("ReAct", zap.Error(err))
 		} else {
 			currentReActInput = string(messagesJSON)
 			// English note.
@@ -506,12 +506,12 @@ func (a *Agent) AgentLoopWithProgress(ctx context.Context, userInput string, his
 		select {
 		case <-ctx.Done():
 			// English note.
-			a.logger.Info("检测到上下文取消，保存当前ReAct数据", zap.Error(ctx.Err()))
+			a.logger.Info("，ReAct", zap.Error(ctx.Err()))
 			result.LastReActInput = currentReActInput
 			if ctx.Err() == context.Canceled {
-				result.Response = "任务已被取消。"
+				result.Response = "。"
 			} else {
-				result.Response = fmt.Sprintf("任务执行中断: %v", ctx.Err())
+				result.Response = fmt.Sprintf(": %v", ctx.Err())
 			}
 			result.LastReActOutput = result.Response
 			return result, ctx.Err()
@@ -536,18 +536,18 @@ func (a *Agent) AgentLoopWithProgress(ctx context.Context, userInput string, his
 
 		// English note.
 		if i == 0 {
-			sendProgress("iteration", "开始分析请求并制定测试策略", map[string]interface{}{
+			sendProgress("iteration", "", map[string]interface{}{
 				"iteration": i + 1,
 				"total":     maxIterations,
 			})
 		} else if isLastIteration {
-			sendProgress("iteration", fmt.Sprintf("第 %d 轮迭代（最后一次）", i+1), map[string]interface{}{
+			sendProgress("iteration", fmt.Sprintf(" %d （）", i+1), map[string]interface{}{
 				"iteration": i + 1,
 				"total":     maxIterations,
 				"isLast":    true,
 			})
 		} else {
-			sendProgress("iteration", fmt.Sprintf("第 %d 轮迭代", i+1), map[string]interface{}{
+			sendProgress("iteration", fmt.Sprintf(" %d ", i+1), map[string]interface{}{
 				"iteration": i + 1,
 				"total":     maxIterations,
 			})
@@ -555,34 +555,34 @@ func (a *Agent) AgentLoopWithProgress(ctx context.Context, userInput string, his
 
 		// English note.
 		if i == 0 {
-			a.logger.Info("调用OpenAI",
+			a.logger.Info("OpenAI",
 				zap.Int("iteration", i+1),
 				zap.Int("messagesCount", len(messages)),
 			)
 			// English note.
 			for j, msg := range messages {
-				if j >= 5 { // 只记录前5条
+				if j >= 5 { // 5
 					break
 				}
 				contentPreview := msg.Content
 				if len(contentPreview) > 100 {
 					contentPreview = contentPreview[:100] + "..."
 				}
-				a.logger.Debug("消息内容",
+				a.logger.Debug("",
 					zap.Int("index", j),
 					zap.String("role", msg.Role),
 					zap.String("content", contentPreview),
 				)
 			}
 		} else {
-			a.logger.Info("调用OpenAI",
+			a.logger.Info("OpenAI",
 				zap.Int("iteration", i+1),
 				zap.Int("messagesCount", len(messages)),
 			)
 		}
 
 		// English note.
-		sendProgress("progress", "正在调用AI模型...", nil)
+		sendProgress("progress", "AI...", nil)
 		thinkingStreamSeq++
 		thinkingStreamId := fmt.Sprintf("thinking-stream-%s-%d-%d", conversationID, i+1, thinkingStreamSeq)
 		thinkingStreamStarted := false
@@ -608,48 +608,48 @@ func (a *Agent) AgentLoopWithProgress(ctx context.Context, userInput string, his
 		if err != nil {
 			// English note.
 			result.LastReActInput = currentReActInput
-			errorMsg := fmt.Sprintf("调用OpenAI失败: %v", err)
+			errorMsg := fmt.Sprintf("OpenAI: %v", err)
 			result.Response = errorMsg
 			result.LastReActOutput = errorMsg
-			a.logger.Warn("OpenAI调用失败，已保存ReAct数据", zap.Error(err))
-			return result, fmt.Errorf("调用OpenAI失败: %w", err)
+			a.logger.Warn("OpenAI，ReAct", zap.Error(err))
+			return result, fmt.Errorf("OpenAI: %w", err)
 		}
 
 		if response.Error != nil {
 			if handled, toolName := a.handleMissingToolError(response.Error.Message, &messages); handled {
-				sendProgress("warning", fmt.Sprintf("模型尝试调用不存在的工具：%s，已提示其改用可用工具。", toolName), map[string]interface{}{
+				sendProgress("warning", fmt.Sprintf("：%s，。", toolName), map[string]interface{}{
 					"toolName": toolName,
 				})
-				a.logger.Warn("模型调用了不存在的工具，将重试",
+				a.logger.Warn("，",
 					zap.String("tool", toolName),
 					zap.String("error", response.Error.Message),
 				)
 				continue
 			}
 			if a.handleToolRoleError(response.Error.Message, &messages) {
-				sendProgress("warning", "检测到未配对的工具结果，已自动修复上下文并重试。", map[string]interface{}{
+				sendProgress("warning", "，。", map[string]interface{}{
 					"error": response.Error.Message,
 				})
-				a.logger.Warn("检测到未配对的工具消息，已修复并重试",
+				a.logger.Warn("，",
 					zap.String("error", response.Error.Message),
 				)
 				continue
 			}
 			// English note.
 			result.LastReActInput = currentReActInput
-			errorMsg := fmt.Sprintf("OpenAI错误: %s", response.Error.Message)
+			errorMsg := fmt.Sprintf("OpenAI: %s", response.Error.Message)
 			result.Response = errorMsg
 			result.LastReActOutput = errorMsg
-			return result, fmt.Errorf("OpenAI错误: %s", response.Error.Message)
+			return result, fmt.Errorf("OpenAI: %s", response.Error.Message)
 		}
 
 		if len(response.Choices) == 0 {
 			// English note.
 			result.LastReActInput = currentReActInput
-			errorMsg := "没有收到响应"
+			errorMsg := ""
 			result.Response = errorMsg
 			result.LastReActOutput = errorMsg
-			return result, fmt.Errorf("没有收到响应")
+			return result, fmt.Errorf("")
 		}
 
 		choice := response.Choices[0]
@@ -673,7 +673,7 @@ func (a *Agent) AgentLoopWithProgress(ctx context.Context, userInput string, his
 			})
 
 			// English note.
-			sendProgress("tool_calls_detected", fmt.Sprintf("检测到 %d 个工具调用", len(choice.Message.ToolCalls)), map[string]interface{}{
+			sendProgress("tool_calls_detected", fmt.Sprintf(" %d ", len(choice.Message.ToolCalls)), map[string]interface{}{
 				"count":     len(choice.Message.ToolCalls),
 				"iteration": i + 1,
 			})
@@ -682,7 +682,7 @@ func (a *Agent) AgentLoopWithProgress(ctx context.Context, userInput string, his
 			for idx, toolCall := range choice.Message.ToolCalls {
 				// English note.
 				toolArgsJSON, _ := json.Marshal(toolCall.Function.Arguments)
-				sendProgress("tool_call", fmt.Sprintf("正在调用工具: %s", toolCall.Function.Name), map[string]interface{}{
+				sendProgress("tool_call", fmt.Sprintf(": %s", toolCall.Function.Name), map[string]interface{}{
 					"toolName":     toolCall.Function.Name,
 					"arguments":    string(toolArgsJSON),
 					"argumentsObj": toolCall.Function.Arguments,
@@ -718,7 +718,7 @@ func (a *Agent) AgentLoopWithProgress(ctx context.Context, userInput string, his
 					})
 
 					// English note.
-					sendProgress("tool_result", fmt.Sprintf("工具 %s 执行失败", toolCall.Function.Name), map[string]interface{}{
+					sendProgress("tool_result", fmt.Sprintf(" %s ", toolCall.Function.Name), map[string]interface{}{
 						"toolName":   toolCall.Function.Name,
 						"success":    false,
 						"isError":    true,
@@ -729,7 +729,7 @@ func (a *Agent) AgentLoopWithProgress(ctx context.Context, userInput string, his
 						"iteration":  i + 1,
 					})
 
-					a.logger.Warn("工具执行失败，已返回详细错误信息",
+					a.logger.Warn("，",
 						zap.String("tool", toolCall.Function.Name),
 						zap.Error(err),
 					)
@@ -750,12 +750,12 @@ func (a *Agent) AgentLoopWithProgress(ctx context.Context, userInput string, his
 					if len(resultPreview) > 200 {
 						resultPreview = resultPreview[:200] + "..."
 					}
-					sendProgress("tool_result", fmt.Sprintf("工具 %s 执行完成", toolCall.Function.Name), map[string]interface{}{
+					sendProgress("tool_result", fmt.Sprintf(" %s ", toolCall.Function.Name), map[string]interface{}{
 						"toolName":      toolCall.Function.Name,
 						"success":       !execResult.IsError,
 						"isError":       execResult.IsError,
-						"result":        execResult.Result, // 完整结果
-						"resultPreview": resultPreview,     // 预览结果
+						"result":        execResult.Result, // 
+						"resultPreview": resultPreview,     // 
 						"executionId":   execResult.ExecutionID,
 						"toolCallId":    toolCall.ID,
 						"index":         idx + 1,
@@ -765,7 +765,7 @@ func (a *Agent) AgentLoopWithProgress(ctx context.Context, userInput string, his
 
 					// English note.
 					if execResult.IsError {
-						a.logger.Warn("工具返回错误结果，但继续处理",
+						a.logger.Warn("，",
 							zap.String("tool", toolCall.Function.Name),
 							zap.String("result", execResult.Result),
 						)
@@ -775,13 +775,13 @@ func (a *Agent) AgentLoopWithProgress(ctx context.Context, userInput string, his
 
 			// English note.
 			if isLastIteration {
-				sendProgress("progress", "最后一次迭代：正在生成总结和下一步计划...", nil)
+				sendProgress("progress", "：...", nil)
 				// English note.
 				messages = append(messages, ChatMessage{
 					Role:    "user",
-					Content: "这是最后一次迭代。请总结到目前为止的所有测试结果、发现的问题和已完成的工作。如果需要继续测试，请提供详细的下一步执行计划。请直接回复，不要调用工具。",
+					Content: "。、。，。，。",
 				})
-				messages = a.applyMemoryCompression(ctx, messages, 0) // 总结时不带 tools，不预留
+				messages = a.applyMemoryCompression(ctx, messages, 0) //  tools，
 				// English note.
 				sendProgress("response_start", "", map[string]interface{}{
 					"conversationId":     conversationID,
@@ -797,7 +797,7 @@ func (a *Agent) AgentLoopWithProgress(ctx context.Context, userInput string, his
 				if strings.TrimSpace(streamText) != "" {
 					result.Response = streamText
 					result.LastReActOutput = result.Response
-					sendProgress("progress", "总结生成完成", nil)
+					sendProgress("progress", "", nil)
 					return result, nil
 				}
 				// English note.
@@ -822,13 +822,13 @@ func (a *Agent) AgentLoopWithProgress(ctx context.Context, userInput string, his
 
 		// English note.
 		if isLastIteration {
-			sendProgress("progress", "最后一次迭代：正在生成总结和下一步计划...", nil)
+			sendProgress("progress", "：...", nil)
 			// English note.
 			messages = append(messages, ChatMessage{
 				Role:    "user",
-				Content: "这是最后一次迭代。请总结到目前为止的所有测试结果、发现的问题和已完成的工作。如果需要继续测试，请提供详细的下一步执行计划。请直接回复，不要调用工具。",
+				Content: "。、。，。，。",
 			})
-			messages = a.applyMemoryCompression(ctx, messages, 0) // 总结时不带 tools，不预留
+			messages = a.applyMemoryCompression(ctx, messages, 0) //  tools，
 			// English note.
 			sendProgress("response_start", "", map[string]interface{}{
 				"conversationId":     conversationID,
@@ -844,7 +844,7 @@ func (a *Agent) AgentLoopWithProgress(ctx context.Context, userInput string, his
 			if strings.TrimSpace(streamText) != "" {
 				result.Response = streamText
 				result.LastReActOutput = result.Response
-				sendProgress("progress", "总结生成完成", nil)
+				sendProgress("progress", "", nil)
 				return result, nil
 			}
 			// English note.
@@ -859,7 +859,7 @@ func (a *Agent) AgentLoopWithProgress(ctx context.Context, userInput string, his
 
 		// English note.
 		if choice.FinishReason == "stop" {
-			sendProgress("progress", "正在生成最终回复...", nil)
+			sendProgress("progress", "...", nil)
 			result.Response = choice.Message.Content
 			result.LastReActOutput = result.Response
 			return result, nil
@@ -868,13 +868,13 @@ func (a *Agent) AgentLoopWithProgress(ctx context.Context, userInput string, his
 
 	// English note.
 	// English note.
-	sendProgress("progress", "达到最大迭代次数，正在生成总结...", nil)
+	sendProgress("progress", "，...", nil)
 	finalSummaryPrompt := ChatMessage{
 		Role:    "user",
-		Content: fmt.Sprintf("已达到最大迭代次数（%d轮）。请总结到目前为止的所有测试结果、发现的问题和已完成的工作。如果需要继续测试，请提供详细的下一步执行计划。请直接回复，不要调用工具。", a.maxIterations),
+		Content: fmt.Sprintf("（%d）。、。，。，。", a.maxIterations),
 	}
 	messages = append(messages, finalSummaryPrompt)
-	messages = a.applyMemoryCompression(ctx, messages, 0) // 总结时不带 tools，不预留
+	messages = a.applyMemoryCompression(ctx, messages, 0) //  tools，
 
 	// English note.
 	sendProgress("response_start", "", map[string]interface{}{
@@ -891,12 +891,12 @@ func (a *Agent) AgentLoopWithProgress(ctx context.Context, userInput string, his
 	if strings.TrimSpace(streamText) != "" {
 		result.Response = streamText
 		result.LastReActOutput = result.Response
-		sendProgress("progress", "总结生成完成", nil)
+		sendProgress("progress", "", nil)
 		return result, nil
 	}
 
 	// English note.
-	result.Response = fmt.Sprintf("已达到最大迭代次数（%d轮）。系统已执行了多轮测试，但由于达到迭代上限，无法继续自动执行。建议您查看已执行的工具结果，或提出新的测试请求以继续测试。", a.maxIterations)
+	result.Response = fmt.Sprintf("（%d）。，，。，。", a.maxIterations)
 	result.LastReActOutput = result.Response
 	return result, nil
 }
@@ -921,9 +921,9 @@ func (a *Agent) getAvailableTools(roleTools []string) []Tool {
 	for _, mcpTool := range mcpTools {
 		// English note.
 		if len(roleToolSet) > 0 {
-			toolKey := mcpTool.Name // 内置工具使用工具名称作为key
+			toolKey := mcpTool.Name // key
 			if !roleToolSet[toolKey] {
-				continue // 不在角色工具列表中，跳过
+				continue // ，
 			}
 		}
 		// English note.
@@ -939,7 +939,7 @@ func (a *Agent) getAvailableTools(roleTools []string) []Tool {
 			Type: "function",
 			Function: FunctionDefinition{
 				Name:        mcpTool.Name,
-				Description: description, // 使用简短描述减少token消耗
+				Description: description, // token
 				Parameters:  convertedSchema,
 			},
 		})
@@ -953,7 +953,7 @@ func (a *Agent) getAvailableTools(roleTools []string) []Tool {
 
 		externalTools, err := a.externalMCPMgr.GetAllTools(ctx)
 		if err != nil {
-			a.logger.Warn("获取外部MCP工具失败", zap.Error(err))
+			a.logger.Warn("MCP", zap.Error(err))
 		} else {
 			// English note.
 			externalMCPConfigs := a.externalMCPMgr.GetConfigs()
@@ -971,7 +971,7 @@ func (a *Agent) getAvailableTools(roleTools []string) []Tool {
 				// English note.
 				if len(roleToolSet) > 0 {
 					if !roleToolSet[externalToolKey] {
-						continue // 不在角色工具列表中，跳过
+						continue // ，
 					}
 				}
 
@@ -981,7 +981,7 @@ func (a *Agent) getAvailableTools(roleTools []string) []Tool {
 					mcpName = externalTool.Name[:idx]
 					actualToolName = externalTool.Name[idx+2:]
 				} else {
-					continue // 跳过格式不正确的工具
+					continue // 
 				}
 
 				// English note.
@@ -989,16 +989,16 @@ func (a *Agent) getAvailableTools(roleTools []string) []Tool {
 				if cfg, exists := externalMCPConfigs[mcpName]; exists {
 					// English note.
 					if !cfg.ExternalMCPEnable && !(cfg.Enabled && !cfg.Disabled) {
-						enabled = false // MCP未启用，所有工具都禁用
+						enabled = false // MCP，
 					} else {
 						// English note.
 						// English note.
 						if cfg.ToolEnabled == nil {
-							enabled = true // 未设置工具状态，默认为启用
+							enabled = true // ，
 						} else if toolEnabled, exists := cfg.ToolEnabled[actualToolName]; exists {
-							enabled = toolEnabled // 使用配置的工具状态
+							enabled = toolEnabled // 
 						} else {
-							enabled = true // 工具未在配置中，默认为启用
+							enabled = true // ，
 						}
 					}
 				}
@@ -1029,7 +1029,7 @@ func (a *Agent) getAvailableTools(roleTools []string) []Tool {
 				tools = append(tools, Tool{
 					Type: "function",
 					Function: FunctionDefinition{
-						Name:        openAIName, // 使用符合OpenAI规范的名称
+						Name:        openAIName, // OpenAI
 						Description: description,
 						Parameters:  convertedSchema,
 					},
@@ -1038,7 +1038,7 @@ func (a *Agent) getAvailableTools(roleTools []string) []Tool {
 		}
 	}
 
-	a.logger.Debug("获取可用工具列表",
+	a.logger.Debug("",
 		zap.Int("internalTools", len(mcpTools)),
 		zap.Int("totalTools", len(tools)),
 	)
@@ -1143,7 +1143,7 @@ func (a *Agent) callOpenAI(ctx context.Context, messages []ChatMessage, tools []
 		response, err := a.callOpenAISingle(ctx, messages, tools)
 		if err == nil {
 			if attempt > 0 {
-				a.logger.Info("OpenAI API调用重试成功",
+				a.logger.Info("OpenAI API",
 					zap.Int("attempt", attempt+1),
 					zap.Int("maxRetries", maxRetries),
 				)
@@ -1163,9 +1163,9 @@ func (a *Agent) callOpenAI(ctx context.Context, messages []ChatMessage, tools []
 			// English note.
 			backoff := time.Duration(1<<uint(attempt+1)) * time.Second
 			if backoff > 30*time.Second {
-				backoff = 30 * time.Second // 最大30秒
+				backoff = 30 * time.Second // 30
 			}
-			a.logger.Warn("OpenAI API调用失败，准备重试",
+			a.logger.Warn("OpenAI API，",
 				zap.Error(err),
 				zap.Int("attempt", attempt+1),
 				zap.Int("maxRetries", maxRetries),
@@ -1175,14 +1175,14 @@ func (a *Agent) callOpenAI(ctx context.Context, messages []ChatMessage, tools []
 			// English note.
 			select {
 			case <-ctx.Done():
-				return nil, fmt.Errorf("上下文已取消: %w", ctx.Err())
+				return nil, fmt.Errorf(": %w", ctx.Err())
 			case <-time.After(backoff):
 				// English note.
 			}
 		}
 	}
 
-	return nil, fmt.Errorf("重试%d次后仍然失败: %w", maxRetries, lastErr)
+	return nil, fmt.Errorf("%d: %w", maxRetries, lastErr)
 }
 
 // English note.
@@ -1196,14 +1196,14 @@ func (a *Agent) callOpenAISingle(ctx context.Context, messages []ChatMessage, to
 		reqBody.Tools = tools
 	}
 
-	a.logger.Debug("准备发送OpenAI请求",
+	a.logger.Debug("OpenAI",
 		zap.Int("messagesCount", len(messages)),
 		zap.Int("toolsCount", len(tools)),
 	)
 
 	var response OpenAIResponse
 	if a.openAIClient == nil {
-		return nil, fmt.Errorf("OpenAI客户端未初始化")
+		return nil, fmt.Errorf("OpenAI")
 	}
 	if err := a.openAIClient.ChatCompletion(ctx, reqBody, &response); err != nil {
 		return nil, err
@@ -1225,7 +1225,7 @@ func (a *Agent) callOpenAISingleStreamText(ctx context.Context, messages []ChatM
 	}
 
 	if a.openAIClient == nil {
-		return "", fmt.Errorf("OpenAI客户端未初始化")
+		return "", fmt.Errorf("OpenAI")
 	}
 
 	return a.openAIClient.ChatCompletionStream(ctx, reqBody, onDelta)
@@ -1244,7 +1244,7 @@ func (a *Agent) callOpenAIStreamText(ctx context.Context, messages []ChatMessage
 		})
 		if err == nil {
 			if attempt > 0 {
-				a.logger.Info("OpenAI stream 调用重试成功",
+				a.logger.Info("OpenAI stream ",
 					zap.Int("attempt", attempt+1),
 					zap.Int("maxRetries", maxRetries),
 				)
@@ -1267,7 +1267,7 @@ func (a *Agent) callOpenAIStreamText(ctx context.Context, messages []ChatMessage
 			if backoff > 30*time.Second {
 				backoff = 30 * time.Second
 			}
-			a.logger.Warn("OpenAI stream 调用失败，准备重试",
+			a.logger.Warn("OpenAI stream ，",
 				zap.Error(err),
 				zap.Int("attempt", attempt+1),
 				zap.Int("maxRetries", maxRetries),
@@ -1276,13 +1276,13 @@ func (a *Agent) callOpenAIStreamText(ctx context.Context, messages []ChatMessage
 
 			select {
 			case <-ctx.Done():
-				return "", fmt.Errorf("上下文已取消: %w", ctx.Err())
+				return "", fmt.Errorf(": %w", ctx.Err())
 			case <-time.After(backoff):
 			}
 		}
 	}
 
-	return "", fmt.Errorf("重试%d次后仍然失败: %w", maxRetries, lastErr)
+	return "", fmt.Errorf("%d: %w", maxRetries, lastErr)
 }
 
 // English note.
@@ -1301,7 +1301,7 @@ func (a *Agent) callOpenAISingleStreamWithToolCalls(
 		reqBody.Tools = tools
 	}
 	if a.openAIClient == nil {
-		return nil, fmt.Errorf("OpenAI客户端未初始化")
+		return nil, fmt.Errorf("OpenAI")
 	}
 
 	content, streamToolCalls, finishReason, err := a.openAIClient.ChatCompletionStreamWithToolCalls(ctx, reqBody, onContentDelta)
@@ -1372,7 +1372,7 @@ func (a *Agent) callOpenAIStreamWithToolCalls(
 		})
 		if err == nil {
 			if attempt > 0 {
-				a.logger.Info("OpenAI stream 调用重试成功",
+				a.logger.Info("OpenAI stream ",
 					zap.Int("attempt", attempt+1),
 					zap.Int("maxRetries", maxRetries),
 				)
@@ -1394,7 +1394,7 @@ func (a *Agent) callOpenAIStreamWithToolCalls(
 			if backoff > 30*time.Second {
 				backoff = 30 * time.Second
 			}
-			a.logger.Warn("OpenAI stream 调用失败，准备重试",
+			a.logger.Warn("OpenAI stream ，",
 				zap.Error(err),
 				zap.Int("attempt", attempt+1),
 				zap.Int("maxRetries", maxRetries),
@@ -1403,26 +1403,26 @@ func (a *Agent) callOpenAIStreamWithToolCalls(
 
 			select {
 			case <-ctx.Done():
-				return nil, fmt.Errorf("上下文已取消: %w", ctx.Err())
+				return nil, fmt.Errorf(": %w", ctx.Err())
 			case <-time.After(backoff):
 			}
 		}
 	}
 
-	return nil, fmt.Errorf("重试%d次后仍然失败: %w", maxRetries, lastErr)
+	return nil, fmt.Errorf("%d: %w", maxRetries, lastErr)
 }
 
 // English note.
 type ToolExecutionResult struct {
 	Result      string
 	ExecutionID string
-	IsError     bool // 标记是否为错误结果
+	IsError     bool // 
 }
 
 // English note.
 // English note.
 func (a *Agent) executeToolViaMCP(ctx context.Context, toolName string, args map[string]interface{}) (*ToolExecutionResult, error) {
-	a.logger.Info("通过MCP执行工具",
+	a.logger.Info("MCP",
 		zap.String("tool", toolName),
 		zap.Any("args", args),
 	)
@@ -1435,11 +1435,11 @@ func (a *Agent) executeToolViaMCP(ctx context.Context, toolName string, args map
 
 		if conversationID != "" {
 			args["conversation_id"] = conversationID
-			a.logger.Debug("自动添加conversation_id到record_vulnerability工具",
+			a.logger.Debug("conversation_idrecord_vulnerability",
 				zap.String("conversation_id", conversationID),
 			)
 		} else {
-			a.logger.Warn("record_vulnerability工具调用时conversation_id为空")
+			a.logger.Warn("record_vulnerabilityconversation_id")
 		}
 	}
 
@@ -1466,7 +1466,7 @@ func (a *Agent) executeToolViaMCP(ctx context.Context, toolName string, args map
 
 	if isExternalTool && a.externalMCPMgr != nil {
 		// English note.
-		a.logger.Debug("调用外部MCP工具",
+		a.logger.Debug("MCP",
 			zap.String("openAIName", toolName),
 			zap.String("originalName", originalToolName),
 		)
@@ -1484,31 +1484,31 @@ func (a *Agent) executeToolViaMCP(ctx context.Context, toolName string, args map
 			if a.agentConfig != nil && a.agentConfig.ToolTimeoutMinutes > 0 {
 				min = a.agentConfig.ToolTimeoutMinutes
 			}
-			detail = fmt.Sprintf("工具执行超过 %d 分钟被自动终止（可在 config.yaml 的 agent.tool_timeout_minutes 中调整）", min)
+			detail = fmt.Sprintf(" %d （ config.yaml  agent.tool_timeout_minutes ）", min)
 		}
-		errorMsg := fmt.Sprintf(`工具调用失败
+		errorMsg := fmt.Sprintf(`
 
-工具名称: %s
-错误类型: 系统错误
-错误详情: %s
+: %s
+: 
+: %s
 
-可能的原因：
-- 工具 "%s" 不存在或未启用
-- 单次执行超时（agent.tool_timeout_minutes）
-- 系统配置问题
-- 网络或权限问题
+：
+-  "%s" 
+- （agent.tool_timeout_minutes）
+- 
+- 
 
-建议：
-- 检查工具名称是否正确
-- 若需更长执行时间，可适当增大 agent.tool_timeout_minutes
-- 尝试使用其他替代工具
-- 如果这是必需的工具，请向用户说明情况`, toolName, detail, toolName)
+：
+- 
+- ， agent.tool_timeout_minutes
+- 
+- ，`, toolName, detail, toolName)
 
 		return &ToolExecutionResult{
 			Result:      errorMsg,
 			ExecutionID: executionID,
 			IsError:     true,
-		}, nil // 返回 nil 错误，让调用者处理结果
+		}, nil //  nil ，
 	}
 
 	// English note.
@@ -1531,13 +1531,13 @@ func (a *Agent) executeToolViaMCP(ctx context.Context, toolName string, args map
 		// English note.
 		go func() {
 			if err := storage.SaveResult(executionID, toolName, resultStr); err != nil {
-				a.logger.Warn("保存大结果失败",
+				a.logger.Warn("",
 					zap.String("executionID", executionID),
 					zap.String("toolName", toolName),
 					zap.Error(err),
 				)
 			} else {
-				a.logger.Info("大结果已保存",
+				a.logger.Info("",
 					zap.String("executionID", executionID),
 					zap.String("toolName", toolName),
 					zap.Int("size", resultSize),
@@ -1571,48 +1571,48 @@ func (a *Agent) executeToolViaMCP(ctx context.Context, toolName string, args map
 func (a *Agent) formatMinimalNotification(executionID string, toolName string, size int, lineCount int, filePath string) string {
 	var sb strings.Builder
 
-	sb.WriteString(fmt.Sprintf("工具执行完成。结果已保存（ID: %s）。\n\n", executionID))
-	sb.WriteString("结果信息：\n")
-	sb.WriteString(fmt.Sprintf("  - 工具: %s\n", toolName))
-	sb.WriteString(fmt.Sprintf("  - 大小: %d 字节 (%.2f KB)\n", size, float64(size)/1024))
-	sb.WriteString(fmt.Sprintf("  - 行数: %d 行\n", lineCount))
+	sb.WriteString(fmt.Sprintf("。（ID: %s）。\n\n", executionID))
+	sb.WriteString("：\n")
+	sb.WriteString(fmt.Sprintf("  - : %s\n", toolName))
+	sb.WriteString(fmt.Sprintf("  - : %d  (%.2f KB)\n", size, float64(size)/1024))
+	sb.WriteString(fmt.Sprintf("  - : %d \n", lineCount))
 	if filePath != "" {
-		sb.WriteString(fmt.Sprintf("  - 文件路径: %s\n", filePath))
+		sb.WriteString(fmt.Sprintf("  - : %s\n", filePath))
 	}
 	sb.WriteString("\n")
-	sb.WriteString("推荐使用 query_execution_result 工具查询完整结果：\n")
-	sb.WriteString(fmt.Sprintf("  - 查询第一页: query_execution_result(execution_id=\"%s\", page=1, limit=100)\n", executionID))
-	sb.WriteString(fmt.Sprintf("  - 搜索关键词: query_execution_result(execution_id=\"%s\", search=\"关键词\")\n", executionID))
-	sb.WriteString(fmt.Sprintf("  - 过滤条件: query_execution_result(execution_id=\"%s\", filter=\"error\")\n", executionID))
-	sb.WriteString(fmt.Sprintf("  - 正则匹配: query_execution_result(execution_id=\"%s\", search=\"\\\\d+\\\\.\\\\d+\\\\.\\\\d+\\\\.\\\\d+\", use_regex=true)\n", executionID))
+	sb.WriteString(" query_execution_result ：\n")
+	sb.WriteString(fmt.Sprintf("  - : query_execution_result(execution_id=\"%s\", page=1, limit=100)\n", executionID))
+	sb.WriteString(fmt.Sprintf("  - : query_execution_result(execution_id=\"%s\", search=\"\")\n", executionID))
+	sb.WriteString(fmt.Sprintf("  - : query_execution_result(execution_id=\"%s\", filter=\"error\")\n", executionID))
+	sb.WriteString(fmt.Sprintf("  - : query_execution_result(execution_id=\"%s\", search=\"\\\\d+\\\\.\\\\d+\\\\.\\\\d+\\\\.\\\\d+\", use_regex=true)\n", executionID))
 	sb.WriteString("\n")
 	if filePath != "" {
-		sb.WriteString("如果 query_execution_result 工具不满足需求，也可以使用其他工具处理文件：\n")
+		sb.WriteString(" query_execution_result ，：\n")
 		sb.WriteString("\n")
-		sb.WriteString("**分段读取示例：**\n")
-		sb.WriteString(fmt.Sprintf("  - 查看前100行: exec(command=\"head\", args=[\"-n\", \"100\", \"%s\"])\n", filePath))
-		sb.WriteString(fmt.Sprintf("  - 查看后100行: exec(command=\"tail\", args=[\"-n\", \"100\", \"%s\"])\n", filePath))
-		sb.WriteString(fmt.Sprintf("  - 查看第50-150行: exec(command=\"sed\", args=[\"-n\", \"50,150p\", \"%s\"])\n", filePath))
+		sb.WriteString("**：**\n")
+		sb.WriteString(fmt.Sprintf("  - 100: exec(command=\"head\", args=[\"-n\", \"100\", \"%s\"])\n", filePath))
+		sb.WriteString(fmt.Sprintf("  - 100: exec(command=\"tail\", args=[\"-n\", \"100\", \"%s\"])\n", filePath))
+		sb.WriteString(fmt.Sprintf("  - 50-150: exec(command=\"sed\", args=[\"-n\", \"50,150p\", \"%s\"])\n", filePath))
 		sb.WriteString("\n")
-		sb.WriteString("**搜索和正则匹配示例：**\n")
-		sb.WriteString(fmt.Sprintf("  - 搜索关键词: exec(command=\"grep\", args=[\"关键词\", \"%s\"])\n", filePath))
-		sb.WriteString(fmt.Sprintf("  - 正则匹配IP地址: exec(command=\"grep\", args=[\"-E\", \"\\\\d+\\\\.\\\\d+\\\\.\\\\d+\\\\.\\\\d+\", \"%s\"])\n", filePath))
-		sb.WriteString(fmt.Sprintf("  - 不区分大小写搜索: exec(command=\"grep\", args=[\"-i\", \"关键词\", \"%s\"])\n", filePath))
-		sb.WriteString(fmt.Sprintf("  - 显示匹配行号: exec(command=\"grep\", args=[\"-n\", \"关键词\", \"%s\"])\n", filePath))
+		sb.WriteString("**：**\n")
+		sb.WriteString(fmt.Sprintf("  - : exec(command=\"grep\", args=[\"\", \"%s\"])\n", filePath))
+		sb.WriteString(fmt.Sprintf("  - IP: exec(command=\"grep\", args=[\"-E\", \"\\\\d+\\\\.\\\\d+\\\\.\\\\d+\\\\.\\\\d+\", \"%s\"])\n", filePath))
+		sb.WriteString(fmt.Sprintf("  - : exec(command=\"grep\", args=[\"-i\", \"\", \"%s\"])\n", filePath))
+		sb.WriteString(fmt.Sprintf("  - : exec(command=\"grep\", args=[\"-n\", \"\", \"%s\"])\n", filePath))
 		sb.WriteString("\n")
-		sb.WriteString("**过滤和统计示例：**\n")
-		sb.WriteString(fmt.Sprintf("  - 统计总行数: exec(command=\"wc\", args=[\"-l\", \"%s\"])\n", filePath))
-		sb.WriteString(fmt.Sprintf("  - 过滤包含error的行: exec(command=\"grep\", args=[\"error\", \"%s\"])\n", filePath))
-		sb.WriteString(fmt.Sprintf("  - 排除空行: exec(command=\"grep\", args=[\"-v\", \"^$\", \"%s\"])\n", filePath))
+		sb.WriteString("**：**\n")
+		sb.WriteString(fmt.Sprintf("  - : exec(command=\"wc\", args=[\"-l\", \"%s\"])\n", filePath))
+		sb.WriteString(fmt.Sprintf("  - error: exec(command=\"grep\", args=[\"error\", \"%s\"])\n", filePath))
+		sb.WriteString(fmt.Sprintf("  - : exec(command=\"grep\", args=[\"-v\", \"^$\", \"%s\"])\n", filePath))
 		sb.WriteString("\n")
-		sb.WriteString("**完整读取（不推荐大文件）：**\n")
-		sb.WriteString(fmt.Sprintf("  - 使用 cat 工具: cat(file=\"%s\")\n", filePath))
-		sb.WriteString(fmt.Sprintf("  - 使用 exec 工具: exec(command=\"cat\", args=[\"%s\"])\n", filePath))
+		sb.WriteString("**（）：**\n")
+		sb.WriteString(fmt.Sprintf("  -  cat : cat(file=\"%s\")\n", filePath))
+		sb.WriteString(fmt.Sprintf("  -  exec : exec(command=\"cat\", args=[\"%s\"])\n", filePath))
 		sb.WriteString("\n")
-		sb.WriteString("**注意：**\n")
-		sb.WriteString("  - 直接读取大文件可能会再次触发大结果保存机制\n")
-		sb.WriteString("  - 建议优先使用分段读取和搜索功能，避免一次性加载整个文件\n")
-		sb.WriteString("  - 正则表达式语法遵循标准 POSIX 正则表达式规范\n")
+		sb.WriteString("**：**\n")
+		sb.WriteString("  - \n")
+		sb.WriteString("  - ，\n")
+		sb.WriteString("  -  POSIX \n")
 	}
 
 	return sb.String()
@@ -1629,7 +1629,7 @@ func (a *Agent) UpdateConfig(cfg *config.OpenAIConfig) {
 		a.memoryCompressor.UpdateConfig(cfg)
 	}
 
-	a.logger.Info("Agent配置已更新",
+	a.logger.Info("Agent",
 		zap.String("base_url", cfg.BaseURL),
 		zap.String("model", cfg.Model),
 	)
@@ -1641,23 +1641,23 @@ func (a *Agent) UpdateMaxIterations(maxIterations int) {
 	defer a.mu.Unlock()
 	if maxIterations > 0 {
 		a.maxIterations = maxIterations
-		a.logger.Info("Agent最大迭代次数已更新", zap.Int("max_iterations", maxIterations))
+		a.logger.Info("Agent", zap.Int("max_iterations", maxIterations))
 	}
 }
 
 // English note.
 func (a *Agent) formatToolError(toolName string, args map[string]interface{}, err error) string {
-	errorMsg := fmt.Sprintf(`工具执行失败
+	errorMsg := fmt.Sprintf(`
 
-工具名称: %s
-调用参数: %v
-错误信息: %v
+: %s
+: %v
+: %v
 
-请分析错误原因并采取以下行动之一：
-1. 如果参数错误，请修正参数后重试
-2. 如果工具不可用，请尝试使用替代工具
-3. 如果这是系统问题，请向用户说明情况并提供建议
-4. 如果错误信息中包含有用信息，可以基于这些信息继续分析`, toolName, args, err)
+：
+1. ，
+2. ，
+3. ，
+4. ，`, toolName, args, err)
 
 	return errorMsg
 }
@@ -1670,11 +1670,11 @@ func (a *Agent) applyMemoryCompression(ctx context.Context, messages []ChatMessa
 
 	compressed, changed, err := a.memoryCompressor.CompressHistory(ctx, messages, reservedTokens)
 	if err != nil {
-		a.logger.Warn("上下文压缩失败，将使用原始消息继续", zap.Error(err))
+		a.logger.Warn("，", zap.Error(err))
 		return messages
 	}
 	if changed {
-		a.logger.Info("历史上下文已压缩",
+		a.logger.Info("",
 			zap.Int("originalMessages", len(messages)),
 			zap.Int("compressedMessages", len(compressed)),
 		)
@@ -1820,7 +1820,7 @@ func (a *Agent) repairOrphanToolMessages(messages *[]ChatMessage) bool {
 				// English note.
 				if len(validToolCalls) != originalCount {
 					cleaned[i].ToolCalls = validToolCalls
-					a.logger.Info("移除了未完成的tool_calls，避免重新执行",
+					a.logger.Info("tool_calls，",
 						zap.Int("removed_count", originalCount-len(validToolCalls)),
 					)
 				}
@@ -1830,7 +1830,7 @@ func (a *Agent) repairOrphanToolMessages(messages *[]ChatMessage) bool {
 	}
 
 	if removed {
-		a.logger.Warn("修复了对话历史中的tool消息和tool_calls",
+		a.logger.Warn("tooltool_calls",
 			zap.Int("original_messages", len(msgs)),
 			zap.Int("cleaned_messages", len(cleaned)),
 		)

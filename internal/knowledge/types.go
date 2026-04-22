@@ -16,10 +16,10 @@ func formatTime(t time.Time) string {
 // English note.
 type KnowledgeItem struct {
 	ID        string    `json:"id"`
-	Category  string    `json:"category"` // 风险类型（文件夹名）
-	Title     string    `json:"title"`    // 标题（文件名）
-	FilePath  string    `json:"filePath"` // 文件路径
-	Content   string    `json:"content"`  // 文件内容
+	Category  string    `json:"category"` // （）
+	Title     string    `json:"title"`    // （）
+	FilePath  string    `json:"filePath"` // 
+	Content   string    `json:"content"`  // 
 	CreatedAt time.Time `json:"createdAt"`
 	UpdatedAt time.Time `json:"updatedAt"`
 }
@@ -30,7 +30,7 @@ type KnowledgeItemSummary struct {
 	Category  string    `json:"category"`
 	Title     string    `json:"title"`
 	FilePath  string    `json:"filePath"`
-	Content   string    `json:"content,omitempty"` // 可选：内容预览（如果提供，通常只包含前 150 字符）
+	Content   string    `json:"content,omitempty"` // ：（， 150 ）
 	CreatedAt time.Time `json:"createdAt"`
 	UpdatedAt time.Time `json:"updatedAt"`
 }
@@ -71,7 +71,7 @@ type KnowledgeChunk struct {
 	ItemID     string    `json:"itemId"`
 	ChunkIndex int       `json:"chunkIndex"`
 	ChunkText  string    `json:"chunkText"`
-	Embedding  []float32 `json:"-"` // 向量嵌入，不序列化到 JSON
+	Embedding  []float32 `json:"-"` // ， JSON
 	CreatedAt  time.Time `json:"createdAt"`
 }
 
@@ -79,8 +79,8 @@ type KnowledgeChunk struct {
 type RetrievalResult struct {
 	Chunk      *KnowledgeChunk `json:"chunk"`
 	Item       *KnowledgeItem  `json:"item"`
-	Similarity float64         `json:"similarity"` // 相似度分数
-	Score      float64         `json:"score"`      // 与 Similarity 相同：余弦相似度
+	Similarity float64         `json:"similarity"` // 
+	Score      float64         `json:"score"`      //  Similarity ：
 }
 
 // English note.
@@ -90,7 +90,7 @@ type RetrievalLog struct {
 	MessageID      string    `json:"messageId,omitempty"`
 	Query          string    `json:"query"`
 	RiskType       string    `json:"riskType,omitempty"`
-	RetrievedItems []string  `json:"retrievedItems"` // 检索到的知识项 ID 列表
+	RetrievedItems []string  `json:"retrievedItems"` //  ID 
 	CreatedAt      time.Time `json:"createdAt"`
 }
 
@@ -108,16 +108,16 @@ func (r *RetrievalLog) MarshalJSON() ([]byte, error) {
 
 // English note.
 type CategoryWithItems struct {
-	Category  string                `json:"category"`           // 分类名称
-	ItemCount int                   `json:"itemCount"`          // 该分类下的知识项总数
-	Items     []*KnowledgeItemSummary `json:"items"`            // 该分类下的知识项列表
+	Category  string                `json:"category"`           // 
+	ItemCount int                   `json:"itemCount"`          // 
+	Items     []*KnowledgeItemSummary `json:"items"`            // 
 }
 
 // English note.
 type SearchRequest struct {
 	Query          string  `json:"query"`
-	RiskType       string  `json:"riskType,omitempty"`       // 可选：指定风险类型
-	SubIndexFilter string  `json:"subIndexFilter,omitempty"` // 可选：仅保留 sub_indexes 含该标签的行（含未打标旧数据）
-	TopK           int     `json:"topK,omitempty"`           // 返回 Top-K 结果，默认 5
-	Threshold      float64 `json:"threshold,omitempty"`      // 相似度阈值，默认 0.7
+	RiskType       string  `json:"riskType,omitempty"`       // ：
+	SubIndexFilter string  `json:"subIndexFilter,omitempty"` // ： sub_indexes （）
+	TopK           int     `json:"topK,omitempty"`           //  Top-K ， 5
+	Threshold      float64 `json:"threshold,omitempty"`      // ， 0.7
 }

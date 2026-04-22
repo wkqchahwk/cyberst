@@ -39,12 +39,12 @@ func (h *ConversationHandler) CreateConversation(c *gin.Context) {
 
 	title := req.Title
 	if title == "" {
-		title = "新对话"
+		title = ""
 	}
 
 	conv, err := h.db.CreateConversation(title)
 	if err != nil {
-		h.logger.Error("创建对话失败", zap.Error(err))
+		h.logger.Error("", zap.Error(err))
 		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		return
 	}
@@ -56,7 +56,7 @@ func (h *ConversationHandler) CreateConversation(c *gin.Context) {
 func (h *ConversationHandler) ListConversations(c *gin.Context) {
 	limitStr := c.DefaultQuery("limit", "50")
 	offsetStr := c.DefaultQuery("offset", "0")
-	search := c.Query("search") // 获取搜索参数
+	search := c.Query("search") // 
 
 	limit, _ := strconv.Atoi(limitStr)
 	offset, _ := strconv.Atoi(offsetStr)
@@ -67,7 +67,7 @@ func (h *ConversationHandler) ListConversations(c *gin.Context) {
 
 	conversations, err := h.db.ListConversations(limit, offset, search)
 	if err != nil {
-		h.logger.Error("获取对话列表失败", zap.Error(err))
+		h.logger.Error("", zap.Error(err))
 		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		return
 	}
@@ -94,8 +94,8 @@ func (h *ConversationHandler) GetConversation(c *gin.Context) {
 		conv, err = h.db.GetConversationLite(id)
 	}
 	if err != nil {
-		h.logger.Error("获取对话失败", zap.Error(err))
-		c.JSON(http.StatusNotFound, gin.H{"error": "对话不存在"})
+		h.logger.Error("", zap.Error(err))
+		c.JSON(http.StatusNotFound, gin.H{"error": ""})
 		return
 	}
 
@@ -112,7 +112,7 @@ func (h *ConversationHandler) GetMessageProcessDetails(c *gin.Context) {
 
 	details, err := h.db.GetProcessDetails(messageID)
 	if err != nil {
-		h.logger.Error("获取过程详情失败", zap.Error(err))
+		h.logger.Error("", zap.Error(err))
 		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		return
 	}
@@ -123,7 +123,7 @@ func (h *ConversationHandler) GetMessageProcessDetails(c *gin.Context) {
 		var data interface{}
 		if d.Data != "" {
 			if err := json.Unmarshal([]byte(d.Data), &data); err != nil {
-				h.logger.Warn("解析过程详情数据失败", zap.Error(err))
+				h.logger.Warn("", zap.Error(err))
 			}
 		}
 		out = append(out, map[string]interface{}{
@@ -156,12 +156,12 @@ func (h *ConversationHandler) UpdateConversation(c *gin.Context) {
 	}
 
 	if req.Title == "" {
-		c.JSON(http.StatusBadRequest, gin.H{"error": "标题不能为空"})
+		c.JSON(http.StatusBadRequest, gin.H{"error": ""})
 		return
 	}
 
 	if err := h.db.UpdateConversationTitle(id, req.Title); err != nil {
-		h.logger.Error("更新对话失败", zap.Error(err))
+		h.logger.Error("", zap.Error(err))
 		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		return
 	}
@@ -169,7 +169,7 @@ func (h *ConversationHandler) UpdateConversation(c *gin.Context) {
 	// English note.
 	conv, err := h.db.GetConversation(id)
 	if err != nil {
-		h.logger.Error("获取更新后的对话失败", zap.Error(err))
+		h.logger.Error("", zap.Error(err))
 		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		return
 	}
@@ -182,12 +182,12 @@ func (h *ConversationHandler) DeleteConversation(c *gin.Context) {
 	id := c.Param("id")
 
 	if err := h.db.DeleteConversation(id); err != nil {
-		h.logger.Error("删除对话失败", zap.Error(err))
+		h.logger.Error("", zap.Error(err))
 		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		return
 	}
 
-	c.JSON(http.StatusOK, gin.H{"message": "删除成功"})
+	c.JSON(http.StatusOK, gin.H{"message": ""})
 }
 
 // English note.
@@ -210,13 +210,13 @@ func (h *ConversationHandler) DeleteConversationTurn(c *gin.Context) {
 	}
 
 	if _, err := h.db.GetConversation(conversationID); err != nil {
-		c.JSON(http.StatusNotFound, gin.H{"error": "对话不存在"})
+		c.JSON(http.StatusNotFound, gin.H{"error": ""})
 		return
 	}
 
 	deletedIDs, err := h.db.DeleteConversationTurn(conversationID, req.MessageID)
 	if err != nil {
-		h.logger.Warn("删除对话轮次失败",
+		h.logger.Warn("",
 			zap.String("conversationId", conversationID),
 			zap.String("messageId", req.MessageID),
 			zap.Error(err),

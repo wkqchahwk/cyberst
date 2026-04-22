@@ -48,8 +48,8 @@ type claudeMessage struct {
 // English note.
 // English note.
 type claudeMessageContent struct {
-	Text   string               // 纯文本形式（简写）
-	Blocks []claudeContentBlock // 多 block 形式（tool_use / tool_result 必须用这种）
+	Text   string               // （）
+	Blocks []claudeContentBlock //  block （tool_use / tool_result ）
 }
 
 func (c claudeMessageContent) MarshalJSON() ([]byte, error) {
@@ -147,7 +147,7 @@ func convertOpenAIToClaude(payload interface{}) (*claudeRequest, error) {
 	if mt, ok := oai["max_tokens"].(float64); ok && mt > 0 {
 		req.MaxTokens = int(mt)
 	} else {
-		req.MaxTokens = 8192 // Claude 默认最大输出（兼容 Haiku/Sonnet/Opus）
+		req.MaxTokens = 8192 // Claude （ Haiku/Sonnet/Opus）
 	}
 
 	// stream
@@ -252,7 +252,7 @@ func convertOpenAIToClaude(payload interface{}) (*claudeRequest, error) {
 					Content:   tcContent,
 				})
 			}
-			i-- // 外层 for 会 i++，回退一步
+			i-- //  for  i++，
 			req.Messages = append(req.Messages, claudeMessage{
 				Role:    "user",
 				Content: claudeMessageContent{Blocks: toolBlocks},

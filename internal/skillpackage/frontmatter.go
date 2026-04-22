@@ -112,3 +112,42 @@ func versionFromMetadata(m *SkillManifest) string {
 	}
 	return ""
 }
+
+func EnabledFromMetadata(m *SkillManifest) bool {
+	if m == nil || m.Metadata == nil {
+		return true
+	}
+	v, ok := m.Metadata["enabled"]
+	if !ok {
+		return true
+	}
+	switch typed := v.(type) {
+	case bool:
+		return typed
+	case string:
+		switch strings.ToLower(strings.TrimSpace(typed)) {
+		case "false", "0", "off", "no":
+			return false
+		default:
+			return true
+		}
+	case int:
+		return typed != 0
+	case int64:
+		return typed != 0
+	case float64:
+		return typed != 0
+	default:
+		return true
+	}
+}
+
+func SetEnabledMetadata(m *SkillManifest, enabled bool) {
+	if m == nil {
+		return
+	}
+	if m.Metadata == nil {
+		m.Metadata = map[string]any{}
+	}
+	m.Metadata["enabled"] = enabled
+}

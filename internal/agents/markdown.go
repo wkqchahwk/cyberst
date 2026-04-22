@@ -28,16 +28,16 @@ type FrontMatter struct {
 	Name          string      `yaml:"name"`
 	ID            string      `yaml:"id"`
 	Description   string      `yaml:"description"`
-	Tools         interface{} `yaml:"tools"` // 字符串 "A, B" 或 []string
+	Tools         interface{} `yaml:"tools"` //  "A, B"  []string
 	MaxIterations int         `yaml:"max_iterations"`
 	BindRole      string      `yaml:"bind_role,omitempty"`
-	Kind          string      `yaml:"kind,omitempty"` // orchestrator = 主代理（亦可仅用文件名 orchestrator.md）
+	Kind          string      `yaml:"kind,omitempty"` // orchestrator = （ orchestrator.md）
 }
 
 // English note.
 type OrchestratorMarkdown struct {
 	Filename    string
-	EinoName    string // 写入 deep.Config.Name / 流式事件过滤
+	EinoName    string //  deep.Config.Name / 
 	DisplayName string
 	Description string
 	Instruction string
@@ -46,10 +46,10 @@ type OrchestratorMarkdown struct {
 // English note.
 type MarkdownDirLoad struct {
 	SubAgents               []config.MultiAgentSubConfig
-	Orchestrator            *OrchestratorMarkdown // Deep 主代理
-	OrchestratorPlanExecute *OrchestratorMarkdown // plan_execute 规划主代理
-	OrchestratorSupervisor  *OrchestratorMarkdown // supervisor 监督主代理
-	FileEntries             []FileAgent           // 含主代理与所有子代理，供管理 API 列表
+	Orchestrator            *OrchestratorMarkdown // Deep 
+	OrchestratorPlanExecute *OrchestratorMarkdown // plan_execute 
+	OrchestratorSupervisor  *OrchestratorMarkdown // supervisor 
+	FileEntries             []FileAgent           // ， API 
 }
 
 // English note.
@@ -120,7 +120,7 @@ func SplitFrontMatter(content string) (frontYAML string, body string, err error)
 	rest = strings.TrimLeft(rest, "\r\n")
 	end := strings.Index(rest, "\n---")
 	if end < 0 {
-		return "", "", fmt.Errorf("agents: 缺少结束的 --- 分隔符")
+		return "", "", fmt.Errorf("agents:  --- ")
 	}
 	fm := strings.TrimSpace(rest[:end])
 	body = strings.TrimSpace(rest[end+4:])
@@ -224,10 +224,10 @@ func parseMarkdownAgentRaw(filename string, content string) (FrontMatter, string
 		return fm, "", err
 	}
 	if strings.TrimSpace(fmStr) == "" {
-		return fm, "", fmt.Errorf("agents: %s 无 YAML front matter", filename)
+		return fm, "", fmt.Errorf("agents: %s  YAML front matter", filename)
 	}
 	if err := yaml.Unmarshal([]byte(fmStr), &fm); err != nil {
-		return fm, "", fmt.Errorf("agents: 解析 front matter: %w", err)
+		return fm, "", fmt.Errorf("agents:  front matter: %w", err)
 	}
 	return fm, body, nil
 }
@@ -268,7 +268,7 @@ func subAgentFromFrontMatter(filename string, fm FrontMatter, body string) (conf
 	var out config.MultiAgentSubConfig
 	name := strings.TrimSpace(fm.Name)
 	if name == "" {
-		return out, fmt.Errorf("agents: %s 缺少 name 字段", filename)
+		return out, fmt.Errorf("agents: %s  name ", filename)
 	}
 	id := strings.TrimSpace(fm.ID)
 	if id == "" {
@@ -297,7 +297,7 @@ func collectMarkdownBasenames(dir string) ([]string, error) {
 		return nil, err
 	}
 	if !st.IsDir() {
-		return nil, fmt.Errorf("agents: 不是目录: %s", dir)
+		return nil, fmt.Errorf("agents: : %s", dir)
 	}
 	entries, err := os.ReadDir(dir)
 	if err != nil {
@@ -344,7 +344,7 @@ func LoadMarkdownAgentsDir(dir string) (*MarkdownDirLoad, error) {
 		switch OrchestratorMarkdownKind(n) {
 		case "plan_execute":
 			if out.OrchestratorPlanExecute != nil {
-				return nil, fmt.Errorf("agents: 仅能定义一个 %s，已有 %s", OrchestratorPlanExecuteMarkdownFilename, out.OrchestratorPlanExecute.Filename)
+				return nil, fmt.Errorf("agents:  %s， %s", OrchestratorPlanExecuteMarkdownFilename, out.OrchestratorPlanExecute.Filename)
 			}
 			orch, err := orchestratorFromParsed(n, fm, body)
 			if err != nil {
@@ -359,7 +359,7 @@ func LoadMarkdownAgentsDir(dir string) (*MarkdownDirLoad, error) {
 			continue
 		case "supervisor":
 			if out.OrchestratorSupervisor != nil {
-				return nil, fmt.Errorf("agents: 仅能定义一个 %s，已有 %s", OrchestratorSupervisorMarkdownFilename, out.OrchestratorSupervisor.Filename)
+				return nil, fmt.Errorf("agents:  %s， %s", OrchestratorSupervisorMarkdownFilename, out.OrchestratorSupervisor.Filename)
 			}
 			orch, err := orchestratorFromParsed(n, fm, body)
 			if err != nil {
@@ -375,7 +375,7 @@ func LoadMarkdownAgentsDir(dir string) (*MarkdownDirLoad, error) {
 		}
 		if IsOrchestratorMarkdown(n, fm) {
 			if out.Orchestrator != nil {
-				return nil, fmt.Errorf("agents: 仅能定义一个主代理（Deep 协调者），已有 %s，又与 %s 冲突", out.Orchestrator.Filename, n)
+				return nil, fmt.Errorf("agents: （Deep ）， %s， %s ", out.Orchestrator.Filename, n)
 			}
 			orch, err := orchestratorFromParsed(n, fm, body)
 			if err != nil {

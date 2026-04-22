@@ -19,11 +19,11 @@ type DB struct {
 func NewDB(dbPath string, logger *zap.Logger) (*DB, error) {
 	db, err := sql.Open("sqlite3", dbPath+"?_journal_mode=WAL&_foreign_keys=1")
 	if err != nil {
-		return nil, fmt.Errorf("打开数据库失败: %w", err)
+		return nil, fmt.Errorf(": %w", err)
 	}
 
 	if err := db.Ping(); err != nil {
-		return nil, fmt.Errorf("连接数据库失败: %w", err)
+		return nil, fmt.Errorf(": %w", err)
 	}
 
 	database := &DB{
@@ -33,7 +33,7 @@ func NewDB(dbPath string, logger *zap.Logger) (*DB, error) {
 
 	// English note.
 	if err := database.initTables(); err != nil {
-		return nil, fmt.Errorf("初始化表失败: %w", err)
+		return nil, fmt.Errorf(": %w", err)
 	}
 
 	return database, nil
@@ -289,95 +289,95 @@ func (db *DB) initTables() error {
 	`
 
 	if _, err := db.Exec(createConversationsTable); err != nil {
-		return fmt.Errorf("创建conversations表失败: %w", err)
+		return fmt.Errorf("conversations: %w", err)
 	}
 
 	if _, err := db.Exec(createMessagesTable); err != nil {
-		return fmt.Errorf("创建messages表失败: %w", err)
+		return fmt.Errorf("messages: %w", err)
 	}
 
 	if _, err := db.Exec(createProcessDetailsTable); err != nil {
-		return fmt.Errorf("创建process_details表失败: %w", err)
+		return fmt.Errorf("process_details: %w", err)
 	}
 
 	if _, err := db.Exec(createToolExecutionsTable); err != nil {
-		return fmt.Errorf("创建tool_executions表失败: %w", err)
+		return fmt.Errorf("tool_executions: %w", err)
 	}
 
 	if _, err := db.Exec(createToolStatsTable); err != nil {
-		return fmt.Errorf("创建tool_stats表失败: %w", err)
+		return fmt.Errorf("tool_stats: %w", err)
 	}
 
 	if _, err := db.Exec(createSkillStatsTable); err != nil {
-		return fmt.Errorf("创建skill_stats表失败: %w", err)
+		return fmt.Errorf("skill_stats: %w", err)
 	}
 
 	if _, err := db.Exec(createAttackChainNodesTable); err != nil {
-		return fmt.Errorf("创建attack_chain_nodes表失败: %w", err)
+		return fmt.Errorf("attack_chain_nodes: %w", err)
 	}
 
 	if _, err := db.Exec(createAttackChainEdgesTable); err != nil {
-		return fmt.Errorf("创建attack_chain_edges表失败: %w", err)
+		return fmt.Errorf("attack_chain_edges: %w", err)
 	}
 
 	if _, err := db.Exec(createKnowledgeRetrievalLogsTable); err != nil {
-		return fmt.Errorf("创建knowledge_retrieval_logs表失败: %w", err)
+		return fmt.Errorf("knowledge_retrieval_logs: %w", err)
 	}
 
 	if _, err := db.Exec(createConversationGroupsTable); err != nil {
-		return fmt.Errorf("创建conversation_groups表失败: %w", err)
+		return fmt.Errorf("conversation_groups: %w", err)
 	}
 
 	if _, err := db.Exec(createConversationGroupMappingsTable); err != nil {
-		return fmt.Errorf("创建conversation_group_mappings表失败: %w", err)
+		return fmt.Errorf("conversation_group_mappings: %w", err)
 	}
 
 	if _, err := db.Exec(createVulnerabilitiesTable); err != nil {
-		return fmt.Errorf("创建vulnerabilities表失败: %w", err)
+		return fmt.Errorf("vulnerabilities: %w", err)
 	}
 
 	if _, err := db.Exec(createBatchTaskQueuesTable); err != nil {
-		return fmt.Errorf("创建batch_task_queues表失败: %w", err)
+		return fmt.Errorf("batch_task_queues: %w", err)
 	}
 
 	if _, err := db.Exec(createBatchTasksTable); err != nil {
-		return fmt.Errorf("创建batch_tasks表失败: %w", err)
+		return fmt.Errorf("batch_tasks: %w", err)
 	}
 
 	if _, err := db.Exec(createWebshellConnectionsTable); err != nil {
-		return fmt.Errorf("创建webshell_connections表失败: %w", err)
+		return fmt.Errorf("webshell_connections: %w", err)
 	}
 
 	if _, err := db.Exec(createWebshellConnectionStatesTable); err != nil {
-		return fmt.Errorf("创建webshell_connection_states表失败: %w", err)
+		return fmt.Errorf("webshell_connection_states: %w", err)
 	}
 
 	// English note.
 	if err := db.migrateConversationsTable(); err != nil {
-		db.logger.Warn("迁移conversations表失败", zap.Error(err))
+		db.logger.Warn("conversations", zap.Error(err))
 		// English note.
 	}
 
 	if err := db.migrateConversationGroupsTable(); err != nil {
-		db.logger.Warn("迁移conversation_groups表失败", zap.Error(err))
+		db.logger.Warn("conversation_groups", zap.Error(err))
 		// English note.
 	}
 
 	if err := db.migrateConversationGroupMappingsTable(); err != nil {
-		db.logger.Warn("迁移conversation_group_mappings表失败", zap.Error(err))
+		db.logger.Warn("conversation_group_mappings", zap.Error(err))
 		// English note.
 	}
 
 	if err := db.migrateBatchTaskQueuesTable(); err != nil {
-		db.logger.Warn("迁移batch_task_queues表失败", zap.Error(err))
+		db.logger.Warn("batch_task_queues", zap.Error(err))
 		// English note.
 	}
 
 	if _, err := db.Exec(createIndexes); err != nil {
-		return fmt.Errorf("创建索引失败: %w", err)
+		return fmt.Errorf(": %w", err)
 	}
 
-	db.logger.Info("数据库表初始化完成")
+	db.logger.Info("")
 	return nil
 }
 
@@ -392,13 +392,13 @@ func (db *DB) migrateConversationsTable() error {
 			// English note.
 			errMsg := strings.ToLower(addErr.Error())
 			if !strings.Contains(errMsg, "duplicate column") && !strings.Contains(errMsg, "already exists") {
-				db.logger.Warn("添加last_react_input字段失败", zap.Error(addErr))
+				db.logger.Warn("last_react_input", zap.Error(addErr))
 			}
 		}
 	} else if count == 0 {
 		// English note.
 		if _, err := db.Exec("ALTER TABLE conversations ADD COLUMN last_react_input TEXT"); err != nil {
-			db.logger.Warn("添加last_react_input字段失败", zap.Error(err))
+			db.logger.Warn("last_react_input", zap.Error(err))
 		}
 	}
 
@@ -410,13 +410,13 @@ func (db *DB) migrateConversationsTable() error {
 			// English note.
 			errMsg := strings.ToLower(addErr.Error())
 			if !strings.Contains(errMsg, "duplicate column") && !strings.Contains(errMsg, "already exists") {
-				db.logger.Warn("添加last_react_output字段失败", zap.Error(addErr))
+				db.logger.Warn("last_react_output", zap.Error(addErr))
 			}
 		}
 	} else if count == 0 {
 		// English note.
 		if _, err := db.Exec("ALTER TABLE conversations ADD COLUMN last_react_output TEXT"); err != nil {
-			db.logger.Warn("添加last_react_output字段失败", zap.Error(err))
+			db.logger.Warn("last_react_output", zap.Error(err))
 		}
 	}
 
@@ -428,13 +428,13 @@ func (db *DB) migrateConversationsTable() error {
 			// English note.
 			errMsg := strings.ToLower(addErr.Error())
 			if !strings.Contains(errMsg, "duplicate column") && !strings.Contains(errMsg, "already exists") {
-				db.logger.Warn("添加pinned字段失败", zap.Error(addErr))
+				db.logger.Warn("pinned", zap.Error(addErr))
 			}
 		}
 	} else if count == 0 {
 		// English note.
 		if _, err := db.Exec("ALTER TABLE conversations ADD COLUMN pinned INTEGER DEFAULT 0"); err != nil {
-			db.logger.Warn("添加pinned字段失败", zap.Error(err))
+			db.logger.Warn("pinned", zap.Error(err))
 		}
 	}
 
@@ -444,12 +444,12 @@ func (db *DB) migrateConversationsTable() error {
 		if _, addErr := db.Exec("ALTER TABLE conversations ADD COLUMN webshell_connection_id TEXT"); addErr != nil {
 			errMsg := strings.ToLower(addErr.Error())
 			if !strings.Contains(errMsg, "duplicate column") && !strings.Contains(errMsg, "already exists") {
-				db.logger.Warn("添加webshell_connection_id字段失败", zap.Error(addErr))
+				db.logger.Warn("webshell_connection_id", zap.Error(addErr))
 			}
 		}
 	} else if count == 0 {
 		if _, err := db.Exec("ALTER TABLE conversations ADD COLUMN webshell_connection_id TEXT"); err != nil {
-			db.logger.Warn("添加webshell_connection_id字段失败", zap.Error(err))
+			db.logger.Warn("webshell_connection_id", zap.Error(err))
 		}
 	}
 
@@ -467,13 +467,13 @@ func (db *DB) migrateConversationGroupsTable() error {
 			// English note.
 			errMsg := strings.ToLower(addErr.Error())
 			if !strings.Contains(errMsg, "duplicate column") && !strings.Contains(errMsg, "already exists") {
-				db.logger.Warn("添加pinned字段失败", zap.Error(addErr))
+				db.logger.Warn("pinned", zap.Error(addErr))
 			}
 		}
 	} else if count == 0 {
 		// English note.
 		if _, err := db.Exec("ALTER TABLE conversation_groups ADD COLUMN pinned INTEGER DEFAULT 0"); err != nil {
-			db.logger.Warn("添加pinned字段失败", zap.Error(err))
+			db.logger.Warn("pinned", zap.Error(err))
 		}
 	}
 
@@ -491,13 +491,13 @@ func (db *DB) migrateConversationGroupMappingsTable() error {
 			// English note.
 			errMsg := strings.ToLower(addErr.Error())
 			if !strings.Contains(errMsg, "duplicate column") && !strings.Contains(errMsg, "already exists") {
-				db.logger.Warn("添加pinned字段失败", zap.Error(addErr))
+				db.logger.Warn("pinned", zap.Error(addErr))
 			}
 		}
 	} else if count == 0 {
 		// English note.
 		if _, err := db.Exec("ALTER TABLE conversation_group_mappings ADD COLUMN pinned INTEGER DEFAULT 0"); err != nil {
-			db.logger.Warn("添加pinned字段失败", zap.Error(err))
+			db.logger.Warn("pinned", zap.Error(err))
 		}
 	}
 
@@ -515,13 +515,13 @@ func (db *DB) migrateBatchTaskQueuesTable() error {
 			// English note.
 			errMsg := strings.ToLower(addErr.Error())
 			if !strings.Contains(errMsg, "duplicate column") && !strings.Contains(errMsg, "already exists") {
-				db.logger.Warn("添加title字段失败", zap.Error(addErr))
+				db.logger.Warn("title", zap.Error(addErr))
 			}
 		}
 	} else if count == 0 {
 		// English note.
 		if _, err := db.Exec("ALTER TABLE batch_task_queues ADD COLUMN title TEXT"); err != nil {
-			db.logger.Warn("添加title字段失败", zap.Error(err))
+			db.logger.Warn("title", zap.Error(err))
 		}
 	}
 
@@ -534,13 +534,13 @@ func (db *DB) migrateBatchTaskQueuesTable() error {
 			// English note.
 			errMsg := strings.ToLower(addErr.Error())
 			if !strings.Contains(errMsg, "duplicate column") && !strings.Contains(errMsg, "already exists") {
-				db.logger.Warn("添加role字段失败", zap.Error(addErr))
+				db.logger.Warn("role", zap.Error(addErr))
 			}
 		}
 	} else if roleCount == 0 {
 		// English note.
 		if _, err := db.Exec("ALTER TABLE batch_task_queues ADD COLUMN role TEXT"); err != nil {
-			db.logger.Warn("添加role字段失败", zap.Error(err))
+			db.logger.Warn("role", zap.Error(err))
 		}
 	}
 
@@ -551,12 +551,12 @@ func (db *DB) migrateBatchTaskQueuesTable() error {
 		if _, addErr := db.Exec("ALTER TABLE batch_task_queues ADD COLUMN agent_mode TEXT NOT NULL DEFAULT 'single'"); addErr != nil {
 			errMsg := strings.ToLower(addErr.Error())
 			if !strings.Contains(errMsg, "duplicate column") && !strings.Contains(errMsg, "already exists") {
-				db.logger.Warn("添加agent_mode字段失败", zap.Error(addErr))
+				db.logger.Warn("agent_mode", zap.Error(addErr))
 			}
 		}
 	} else if agentModeCount == 0 {
 		if _, err := db.Exec("ALTER TABLE batch_task_queues ADD COLUMN agent_mode TEXT NOT NULL DEFAULT 'single'"); err != nil {
-			db.logger.Warn("添加agent_mode字段失败", zap.Error(err))
+			db.logger.Warn("agent_mode", zap.Error(err))
 		}
 	}
 
@@ -567,12 +567,12 @@ func (db *DB) migrateBatchTaskQueuesTable() error {
 		if _, addErr := db.Exec("ALTER TABLE batch_task_queues ADD COLUMN schedule_mode TEXT NOT NULL DEFAULT 'manual'"); addErr != nil {
 			errMsg := strings.ToLower(addErr.Error())
 			if !strings.Contains(errMsg, "duplicate column") && !strings.Contains(errMsg, "already exists") {
-				db.logger.Warn("添加schedule_mode字段失败", zap.Error(addErr))
+				db.logger.Warn("schedule_mode", zap.Error(addErr))
 			}
 		}
 	} else if scheduleModeCount == 0 {
 		if _, err := db.Exec("ALTER TABLE batch_task_queues ADD COLUMN schedule_mode TEXT NOT NULL DEFAULT 'manual'"); err != nil {
-			db.logger.Warn("添加schedule_mode字段失败", zap.Error(err))
+			db.logger.Warn("schedule_mode", zap.Error(err))
 		}
 	}
 
@@ -583,12 +583,12 @@ func (db *DB) migrateBatchTaskQueuesTable() error {
 		if _, addErr := db.Exec("ALTER TABLE batch_task_queues ADD COLUMN cron_expr TEXT"); addErr != nil {
 			errMsg := strings.ToLower(addErr.Error())
 			if !strings.Contains(errMsg, "duplicate column") && !strings.Contains(errMsg, "already exists") {
-				db.logger.Warn("添加cron_expr字段失败", zap.Error(addErr))
+				db.logger.Warn("cron_expr", zap.Error(addErr))
 			}
 		}
 	} else if cronExprCount == 0 {
 		if _, err := db.Exec("ALTER TABLE batch_task_queues ADD COLUMN cron_expr TEXT"); err != nil {
-			db.logger.Warn("添加cron_expr字段失败", zap.Error(err))
+			db.logger.Warn("cron_expr", zap.Error(err))
 		}
 	}
 
@@ -599,12 +599,12 @@ func (db *DB) migrateBatchTaskQueuesTable() error {
 		if _, addErr := db.Exec("ALTER TABLE batch_task_queues ADD COLUMN next_run_at DATETIME"); addErr != nil {
 			errMsg := strings.ToLower(addErr.Error())
 			if !strings.Contains(errMsg, "duplicate column") && !strings.Contains(errMsg, "already exists") {
-				db.logger.Warn("添加next_run_at字段失败", zap.Error(addErr))
+				db.logger.Warn("next_run_at", zap.Error(addErr))
 			}
 		}
 	} else if nextRunAtCount == 0 {
 		if _, err := db.Exec("ALTER TABLE batch_task_queues ADD COLUMN next_run_at DATETIME"); err != nil {
-			db.logger.Warn("添加next_run_at字段失败", zap.Error(err))
+			db.logger.Warn("next_run_at", zap.Error(err))
 		}
 	}
 
@@ -615,12 +615,12 @@ func (db *DB) migrateBatchTaskQueuesTable() error {
 		if _, addErr := db.Exec("ALTER TABLE batch_task_queues ADD COLUMN schedule_enabled INTEGER NOT NULL DEFAULT 1"); addErr != nil {
 			errMsg := strings.ToLower(addErr.Error())
 			if !strings.Contains(errMsg, "duplicate column") && !strings.Contains(errMsg, "already exists") {
-				db.logger.Warn("添加schedule_enabled字段失败", zap.Error(addErr))
+				db.logger.Warn("schedule_enabled", zap.Error(addErr))
 			}
 		}
 	} else if scheduleEnCount == 0 {
 		if _, err := db.Exec("ALTER TABLE batch_task_queues ADD COLUMN schedule_enabled INTEGER NOT NULL DEFAULT 1"); err != nil {
-			db.logger.Warn("添加schedule_enabled字段失败", zap.Error(err))
+			db.logger.Warn("schedule_enabled", zap.Error(err))
 		}
 	}
 
@@ -630,12 +630,12 @@ func (db *DB) migrateBatchTaskQueuesTable() error {
 		if _, addErr := db.Exec("ALTER TABLE batch_task_queues ADD COLUMN last_schedule_trigger_at DATETIME"); addErr != nil {
 			errMsg := strings.ToLower(addErr.Error())
 			if !strings.Contains(errMsg, "duplicate column") && !strings.Contains(errMsg, "already exists") {
-				db.logger.Warn("添加last_schedule_trigger_at字段失败", zap.Error(addErr))
+				db.logger.Warn("last_schedule_trigger_at", zap.Error(addErr))
 			}
 		}
 	} else if lastTrigCount == 0 {
 		if _, err := db.Exec("ALTER TABLE batch_task_queues ADD COLUMN last_schedule_trigger_at DATETIME"); err != nil {
-			db.logger.Warn("添加last_schedule_trigger_at字段失败", zap.Error(err))
+			db.logger.Warn("last_schedule_trigger_at", zap.Error(err))
 		}
 	}
 
@@ -645,12 +645,12 @@ func (db *DB) migrateBatchTaskQueuesTable() error {
 		if _, addErr := db.Exec("ALTER TABLE batch_task_queues ADD COLUMN last_schedule_error TEXT"); addErr != nil {
 			errMsg := strings.ToLower(addErr.Error())
 			if !strings.Contains(errMsg, "duplicate column") && !strings.Contains(errMsg, "already exists") {
-				db.logger.Warn("添加last_schedule_error字段失败", zap.Error(addErr))
+				db.logger.Warn("last_schedule_error", zap.Error(addErr))
 			}
 		}
 	} else if lastSchedErrCount == 0 {
 		if _, err := db.Exec("ALTER TABLE batch_task_queues ADD COLUMN last_schedule_error TEXT"); err != nil {
-			db.logger.Warn("添加last_schedule_error字段失败", zap.Error(err))
+			db.logger.Warn("last_schedule_error", zap.Error(err))
 		}
 	}
 
@@ -660,12 +660,12 @@ func (db *DB) migrateBatchTaskQueuesTable() error {
 		if _, addErr := db.Exec("ALTER TABLE batch_task_queues ADD COLUMN last_run_error TEXT"); addErr != nil {
 			errMsg := strings.ToLower(addErr.Error())
 			if !strings.Contains(errMsg, "duplicate column") && !strings.Contains(errMsg, "already exists") {
-				db.logger.Warn("添加last_run_error字段失败", zap.Error(addErr))
+				db.logger.Warn("last_run_error", zap.Error(addErr))
 			}
 		}
 	} else if lastRunErrCount == 0 {
 		if _, err := db.Exec("ALTER TABLE batch_task_queues ADD COLUMN last_run_error TEXT"); err != nil {
-			db.logger.Warn("添加last_run_error字段失败", zap.Error(err))
+			db.logger.Warn("last_run_error", zap.Error(err))
 		}
 	}
 
@@ -676,11 +676,11 @@ func (db *DB) migrateBatchTaskQueuesTable() error {
 func NewKnowledgeDB(dbPath string, logger *zap.Logger) (*DB, error) {
 	sqlDB, err := sql.Open("sqlite3", dbPath+"?_journal_mode=WAL&_foreign_keys=1")
 	if err != nil {
-		return nil, fmt.Errorf("打开知识库数据库失败: %w", err)
+		return nil, fmt.Errorf(": %w", err)
 	}
 
 	if err := sqlDB.Ping(); err != nil {
-		return nil, fmt.Errorf("连接知识库数据库失败: %w", err)
+		return nil, fmt.Errorf(": %w", err)
 	}
 
 	database := &DB{
@@ -690,7 +690,7 @@ func NewKnowledgeDB(dbPath string, logger *zap.Logger) (*DB, error) {
 
 	// English note.
 	if err := database.initKnowledgeTables(); err != nil {
-		return nil, fmt.Errorf("初始化知识库表失败: %w", err)
+		return nil, fmt.Errorf(": %w", err)
 	}
 
 	return database, nil
@@ -747,26 +747,26 @@ func (db *DB) initKnowledgeTables() error {
 	`
 
 	if _, err := db.Exec(createKnowledgeBaseItemsTable); err != nil {
-		return fmt.Errorf("创建knowledge_base_items表失败: %w", err)
+		return fmt.Errorf("knowledge_base_items: %w", err)
 	}
 
 	if _, err := db.Exec(createKnowledgeEmbeddingsTable); err != nil {
-		return fmt.Errorf("创建knowledge_embeddings表失败: %w", err)
+		return fmt.Errorf("knowledge_embeddings: %w", err)
 	}
 
 	if _, err := db.Exec(createKnowledgeRetrievalLogsTable); err != nil {
-		return fmt.Errorf("创建knowledge_retrieval_logs表失败: %w", err)
+		return fmt.Errorf("knowledge_retrieval_logs: %w", err)
 	}
 
 	if _, err := db.Exec(createIndexes); err != nil {
-		return fmt.Errorf("创建索引失败: %w", err)
+		return fmt.Errorf(": %w", err)
 	}
 
 	if err := db.migrateKnowledgeEmbeddingsColumns(); err != nil {
-		return fmt.Errorf("迁移 knowledge_embeddings 列失败: %w", err)
+		return fmt.Errorf(" knowledge_embeddings : %w", err)
 	}
 
-	db.logger.Info("知识库数据库表初始化完成")
+	db.logger.Info("")
 	return nil
 }
 

@@ -5,7 +5,7 @@
 # CyberStrikeAI
 
 
-[中文](README_CN.md) | [English](README.md)
+[](README_CN.md) | [English](README.md)
 
 **Community**: [Join us on Discord](https://discord.gg/8PjVCMu8Zw)
 

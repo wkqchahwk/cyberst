@@ -11,10 +11,10 @@ import (
 // English note.
 func newPlanExecuteExecutor(ctx context.Context, cfg *planexecute.ExecutorConfig, handlers []adk.ChatModelAgentMiddleware) (adk.Agent, error) {
 	if cfg == nil {
-		return nil, fmt.Errorf("plan_execute: ExecutorConfig 为空")
+		return nil, fmt.Errorf("plan_execute: ExecutorConfig ")
 	}
 	if cfg.Model == nil {
-		return nil, fmt.Errorf("plan_execute: Executor Model 为空")
+		return nil, fmt.Errorf("plan_execute: Executor Model ")
 	}
 	genInputFn := cfg.GenInputFn
 	if genInputFn == nil {

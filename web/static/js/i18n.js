@@ -19,7 +19,7 @@
                 return stored;
             }
         } catch (e) {
-            console.warn('无法读取语言设置:', e);
+            console.warn(':', e);
         }
 
         const navLang = (navigator.language || navigator.userLanguage || '').toLowerCase();
@@ -41,7 +41,7 @@
                 cache: 'no-cache'
             });
             if (!resp.ok) {
-                console.warn('加载语言包失败:', lang, resp.status);
+                console.warn(':', lang, resp.status);
                 return;
             }
             const data = await resp.json();
@@ -50,7 +50,7 @@
             }
             loadedLangs[lang] = true;
         } catch (e) {
-            console.error('加载语言包异常:', lang, e);
+            console.error(':', lang, e);
         }
     }
 
@@ -150,7 +150,7 @@
         try {
             localStorage.setItem(STORAGE_KEY, lang);
         } catch (e) {
-            console.warn('无法保存语言设置:', e);
+            console.warn(':', e);
         }
         applyTranslations(document);
         updateLangLabel();
@@ -164,7 +164,7 @@
 
     async function initI18n() {
         if (typeof i18next === 'undefined') {
-            console.warn('i18next 未加载，跳过前端国际化初始化');
+            console.warn('i18next ，');
             if (typeof i18nReadyResolve === 'function') i18nReadyResolve();
             return;
         }
@@ -222,7 +222,7 @@
     document.addEventListener('DOMContentLoaded', function () {
         // English note.
         initI18n().catch(function (e) {
-            console.error('初始化国际化失败:', e);
+            console.error(':', e);
             if (typeof i18nReadyResolve === 'function') i18nReadyResolve();
         });
     });

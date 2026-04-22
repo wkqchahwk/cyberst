@@ -53,7 +53,7 @@ func (r *Retriever) UpdateConfig(cfg *RetrievalConfig) {
 	if cfg != nil {
 		r.config = cfg
 		if r.logger != nil {
-			r.logger.Info("检索器配置已更新",
+			r.logger.Info("",
 				zap.Int("top_k", cfg.TopK),
 				zap.Float64("similarity_threshold", cfg.SimilarityThreshold),
 				zap.String("sub_index_filter", cfg.SubIndexFilter),
@@ -106,11 +106,11 @@ func cosineSimilarity(a, b []float32) float64 {
 // English note.
 func (r *Retriever) Search(ctx context.Context, req *SearchRequest) ([]*RetrievalResult, error) {
 	if req == nil {
-		return nil, fmt.Errorf("请求不能为空")
+		return nil, fmt.Errorf("")
 	}
 	q := strings.TrimSpace(req.Query)
 	if q == "" {
-		return nil, fmt.Errorf("查询不能为空")
+		return nil, fmt.Errorf("")
 	}
 	opts := r.einoRetrieverOptions(req)
 	docs, err := NewVectorEinoRetriever(r).Retrieve(ctx, q, opts...)
@@ -167,7 +167,7 @@ WHERE 1=1`
 // English note.
 func (r *Retriever) vectorSearch(ctx context.Context, req *SearchRequest) ([]*RetrievalResult, error) {
 	if req.Query == "" {
-		return nil, fmt.Errorf("查询不能为空")
+		return nil, fmt.Errorf("")
 	}
 
 	topK := req.TopK
@@ -194,7 +194,7 @@ func (r *Retriever) vectorSearch(ctx context.Context, req *SearchRequest) ([]*Re
 	queryText := FormatQueryEmbeddingText(req.RiskType, req.Query)
 	queryEmbedding, err := r.embedder.EmbedText(ctx, queryText)
 	if err != nil {
-		return nil, fmt.Errorf("向量化查询失败: %w", err)
+		return nil, fmt.Errorf(": %w", err)
 	}
 	queryDim := len(queryEmbedding)
 	expectedModel := ""
@@ -205,7 +205,7 @@ func (r *Retriever) vectorSearch(ctx context.Context, req *SearchRequest) ([]*Re
 	sqlStr, sqlArgs := r.knowledgeEmbeddingSelectSQL(strings.TrimSpace(req.RiskType), subIdxFilter)
 	rows, err := r.db.QueryContext(ctx, sqlStr, sqlArgs...)
 	if err != nil {
-		return nil, fmt.Errorf("查询向量失败: %w", err)
+		return nil, fmt.Errorf(": %w", err)
 	}
 	defer rows.Close()
 
@@ -231,26 +231,26 @@ func (r *Retriever) vectorSearch(ctx context.Context, req *SearchRequest) ([]*Re
 		var chunkIndex, rowDim int
 
 		if err := rows.Scan(&chunkID, &itemID, &chunkIndex, &chunkText, &embeddingJSON, &rowModel, &rowDim, &category, &title); err != nil {
-			r.logger.Warn("扫描向量失败", zap.Error(err))
+			r.logger.Warn("", zap.Error(err))
 			continue
 		}
 
 		var embedding []float32
 		if err := json.Unmarshal([]byte(embeddingJSON), &embedding); err != nil {
-			r.logger.Warn("解析向量失败", zap.Error(err))
+			r.logger.Warn("", zap.Error(err))
 			continue
 		}
 
 		if rowDim > 0 && len(embedding) != rowDim {
-			r.logger.Debug("跳过维度不一致的向量行", zap.String("chunkId", chunkID), zap.Int("rowDim", rowDim), zap.Int("got", len(embedding)))
+			r.logger.Debug("", zap.String("chunkId", chunkID), zap.Int("rowDim", rowDim), zap.Int("got", len(embedding)))
 			continue
 		}
 		if queryDim > 0 && len(embedding) != queryDim {
-			r.logger.Debug("跳过与查询维度不一致的向量", zap.String("chunkId", chunkID), zap.Int("queryDim", queryDim), zap.Int("got", len(embedding)))
+			r.logger.Debug("", zap.String("chunkId", chunkID), zap.Int("queryDim", queryDim), zap.Int("got", len(embedding)))
 			continue
 		}
 		if expectedModel != "" && strings.TrimSpace(rowModel) != "" && strings.TrimSpace(rowModel) != expectedModel {
-			r.logger.Debug("跳过嵌入模型不一致的行", zap.String("chunkId", chunkID), zap.String("rowModel", rowModel), zap.String("expected", expectedModel))
+			r.logger.Debug("", zap.String("chunkId", chunkID), zap.String("rowModel", rowModel), zap.String("expected", expectedModel))
 			continue
 		}
 

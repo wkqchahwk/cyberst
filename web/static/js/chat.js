@@ -6,7 +6,7 @@ let mentionToolsLoaded = false;
 let mentionToolsLoadingPromise = null;
 let mentionSuggestionsEl = null;
 let mentionFilteredTools = [];
-let externalMcpNames = []; // 外部MCP名称列表
+let externalMcpNames = []; // MCP
 const mentionState = {
     active: false,
     startIndex: -1,
@@ -20,11 +20,11 @@ let isComposing = false;
 // English note.
 const DRAFT_STORAGE_KEY = 'cyberstrike-chat-draft';
 let draftSaveTimer = null;
-const DRAFT_SAVE_DELAY = 500; // 500ms防抖延迟
+const DRAFT_SAVE_DELAY = 500; // 500ms
 
 // English note.
 const MAX_CHAT_FILES = 10;
-const CHAT_FILE_DEFAULT_PROMPT = '请根据上传的文件内容进行分析。';
+const CHAT_FILE_DEFAULT_PROMPT = '。';
 /**
  * English note.
  * @type {{ id: number, fileName: string, mimeType: string, serverPath: string|null, uploading: boolean, uploadPercent: number, uploadPromise: Promise<void>|null, uploadError: string|null }[]}
@@ -100,8 +100,8 @@ function getAgentModeLabelForValue(mode) {
         }
     }
     switch (mode) {
-        case CHAT_AGENT_MODE_REACT: return '原生 ReAct';
-        case CHAT_AGENT_MODE_EINO_SINGLE: return 'Eino 单代理';
+        case CHAT_AGENT_MODE_REACT: return ' ReAct';
+        case CHAT_AGENT_MODE_EINO_SINGLE: return 'Eino ';
         case 'deep': return 'Deep';
         case 'plan_execute': return 'Plan-Execute';
         case 'supervisor': return 'Supervisor';
@@ -241,7 +241,7 @@ function saveChatDraft(content) {
         }
     } catch (error) {
         // English note.
-        console.warn('保存草稿失败:', error);
+        console.warn(':', error);
     }
 }
 
@@ -275,7 +275,7 @@ function restoreChatDraft() {
             localStorage.removeItem(DRAFT_STORAGE_KEY);
         }
     } catch (error) {
-        console.warn('恢复草稿失败:', error);
+        console.warn(':', error);
     }
 }
 
@@ -285,7 +285,7 @@ function clearChatDraft() {
         // English note.
         localStorage.removeItem(DRAFT_STORAGE_KEY);
     } catch (error) {
-        console.warn('清除草稿失败:', error);
+        console.warn(':', error);
     }
 }
 
@@ -324,7 +324,7 @@ async function sendMessage() {
         if (needWait) {
             const waitLabel = (typeof window.t === 'function')
                 ? window.t('chat.waitingAttachmentsUpload')
-                : '正在等待附件上传完成…';
+                : '…';
             chatAttachmentProgressSet(true, 0, waitLabel);
         }
         try {
@@ -336,7 +336,7 @@ async function sendMessage() {
         if (bad.length) {
             const hint = (typeof window.t === 'function')
                 ? window.t('chat.attachmentsUploadIncomplete')
-                : '部分附件未上传成功，请移除失败项或重新选择文件后再发送。';
+                : '，。';
             alert(hint);
             return;
         }
@@ -416,7 +416,7 @@ async function sendMessage() {
         });
         
         if (!response.ok) {
-            throw new Error('请求失败: ' + response.status);
+            throw new Error(': ' + response.status);
         }
         
         const reader = response.body.getReader();
@@ -429,7 +429,7 @@ async function sendMessage() {
             
             buffer += decoder.decode(value, { stream: true });
             const lines = buffer.split('\n');
-            buffer = lines.pop(); // 保留最后一个不完整的行
+            buffer = lines.pop(); // 
             
             for (const line of lines) {
                 if (line.startsWith('data: ')) {
@@ -439,7 +439,7 @@ async function sendMessage() {
                                          () => assistantMessageId, (id) => { assistantMessageId = id; },
                                          () => mcpExecutionIds, (ids) => { mcpExecutionIds = ids; });
                     } catch (e) {
-                        console.error('解析事件数据失败:', e, line);
+                        console.error(':', e, line);
                     }
                 }
             }
@@ -456,7 +456,7 @@ async function sendMessage() {
                                          () => assistantMessageId, (id) => { assistantMessageId = id; },
                                          () => mcpExecutionIds, (ids) => { mcpExecutionIds = ids; });
                     } catch (e) {
-                        console.error('解析事件数据失败:', e, line);
+                        console.error(':', e, line);
                     }
                 }
             }
@@ -477,9 +477,9 @@ async function sendMessage() {
         if (isNetwork && typeof window.t === 'function') {
             addMessage('system', window.t('chat.streamNetworkErrorHint', { detail: msg }));
         } else if (isNetwork) {
-            addMessage('system', '连接已中断（' + msg + '）。长时间任务可能仍在后端执行，请查看顶部运行中任务或稍后刷新对话。');
+            addMessage('system', '（' + msg + '）。，。');
         } else {
-            addMessage('system', '错误: ' + msg);
+            addMessage('system', ': ' + msg);
         }
         if (typeof loadActiveTasks === 'function') {
             loadActiveTasks();
@@ -505,17 +505,17 @@ function renderChatFileChips() {
         name.title = a.fileName;
         let label = a.fileName;
         if (a.uploading) {
-            label += ' · ' + ((typeof window.t === 'function') ? window.t('chat.attachmentUploading') : '上传中…');
+            label += ' · ' + ((typeof window.t === 'function') ? window.t('chat.attachmentUploading') : '…');
         } else if (a.uploadError) {
-            label += ' · ' + ((typeof window.t === 'function') ? window.t('chat.attachmentUploadFailed') : '失败');
+            label += ' · ' + ((typeof window.t === 'function') ? window.t('chat.attachmentUploadFailed') : '');
         }
         name.textContent = label;
         const remove = document.createElement('button');
         remove.type = 'button';
         remove.className = 'chat-file-chip-remove';
-        remove.title = typeof window.t === 'function' ? window.t('chatGroup.remove') : '移除';
+        remove.title = typeof window.t === 'function' ? window.t('chatGroup.remove') : '';
         remove.innerHTML = '×';
-        remove.setAttribute('aria-label', '移除 ' + a.fileName);
+        remove.setAttribute('aria-label', ' ' + a.fileName);
         remove.addEventListener('click', () => removeChatAttachment(i));
         chip.appendChild(name);
         chip.appendChild(remove);
@@ -577,7 +577,7 @@ function refreshChatAttachmentUploadProgress() {
             total: chatAttachments.length,
             percent: overall
         })
-        : ('上传附件 ' + (chatAttachments.length - uploading.length) + '/' + chatAttachments.length + ' · ' + overall + '%');
+        : (' ' + (chatAttachments.length - uploading.length) + '/' + chatAttachments.length + ' · ' + overall + '%');
     chatAttachmentProgressSet(true, overall, line);
 }
 
@@ -624,7 +624,7 @@ async function uploadOneChatAttachment(entry, file) {
             cur.uploadError = msg;
             cur.serverPath = null;
         }
-        alert(((typeof window.t === 'function') ? window.t('chat.attachmentUploadAlert', { name: file.name }) : ('上传失败：' + file.name)) + '\n' + msg);
+        alert(((typeof window.t === 'function') ? window.t('chat.attachmentUploadAlert', { name: file.name }) : ('：' + file.name)) + '\n' + msg);
     }
     renderChatFileChips();
     refreshChatAttachmentUploadProgress();
@@ -634,7 +634,7 @@ async function addFilesToChat(files) {
     if (!files || !files.length) return;
     const next = Array.from(files);
     if (chatAttachments.length + next.length > MAX_CHAT_FILES) {
-        alert('最多同时上传 ' + MAX_CHAT_FILES + ' 个文件，当前已选 ' + chatAttachments.length + ' 个。');
+        alert(' ' + MAX_CHAT_FILES + ' ， ' + chatAttachments.length + ' 。');
         return;
     }
     next.forEach((file) => {
@@ -665,7 +665,7 @@ function setupChatFileUpload() {
     inputEl.addEventListener('change', function () {
         const files = this.files;
         if (files && files.length) {
-            addFilesToChat(files).catch(function () { /* addFilesToChat 已提示 */ });
+            addFilesToChat(files).catch(function () { /* addFilesToChat  */ });
         }
         this.value = '';
     });
@@ -687,7 +687,7 @@ function setupChatFileUpload() {
         e.stopPropagation();
         this.classList.remove('drag-over');
         const files = e.dataTransfer && e.dataTransfer.files;
-        if (files && files.length) addFilesToChat(files).catch(function () { /* addFilesToChat 已提示 */ });
+        if (files && files.length) addFilesToChat(files).catch(function () { /* addFilesToChat  */ });
     });
 }
 
@@ -784,14 +784,14 @@ async function fetchMentionTools() {
                 });
             }
         } catch (mcpError) {
-            console.warn('加载外部MCP列表失败:', mcpError);
+            console.warn('MCP:', mcpError);
             externalMcpNames = [];
         }
 
         while (page <= totalPages && page <= 20) {
             // English note.
             let url = `/api/config/tools?page=${page}&page_size=${pageSize}`;
-            if (roleName && roleName !== '默认') {
+            if (roleName && roleName !== '') {
                 url += `&role=${encodeURIComponent(roleName)}`;
             }
 
@@ -823,11 +823,11 @@ async function fetchMentionTools() {
                 collected.push({
                     name: tool.name,
                     description: tool.description || '',
-                    enabled: tool.enabled !== false, // 工具本身的启用状态
-                    roleEnabled: roleEnabled, // 在当前角色中的启用状态
+                    enabled: tool.enabled !== false, // 
+                    roleEnabled: roleEnabled, // 
                     isExternal: !!tool.is_external,
                     externalMcp: tool.external_mcp || '',
-                    toolKey: toolKey, // 保存唯一标识符
+                    toolKey: toolKey, // 
                 });
             });
             totalPages = result.total_pages || 1;
@@ -839,7 +839,7 @@ async function fetchMentionTools() {
         mentionTools = collected;
         mentionToolsLoaded = true;
     } catch (error) {
-        console.warn('加载工具列表失败，@提及功能可能不可用:', error);
+        console.warn('，@:', error);
     }
     return mentionTools;
 }
@@ -998,7 +998,7 @@ function updateMentionCandidates() {
             const aRoleEnabled = a.roleEnabled !== undefined ? a.roleEnabled : a.enabled;
             const bRoleEnabled = b.roleEnabled !== undefined ? b.roleEnabled : b.enabled;
             if (aRoleEnabled !== bRoleEnabled) {
-                return aRoleEnabled ? -1 : 1; // 启用的工具排在前面
+                return aRoleEnabled ? -1 : 1; // 
             }
         }
 
@@ -1047,14 +1047,14 @@ function renderMentionSuggestions({ showLoading = false } = {}) {
     const previousScrollTop = canPreserveScroll ? existingList.scrollTop : 0;
 
     if (showLoading) {
-        mentionSuggestionsEl.innerHTML = '<div class="mention-empty">' + (typeof window.t === 'function' ? window.t('chat.loadingTools') : '正在加载工具...') + '</div>';
+        mentionSuggestionsEl.innerHTML = '<div class="mention-empty">' + (typeof window.t === 'function' ? window.t('chat.loadingTools') : '...') + '</div>';
         mentionSuggestionsEl.style.display = 'block';
         delete mentionSuggestionsEl.dataset.lastMentionQuery;
         return;
     }
 
     if (!mentionFilteredTools.length) {
-        mentionSuggestionsEl.innerHTML = '<div class="mention-empty">' + (typeof window.t === 'function' ? window.t('chat.noMatchTools') : '没有匹配的工具') + '</div>';
+        mentionSuggestionsEl.innerHTML = '<div class="mention-empty">' + (typeof window.t === 'function' ? window.t('chat.noMatchTools') : '') + '</div>';
         mentionSuggestionsEl.style.display = 'block';
         mentionSuggestionsEl.dataset.lastMentionQuery = currentQuery;
         return;
@@ -1065,16 +1065,16 @@ function renderMentionSuggestions({ showLoading = false } = {}) {
         // English note.
         const toolEnabled = tool.roleEnabled !== undefined ? tool.roleEnabled : tool.enabled;
         const disabledClass = toolEnabled ? '' : 'disabled';
-        const badge = tool.isExternal ? '<span class="mention-item-badge">外部</span>' : '<span class="mention-item-badge internal">内置</span>';
+        const badge = tool.isExternal ? '<span class="mention-item-badge"></span>' : '<span class="mention-item-badge internal"></span>';
         const nameHtml = escapeHtml(tool.name);
-        const description = tool.description && tool.description.length > 0 ? escapeHtml(tool.description) : (typeof window.t === 'function' ? window.t('chat.noDescription') : '暂无描述');
+        const description = tool.description && tool.description.length > 0 ? escapeHtml(tool.description) : (typeof window.t === 'function' ? window.t('chat.noDescription') : '');
         const descHtml = `<div class="mention-item-desc">${description}</div>`;
         // English note.
-        const statusLabel = toolEnabled ? '可用' : (tool.roleEnabled !== undefined ? '已禁用（当前角色）' : '已禁用');
+        const statusLabel = toolEnabled ? '' : (tool.roleEnabled !== undefined ? '（）' : '');
         const statusClass = toolEnabled ? 'enabled' : 'disabled';
         const originLabel = tool.isExternal
-            ? (tool.externalMcp ? `来源：${escapeHtml(tool.externalMcp)}` : '来源：外部MCP')
-            : '来源：内置工具';
+            ? (tool.externalMcp ? `：${escapeHtml(tool.externalMcp)}` : '：MCP')
+            : '：';
 
         return `
             <button type="button" class="mention-item ${activeClass} ${disabledClass}" data-index="${index}">
@@ -1264,7 +1264,7 @@ function initializeChatUI() {
 
     const messagesDiv = document.getElementById('chat-messages');
     if (messagesDiv && messagesDiv.childElementCount === 0) {
-        const readyMsg = typeof window.t === 'function' ? window.t('chat.systemReadyMessage') : '系统已就绪。请输入您的测试需求，系统将自动执行相应的安全测试。';
+        const readyMsg = typeof window.t === 'function' ? window.t('chat.systemReadyMessage') : '。，。';
         addMessage('assistant', readyMsg, null, null, null, { systemReadyMessage: true });
     }
 
@@ -1415,7 +1415,7 @@ function addMessage(role, content, mcpExecutionIds = null, progressId = null, cr
             });
             return marked.parse(raw);
         } catch (e) {
-            console.error('Markdown 解析失败:', e);
+            console.error('Markdown :', e);
             return null;
         }
     };
@@ -1423,11 +1423,11 @@ function addMessage(role, content, mcpExecutionIds = null, progressId = null, cr
     // English note.
     let displayContent = content;
     if (role === 'assistant' && typeof displayContent === 'string' && typeof window.t === 'function') {
-        if (displayContent.indexOf('执行失败: ') === 0) {
-            displayContent = window.t('chat.executeFailed') + ': ' + displayContent.slice('执行失败: '.length);
+        if (displayContent.indexOf(': ') === 0) {
+            displayContent = window.t('chat.executeFailed') + ': ' + displayContent.slice(': '.length);
         }
-        if (displayContent.indexOf('调用OpenAI失败:') !== -1) {
-            displayContent = displayContent.replace(/调用OpenAI失败:/g, window.t('chat.callOpenAIFailed') + ':');
+        if (displayContent.indexOf('OpenAI:') !== -1) {
+            displayContent = displayContent.replace(/OpenAI:/g, window.t('chat.callOpenAIFailed') + ':');
         }
     }
 
@@ -1522,8 +1522,8 @@ function addMessage(role, content, mcpExecutionIds = null, progressId = null, cr
     if (role === 'assistant') {
         const copyBtn = document.createElement('button');
         copyBtn.className = 'message-copy-btn';
-        copyBtn.innerHTML = '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><rect x="9" y="9" width="13" height="13" rx="2" ry="2" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" fill="none"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" fill="none"/></svg><span>' + (typeof window.t === 'function' ? window.t('common.copy') : '复制') + '</span>';
-        copyBtn.title = typeof window.t === 'function' ? window.t('chat.copyMessageTitle') : '复制消息内容';
+        copyBtn.innerHTML = '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><rect x="9" y="9" width="13" height="13" rx="2" ry="2" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" fill="none"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" fill="none"/></svg><span>' + (typeof window.t === 'function' ? window.t('common.copy') : '') + '</span>';
+        copyBtn.title = typeof window.t === 'function' ? window.t('chat.copyMessageTitle') : '';
         copyBtn.onclick = function(e) {
             e.stopPropagation();
             copyMessageToClipboard(messageDiv, this);
@@ -1568,7 +1568,7 @@ function addMessage(role, content, mcpExecutionIds = null, progressId = null, cr
         
         const mcpLabel = document.createElement('div');
         mcpLabel.className = 'mcp-call-label';
-        mcpLabel.textContent = '📋 ' + (typeof window.t === 'function' ? window.t('chat.penetrationTestDetail') : '渗透测试详情');
+        mcpLabel.textContent = '📋 ' + (typeof window.t === 'function' ? window.t('chat.penetrationTestDetail') : '');
         mcpSection.appendChild(mcpLabel);
         
         const buttonsContainer = document.createElement('div');
@@ -1579,7 +1579,7 @@ function addMessage(role, content, mcpExecutionIds = null, progressId = null, cr
             detailBtn.className = 'mcp-detail-btn';
             detailBtn.dataset.execId = execId;
             detailBtn.dataset.execIndex = String(index + 1);
-            detailBtn.innerHTML = '<span>' + (typeof window.t === 'function' ? window.t('chat.callNumber', { n: index + 1 }) : '调用 #' + (index + 1)) + '</span>';
+            detailBtn.innerHTML = '<span>' + (typeof window.t === 'function' ? window.t('chat.callNumber', { n: index + 1 }) : ' #' + (index + 1)) + '</span>';
             detailBtn.onclick = () => showMCPDetail(execId);
             buttonsContainer.appendChild(detailBtn);
         });
@@ -1613,7 +1613,7 @@ function copyMessageToClipboard(messageDiv, button) {
                 return navigator.clipboard.writeText(text).then(() => {
                     showCopySuccess(button);
                 }).catch(err => {
-                    console.error('Clipboard API 复制失败:', err);
+                    console.error('Clipboard API :', err);
                     fallbackCopy(text);
                 });
             } else {
@@ -1644,8 +1644,8 @@ function copyMessageToClipboard(messageDiv, button) {
                     throw new Error('execCommand copy failed');
                 }
             } catch (execErr) {
-                console.error('降级复制失败:', execErr);
-                alert(typeof window.t === 'function' ? window.t('chat.copyFailedManual') : '复制失败，请手动选择内容复制');
+                console.error(':', execErr);
+                alert(typeof window.t === 'function' ? window.t('chat.copyFailedManual') : '，');
             }
         };
 
@@ -1674,8 +1674,8 @@ function copyMessageToClipboard(messageDiv, button) {
         // English note.
         doCopy(originalContent);
     } catch (error) {
-        console.error('复制消息时出错:', error);
-        alert(typeof window.t === 'function' ? window.t('chat.copyFailedManual') : '复制失败，请手动选择内容复制');
+        console.error(':', error);
+        alert(typeof window.t === 'function' ? window.t('chat.copyFailedManual') : '，');
     }
 }
 
@@ -1683,7 +1683,7 @@ function copyMessageToClipboard(messageDiv, button) {
 function showCopySuccess(button) {
     if (button) {
         const originalText = button.innerHTML;
-        button.innerHTML = '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M20 6L9 17l-5-5" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" fill="none"/></svg><span>' + (typeof window.t === 'function' ? window.t('common.copied') : '已复制') + '</span>';
+        button.innerHTML = '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M20 6L9 17l-5-5" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" fill="none"/></svg><span>' + (typeof window.t === 'function' ? window.t('common.copied') : '') + '</span>';
         button.style.color = '#10b981';
         button.style.background = 'rgba(16, 185, 129, 0.1)';
         button.style.borderColor = 'rgba(16, 185, 129, 0.3)';
@@ -1725,11 +1725,11 @@ function renderProcessDetails(messageId, processDetails) {
     if (!mcpLabel && !buttonsContainer) {
         mcpLabel = document.createElement('div');
         mcpLabel.className = 'mcp-call-label';
-        mcpLabel.textContent = '📋 ' + (typeof window.t === 'function' ? window.t('chat.penetrationTestDetail') : '渗透测试详情');
+        mcpLabel.textContent = '📋 ' + (typeof window.t === 'function' ? window.t('chat.penetrationTestDetail') : '');
         mcpSection.appendChild(mcpLabel);
-    } else if (mcpLabel && mcpLabel.textContent !== ('📋 ' + (typeof window.t === 'function' ? window.t('chat.penetrationTestDetail') : '渗透测试详情'))) {
+    } else if (mcpLabel && mcpLabel.textContent !== ('📋 ' + (typeof window.t === 'function' ? window.t('chat.penetrationTestDetail') : ''))) {
         // English note.
-        mcpLabel.textContent = '📋 ' + (typeof window.t === 'function' ? window.t('chat.penetrationTestDetail') : '渗透测试详情');
+        mcpLabel.textContent = '📋 ' + (typeof window.t === 'function' ? window.t('chat.penetrationTestDetail') : '');
     }
     
     // English note.
@@ -1744,7 +1744,7 @@ function renderProcessDetails(messageId, processDetails) {
     if (!processDetailBtn) {
         processDetailBtn = document.createElement('button');
         processDetailBtn.className = 'mcp-detail-btn process-detail-btn';
-        processDetailBtn.innerHTML = '<span>' + (typeof window.t === 'function' ? window.t('chat.expandDetail') : '展开详情') + '</span>';
+        processDetailBtn.innerHTML = '<span>' + (typeof window.t === 'function' ? window.t('chat.expandDetail') : '') + '</span>';
         processDetailBtn.onclick = () => toggleProcessDetails(null, messageId);
         buttonsContainer.appendChild(processDetailBtn);
     }
@@ -1787,8 +1787,8 @@ function renderProcessDetails(messageId, processDetails) {
         detailsContainer.dataset.lazyNotLoaded = '1';
         detailsContainer.dataset.loaded = '0';
         timeline.innerHTML = '<div class="progress-timeline-empty">' +
-            (typeof window.t === 'function' ? window.t('chat.expandDetail') : '展开详情') +
-            '（点击后加载）</div>';
+            (typeof window.t === 'function' ? window.t('chat.expandDetail') : '') +
+            '（）</div>';
         // English note.
         timeline.classList.remove('expanded');
         return;
@@ -1798,7 +1798,7 @@ function renderProcessDetails(messageId, processDetails) {
     // English note.
     if (!processDetails || processDetails.length === 0) {
         // English note.
-        timeline.innerHTML = '<div class="progress-timeline-empty">' + (typeof window.t === 'function' ? window.t('chat.noProcessDetail') : '暂无过程详情（可能执行过快或未触发详细事件）') + '</div>';
+        timeline.innerHTML = '<div class="progress-timeline-empty">' + (typeof window.t === 'function' ? window.t('chat.noProcessDetail') : '（）') + '</div>';
         // English note.
         timeline.classList.remove('expanded');
         return;
@@ -1830,56 +1830,56 @@ function renderProcessDetails(messageId, processDetails) {
                     ? window.translatePlanExecuteAgentName(data.einoAgent) : (data.einoAgent || '');
                 itemTitle = (typeof window.t === 'function'
                     ? window.t('chat.einoPlanExecuteRound', { n: n, phase: phase })
-                    : ('Plan-Execute · 第 ' + n + ' 轮 · ' + phase));
+                    : ('Plan-Execute ·  ' + n + '  · ' + phase));
             } else if (data.einoScope === 'main') {
                 itemTitle = agPx + (typeof window.t === 'function'
                     ? window.t('chat.einoOrchestratorRound', { n: n })
-                    : ('主代理 · 第 ' + n + ' 轮'));
+                    : (' ·  ' + n + ' '));
             } else if (data.einoScope === 'sub') {
                 const agent = data.einoAgent != null ? String(data.einoAgent).trim() : '';
                 itemTitle = agPx + (typeof window.t === 'function'
                     ? window.t('chat.einoSubAgentStep', { n: n, agent: agent })
-                    : ('子代理 · ' + agent + ' · 第 ' + n + ' 步'));
+                    : (' · ' + agent + ' ·  ' + n + ' '));
             } else {
-                itemTitle = agPx + (typeof window.t === 'function' ? window.t('chat.iterationRound', { n: n }) : '第 ' + n + ' 轮迭代');
+                itemTitle = agPx + (typeof window.t === 'function' ? window.t('chat.iterationRound', { n: n }) : ' ' + n + ' ');
             }
         } else if (eventType === 'thinking') {
-            itemTitle = agPx + '🤔 ' + (typeof window.t === 'function' ? window.t('chat.aiThinking') : 'AI思考');
+            itemTitle = agPx + '🤔 ' + (typeof window.t === 'function' ? window.t('chat.aiThinking') : 'AI');
         } else if (eventType === 'planning') {
             if (typeof window.einoMainStreamPlanningTitle === 'function') {
                 itemTitle = window.einoMainStreamPlanningTitle(data);
             } else {
-                itemTitle = agPx + '📝 ' + (typeof window.t === 'function' ? window.t('chat.planning') : '规划中');
+                itemTitle = agPx + '📝 ' + (typeof window.t === 'function' ? window.t('chat.planning') : '');
             }
         } else if (eventType === 'tool_calls_detected') {
-            itemTitle = agPx + '🔧 ' + (typeof window.t === 'function' ? window.t('chat.toolCallsDetected', { count: data.count || 0 }) : '检测到 ' + (data.count || 0) + ' 个工具调用');
+            itemTitle = agPx + '🔧 ' + (typeof window.t === 'function' ? window.t('chat.toolCallsDetected', { count: data.count || 0 }) : ' ' + (data.count || 0) + ' ');
         } else if (eventType === 'tool_call') {
-            const toolName = data.toolName || (typeof window.t === 'function' ? window.t('chat.unknownTool') : '未知工具');
+            const toolName = data.toolName || (typeof window.t === 'function' ? window.t('chat.unknownTool') : '');
             const index = data.index || 0;
             const total = data.total || 0;
-            itemTitle = agPx + '🔧 ' + (typeof window.t === 'function' ? window.t('chat.callTool', { name: escapeHtml(toolName), index: index, total: total }) : '调用工具: ' + escapeHtml(toolName) + ' (' + index + '/' + total + ')');
+            itemTitle = agPx + '🔧 ' + (typeof window.t === 'function' ? window.t('chat.callTool', { name: escapeHtml(toolName), index: index, total: total }) : ': ' + escapeHtml(toolName) + ' (' + index + '/' + total + ')');
         } else if (eventType === 'tool_result') {
-            const toolName = data.toolName || (typeof window.t === 'function' ? window.t('chat.unknownTool') : '未知工具');
+            const toolName = data.toolName || (typeof window.t === 'function' ? window.t('chat.unknownTool') : '');
             const success = data.success !== false;
             const statusIcon = success ? '✅' : '❌';
-            const execText = success ? (typeof window.t === 'function' ? window.t('chat.toolExecComplete', { name: escapeHtml(toolName) }) : '工具 ' + escapeHtml(toolName) + ' 执行完成') : (typeof window.t === 'function' ? window.t('chat.toolExecFailed', { name: escapeHtml(toolName) }) : '工具 ' + escapeHtml(toolName) + ' 执行失败');
+            const execText = success ? (typeof window.t === 'function' ? window.t('chat.toolExecComplete', { name: escapeHtml(toolName) }) : ' ' + escapeHtml(toolName) + ' ') : (typeof window.t === 'function' ? window.t('chat.toolExecFailed', { name: escapeHtml(toolName) }) : ' ' + escapeHtml(toolName) + ' ');
             let execLine = statusIcon + ' ' + execText;
             if (toolName === BuiltinTools.SEARCH_KNOWLEDGE_BASE && success) {
-                execLine = '📚 ' + execLine + ' - ' + (typeof window.t === 'function' ? window.t('chat.knowledgeRetrievalTag') : '知识检索');
+                execLine = '📚 ' + execLine + ' - ' + (typeof window.t === 'function' ? window.t('chat.knowledgeRetrievalTag') : '');
             }
             itemTitle = agPx + execLine;
         } else if (eventType === 'eino_agent_reply') {
-            itemTitle = agPx + '💬 ' + (typeof window.t === 'function' ? window.t('chat.einoAgentReplyTitle') : '子代理回复');
+            itemTitle = agPx + '💬 ' + (typeof window.t === 'function' ? window.t('chat.einoAgentReplyTitle') : '');
         } else if (eventType === 'eino_recovery') {
             const ri = data.runIndex != null ? data.runIndex : (data.einoRetry != null ? data.einoRetry + 1 : 1);
             const mx = data.maxRuns != null ? data.maxRuns : 3;
-            itemTitle = (typeof window.t === 'function' ? window.t('chat.einoRecoveryTitle', { n: ri, max: mx }) : ('🔄 第 ' + ri + '/' + mx + ' 轮（已追加提示）'));
+            itemTitle = (typeof window.t === 'function' ? window.t('chat.einoRecoveryTitle', { n: ri, max: mx }) : ('🔄  ' + ri + '/' + mx + ' （）'));
         } else if (eventType === 'knowledge_retrieval') {
-            itemTitle = '📚 ' + (typeof window.t === 'function' ? window.t('chat.knowledgeRetrieval') : '知识检索');
+            itemTitle = '📚 ' + (typeof window.t === 'function' ? window.t('chat.knowledgeRetrieval') : '');
         } else if (eventType === 'error') {
-            itemTitle = '❌ ' + (typeof window.t === 'function' ? window.t('chat.error') : '错误');
+            itemTitle = '❌ ' + (typeof window.t === 'function' ? window.t('chat.error') : '');
         } else if (eventType === 'cancelled') {
-            itemTitle = '⛔ ' + (typeof window.t === 'function' ? window.t('chat.taskCancelled') : '任务已取消');
+            itemTitle = '⛔ ' + (typeof window.t === 'function' ? window.t('chat.taskCancelled') : '');
         } else if (eventType === 'progress') {
             itemTitle = typeof window.translateProgressMessage === 'function' ? window.translateProgressMessage(detail.message || '') : (detail.message || '');
         }
@@ -1888,7 +1888,7 @@ function renderProcessDetails(messageId, processDetails) {
             title: itemTitle,
             message: detail.message || '',
             data: data,
-            createdAt: detail.createdAt // 传递实际的事件创建时间
+            createdAt: detail.createdAt // 
         });
     });
     
@@ -1902,7 +1902,7 @@ function renderProcessDetails(messageId, processDetails) {
         // English note.
         const processDetailBtn = messageElement.querySelector('.process-detail-btn');
         if (processDetailBtn) {
-            processDetailBtn.innerHTML = '<span>' + (typeof window.t === 'function' ? window.t('chat.expandDetail') : '展开详情') + '</span>';
+            processDetailBtn.innerHTML = '<span>' + (typeof window.t === 'function' ? window.t('chat.expandDetail') : '') + '</span>';
         }
     }
 }
@@ -1957,14 +1957,14 @@ async function updateButtonWithToolName(button, executionId, index) {
         const response = await apiFetch(`/api/monitor/execution/${executionId}`);
         if (response.ok) {
             const exec = await response.json();
-            const toolName = exec.toolName || (typeof window.t === 'function' ? window.t('chat.unknownTool') : '未知工具');
+            const toolName = exec.toolName || (typeof window.t === 'function' ? window.t('chat.unknownTool') : '');
             // English note.
             const displayToolName = toolName.includes('::') ? toolName.split('::')[1] : toolName;
             button.querySelector('span').textContent = `${displayToolName} #${index}`;
         }
     } catch (error) {
         // English note.
-        console.error('获取工具名称失败:', error);
+        console.error(':', error);
     }
 }
 
@@ -1992,7 +1992,7 @@ async function batchUpdateButtonToolNames(buttonsContainer, executionIds) {
             }
         });
     } catch (error) {
-        console.error('批量获取工具名称失败:', error);
+        console.error(':', error);
     }
 }
 
@@ -2084,22 +2084,22 @@ async function showMCPDetail(executionId) {
                             successText = content.text;
                         }
                         if (!successText) {
-                            successText = typeof window.t === 'function' ? window.t('mcpDetailModal.execSuccessNoContent') : '执行成功，未返回可展示的文本内容。';
+                            successText = typeof window.t === 'function' ? window.t('mcpDetailModal.execSuccessNoContent') : '，。';
                         }
                         successElement.textContent = successText;
                     }
                 }
             } else {
-                responseElement.textContent = typeof window.t === 'function' ? window.t('chat.noResponseData') : '暂无响应数据';
+                responseElement.textContent = typeof window.t === 'function' ? window.t('chat.noResponseData') : '';
             }
             
             // English note.
             document.getElementById('mcp-detail-modal').style.display = 'block';
         } else {
-            alert((typeof window.t === 'function' ? window.t('mcpDetailModal.getDetailFailed') : '获取详情失败') + ': ' + (exec.error || (typeof window.t === 'function' ? window.t('mcpDetailModal.unknown') : '未知错误')));
+            alert((typeof window.t === 'function' ? window.t('mcpDetailModal.getDetailFailed') : '') + ': ' + (exec.error || (typeof window.t === 'function' ? window.t('mcpDetailModal.unknown') : '')));
         }
     } catch (error) {
-        alert((typeof window.t === 'function' ? window.t('mcpDetailModal.getDetailFailed') : '获取详情失败') + ': ' + error.message);
+        alert((typeof window.t === 'function' ? window.t('mcpDetailModal.getDetailFailed') : '') + ': ' + error.message);
     }
 }
 
@@ -2128,11 +2128,11 @@ function copyDetailBlock(elementId, triggerBtn = null) {
         if (!triggerBtn) {
             return;
         }
-        triggerBtn.textContent = '已复制';
+        triggerBtn.textContent = '';
         triggerBtn.disabled = true;
         setTimeout(() => {
             triggerBtn.disabled = false;
-            triggerBtn.textContent = triggerBtn.dataset.originalLabel || originalLabel || '复制';
+            triggerBtn.textContent = triggerBtn.dataset.originalLabel || originalLabel || '';
         }, 1200);
     };
 
@@ -2171,9 +2171,9 @@ function copyDetailBlock(elementId, triggerBtn = null) {
         .catch(() => {
             if (triggerBtn) {
                 triggerBtn.disabled = false;
-                triggerBtn.textContent = triggerBtn.dataset.originalLabel || originalLabel || '复制';
+                triggerBtn.textContent = triggerBtn.dataset.originalLabel || originalLabel || '';
             }
-            alert('复制失败，请手动选择文本复制。');
+            alert('，。');
         });
 }
 
@@ -2192,9 +2192,9 @@ async function startNewConversation() {
     }
     
     currentConversationId = null;
-    currentConversationGroupId = null; // 新对话不属于任何分组
+    currentConversationGroupId = null; // 
     document.getElementById('chat-messages').innerHTML = '';
-    const readyMsgNew = typeof window.t === 'function' ? window.t('chat.systemReadyMessage') : '系统已就绪。请输入您的测试需求，系统将自动执行相应的安全测试。';
+    const readyMsgNew = typeof window.t === 'function' ? window.t('chat.systemReadyMessage') : '。，。';
     addMessage('assistant', readyMsgNew, null, null, null, { systemReadyMessage: true });
     addAttackChainButton(null);
     updateActiveConversation();
@@ -2280,10 +2280,10 @@ async function loadConversations(searchQuery = '') {
         });
 
         const groupOrder = [
-            { key: 'today', label: '今天' },
-            { key: 'yesterday', label: '昨天' },
-            { key: 'thisWeek', label: '本周' },
-            { key: 'earlier', label: '更早' },
+            { key: 'today', label: '' },
+            { key: 'yesterday', label: '' },
+            { key: 'thisWeek', label: '' },
+            { key: 'earlier', label: '' },
         ];
 
         const fragment = document.createDocumentFragment();
@@ -2330,7 +2330,7 @@ async function loadConversations(searchQuery = '') {
             });
         }
     } catch (error) {
-        console.error('加载对话列表失败:', error);
+        console.error(':', error);
         // English note.
         const listContainer = document.getElementById('conversations-list');
         if (listContainer) {
@@ -2354,9 +2354,9 @@ function createConversationListItem(conversation) {
 
     const title = document.createElement('div');
     title.className = 'conversation-title';
-    const titleText = conversation.title || '未命名对话';
+    const titleText = conversation.title || '';
     title.textContent = safeTruncateText(titleText, 60);
-    title.title = titleText; // 设置完整标题以便悬停查看
+    title.title = titleText; // 
     contentWrapper.appendChild(title);
 
     const time = document.createElement('div');
@@ -2374,7 +2374,7 @@ function createConversationListItem(conversation) {
                   stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
         </svg>
     `;
-    deleteBtn.title = '删除对话';
+    deleteBtn.title = '';
     deleteBtn.onclick = (e) => {
         e.stopPropagation();
         deleteConversation(conversation.id);
@@ -2410,7 +2410,7 @@ function handleConversationSearch(query) {
     
     conversationSearchTimer = setTimeout(() => {
         loadConversations(query);
-    }, 300); // 300ms防抖延迟
+    }, 300); // 300ms
 }
 
 // English note.
@@ -2438,7 +2438,7 @@ function formatConversationTimestamp(dateObj, todayStart, yesterdayStart) {
     const referenceYesterday = yesterdayStart || new Date(referenceToday.getTime() - 24 * 60 * 60 * 1000);
     const messageDate = new Date(dateObj.getFullYear(), dateObj.getMonth(), dateObj.getDate());
     const fmtLocale = (typeof window.__locale === 'string' && window.__locale.startsWith('zh')) ? 'zh-CN' : 'en-US';
-    const yesterdayLabel = typeof window.t === 'function' ? window.t('chat.yesterday') : '昨天';
+    const yesterdayLabel = typeof window.t === 'function' ? window.t('chat.yesterday') : '';
 
     const timeOnlyOpts = { hour: '2-digit', minute: '2-digit' };
     const dateTimeOpts = { month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' };
@@ -2488,7 +2488,7 @@ async function loadConversation(conversationId) {
         const conversation = await response.json();
         
         if (!response.ok) {
-            alert('加载对话失败: ' + (conversation.error || '未知错误'));
+            alert(': ' + (conversation.error || ''));
             return;
         }
         
@@ -2549,7 +2549,7 @@ async function loadConversation(conversationId) {
                 const messageTime = new Date(lastMessage.createdAt);
                 const now = new Date();
                 const timeDiff = now.getTime() - messageTime.getTime();
-                if (timeDiff < 30000) { // 30秒内
+                if (timeDiff < 30000) { // 30
                     hasRecentUserMessage = true;
                 }
             }
@@ -2566,13 +2566,13 @@ async function loadConversation(conversationId) {
         
         // English note.
         if (conversation.messages && conversation.messages.length > 0) {
-            const FIRST_BATCH = 20;  // 首批同步渲染（用户可见区域）
-            const BATCH_SIZE = 10;   // 后续每批条数
+            const FIRST_BATCH = 20;  // （）
+            const BATCH_SIZE = 10;   // 
 
             // English note.
             const renderOneMessage = (msg) => {
                 let displayContent = msg.content;
-                if (msg.role === 'assistant' && msg.content === '处理中...' && msg.processDetails && msg.processDetails.length > 0) {
+                if (msg.role === 'assistant' && msg.content === '...' && msg.processDetails && msg.processDetails.length > 0) {
                     for (let i = msg.processDetails.length - 1; i >= 0; i--) {
                         const detail = msg.processDetails[i];
                         if (detail.eventType === 'error' || detail.eventType === 'cancelled') {
@@ -2629,7 +2629,7 @@ async function loadConversation(conversationId) {
                 requestAnimationFrame(renderNextBatch);
             }
         } else {
-            const readyMsgEmpty = typeof window.t === 'function' ? window.t('chat.systemReadyMessage') : '系统已就绪。请输入您的测试需求，系统将自动执行相应的安全测试。';
+            const readyMsgEmpty = typeof window.t === 'function' ? window.t('chat.systemReadyMessage') : '。，。';
             addMessage('assistant', readyMsgEmpty, null, null, null, { systemReadyMessage: true });
         }
 
@@ -2639,8 +2639,8 @@ async function loadConversation(conversationId) {
         // English note.
         addAttackChainButton(conversationId);
     } catch (error) {
-        console.error('加载对话失败:', error);
-        alert('加载对话失败: ' + error.message);
+        console.error(':', error);
+        alert(': ' + error.message);
     }
 }
 
@@ -2653,7 +2653,7 @@ function attachDeleteTurnButton(messageEl) {
     const btn = document.createElement('button');
     btn.type = 'button';
     btn.className = 'message-delete-turn-btn';
-    const title = typeof window.t === 'function' ? window.t('chat.deleteTurnTitle') : '删除本轮对话';
+    const title = typeof window.t === 'function' ? window.t('chat.deleteTurnTitle') : '';
     btn.title = title;
     btn.setAttribute('aria-label', title);
     btn.innerHTML = '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><path d="M3 6h18M8 6V4a2 2 0 012-2h4a2 2 0 012 2v2m3 0v14a2 2 0 01-2 2H7a2 2 0 01-2-2V6h14zM10 11v6M14 11v6" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>';
@@ -2680,7 +2680,7 @@ function attachDeleteTurnButton(messageEl) {
 /* English note. */
 async function deleteConversationTurnFromUI(anchorBackendMessageId) {
     if (!currentConversationId || !anchorBackendMessageId) return;
-    const confirmMsg = typeof window.t === 'function' ? window.t('chat.deleteTurnConfirm') : '确定删除本轮对话？';
+    const confirmMsg = typeof window.t === 'function' ? window.t('chat.deleteTurnConfirm') : '？';
     if (!confirm(confirmMsg)) return;
     try {
         const response = await apiFetch(`/api/conversations/${currentConversationId}/delete-turn`, {
@@ -2700,7 +2700,7 @@ async function deleteConversationTurnFromUI(anchorBackendMessageId) {
         if (typeof loadConversationsWithGroups === 'function') loadConversationsWithGroups();
     } catch (error) {
         console.error('delete turn failed:', error);
-        const failed = typeof window.t === 'function' ? window.t('chat.deleteTurnFailed') : '删除本轮失败';
+        const failed = typeof window.t === 'function' ? window.t('chat.deleteTurnFailed') : '';
         alert(failed + ': ' + (error && error.message ? error.message : error));
     }
 }
@@ -2709,7 +2709,7 @@ async function deleteConversationTurnFromUI(anchorBackendMessageId) {
 async function deleteConversation(conversationId, skipConfirm = false) {
     // English note.
     if (!skipConfirm) {
-        if (!confirm('确定要删除这个对话吗？此操作不可恢复。')) {
+        if (!confirm('？。')) {
             return;
         }
     }
@@ -2721,14 +2721,14 @@ async function deleteConversation(conversationId, skipConfirm = false) {
         
         if (!response.ok) {
             const error = await response.json();
-            throw new Error(error.error || '删除失败');
+            throw new Error(error.error || '');
         }
         
         // English note.
         if (conversationId === currentConversationId) {
             currentConversationId = null;
             document.getElementById('chat-messages').innerHTML = '';
-            const readyMsgLoad = typeof window.t === 'function' ? window.t('chat.systemReadyMessage') : '系统已就绪。请输入您的测试需求，系统将自动执行相应的安全测试。';
+            const readyMsgLoad = typeof window.t === 'function' ? window.t('chat.systemReadyMessage') : '。，。';
             addMessage('assistant', readyMsgLoad, null, null, null, { systemReadyMessage: true });
             addAttackChainButton(null);
         }
@@ -2754,8 +2754,8 @@ async function deleteConversation(conversationId, skipConfirm = false) {
             document.dispatchEvent(new CustomEvent('conversation-deleted', { detail: { conversationId } }));
         } catch (e) { /* ignore */ }
     } catch (error) {
-        console.error('删除对话失败:', error);
-        alert('删除对话失败: ' + error.message);
+        console.error(':', error);
+        alert(': ' + error.message);
     }
 }
 
@@ -2812,7 +2812,7 @@ async function showAttackChain(conversationId) {
         // English note.
         const modal = document.getElementById('attack-chain-modal');
         if (modal && modal.style.display === 'block') {
-            console.log('攻击链正在加载中，模态框已打开');
+            console.log('，');
             return;
         }
     }
@@ -2820,7 +2820,7 @@ async function showAttackChain(conversationId) {
     currentAttackChainConversationId = conversationId;
     const modal = document.getElementById('attack-chain-modal');
     if (!modal) {
-        console.error('攻击链模态框未找到');
+        console.error('');
         return;
     }
     
@@ -2831,7 +2831,7 @@ async function showAttackChain(conversationId) {
     // English note.
     const container = document.getElementById('attack-chain-container');
     if (container) {
-        container.innerHTML = '<div class="loading-spinner">' + (typeof window.t === 'function' ? window.t('chat.loading') : '加载中...') + '</div>';
+        container.innerHTML = '<div class="loading-spinner">' + (typeof window.t === 'function' ? window.t('chat.loading') : '...') + '</div>';
     }
     
     // English note.
@@ -2855,7 +2855,7 @@ async function showAttackChain(conversationId) {
 // English note.
 async function loadAttackChain(conversationId) {
     if (isAttackChainLoading(conversationId)) {
-        return; // 防止重复调用
+        return; // 
     }
     
     setAttackChainLoading(conversationId, true);
@@ -2873,10 +2873,10 @@ async function loadAttackChain(conversationId) {
                         <div style="text-align: center; padding: 28px 24px; color: var(--text-secondary);">
                             <div style="display: inline-flex; align-items: center; gap: 8px; font-size: 0.95rem; color: var(--text-primary);">
                                 <span role="presentation" aria-hidden="true">⏳</span>
-                                <span>攻击链生成中，请稍候</span>
+                                <span>，</span>
                             </div>
                             <button class="btn-secondary" onclick="refreshAttackChain()" style="margin-top: 12px; font-size: 0.78rem; padding: 4px 12px;">
-                                刷新
+                                
                             </button>
                         </div>
                     `;
@@ -2899,18 +2899,18 @@ async function loadAttackChain(conversationId) {
                     regenerateBtn.style.opacity = '1';
                     regenerateBtn.style.cursor = 'pointer';
                 }
-                return; // 提前返回，不执行 finally 块中的 setAttackChainLoading(conversationId, false)
+                return; // ， finally  setAttackChainLoading(conversationId, false)
             }
             
             const error = await response.json();
-            throw new Error(error.error || '加载攻击链失败');
+            throw new Error(error.error || '');
         }
         
         const chainData = await response.json();
         
         // English note.
         if (currentAttackChainConversationId !== conversationId) {
-            console.log('攻击链数据已返回，但当前显示的对话已切换，忽略此次渲染', {
+            console.log('，，', {
                 returned: conversationId,
                 current: currentAttackChainConversationId
             });
@@ -2928,10 +2928,10 @@ async function loadAttackChain(conversationId) {
         setAttackChainLoading(conversationId, false);
         
     } catch (error) {
-        console.error('加载攻击链失败:', error);
+        console.error(':', error);
         const container = document.getElementById('attack-chain-container');
         if (container) {
-            container.innerHTML = '<div class="error-message">' + (typeof window.t === 'function' ? window.t('chat.loadFailed', { message: error.message }) : '加载失败: ' + error.message) + '</div>';
+            container.innerHTML = '<div class="error-message">' + (typeof window.t === 'function' ? window.t('chat.loadFailed', { message: error.message }) : ': ' + error.message) + '</div>';
         }
         // English note.
         setAttackChainLoading(conversationId, false);
@@ -2957,7 +2957,7 @@ function renderAttackChain(chainData) {
     container.innerHTML = '';
     
     if (!chainData.nodes || chainData.nodes.length === 0) {
-        container.innerHTML = '<div class="empty-message">' + (typeof window.t === 'function' ? window.t('chat.noAttackChainData') : '暂无攻击链数据') + '</div>';
+        container.innerHTML = '<div class="empty-message">' + (typeof window.t === 'function' ? window.t('chat.noAttackChainData') : '') + '</div>';
         return;
     }
     
@@ -2981,7 +2981,7 @@ function renderAttackChain(chainData) {
                     truncated.lastIndexOf(' '),
                     truncated.lastIndexOf('/')
                 );
-                if (lastPunct > maxLength * 0.6) { // 如果标点符号位置合理
+                if (lastPunct > maxLength * 0.6) { // 
                     truncated = truncated.substring(0, lastPunct + 1);
                 }
                 node.label = truncated + '...';
@@ -3002,17 +3002,17 @@ function renderAttackChain(chainData) {
         let typeBadge = '';
         let typeColor = '';
         if (nodeType === 'target') {
-            typeLabel = '目标';
-            typeBadge = '○';  // 使用空心圆，更现代
-            typeColor = '#1976d2';  // 蓝色
+            typeLabel = '';
+            typeBadge = '○';  // ，
+            typeColor = '#1976d2';  // 
         } else if (nodeType === 'action') {
-            typeLabel = '行动';
-            typeBadge = '▷';  // 使用更简洁的三角形
-            typeColor = '#f57c00';  // 橙色
+            typeLabel = '';
+            typeBadge = '▷';  // 
+            typeColor = '#f57c00';  // 
         } else if (nodeType === 'vulnerability') {
-            typeLabel = '漏洞';
-            typeBadge = '◇';  // 使用空心菱形，更精致
-            typeColor = '#d32f2f';  // 红色
+            typeLabel = '';
+            typeBadge = '◇';  // ，
+            typeColor = '#d32f2f';  // 
         } else {
             typeLabel = nodeType;
             typeBadge = '•';
@@ -3051,12 +3051,12 @@ function renderAttackChain(chainData) {
         elements.push({
             data: {
                 id: node.id,
-                label: node.label,  // 原始标签
-                originalLabel: node.label,  // 保存原始标签用于搜索
+                label: node.label,  // 
+                originalLabel: node.label,  // 
                 type: nodeType,
-                typeLabel: typeLabel,  // 保存类型标签文本
-                typeBadge: typeBadge,  // 保存类型标识符
-                typeColor: typeColor,  // 保存类型颜色
+                typeLabel: typeLabel,  // 
+                typeBadge: typeBadge,  // 
+                typeColor: typeColor,  // 
                 riskScore: riskScore,
                 toolExecutionId: node.tool_execution_id || '',
                 metadata: node.metadata || {},
@@ -3087,7 +3087,7 @@ function renderAttackChain(chainData) {
                 }
             });
         } else {
-            console.warn('跳过无效的边：源节点或目标节点不存在', {
+            console.warn('：', {
                 edgeId: edge.id,
                 source: edge.source,
                 target: edge.target,
@@ -3132,18 +3132,18 @@ function renderAttackChain(chainData) {
                     // English note.
                     'border-width': function(ele) {
                         const type = ele.data('type');
-                        return 0;  // 无边框，使用背景色块
+                        return 0;  // ，
                     },
                     'border-color': 'transparent',
                     // English note.
-                    'color': '#2C3E50',  // 深蓝灰色，专业感
+                    'color': '#2C3E50',  // ，
                     'font-size': function(ele) {
                         const type = ele.data('type');
                         if (type === 'target') return isComplexGraph ? '14px' : '16px';
                         if (type === 'vulnerability') return isComplexGraph ? '13px' : '15px';
                         return isComplexGraph ? '13px' : '15px';
                     },
-                    'font-weight': '600',  // 中等加粗
+                    'font-weight': '600',  // 
                     'font-family': '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, "Microsoft YaHei", sans-serif',
                     'text-valign': 'center',
                     'text-halign': 'center',
@@ -3156,7 +3156,7 @@ function renderAttackChain(chainData) {
                     },
                     'text-overflow-wrap': 'anywhere',
                     'text-margin-y': 4,
-                    'padding': '12px 16px',  // 合理的内边距
+                    'padding': '12px 16px',  // 
                     'line-height': 1.5,
                     'text-outline-width': 0
                 }
@@ -3184,9 +3184,9 @@ function renderAttackChain(chainData) {
                         const isFailedInsight = status === 'failed_insight';
                         
                         if (hasFindings && !isFailedInsight) {
-                            return '#E8F5E9';  // 浅绿色背景
+                            return '#E8F5E9';  // 
                         } else {
-                            return '#F5F5F5';  // 浅灰色背景
+                            return '#F5F5F5';  // 
                         }
                     },
                     'color': '#424242',
@@ -3199,9 +3199,9 @@ function renderAttackChain(chainData) {
                         const isFailedInsight = status === 'failed_insight';
                         
                         if (hasFindings && !isFailedInsight) {
-                            return '#4CAF50';  // 绿色边框
+                            return '#4CAF50';  // 
                         } else {
-                            return '#9E9E9E';  // 灰色边框
+                            return '#9E9E9E';  // 
                         }
                     },
                     'border-style': 'solid'
@@ -3242,16 +3242,16 @@ function renderAttackChain(chainData) {
                     // English note.
                     'width': function(ele) {
                         const type = ele.data('type');
-                        if (type === 'discovers') return 2.5;  // 发现漏洞的边稍粗
-                        if (type === 'enables') return 2.5;  // 使能关系稍粗
-                        return 2;  // 普通边
+                        if (type === 'discovers') return 2.5;  // 
+                        if (type === 'enables') return 2.5;  // 
+                        return 2;  // 
                     },
                     'line-color': function(ele) {
                         const type = ele.data('type');
-                        if (type === 'discovers') return '#42A5F5';  // 蓝色
-                        if (type === 'targets') return '#42A5F5';  // 蓝色
-                        if (type === 'enables') return '#EF5350';  // 红色
-                        if (type === 'leads_to') return '#90A4AE';  // 灰蓝色
+                        if (type === 'discovers') return '#42A5F5';  // 
+                        if (type === 'targets') return '#42A5F5';  // 
+                        if (type === 'enables') return '#EF5350';  // 
+                        if (type === 'leads_to') return '#90A4AE';  // 
                         return '#B0BEC5';
                     },
                     'target-arrow-color': function(ele) {
@@ -3263,9 +3263,9 @@ function renderAttackChain(chainData) {
                         return '#B0BEC5';
                     },
                     'target-arrow-shape': 'triangle',
-                    'arrow-scale': 1.2,  // 适中的箭头大小
+                    'arrow-scale': 1.2,  // 
                     'curve-style': 'straight',
-                    'opacity': 0.7,  // 适中的不透明度
+                    'opacity': 0.7,  // 
                     'line-style': function(ele) {
                         const type = ele.data('type');
                         if (type === 'targets') return 'dashed';
@@ -3310,7 +3310,7 @@ function renderAttackChain(chainData) {
         try {
             elkInstance = new ELK();
         } catch (e) {
-            console.warn('ELK初始化失败:', e);
+            console.warn('ELK:', e);
         }
     }
     
@@ -3323,21 +3323,21 @@ function renderAttackChain(chainData) {
                 layoutOptions: {
                     'elk.algorithm': 'layered',
                     'elk.direction': 'DOWN',
-                    'elk.spacing.nodeNode': String(isComplexGraph ? 100 : 120),  // 合理的节点间距
-                    'elk.spacing.edgeNode': '50',  // 合理的边到节点间距
-                    'elk.spacing.edgeEdge': '25',  // 合理的边间距
-                    'elk.layered.spacing.nodeNodeBetweenLayers': String(isComplexGraph ? 150 : 180),  // 合理的层级间距
-                    'elk.layered.nodePlacement.strategy': 'SIMPLE',  // 使用简单策略，让布局更分散
-                    'elk.layered.crossingMinimization.strategy': 'INTERACTIVE',  // 交互式交叉最小化
-                    'elk.layered.thoroughness': '10',  // 最高优化程度
+                    'elk.spacing.nodeNode': String(isComplexGraph ? 100 : 120),  // 
+                    'elk.spacing.edgeNode': '50',  // 
+                    'elk.spacing.edgeEdge': '25',  // 
+                    'elk.layered.spacing.nodeNodeBetweenLayers': String(isComplexGraph ? 150 : 180),  // 
+                    'elk.layered.nodePlacement.strategy': 'SIMPLE',  // ，
+                    'elk.layered.crossingMinimization.strategy': 'INTERACTIVE',  // 
+                    'elk.layered.thoroughness': '10',  // 
                     'elk.layered.spacing.edgeNodeBetweenLayers': '50',
                     'elk.layered.nodePlacement.strategy': 'BRANDES_KOEPF',
                     'elk.layered.crossingMinimization.strategy': 'LAYER_SWEEP',
                     'elk.layered.crossingMinimization.forceNodeModelOrder': 'true',
                     'elk.layered.cycleBreaking.strategy': 'GREEDY',
                     'elk.layered.thoroughness': '7',
-                    'elk.padding': '[top=60,left=100,bottom=60,right=100]',  // 更大的左右边距，让图更分散
-                    'elk.spacing.componentComponent': String(isComplexGraph ? 100 : 120)  // 组件间距
+                    'elk.padding': '[top=60,left=100,bottom=60,right=100]',  // ，
+                    'elk.spacing.componentComponent': String(isComplexGraph ? 100 : 120)  // 
                 },
                 children: chainData.nodes.map(node => {
                     const type = node.type || '';
@@ -3377,10 +3377,10 @@ function renderAttackChain(chainData) {
                         centerAttackChain();
                     }, 150);
                 } else {
-                    throw new Error('ELK布局返回无效结果');
+                    throw new Error('ELK');
                 }
             }).catch(err => {
-                console.warn('ELK布局计算失败，使用默认布局:', err);
+                console.warn('ELK，:', err);
                 // English note.
                 const layout = attackChainCytoscape.layout(layoutOptions);
                 layout.one('layoutstop', () => {
@@ -3391,7 +3391,7 @@ function renderAttackChain(chainData) {
                 layout.run();
             });
         } catch (e) {
-            console.warn('ELK布局初始化失败，使用默认布局:', e);
+            console.warn('ELK，:', e);
             // English note.
             const layout = attackChainCytoscape.layout(layoutOptions);
             layout.one('layoutstop', () => {
@@ -3402,7 +3402,7 @@ function renderAttackChain(chainData) {
             layout.run();
         }
     } else {
-        console.warn('ELK.js未加载，使用默认布局。请检查elkjs库是否正确加载。');
+        console.warn('ELK.js，。elkjs。');
         // English note.
         const layout = attackChainCytoscape.layout(layoutOptions);
         layout.one('layoutstop', () => {
@@ -3435,7 +3435,7 @@ function renderAttackChain(chainData) {
             }
             
             // English note.
-            const padding = 80;  // 边距
+            const padding = 80;  // 
             attackChainCytoscape.fit(undefined, padding);
             
             // English note.
@@ -3485,7 +3485,7 @@ function renderAttackChain(chainData) {
                 });
             }, 100);
         } catch (error) {
-            console.warn('居中图表时出错:', error);
+            console.warn(':', error);
         }
     }
     
@@ -3531,7 +3531,7 @@ function getEdgeNodes(edge) {
         
         return { source: source, target: target, valid: true };
     } catch (error) {
-        console.warn('获取边的节点时出错:', error, edge.id());
+        console.warn(':', error, edge.id());
         return { source: null, target: null, valid: false };
     }
 }
@@ -3715,7 +3715,7 @@ function resetAttackChainFilters() {
     if (attackChainCytoscape) {
         attackChainCytoscape.nodes().forEach(node => {
             node.style('display', 'element');
-            node.style('border-width', 2); // 恢复默认边框
+            node.style('border-width', 2); // 
         });
         attackChainCytoscape.edges().style('display', 'element');
         attackChainCytoscape.fit(undefined, 60);
@@ -3742,16 +3742,16 @@ function showNodeDetails(nodeData) {
     
     let html = `
         <div class="node-detail-item">
-            <strong>节点ID:</strong> <code>${nodeData.id}</code>
+            <strong>ID:</strong> <code>${nodeData.id}</code>
         </div>
         <div class="node-detail-item">
-            <strong>类型:</strong> ${getNodeTypeLabel(nodeData.type)}
+            <strong>:</strong> ${getNodeTypeLabel(nodeData.type)}
         </div>
         <div class="node-detail-item">
-            <strong>标签:</strong> ${escapeHtml(nodeData.originalLabel || nodeData.label)}
+            <strong>:</strong> ${escapeHtml(nodeData.originalLabel || nodeData.label)}
         </div>
         <div class="node-detail-item">
-            <strong>风险评分:</strong> ${nodeData.riskScore}/100
+            <strong>:</strong> ${nodeData.riskScore}/100
         </div>
     `;
     
@@ -3760,35 +3760,35 @@ function showNodeDetails(nodeData) {
         if (nodeData.metadata.tool_name) {
             html += `
                 <div class="node-detail-item">
-                    <strong>工具名称:</strong> <code>${escapeHtml(nodeData.metadata.tool_name)}</code>
+                    <strong>:</strong> <code>${escapeHtml(nodeData.metadata.tool_name)}</code>
                 </div>
             `;
         }
         if (nodeData.metadata.tool_intent) {
             html += `
                 <div class="node-detail-item">
-                    <strong>工具意图:</strong> <span style="color: #0066ff; font-weight: bold;">${escapeHtml(nodeData.metadata.tool_intent)}</span>
+                    <strong>:</strong> <span style="color: #0066ff; font-weight: bold;">${escapeHtml(nodeData.metadata.tool_intent)}</span>
                 </div>
             `;
         }
         if (nodeData.metadata.status === 'failed_insight') {
             html += `
                 <div class="node-detail-item">
-                    <strong>执行状态:</strong> <span style="color: #ff9800; font-weight: bold;">失败但有线索</span>
+                    <strong>:</strong> <span style="color: #ff9800; font-weight: bold;"></span>
                 </div>
             `;
         }
         if (nodeData.metadata.ai_analysis) {
             html += `
                 <div class="node-detail-item">
-                    <strong>AI分析:</strong> <div style="margin-top: 5px; padding: 8px; background: #f5f5f5; border-radius: 4px;">${escapeHtml(nodeData.metadata.ai_analysis)}</div>
+                    <strong>AI:</strong> <div style="margin-top: 5px; padding: 8px; background: #f5f5f5; border-radius: 4px;">${escapeHtml(nodeData.metadata.ai_analysis)}</div>
                 </div>
             `;
         }
         if (nodeData.metadata.findings && Array.isArray(nodeData.metadata.findings) && nodeData.metadata.findings.length > 0) {
             html += `
                 <div class="node-detail-item">
-                    <strong>关键发现:</strong>
+                    <strong>:</strong>
                     <ul style="margin: 5px 0; padding-left: 20px;">
                         ${nodeData.metadata.findings.map(f => `<li>${escapeHtml(f)}</li>`).join('')}
                     </ul>
@@ -3801,7 +3801,7 @@ function showNodeDetails(nodeData) {
     if (nodeData.type === 'target' && nodeData.metadata && nodeData.metadata.target) {
         html += `
             <div class="node-detail-item">
-                <strong>测试目标:</strong> <code>${escapeHtml(nodeData.metadata.target)}</code>
+                <strong>:</strong> <code>${escapeHtml(nodeData.metadata.target)}</code>
             </div>
         `;
     }
@@ -3811,28 +3811,28 @@ function showNodeDetails(nodeData) {
         if (nodeData.metadata.vulnerability_type) {
             html += `
                 <div class="node-detail-item">
-                    <strong>漏洞类型:</strong> ${escapeHtml(nodeData.metadata.vulnerability_type)}
+                    <strong>:</strong> ${escapeHtml(nodeData.metadata.vulnerability_type)}
                 </div>
             `;
         }
         if (nodeData.metadata.description) {
             html += `
                 <div class="node-detail-item">
-                    <strong>描述:</strong> ${escapeHtml(nodeData.metadata.description)}
+                    <strong>:</strong> ${escapeHtml(nodeData.metadata.description)}
                 </div>
             `;
         }
         if (nodeData.metadata.severity) {
             html += `
                 <div class="node-detail-item">
-                    <strong>严重程度:</strong> <span style="color: ${getSeverityColor(nodeData.metadata.severity)}; font-weight: bold;">${escapeHtml(nodeData.metadata.severity)}</span>
+                    <strong>:</strong> <span style="color: ${getSeverityColor(nodeData.metadata.severity)}; font-weight: bold;">${escapeHtml(nodeData.metadata.severity)}</span>
                 </div>
             `;
         }
         if (nodeData.metadata.location) {
             html += `
                 <div class="node-detail-item">
-                    <strong>位置:</strong> <code>${escapeHtml(nodeData.metadata.location)}</code>
+                    <strong>:</strong> <code>${escapeHtml(nodeData.metadata.location)}</code>
                 </div>
             `;
         }
@@ -3841,7 +3841,7 @@ function showNodeDetails(nodeData) {
     if (nodeData.toolExecutionId) {
         html += `
             <div class="node-detail-item">
-                <strong>工具执行ID:</strong> <code>${nodeData.toolExecutionId}</code>
+                <strong>ID:</strong> <code>${nodeData.toolExecutionId}</code>
             </div>
         `;
     }
@@ -3874,7 +3874,7 @@ function showNodeDetails(nodeData) {
                     const sidebarRect = sidebar.getBoundingClientRect();
                     const scrollTop = sidebar.scrollTop;
                     const relativeTop = detailsRect.top - sidebarRect.top + scrollTop;
-                    sidebar.scrollTop = relativeTop - 20; // 留一点边距
+                    sidebar.scrollTop = relativeTop - 20; // 
                 }
             }
         });
@@ -3895,9 +3895,9 @@ function getSeverityColor(severity) {
 // English note.
 function getNodeTypeLabel(type) {
     const labels = {
-        'action': '行动',
-        'vulnerability': '漏洞',
-        'target': '目标'
+        'action': '',
+        'vulnerability': '',
+        'target': ''
     };
     return labels[type] || type;
 }
@@ -3977,7 +3977,7 @@ function refreshAttackChain() {
     if (currentAttackChainConversationId) {
         // English note.
         const wasLoading = isAttackChainLoading(currentAttackChainConversationId);
-        setAttackChainLoading(currentAttackChainConversationId, false); // 临时重置，允许刷新
+        setAttackChainLoading(currentAttackChainConversationId, false); // ，
         loadAttackChain(currentAttackChainConversationId).finally(() => {
             // English note.
             // English note.
@@ -3998,7 +3998,7 @@ async function regenerateAttackChain() {
     
     // English note.
     if (isAttackChainLoading(currentAttackChainConversationId)) {
-        console.log('攻击链正在生成中，请稍候...');
+        console.log('，...');
         return;
     }
     
@@ -4008,7 +4008,7 @@ async function regenerateAttackChain() {
     
     const container = document.getElementById('attack-chain-container');
     if (container) {
-        container.innerHTML = '<div class="loading-spinner">重新生成中...</div>';
+        container.innerHTML = '<div class="loading-spinner">...</div>';
     }
     
     // English note.
@@ -4032,12 +4032,12 @@ async function regenerateAttackChain() {
                 if (container) {
                     container.innerHTML = `
                         <div class="loading-spinner" style="text-align: center; padding: 40px;">
-                            <div style="margin-bottom: 16px;">⏳ 攻击链正在生成中...</div>
+                            <div style="margin-bottom: 16px;">⏳ ...</div>
                             <div style="color: var(--text-secondary); font-size: 0.875rem;">
-                                请稍候，生成完成后将自动显示
+                                ，
                             </div>
                             <button class="btn-secondary" onclick="refreshAttackChain()" style="margin-top: 16px;">
-                                刷新查看进度
+                                
                             </button>
                         </div>
                     `;
@@ -4055,14 +4055,14 @@ async function regenerateAttackChain() {
             }
             
             const error = await response.json();
-            throw new Error(error.error || '重新生成攻击链失败');
+            throw new Error(error.error || '');
         }
         
         const chainData = await response.json();
         
         // English note.
         if (currentAttackChainConversationId !== savedConversationId) {
-            console.log('攻击链数据已返回，但当前显示的对话已切换，忽略此次渲染', {
+            console.log('，，', {
                 returned: savedConversationId,
                 current: currentAttackChainConversationId
             });
@@ -4077,9 +4077,9 @@ async function regenerateAttackChain() {
         updateAttackChainStats(chainData);
         
     } catch (error) {
-        console.error('重新生成攻击链失败:', error);
+        console.error(':', error);
         if (container) {
-            container.innerHTML = `<div class="error-message">重新生成失败: ${error.message}</div>`;
+            container.innerHTML = `<div class="error-message">: ${error.message}</div>`;
         }
     } finally {
         setAttackChainLoading(savedConversationId, false);
@@ -4096,7 +4096,7 @@ async function regenerateAttackChain() {
 // English note.
 function exportAttackChain(format) {
     if (!attackChainCytoscape) {
-        alert('请先加载攻击链');
+        alert('');
         return;
     }
     
@@ -4116,7 +4116,7 @@ function exportAttackChain(format) {
                     if (pngPromise && typeof pngPromise.then === 'function') {
                         pngPromise.then(blob => {
                             if (!blob) {
-                                throw new Error('PNG导出返回空数据');
+                                throw new Error('PNG');
                             }
                             const url = URL.createObjectURL(blob);
                             const a = document.createElement('a');
@@ -4127,8 +4127,8 @@ function exportAttackChain(format) {
                             document.body.removeChild(a);
                             setTimeout(() => URL.revokeObjectURL(url), 100);
                         }).catch(err => {
-                            console.error('导出PNG失败:', err);
-                            alert('导出PNG失败: ' + (err.message || '未知错误'));
+                            console.error('PNG:', err);
+                            alert('PNG: ' + (err.message || ''));
                         });
                     } else {
                         // English note.
@@ -4142,8 +4142,8 @@ function exportAttackChain(format) {
                         setTimeout(() => URL.revokeObjectURL(url), 100);
                     }
                 } catch (err) {
-                    console.error('PNG导出错误:', err);
-                    alert('导出PNG失败: ' + (err.message || '未知错误'));
+                    console.error('PNG:', err);
+                    alert('PNG: ' + (err.message || ''));
                 }
             } else if (format === 'svg') {
                 try {
@@ -4151,7 +4151,7 @@ function exportAttackChain(format) {
                     // English note.
                     const container = attackChainCytoscape.container();
                     if (!container) {
-                        throw new Error('无法获取容器元素');
+                        throw new Error('');
                     }
                     
                     // English note.
@@ -4159,7 +4159,7 @@ function exportAttackChain(format) {
                     const edges = attackChainCytoscape.edges();
                     
                     if (nodes.length === 0) {
-                        throw new Error('没有节点可导出');
+                        throw new Error('');
                     }
                     
                     // English note.
@@ -4246,7 +4246,7 @@ function exportAttackChain(format) {
                     edges.forEach(edge => {
                         const { source, target, valid } = getEdgeNodes(edge);
                         if (!valid) {
-                            return; // 跳过无效的边
+                            return; // 
                         }
                         
                         const sourcePos = source.position();
@@ -4372,7 +4372,7 @@ function exportAttackChain(format) {
                                 }
                             });
                             if (currentLine) lines.push(currentLine);
-                            lines = lines.slice(0, 2); // 最多两行
+                            lines = lines.slice(0, 2); // 
                         } else {
                             lines = [label];
                         }
@@ -4451,17 +4451,17 @@ function exportAttackChain(format) {
                     document.body.removeChild(a);
                     setTimeout(() => URL.revokeObjectURL(url), 100);
                 } catch (err) {
-                    console.error('SVG导出错误:', err);
-                    alert('导出SVG失败: ' + (err.message || '未知错误'));
+                    console.error('SVG:', err);
+                    alert('SVG: ' + (err.message || ''));
                 }
             } else {
-                alert('不支持的导出格式: ' + format);
+                alert(': ' + format);
             }
         } catch (error) {
-            console.error('导出失败:', error);
-            alert('导出失败: ' + (error.message || '未知错误'));
+            console.error(':', error);
+            alert(': ' + (error.message || ''));
         }
-    }, 100); // 小延迟确保图形已渲染
+    }, 100); // 
 }
 
 // ============================================
@@ -4469,14 +4469,14 @@ function exportAttackChain(format) {
 // ============================================
 
 // English note.
-let currentGroupId = null; // 当前正在查看的分组详情页面
-let currentConversationGroupId = null; // 当前对话所属的分组ID（用于高亮显示）
+let currentGroupId = null; // 
+let currentConversationGroupId = null; // ID（）
 let contextMenuConversationId = null;
 let contextMenuGroupId = null;
 let groupsCache = [];
 let conversationGroupMappingCache = {};
-let pendingGroupMappings = {}; // 待保留的分组映射（用于处理后端API延迟的情况）
-let conversationsListLoadSeq = 0; // 对话列表加载序号，避免并发请求导致重复渲染
+let pendingGroupMappings = {}; // （API）
+let conversationsListLoadSeq = 0; // ，
 
 // English note.
 async function loadGroups() {
@@ -4544,7 +4544,7 @@ async function loadGroups() {
                 const pinIcon = document.createElement('span');
                 pinIcon.className = 'group-item-pinned';
                 pinIcon.innerHTML = '📌';
-                pinIcon.title = '已置顶';
+                pinIcon.title = '';
                 name.appendChild(pinIcon);
             }
             groupItem.appendChild(content);
@@ -4565,7 +4565,7 @@ async function loadGroups() {
             groupsList.appendChild(groupItem);
         });
     } catch (error) {
-        console.error('加载分组列表失败:', error);
+        console.error(':', error);
     }
 }
 
@@ -4702,7 +4702,7 @@ async function loadConversationsWithGroups(searchQuery = '') {
         }
     } catch (error) {
         if (loadSeq !== conversationsListLoadSeq) return;
-        console.error('加载对话列表失败:', error);
+        console.error(':', error);
         // English note.
         const listContainer = document.getElementById('conversations-list');
         if (listContainer) {
@@ -4732,16 +4732,16 @@ function createConversationListItemWithMenu(conversation, isPinned) {
 
     const title = document.createElement('div');
     title.className = 'conversation-title';
-    const titleText = conversation.title || '未命名对话';
+    const titleText = conversation.title || '';
     title.textContent = safeTruncateText(titleText, 60);
-    title.title = titleText; // 设置完整标题以便悬停查看
+    title.title = titleText; // 
     titleWrapper.appendChild(title);
 
     if (isPinned) {
         const pinIcon = document.createElement('span');
         pinIcon.className = 'conversation-item-pinned';
         pinIcon.innerHTML = '📌';
-        pinIcon.title = '已置顶';
+        pinIcon.title = '';
         titleWrapper.appendChild(pinIcon);
     }
 
@@ -4761,7 +4761,7 @@ function createConversationListItemWithMenu(conversation, isPinned) {
             const groupTag = document.createElement('div');
             groupTag.className = 'conversation-group-tag';
             groupTag.innerHTML = `<span class="group-tag-icon">${group.icon || '📁'}</span><span class="group-tag-name">${group.name}</span>`;
-            groupTag.title = `分组: ${group.name}`;
+            groupTag.title = `: ${group.name}`;
             contentWrapper.appendChild(groupTag);
         }
     }
@@ -4824,18 +4824,18 @@ async function showConversationContextMenu(event) {
                 attackChainMenuItem.style.opacity = '0.5';
                 attackChainMenuItem.style.cursor = 'not-allowed';
                 attackChainMenuItem.onclick = null;
-                attackChainMenuItem.title = '当前对话正在执行，请稍后再生成攻击链';
+                attackChainMenuItem.title = '，';
             } else {
                 attackChainMenuItem.style.opacity = '1';
                 attackChainMenuItem.style.cursor = 'pointer';
                 attackChainMenuItem.onclick = showAttackChainFromContext;
-                attackChainMenuItem.title = (typeof window.t === 'function' ? window.t('chat.viewAttackChainCurrentConv') : '查看当前对话的攻击链');
+                attackChainMenuItem.title = (typeof window.t === 'function' ? window.t('chat.viewAttackChainCurrentConv') : '');
             }
         } else {
             attackChainMenuItem.style.opacity = '0.5';
             attackChainMenuItem.style.cursor = 'not-allowed';
             attackChainMenuItem.onclick = null;
-            attackChainMenuItem.title = (typeof window.t === 'function' ? window.t('chat.viewAttackChainSelectConv') : '请选择一个对话以查看攻击链');
+            attackChainMenuItem.title = (typeof window.t === 'function' ? window.t('chat.viewAttackChainSelectConv') : '');
         }
     }
     
@@ -4871,15 +4871,15 @@ async function showConversationContextMenu(event) {
             if (pinMenuText && typeof window.t === 'function') {
                 pinMenuText.textContent = isPinned ? window.t('contextMenu.unpinConversation') : window.t('contextMenu.pinConversation');
             } else if (pinMenuText) {
-                pinMenuText.textContent = isPinned ? '取消置顶' : '置顶此对话';
+                pinMenuText.textContent = isPinned ? '' : '';
             }
         } catch (error) {
-            console.error('获取对话置顶状态失败:', error);
+            console.error(':', error);
             const pinMenuText = document.getElementById('pin-conversation-menu-text');
             if (pinMenuText && typeof window.t === 'function') {
                 pinMenuText.textContent = window.t('contextMenu.pinConversation');
             } else if (pinMenuText) {
-                pinMenuText.textContent = '置顶此对话';
+                pinMenuText.textContent = '';
             }
         }
     } else {
@@ -4887,7 +4887,7 @@ async function showConversationContextMenu(event) {
         if (pinMenuText && typeof window.t === 'function') {
             pinMenuText.textContent = window.t('contextMenu.pinConversation');
         } else if (pinMenuText) {
-            pinMenuText.textContent = '置顶此对话';
+            pinMenuText.textContent = '';
         }
     }
 
@@ -4905,7 +4905,7 @@ async function showConversationContextMenu(event) {
     const viewportHeight = window.innerHeight;
     
     // English note.
-    const submenuWidth = submenu ? 180 : 0; // 子菜单宽度 + 间距
+    const submenuWidth = submenu ? 180 : 0; //  + 
     
     let left = event.clientX;
     let top = event.clientY;
@@ -5016,15 +5016,15 @@ async function showGroupContextMenu(event, groupId) {
         if (pinMenuText && typeof window.t === 'function') {
             pinMenuText.textContent = isPinned ? window.t('contextMenu.unpinGroup') : window.t('contextMenu.pinGroup');
         } else if (pinMenuText) {
-            pinMenuText.textContent = isPinned ? '取消置顶' : '置顶此分组';
+            pinMenuText.textContent = isPinned ? '' : '';
         }
     } catch (error) {
-        console.error('获取分组置顶状态失败:', error);
+        console.error(':', error);
         const pinMenuText = document.getElementById('pin-group-menu-text');
         if (pinMenuText && typeof window.t === 'function') {
             pinMenuText.textContent = window.t('contextMenu.pinGroup');
         } else if (pinMenuText) {
-            pinMenuText.textContent = '置顶此分组';
+            pinMenuText.textContent = '';
         }
     }
 
@@ -5084,7 +5084,7 @@ async function renameConversation() {
     const convId = contextMenuConversationId;
     if (!convId) return;
 
-    const newTitle = prompt('请输入新标题:', '');
+    const newTitle = prompt(':', '');
     if (newTitle === null || !newTitle.trim()) {
         closeContextMenu();
         return;
@@ -5101,7 +5101,7 @@ async function renameConversation() {
 
         if (!response.ok) {
             const error = await response.json();
-            throw new Error(error.error || '更新失败');
+            throw new Error(error.error || '');
         }
 
         // English note.
@@ -5125,9 +5125,9 @@ async function renameConversation() {
         // English note.
         loadConversationsWithGroups();
     } catch (error) {
-        console.error('重命名对话失败:', error);
-        const failedLabel = typeof window.t === 'function' ? window.t('chat.renameFailed') : '重命名失败';
-        const unknownErr = typeof window.t === 'function' ? window.t('createGroupModal.unknownError') : '未知错误';
+        console.error(':', error);
+        const failedLabel = typeof window.t === 'function' ? window.t('chat.renameFailed') : '';
+        const unknownErr = typeof window.t === 'function' ? window.t('createGroupModal.unknownError') : '';
         alert(failedLabel + ': ' + (error.message || unknownErr));
     }
 
@@ -5186,8 +5186,8 @@ async function pinConversation() {
             loadConversationsWithGroups();
         }
     } catch (error) {
-        console.error('置顶对话失败:', error);
-        alert('置顶失败: ' + (error.message || '未知错误'));
+        console.error(':', error);
+        alert(': ' + (error.message || ''));
     }
 
     closeContextMenu();
@@ -5233,13 +5233,13 @@ async function showMoveToGroupSubmenu() {
                 }
             } catch (err) {
                 // English note.
-                console.warn('刷新分组列表失败，使用缓存数据:', err);
+                console.warn('，:', err);
             }
         }
         
         // English note.
         if (!Array.isArray(groupsCache)) {
-            console.warn('groupsCache 不是有效数组，重置为空数组');
+            console.warn('groupsCache ，');
             groupsCache = [];
             // English note.
             if (groupsCache.length === 0) {
@@ -5247,7 +5247,7 @@ async function showMoveToGroupSubmenu() {
             }
         }
     } catch (error) {
-        console.error('加载分组列表失败:', error);
+        console.error(':', error);
         // English note.
     }
 
@@ -5263,7 +5263,7 @@ async function showMoveToGroupSubmenu() {
                     <path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
                     <path d="M9 12l6 6M15 12l-6 6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
                 </svg>
-                <span>移出本组</span>
+                <span></span>
             `;
             removeItem.onclick = () => {
                 removeConversationFromGroup(contextMenuConversationId, currentGroupId);
@@ -5279,7 +5279,7 @@ async function showMoveToGroupSubmenu() {
 
     // English note.
     if (!Array.isArray(groupsCache)) {
-        console.warn('groupsCache 不是有效数组，重置为空数组');
+        console.warn('groupsCache ，');
         groupsCache = [];
     }
 
@@ -5293,7 +5293,7 @@ async function showMoveToGroupSubmenu() {
         groupsCache.forEach(group => {
             // English note.
             if (!group || !group.id || !group.name) {
-                console.warn('无效的分组对象:', group);
+                console.warn(':', group);
                 return;
             }
             
@@ -5317,11 +5317,11 @@ async function showMoveToGroupSubmenu() {
         });
     } else {
         // English note.
-        console.warn('showMoveToGroupSubmenu: groupsCache 为空，无法显示分组列表');
+        console.warn('showMoveToGroupSubmenu: groupsCache ，');
     }
 
     // English note.
-    const addGroupLabel = typeof window.t === 'function' ? window.t('chat.addNewGroup') : '+ 新增分组';
+    const addGroupLabel = typeof window.t === 'function' ? window.t('chat.addNewGroup') : '+ ';
     const addItem = document.createElement('div');
     addItem.className = 'context-submenu-item add-group-item';
     addItem.innerHTML = `
@@ -5529,8 +5529,8 @@ async function moveConversationToGroup(convId, groupId) {
         // English note.
         await loadGroups();
     } catch (error) {
-        console.error('移动对话到分组失败:', error);
-        alert('移动失败: ' + (error.message || '未知错误'));
+        console.error(':', error);
+        alert(': ' + (error.message || ''));
     }
 
     closeContextMenu();
@@ -5571,8 +5571,8 @@ async function removeConversationFromGroup(convId, groupId) {
         await loadConversationsWithGroups();
         currentGroupId = savedGroupId;
     } catch (error) {
-        console.error('从分组中移除对话失败:', error);
-        alert('移除失败: ' + (error.message || '未知错误'));
+        console.error(':', error);
+        alert(': ' + (error.message || ''));
     }
 
     closeContextMenu();
@@ -5605,7 +5605,7 @@ async function loadConversationGroupMapping() {
         // English note.
         Object.assign(conversationGroupMappingCache, preservedMappings);
     } catch (error) {
-        console.error('加载对话分组映射失败:', error);
+        console.error(':', error);
     }
 }
 
@@ -5750,8 +5750,8 @@ async function downloadConversationMarkdownFromContext(includeToolDetails = fals
         document.body.removeChild(link);
         URL.revokeObjectURL(url);
     } catch (error) {
-        console.error('下载对话 Markdown 失败:', error);
-        const failedLabel = typeof window.t === 'function' ? window.t('chat.downloadConversationFailed') : '下载失败';
+        console.error(' Markdown :', error);
+        const failedLabel = typeof window.t === 'function' ? window.t('chat.downloadConversationFailed') : '';
         const errMsg = error && error.message ? error.message : 'unknown error';
         alert(failedLabel + ': ' + errMsg);
     }
@@ -5764,9 +5764,9 @@ function deleteConversationFromContext() {
     const convId = contextMenuConversationId;
     if (!convId) return;
 
-    const confirmMsg = typeof window.t === 'function' ? window.t('chat.deleteConversationConfirm') : '确定要删除此对话吗？';
+    const confirmMsg = typeof window.t === 'function' ? window.t('chat.deleteConversationConfirm') : '？';
     if (confirm(confirmMsg)) {
-        deleteConversation(convId, true); // 跳过内部确认，因为这里已经确认过了
+        deleteConversation(convId, true); // ，
     }
     closeContextMenu();
 }
@@ -5826,7 +5826,7 @@ async function showBatchManageModal() {
             modal.style.display = 'flex';
         }
     } catch (error) {
-        console.error('加载对话列表失败:', error);
+        console.error(':', error);
         // English note.
         allConversationsForBatch = [];
         const modal = document.getElementById('batch-manage-modal');
@@ -5863,7 +5863,7 @@ function safeTruncateText(text, maxLength = 50) {
     
     for (let i = truncatedChars.length - 1; i >= truncatedChars.length - searchRange && i >= 0; i--) {
         if (breakChars.includes(truncatedChars[i])) {
-            bestBreakPos = i + 1; // 在标点符号后断开
+            bestBreakPos = i + 1; // 
             break;
         }
     }
@@ -5897,7 +5897,7 @@ function renderBatchConversations(filtered = null) {
 
         const name = document.createElement('div');
         name.className = 'batch-table-col-name';
-        const originalTitle = conv.title || (typeof window.t === 'function' ? window.t('batchManageModal.unnamedConversation') : '未命名对话');
+        const originalTitle = conv.title || (typeof window.t === 'function' ? window.t('batchManageModal.unnamedConversation') : '');
         // English note.
         const truncatedTitle = safeTruncateText(originalTitle, 45);
         name.textContent = truncatedTitle;
@@ -5962,11 +5962,11 @@ function toggleSelectAllBatch() {
 async function deleteSelectedConversations() {
     const checkboxes = document.querySelectorAll('.batch-conversation-checkbox:checked');
     if (checkboxes.length === 0) {
-        alert(typeof window.t === 'function' ? window.t('batchManageModal.confirmDeleteNone') : '请先选择要删除的对话');
+        alert(typeof window.t === 'function' ? window.t('batchManageModal.confirmDeleteNone') : '');
         return;
     }
 
-    const confirmMsg = typeof window.t === 'function' ? window.t('batchManageModal.confirmDeleteN', { count: checkboxes.length }) : '确定要删除选中的 ' + checkboxes.length + ' 条对话吗？';
+    const confirmMsg = typeof window.t === 'function' ? window.t('batchManageModal.confirmDeleteN', { count: checkboxes.length }) : ' ' + checkboxes.length + ' ？';
     if (!confirm(confirmMsg)) {
         return;
     }
@@ -5975,14 +5975,14 @@ async function deleteSelectedConversations() {
     
     try {
         for (const id of ids) {
-            await deleteConversation(id, true); // 跳过内部确认，因为批量删除时已经确认过了
+            await deleteConversation(id, true); // ，
         }
         closeBatchManageModal();
         loadConversationsWithGroups();
     } catch (error) {
-        console.error('删除失败:', error);
-        const failedMsg = typeof window.t === 'function' ? window.t('batchManageModal.deleteFailed') : '删除失败';
-        const unknownErr = typeof window.t === 'function' ? window.t('createGroupModal.unknownError') : '未知错误';
+        console.error(':', error);
+        const failedMsg = typeof window.t === 'function' ? window.t('batchManageModal.deleteFailed') : '';
+        const unknownErr = typeof window.t === 'function' ? window.t('createGroupModal.unknownError') : '';
         alert(failedMsg + ': ' + (error.message || unknownErr));
     }
 }
@@ -6237,13 +6237,13 @@ async function createGroup(event) {
 
     const input = document.getElementById('create-group-name-input');
     if (!input) {
-        console.error('找不到输入框');
+        console.error('');
         return;
     }
 
     const name = input.value.trim();
     if (!name) {
-        alert(typeof window.t === 'function' ? window.t('createGroupModal.groupNamePlaceholder') : '请输入分组名称');
+        alert(typeof window.t === 'function' ? window.t('createGroupModal.groupNamePlaceholder') : '');
         return;
     }
 
@@ -6264,11 +6264,11 @@ async function createGroup(event) {
         
         const nameExists = groups.some(g => g.name === name);
         if (nameExists) {
-            alert(typeof window.t === 'function' ? window.t('createGroupModal.nameExists') : '分组名称已存在，请使用其他名称');
+            alert(typeof window.t === 'function' ? window.t('createGroupModal.nameExists') : '，');
             return;
         }
     } catch (error) {
-        console.error('检查分组名称失败:', error);
+        console.error(':', error);
     }
 
     // English note.
@@ -6289,12 +6289,12 @@ async function createGroup(event) {
 
         if (!response.ok) {
             const error = await response.json();
-            const nameExistsMsg = typeof window.t === 'function' ? window.t('createGroupModal.nameExists') : '分组名称已存在，请使用其他名称';
-            if (error.error && error.error.includes('已存在')) {
+            const nameExistsMsg = typeof window.t === 'function' ? window.t('createGroupModal.nameExists') : '，';
+            if (error.error && error.error.includes('')) {
                 alert(nameExistsMsg);
                 return;
             }
-            const createFailedMsg = typeof window.t === 'function' ? window.t('createGroupModal.createFailed') : '创建失败';
+            const createFailedMsg = typeof window.t === 'function' ? window.t('createGroupModal.createFailed') : '';
             throw new Error(error.error || createFailedMsg);
         }
 
@@ -6320,9 +6320,9 @@ async function createGroup(event) {
             await showMoveToGroupSubmenu();
         }
     } catch (error) {
-        console.error('创建分组失败:', error);
-        const createFailedMsg = typeof window.t === 'function' ? window.t('createGroupModal.createFailed') : '创建失败';
-        const unknownErr = typeof window.t === 'function' ? window.t('createGroupModal.unknownError') : '未知错误';
+        console.error(':', error);
+        const createFailedMsg = typeof window.t === 'function' ? window.t('createGroupModal.createFailed') : '';
+        const unknownErr = typeof window.t === 'function' ? window.t('createGroupModal.unknownError') : '';
         alert(createFailedMsg + ': ' + (error.message || unknownErr));
     }
 }
@@ -6362,7 +6362,7 @@ async function enterGroupDetail(groupId) {
         // English note.
         loadGroupConversations(groupId, currentGroupSearchQuery);
     } catch (error) {
-        console.error('加载分组失败:', error);
+        console.error(':', error);
         currentGroupId = null;
     }
 }
@@ -6370,7 +6370,7 @@ async function enterGroupDetail(groupId) {
 // English note.
 function exitGroupDetail() {
     currentGroupId = null;
-    currentGroupSearchQuery = ''; // 清除搜索状态
+    currentGroupSearchQuery = ''; // 
     
     // English note.
     const searchContainer = document.getElementById('group-search-container');
@@ -6413,9 +6413,9 @@ async function loadGroupConversations(groupId, searchQuery = '') {
         
         // English note.
         if (searchQuery) {
-            list.innerHTML = '<div style="padding: 40px; text-align: center; color: var(--text-muted);">' + (typeof window.t === 'function' ? window.t('chat.searching') : '搜索中...') + '</div>';
+            list.innerHTML = '<div style="padding: 40px; text-align: center; color: var(--text-muted);">' + (typeof window.t === 'function' ? window.t('chat.searching') : '...') + '</div>';
         } else {
-            list.innerHTML = '<div style="padding: 40px; text-align: center; color: var(--text-muted);">' + (typeof window.t === 'function' ? window.t('chat.loading') : '加载中...') + '</div>';
+            list.innerHTML = '<div style="padding: 40px; text-align: center; color: var(--text-muted);">' + (typeof window.t === 'function' ? window.t('chat.loading') : '...') + '</div>';
         }
 
         // English note.
@@ -6427,7 +6427,7 @@ async function loadGroupConversations(groupId, searchQuery = '') {
         const response = await apiFetch(url);
         if (!response.ok) {
             console.error(`Failed to load conversations for group ${groupId}:`, response.statusText);
-            list.innerHTML = '<div style="padding: 40px; text-align: center; color: var(--text-muted);">' + (typeof window.t === 'function' ? window.t('chat.loadFailedRetry') : '加载失败，请重试') + '</div>';
+            list.innerHTML = '<div style="padding: 40px; text-align: center; color: var(--text-muted);">' + (typeof window.t === 'function' ? window.t('chat.loadFailedRetry') : '，') + '</div>';
             return;
         }
         
@@ -6441,7 +6441,7 @@ async function loadGroupConversations(groupId, searchQuery = '') {
         // English note.
         if (!Array.isArray(groupConvs)) {
             console.error(`Invalid response for group ${groupId}:`, groupConvs);
-            list.innerHTML = '<div style="padding: 40px; text-align: center; color: var(--text-muted);">' + (typeof window.t === 'function' ? window.t('chat.dataFormatError') : '数据格式错误') + '</div>';
+            list.innerHTML = '<div style="padding: 40px; text-align: center; color: var(--text-muted);">' + (typeof window.t === 'function' ? window.t('chat.dataFormatError') : '') + '</div>';
             return;
         }
         
@@ -6465,12 +6465,12 @@ async function loadGroupConversations(groupId, searchQuery = '') {
         list.innerHTML = '';
 
         if (groupConvs.length === 0) {
-            const emptyMsg = typeof window.t === 'function' ? window.t('chat.emptyGroupConversations') : '该分组暂无对话';
-            const noMatchMsg = typeof window.t === 'function' ? window.t('chat.noMatchingConversationsInGroup') : '未找到匹配的对话';
+            const emptyMsg = typeof window.t === 'function' ? window.t('chat.emptyGroupConversations') : '';
+            const noMatchMsg = typeof window.t === 'function' ? window.t('chat.noMatchingConversationsInGroup') : '';
             if (searchQuery && searchQuery.trim()) {
-                list.innerHTML = '<div style="padding: 40px; text-align: center; color: var(--text-muted);">' + (noMatchMsg || '未找到匹配的对话') + '</div>';
+                list.innerHTML = '<div style="padding: 40px; text-align: center; color: var(--text-muted);">' + (noMatchMsg || '') + '</div>';
             } else {
-                list.innerHTML = '<div style="padding: 40px; text-align: center; color: var(--text-muted);">' + (emptyMsg || '该分组暂无对话') + '</div>';
+                list.innerHTML = '<div style="padding: 40px; text-align: center; color: var(--text-muted);">' + (emptyMsg || '') + '</div>';
             }
             return;
         }
@@ -6514,9 +6514,9 @@ async function loadGroupConversations(groupId, searchQuery = '') {
 
                 const title = document.createElement('div');
                 title.className = 'group-conversation-title';
-                const titleText = fullConv.title || conv.title || '未命名对话';
+                const titleText = fullConv.title || conv.title || '';
                 title.textContent = safeTruncateText(titleText, 60);
-                title.title = titleText; // 设置完整标题以便悬停查看
+                title.title = titleText; // 
                 titleWrapper.appendChild(title);
 
                 // English note.
@@ -6524,7 +6524,7 @@ async function loadGroupConversations(groupId, searchQuery = '') {
                     const pinIcon = document.createElement('span');
                     pinIcon.className = 'conversation-item-pinned';
                     pinIcon.innerHTML = '📌';
-                    pinIcon.title = '在分组中已置顶';
+                    pinIcon.title = '';
                     titleWrapper.appendChild(pinIcon);
                 }
 
@@ -6585,11 +6585,11 @@ async function loadGroupConversations(groupId, searchQuery = '') {
 
                 list.appendChild(item);
             } catch (err) {
-                console.error(`加载对话 ${conv.id} 失败:`, err);
+                console.error(` ${conv.id} :`, err);
             }
         }
     } catch (error) {
-        console.error('加载分组对话失败:', error);
+        console.error(':', error);
     }
 }
 
@@ -6602,7 +6602,7 @@ async function editGroup() {
         const group = await response.json();
         if (!group) return;
 
-        const renamePrompt = typeof window.t === 'function' ? window.t('chat.renameGroupPrompt') : '请输入新名称：';
+        const renamePrompt = typeof window.t === 'function' ? window.t('chat.renameGroupPrompt') : '：';
         const newName = prompt(renamePrompt, group.name);
         if (newName === null || !newName.trim()) return;
 
@@ -6624,7 +6624,7 @@ async function editGroup() {
         
         const nameExists = groups.some(g => g.name === trimmedName && g.id !== currentGroupId);
         if (nameExists) {
-            alert(typeof window.t === 'function' ? window.t('createGroupModal.nameExists') : '分组名称已存在，请使用其他名称');
+            alert(typeof window.t === 'function' ? window.t('createGroupModal.nameExists') : '，');
             return;
         }
 
@@ -6641,11 +6641,11 @@ async function editGroup() {
 
         if (!updateResponse.ok) {
             const error = await updateResponse.json();
-            if (error.error && error.error.includes('已存在')) {
-                alert('分组名称已存在，请使用其他名称');
+            if (error.error && error.error.includes('')) {
+                alert('，');
                 return;
             }
-            throw new Error(error.error || '更新失败');
+            throw new Error(error.error || '');
         }
 
         loadGroups();
@@ -6655,8 +6655,8 @@ async function editGroup() {
             titleEl.textContent = trimmedName;
         }
     } catch (error) {
-        console.error('编辑分组失败:', error);
-        alert('编辑失败: ' + (error.message || '未知错误'));
+        console.error(':', error);
+        alert(': ' + (error.message || ''));
     }
 }
 
@@ -6664,7 +6664,7 @@ async function editGroup() {
 async function deleteGroup() {
     if (!currentGroupId) return;
 
-    const deleteConfirmMsg = typeof window.t === 'function' ? window.t('chat.deleteGroupConfirm') : '确定要删除此分组吗？分组中的对话不会被删除，但会从分组中移除。';
+    const deleteConfirmMsg = typeof window.t === 'function' ? window.t('chat.deleteGroupConfirm') : '？，。';
     if (!confirm(deleteConfirmMsg)) {
         return;
     }
@@ -6696,8 +6696,8 @@ async function deleteGroup() {
         // English note.
         await loadConversationsWithGroups();
     } catch (error) {
-        console.error('删除分组失败:', error);
-        alert('删除失败: ' + (error.message || '未知错误'));
+        console.error(':', error);
+        alert(': ' + (error.message || ''));
     }
 }
 
@@ -6711,7 +6711,7 @@ async function renameGroupFromContext() {
         const group = await response.json();
         if (!group) return;
 
-        const renamePrompt = typeof window.t === 'function' ? window.t('chat.renameGroupPrompt') : '请输入新名称：';
+        const renamePrompt = typeof window.t === 'function' ? window.t('chat.renameGroupPrompt') : '：';
         const newName = prompt(renamePrompt, group.name);
         if (newName === null || !newName.trim()) {
             closeGroupContextMenu();
@@ -6736,7 +6736,7 @@ async function renameGroupFromContext() {
         
         const nameExists = groups.some(g => g.name === trimmedName && g.id !== groupId);
         if (nameExists) {
-            alert(typeof window.t === 'function' ? window.t('createGroupModal.nameExists') : '分组名称已存在，请使用其他名称');
+            alert(typeof window.t === 'function' ? window.t('createGroupModal.nameExists') : '，');
             return;
         }
 
@@ -6753,11 +6753,11 @@ async function renameGroupFromContext() {
 
         if (!updateResponse.ok) {
             const error = await updateResponse.json();
-            if (error.error && error.error.includes('已存在')) {
-                alert('分组名称已存在，请使用其他名称');
+            if (error.error && error.error.includes('')) {
+                alert('，');
                 return;
             }
-            throw new Error(error.error || '更新失败');
+            throw new Error(error.error || '');
         }
 
         loadGroups();
@@ -6770,9 +6770,9 @@ async function renameGroupFromContext() {
             }
         }
     } catch (error) {
-        console.error('重命名分组失败:', error);
-        const failedLabel = typeof window.t === 'function' ? window.t('chat.renameFailed') : '重命名失败';
-        const unknownErr = typeof window.t === 'function' ? window.t('createGroupModal.unknownError') : '未知错误';
+        console.error(':', error);
+        const failedLabel = typeof window.t === 'function' ? window.t('chat.renameFailed') : '';
+        const unknownErr = typeof window.t === 'function' ? window.t('createGroupModal.unknownError') : '';
         alert(failedLabel + ': ' + (error.message || unknownErr));
     }
 
@@ -6805,14 +6805,14 @@ async function pinGroupFromContext() {
 
         if (!updateResponse.ok) {
             const error = await updateResponse.json();
-            throw new Error(error.error || '更新失败');
+            throw new Error(error.error || '');
         }
 
         // English note.
         loadGroups();
     } catch (error) {
-        console.error('置顶分组失败:', error);
-        alert('置顶失败: ' + (error.message || '未知错误'));
+        console.error(':', error);
+        alert(': ' + (error.message || ''));
     }
 
     closeGroupContextMenu();
@@ -6823,7 +6823,7 @@ async function deleteGroupFromContext() {
     const groupId = contextMenuGroupId;
     if (!groupId) return;
 
-    const deleteConfirmMsg = typeof window.t === 'function' ? window.t('chat.deleteGroupConfirm') : '确定要删除此分组吗？分组中的对话不会被删除，但会从分组中移除。';
+    const deleteConfirmMsg = typeof window.t === 'function' ? window.t('chat.deleteGroupConfirm') : '？，。';
     if (!confirm(deleteConfirmMsg)) {
         closeGroupContextMenu();
         return;
@@ -6859,8 +6859,8 @@ async function deleteGroupFromContext() {
         // English note.
         await loadConversationsWithGroups();
     } catch (error) {
-        console.error('删除分组失败:', error);
-        alert('删除失败: ' + (error.message || '未知错误'));
+        console.error(':', error);
+        alert(': ' + (error.message || ''));
     }
 
     closeGroupContextMenu();
@@ -6931,7 +6931,7 @@ function handleGroupSearchInput(event) {
     
     groupSearchTimer = setTimeout(() => {
         performGroupSearch();
-    }, 300); // 300ms 防抖
+    }, 300); // 300ms 
 }
 
 // English note.
@@ -6982,7 +6982,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     // English note.
     // English note.
     let lastFocusTime = Date.now();
-    const CONVERSATION_REFRESH_INTERVAL = 30000; // 30秒内最多刷新一次，避免过于频繁
+    const CONVERSATION_REFRESH_INTERVAL = 30000; // 30，
     
     window.addEventListener('focus', () => {
         const now = Date.now();
@@ -7017,7 +7017,7 @@ document.addEventListener('DOMContentLoaded', async () => {
             currentConversationId = null;
             const messagesDiv = document.getElementById('chat-messages');
             if (messagesDiv) messagesDiv.innerHTML = '';
-            const readyMsg = typeof window.t === 'function' ? window.t('chat.systemReadyMessage') : '系统已就绪。请输入您的测试需求，系统将自动执行相应的安全测试。';
+            const readyMsg = typeof window.t === 'function' ? window.t('chat.systemReadyMessage') : '。，。';
             addMessage('assistant', readyMsg, null, null, null, { systemReadyMessage: true });
             addAttackChainButton(null);
         }

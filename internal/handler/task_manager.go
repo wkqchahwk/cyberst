@@ -19,7 +19,7 @@ type AgentTask struct {
 	Message        string    `json:"message,omitempty"`
 	StartedAt      time.Time `json:"startedAt"`
 	Status         string    `json:"status"`
-	CancellingAt   time.Time `json:"-"` // 进入 cancelling 状态的时间，用于清理长时间卡住的任务
+	CancellingAt   time.Time `json:"-"` //  cancelling ，
 
 	cancel func(error)
 }
@@ -37,9 +37,9 @@ type CompletedTask struct {
 type AgentTaskManager struct {
 	mu             sync.RWMutex
 	tasks          map[string]*AgentTask
-	completedTasks []*CompletedTask // 最近完成的任务历史
-	maxHistorySize int              // 最大历史记录数
-	historyRetention time.Duration  // 历史记录保留时间
+	completedTasks []*CompletedTask // 
+	maxHistorySize int              // 
+	historyRetention time.Duration  // 
 }
 
 const (
@@ -48,7 +48,7 @@ const (
 	cancellingStuckThreshold = 45 * time.Second
 	// English note.
 	cancellingStuckThresholdLegacy = 2 * time.Minute
-	cleanupInterval                = 15 * time.Second // 与上面阈值配合，最长约 60s 内移除
+	cleanupInterval                = 15 * time.Second // ， 60s 
 )
 
 // English note.
@@ -56,8 +56,8 @@ func NewAgentTaskManager() *AgentTaskManager {
 	m := &AgentTaskManager{
 		tasks:            make(map[string]*AgentTask),
 		completedTasks:   make([]*CompletedTask, 0),
-		maxHistorySize:   50,              // 最多保留50条历史记录
-		historyRetention: 24 * time.Hour,  // 保留24小时
+		maxHistorySize:   50,              // 50
+		historyRetention: 24 * time.Hour,  // 24
 	}
 	go m.runStuckCancellingCleanup()
 	return m
