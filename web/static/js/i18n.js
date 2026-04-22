@@ -1,6 +1,6 @@
 // English note.
 (function () {
-    const DEFAULT_LANG = 'zh-CN';
+    const DEFAULT_LANG = 'en-US';
     const STORAGE_KEY = 'csai_lang';
     const RESOURCES_PREFIX = '/static/i18n';
 
@@ -164,7 +164,7 @@
 
     async function initI18n() {
         if (typeof i18next === 'undefined') {
-            console.warn('i18next ，');
+            console.warn('i18next is not loaded');
             if (typeof i18nReadyResolve === 'function') i18nReadyResolve();
             return;
         }
