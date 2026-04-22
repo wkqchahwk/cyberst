@@ -311,12 +311,12 @@ type ParameterConfig struct {
 func Load(path string) (*Config, error) {
 	data, err := os.ReadFile(path)
 	if err != nil {
-		return nil, fmt.Errorf("瑥삣룚?띸쉰?뉏뻑鸚김뇰: %w", err)
+		return nil, fmt.Errorf("failed to read config file: %w", err)
 	}
 
 	var cfg Config
 	if err := yaml.Unmarshal(data, &cfg); err != nil {
-		return nil, fmt.Errorf("鰲ｆ옄?띸쉰?뉏뻑鸚김뇰: %w", err)
+		return nil, fmt.Errorf("failed to parse config file: %w", err)
 	}
 
 	if cfg.Auth.SessionDurationHours <= 0 {
@@ -326,7 +326,7 @@ func Load(path string) (*Config, error) {
 	if strings.TrimSpace(cfg.Auth.Password) == "" {
 		password, err := generateStrongPassword(24)
 		if err != nil {
-			return nil, fmt.Errorf("?잍닇容섋?野녺쟻鸚김뇰: %w", err)
+			return nil, fmt.Errorf("failed to generate a password: %w", err)
 		}
 
 		cfg.Auth.Password = password
@@ -352,7 +352,7 @@ func Load(path string) (*Config, error) {
 
 		tools, err := LoadToolsFromDir(toolsDir)
 		if err != nil {
-			return nil, fmt.Errorf("餓롥램?루쎅壤뺝뒥饔썲램?룬뀓營?ㅁ兀? %w", err)
+			return nil, fmt.Errorf("failed to load tools from directory: %w", err)
 		}
 
 		// English note.
@@ -404,7 +404,7 @@ func Load(path string) (*Config, error) {
 
 		roles, err := LoadRolesFromDir(rolesDir)
 		if err != nil {
-			return nil, fmt.Errorf("餓롨쭜?꿰쎅壤뺝뒥饔썼쭜?꿴뀓營?ㅁ兀? %w", err)
+			return nil, fmt.Errorf("failed to load roles from directory: %w", err)
 		}
 
 		cfg.Roles = roles
@@ -594,7 +594,7 @@ func EnsureMCPAuth(path string, cfg *Config) error {
 	}
 	token, err := generateRandomToken()
 	if err != nil {
-		return fmt.Errorf("?잍닇 MCP ?닸쓢野녽뮙鸚김뇰: %w", err)
+		return fmt.Errorf("failed to generate MCP auth token: %w", err)
 	}
 	cfg.MCP.AuthHeaderValue = token
 	if strings.TrimSpace(cfg.MCP.AuthHeader) == "" {
@@ -631,9 +631,9 @@ func PrintMCPConfigJSON(mcp MCPConfig) {
 		},
 	}
 	b, _ := json.MarshalIndent(out, "", "  ")
-	fmt.Println("[CyberStrikeAI] MCP ?띸쉰竊덂룾鸚띶댍??Cursor / Claude Code 鵝욜뵪竊됵폏")
-	fmt.Println("  Cursor: ?얍뀯 ~/.cursor/mcp.json ??mcpServers竊뚧닑窈밭쎅 .cursor/mcp.json")
-	fmt.Println("  Claude Code: ?얍뀯 .mcp.json ??~/.claude.json ??mcpServers")
+	fmt.Println("[CyberStrikeAI] MCP configuration for Cursor / Claude Code")
+	fmt.Println("  Cursor: add this under mcpServers in ~/.cursor/mcp.json or .cursor/mcp.json")
+	fmt.Println("  Claude Code: add this under mcpServers in .mcp.json or ~/.claude.json")
 	fmt.Println("----------------------------------------------------------------")
 	fmt.Println(string(b))
 	fmt.Println("----------------------------------------------------------------")
@@ -651,7 +651,7 @@ func LoadToolsFromDir(dir string) ([]ToolConfig, error) {
 	// English note.
 	entries, err := os.ReadDir(dir)
 	if err != nil {
-		return nil, fmt.Errorf("瑥삣룚藥ε끁??퐬鸚김뇰: %w", err)
+		return nil, fmt.Errorf("failed to read tools directory: %w", err)
 	}
 
 	for _, entry := range entries {
@@ -667,8 +667,7 @@ func LoadToolsFromDir(dir string) ([]ToolConfig, error) {
 		filePath := filepath.Join(dir, name)
 		tool, err := LoadToolFromFile(filePath)
 		if err != nil {
-			// English note.
-			fmt.Printf("鈺?몜: ?좄슬藥ε끁?띸쉰?뉏뻑 %s 鸚김뇰: %v\n", filePath, err)
+			fmt.Printf("Warning: failed to load tool file %s: %v\n", filePath, err)
 			continue
 		}
 
@@ -682,20 +681,20 @@ func LoadToolsFromDir(dir string) ([]ToolConfig, error) {
 func LoadToolFromFile(path string) (*ToolConfig, error) {
 	data, err := os.ReadFile(path)
 	if err != nil {
-		return nil, fmt.Errorf("瑥삣룚?뉏뻑鸚김뇰: %w", err)
+		return nil, fmt.Errorf("failed to read file: %w", err)
 	}
 
 	var tool ToolConfig
 	if err := yaml.Unmarshal(data, &tool); err != nil {
-		return nil, fmt.Errorf("鰲ｆ옄藥ε끁?띸쉰鸚김뇰: %w", err)
+		return nil, fmt.Errorf("failed to parse tool file: %w", err)
 	}
 
 	// English note.
 	if tool.Name == "" {
-		return nil, fmt.Errorf("藥ε끁?띸㎞訝띹꺗訝븀㈉")
+		return nil, fmt.Errorf("tool name is required")
 	}
 	if tool.Command == "" {
-		return nil, fmt.Errorf("藥ε끁?썰빱訝띹꺗訝븀㈉")
+		return nil, fmt.Errorf("tool command is required")
 	}
 
 	return &tool, nil
@@ -713,7 +712,7 @@ func LoadRolesFromDir(dir string) (map[string]RoleConfig, error) {
 	// English note.
 	entries, err := os.ReadDir(dir)
 	if err != nil {
-		return nil, fmt.Errorf("瑥삣룚鰲믦돯??퐬鸚김뇰: %w", err)
+		return nil, fmt.Errorf("failed to read roles directory: %w", err)
 	}
 
 	for _, entry := range entries {
@@ -729,8 +728,7 @@ func LoadRolesFromDir(dir string) (map[string]RoleConfig, error) {
 		filePath := filepath.Join(dir, name)
 		role, err := LoadRoleFromFile(filePath)
 		if err != nil {
-			// English note.
-			fmt.Printf("鈺?몜: ?좄슬鰲믦돯?띸쉰?뉏뻑 %s 鸚김뇰: %v\n", filePath, err)
+			fmt.Printf("Warning: failed to load role file %s: %v\n", filePath, err)
 			continue
 		}
 
@@ -752,12 +750,12 @@ func LoadRolesFromDir(dir string) (map[string]RoleConfig, error) {
 func LoadRoleFromFile(path string) (*RoleConfig, error) {
 	data, err := os.ReadFile(path)
 	if err != nil {
-		return nil, fmt.Errorf("瑥삣룚?뉏뻑鸚김뇰: %w", err)
+		return nil, fmt.Errorf("failed to read file: %w", err)
 	}
 
 	var role RoleConfig
 	if err := yaml.Unmarshal(data, &role); err != nil {
-		return nil, fmt.Errorf("鰲ｆ옄鰲믦돯?띸쉰鸚김뇰: %w", err)
+		return nil, fmt.Errorf("failed to parse role file: %w", err)
 	}
 
 	// English note.

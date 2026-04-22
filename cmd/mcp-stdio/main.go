@@ -13,34 +13,25 @@ import (
 )
 
 func main() {
-	var configPath = flag.String("config", "config.yaml", "配置文件路径")
+	configPath := flag.String("config", "config.yaml", "Path to the configuration file")
 	flag.Parse()
 
-	// English note.
 	cfg, err := config.Load(*configPath)
 	if err != nil {
-		fmt.Fprintf(os.Stderr, "加载配置失败: %v\n", err)
+		fmt.Fprintf(os.Stderr, "Failed to load config: %v\n", err)
 		os.Exit(1)
 	}
 
-	// English note.
 	log := logger.New(cfg.Log.Level, "stderr")
-
-	// English note.
 	mcpServer := mcp.NewServer(log.Logger)
-
-	// English note.
 	executor := security.NewExecutor(&cfg.Security, mcpServer, log.Logger)
 
-	// English note.
 	executor.RegisterTools(mcpServer)
 
-	log.Logger.Info("MCP服务器（stdio模式）已启动，等待消息...")
+	log.Logger.Info("MCP server (stdio mode) started and is waiting for messages")
 
-	// English note.
 	if err := mcpServer.HandleStdio(); err != nil {
-		log.Logger.Error("MCP服务器运行失败", zap.Error(err))
+		log.Logger.Error("MCP server stopped with an error", zap.Error(err))
 		os.Exit(1)
 	}
 }
-

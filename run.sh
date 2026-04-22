@@ -1,47 +1,36 @@
-#!/bin/bash
+#!/usr/bin/env bash
 
 set -euo pipefail
 
-# English note.
-ROOT_DIR="$(cd "$(dirname "$0")" && pwd)"
+ROOT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 cd "$ROOT_DIR"
 
-# English note.
 RED='\033[0;31m'
 GREEN='\033[0;32m'
 YELLOW='\033[1;33m'
 BLUE='\033[0;34m'
 CYAN='\033[0;36m'
-NC='\033[0m' # No Color
+NC='\033[0m'
 
-# English note.
-info() { echo -e "${BLUE}ℹ️  $1${NC}"; }
-success() { echo -e "${GREEN}✅ $1${NC}"; }
-warning() { echo -e "${YELLOW}⚠️  $1${NC}"; }
-error() { echo -e "${RED}❌ $1${NC}"; }
-note() { echo -e "${CYAN}ℹ️  $1${NC}"; }
+info() { echo -e "${BLUE}[INFO] $1${NC}"; }
+success() { echo -e "${GREEN}[ OK ] $1${NC}"; }
+warning() { echo -e "${YELLOW}[WARN] $1${NC}"; }
+error() { echo -e "${RED}[ERR ] $1${NC}"; }
+note() { echo -e "${CYAN}[NOTE] $1${NC}"; }
 
-# English note.
 PIP_INDEX_URL="${PIP_INDEX_URL:-https://pypi.tuna.tsinghua.edu.cn/simple}"
 GOPROXY="${GOPROXY:-https://goproxy.cn,direct}"
 
-# English note.
-ORIGINAL_PIP_INDEX_URL="${PIP_INDEX_URL:-}"
-ORIGINAL_GOPROXY="${GOPROXY:-}"
-
-# English note.
 show_progress() {
     local pid=$1
     local message=$2
     local i=0
     local dots=""
-    
-    # English note.
+
     if ! kill -0 "$pid" 2>/dev/null; then
-        # English note.
         return 0
     fi
-    
+
     while kill -0 "$pid" 2>/dev/null; do
         i=$((i + 1))
         case $((i % 4)) in
@@ -50,10 +39,9 @@ show_progress() {
             2) dots="..." ;;
             3) dots="...." ;;
         esac
-        printf "\r${BLUE}⏳ %s%s${NC}" "$message" "$dots"
+        printf "\r${BLUE}[....] %s%s${NC}" "$message" "$dots"
         sleep 0.5
-        
-        # English note.
+
         if ! kill -0 "$pid" 2>/dev/null; then
             break
         fi
@@ -63,20 +51,18 @@ show_progress() {
 
 echo ""
 echo "=========================================="
-echo "  CyberStrikeAI 一键部署启动脚本"
+echo "  CyberStrikeAI Launcher"
 echo "=========================================="
 echo ""
 
-# English note.
+warning "This script may use temporary package mirrors to speed up downloads."
 echo ""
-warning "⚠️  注意：此脚本将使用临时镜像源加速下载"
-echo ""
-info "Python pip 临时镜像源:"
+info "Temporary Python package index:"
 echo "  ${PIP_INDEX_URL}"
-info "Go Proxy 临时镜像源:"
+info "Temporary Go proxy:"
 echo "  ${GOPROXY}"
 echo ""
-note "这些设置仅在脚本运行期间生效，不会修改系统配置"
+note "These settings apply only while this script runs and will not modify your system configuration."
 echo ""
 sleep 1
 
@@ -85,92 +71,103 @@ VENV_DIR="$ROOT_DIR/venv"
 REQUIREMENTS_FILE="$ROOT_DIR/requirements.txt"
 BINARY_NAME="cyberstrike-ai"
 
-# English note.
 if [ ! -f "$CONFIG_FILE" ]; then
-    error "配置文件 config.yaml 不存在"
-    info "请确保在项目根目录运行此脚本"
+    error "config.yaml was not found."
+    info "Please run this script from the project root directory."
     exit 1
 fi
 
-# English note.
 check_python() {
     if ! command -v python3 >/dev/null 2>&1; then
-        error "未找到 python3"
+        error "python3 was not found."
         echo ""
-        info "请先安装 Python 3.10 或更高版本："
+        info "Please install Python 3.10 or later:"
         echo "  macOS:   brew install python3"
         echo "  Ubuntu:  sudo apt-get install python3 python3-venv"
         echo "  CentOS:  sudo yum install python3 python3-pip"
         exit 1
     fi
-    
+
     PYTHON_VERSION=$(python3 --version 2>&1 | awk '{print $2}')
     PYTHON_MAJOR=$(echo "$PYTHON_VERSION" | cut -d. -f1)
     PYTHON_MINOR=$(echo "$PYTHON_VERSION" | cut -d. -f2)
-    
+
     if [ "$PYTHON_MAJOR" -lt 3 ] || ([ "$PYTHON_MAJOR" -eq 3 ] && [ "$PYTHON_MINOR" -lt 10 ]); then
-        error "Python 版本过低: $PYTHON_VERSION (需要 3.10+)"
+        error "Python version is too old: $PYTHON_VERSION (requires 3.10+)."
         exit 1
     fi
-    
-    success "Python 环境检查通过: $PYTHON_VERSION"
+
+    success "Python check passed: $PYTHON_VERSION"
 }
 
-# English note.
 check_go() {
     if ! command -v go >/dev/null 2>&1; then
-        error "未找到 Go"
+        error "Go was not found."
         echo ""
-        info "请先安装 Go 1.21 或更高版本："
+        info "Please install Go 1.21 or later:"
         echo "  macOS:   brew install go"
         echo "  Ubuntu:  sudo apt-get install golang-go"
         echo "  CentOS:  sudo yum install golang"
-        echo "  或访问:  https://go.dev/dl/"
+        echo "  Download: https://go.dev/dl/"
         exit 1
     fi
-    
+
     GO_VERSION=$(go version | awk '{print $3}' | sed 's/go//')
     GO_MAJOR=$(echo "$GO_VERSION" | cut -d. -f1)
     GO_MINOR=$(echo "$GO_VERSION" | cut -d. -f2)
-    
+
     if [ "$GO_MAJOR" -lt 1 ] || ([ "$GO_MAJOR" -eq 1 ] && [ "$GO_MINOR" -lt 21 ]); then
-        error "Go 版本过低: $GO_VERSION (需要 1.21+)"
+        error "Go version is too old: $GO_VERSION (requires 1.21+)."
         exit 1
     fi
-    
-    success "Go 环境检查通过: $(go version)"
+
+    success "Go check passed: $(go version)"
 }
 
-# English note.
+check_cgo() {
+    if ! command -v gcc >/dev/null 2>&1; then
+        error "gcc was not found."
+        echo ""
+        info "This project uses CGO for SQLite, so a C compiler is required."
+        info "Please install gcc/build tools first:"
+        echo "  Ubuntu:  sudo apt-get install build-essential"
+        echo "  Debian:  sudo apt-get install build-essential"
+        echo "  CentOS:  sudo yum groupinstall 'Development Tools'"
+        echo "  Fedora:  sudo dnf groupinstall 'Development Tools'"
+        exit 1
+    fi
+
+    success "C compiler check passed: $(gcc --version | head -n 1)"
+}
+
 setup_python_env() {
     if [ ! -d "$VENV_DIR" ]; then
-        info "创建 Python 虚拟环境..."
+        info "Creating Python virtual environment..."
         python3 -m venv "$VENV_DIR"
-        success "虚拟环境创建完成"
+        success "Virtual environment created."
     else
-        info "Python 虚拟环境已存在"
+        info "Python virtual environment already exists."
     fi
-    
-    info "激活虚拟环境..."
+
+    info "Activating virtual environment..."
     # shellcheck disable=SC1091
     source "$VENV_DIR/bin/activate"
-    
+
     if [ -f "$REQUIREMENTS_FILE" ]; then
         echo ""
-        note "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
-        note "⚠️  使用临时 pip 镜像源（仅本次脚本运行有效）"
-        note "   镜像地址: ${PIP_INDEX_URL}"
-        note "   如需永久配置，请设置环境变量 PIP_INDEX_URL"
-        note "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
+        note "------------------------------------------------------------"
+        note "Using a temporary pip mirror for this run only."
+        note "Mirror: ${PIP_INDEX_URL}"
+        note "Set PIP_INDEX_URL if you want to override it permanently."
+        note "------------------------------------------------------------"
         echo ""
-        
-        info "升级 pip..."
+
+        info "Upgrading pip..."
         pip install --index-url "$PIP_INDEX_URL" --upgrade pip >/dev/null 2>&1 || true
-        
-        info "安装 Python 依赖包..."
+
+        info "Installing Python dependencies..."
         echo ""
-        
-        # English note.
+
         PIP_LOG=$(mktemp)
         (
             set +e
@@ -178,73 +175,64 @@ setup_python_env() {
             echo $? > "${PIP_LOG}.exit"
         ) &
         PIP_PID=$!
-        
-        # English note.
+
         sleep 0.1
-        
-        # English note.
+
         if kill -0 "$PIP_PID" 2>/dev/null; then
-            show_progress "$PIP_PID" "正在安装依赖包"
+            show_progress "$PIP_PID" "Installing Python dependencies"
         else
-            # English note.
             sleep 0.2
         fi
-        
-        # English note.
+
         wait "$PIP_PID" 2>/dev/null || true
-        
+
         PIP_EXIT_CODE=0
         if [ -f "${PIP_LOG}.exit" ]; then
             PIP_EXIT_CODE=$(cat "${PIP_LOG}.exit" 2>/dev/null || echo "1")
             rm -f "${PIP_LOG}.exit" 2>/dev/null || true
-        else
-            # English note.
-            if [ -f "$PIP_LOG" ] && grep -q -i "error\|failed\|exception" "$PIP_LOG" 2>/dev/null; then
-                PIP_EXIT_CODE=1
-            fi
+        elif [ -f "$PIP_LOG" ] && grep -q -i "error\|failed\|exception" "$PIP_LOG" 2>/dev/null; then
+            PIP_EXIT_CODE=1
         fi
-        
-        if [ $PIP_EXIT_CODE -eq 0 ]; then
-            success "Python 依赖安装完成"
+
+        if [ "$PIP_EXIT_CODE" -eq 0 ]; then
+            success "Python dependencies installed."
         else
-            # English note.
             if grep -q "angr" "$PIP_LOG" && grep -q "Rust compiler\|can't find Rust" "$PIP_LOG"; then
-                warning "angr 安装失败（需要 Rust 编译器）"
+                warning "angr could not be installed because Rust is missing."
                 echo ""
-                info "angr 是可选依赖，主要用于二进制分析工具"
-                info "如果需要使用 angr，请先安装 Rust："
+                info "angr is optional and is mainly used for binary-analysis workflows."
+                info "If you need angr, install Rust first:"
                 echo "  macOS:   curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh"
                 echo "  Ubuntu:  curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh"
-                echo "  或访问:  https://rustup.rs/"
+                echo "  Download: https://rustup.rs/"
                 echo ""
-                info "其他依赖已安装，可以继续使用（部分工具可能不可用）"
+                info "Other dependencies were installed, so you can continue. Some tools may remain unavailable."
             else
-                warning "部分 Python 依赖安装失败，但可以继续尝试运行"
-                warning "如果遇到问题，请检查错误信息并手动安装缺失的依赖"
-                # English note.
+                warning "Some Python dependencies failed to install, but startup may still continue."
+                warning "If something breaks, review the error output and install missing packages manually."
                 echo ""
-                info "错误详情（最后 10 行）："
+                info "Last 10 lines of the pip error log:"
                 tail -n 10 "$PIP_LOG" | sed 's/^/  /'
                 echo ""
             fi
         fi
+
         rm -f "$PIP_LOG"
     else
-        warning "未找到 requirements.txt，跳过 Python 依赖安装"
+        warning "requirements.txt was not found. Skipping Python dependency installation."
     fi
 }
 
-# English note.
 build_go_project() {
     echo ""
-    note "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
-    note "⚠️  使用临时 Go Proxy（仅本次脚本运行有效）"
-    note "   Proxy 地址: ${GOPROXY}"
-    note "   如需永久配置，请设置环境变量 GOPROXY"
-    note "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
+    note "------------------------------------------------------------"
+    note "Using a temporary Go proxy for this run only."
+    note "Proxy: ${GOPROXY}"
+    note "Set GOPROXY if you want to override it permanently."
+    note "------------------------------------------------------------"
     echo ""
-    
-    info "下载 Go 依赖..."
+
+    info "Downloading Go dependencies..."
     GO_DOWNLOAD_LOG=$(mktemp)
     (
         set +e
@@ -253,40 +241,33 @@ build_go_project() {
         echo $? > "${GO_DOWNLOAD_LOG}.exit"
     ) &
     GO_DOWNLOAD_PID=$!
-    
-    # English note.
+
     sleep 0.1
-    
-    # English note.
+
     if kill -0 "$GO_DOWNLOAD_PID" 2>/dev/null; then
-        show_progress "$GO_DOWNLOAD_PID" "正在下载 Go 依赖"
+        show_progress "$GO_DOWNLOAD_PID" "Downloading Go dependencies"
     else
-        # English note.
         sleep 0.2
     fi
-    
-    # English note.
+
     wait "$GO_DOWNLOAD_PID" 2>/dev/null || true
-    
+
     GO_DOWNLOAD_EXIT_CODE=0
     if [ -f "${GO_DOWNLOAD_LOG}.exit" ]; then
         GO_DOWNLOAD_EXIT_CODE=$(cat "${GO_DOWNLOAD_LOG}.exit" 2>/dev/null || echo "1")
         rm -f "${GO_DOWNLOAD_LOG}.exit" 2>/dev/null || true
-    else
-        # English note.
-        if [ -f "$GO_DOWNLOAD_LOG" ] && grep -q -i "error\|failed" "$GO_DOWNLOAD_LOG" 2>/dev/null; then
-            GO_DOWNLOAD_EXIT_CODE=1
-        fi
+    elif [ -f "$GO_DOWNLOAD_LOG" ] && grep -q -i "error\|failed" "$GO_DOWNLOAD_LOG" 2>/dev/null; then
+        GO_DOWNLOAD_EXIT_CODE=1
     fi
     rm -f "$GO_DOWNLOAD_LOG" 2>/dev/null || true
-    
-    if [ $GO_DOWNLOAD_EXIT_CODE -ne 0 ]; then
-        error "Go 依赖下载失败"
+
+    if [ "$GO_DOWNLOAD_EXIT_CODE" -ne 0 ]; then
+        error "Failed to download Go dependencies."
         exit 1
     fi
-    success "Go 依赖下载完成"
-    
-    info "构建项目..."
+    success "Go dependencies downloaded."
+
+    info "Building project..."
     GO_BUILD_LOG=$(mktemp)
     (
         set +e
@@ -295,95 +276,79 @@ build_go_project() {
         echo $? > "${GO_BUILD_LOG}.exit"
     ) &
     GO_BUILD_PID=$!
-    
-    # English note.
+
     sleep 0.1
-    
-    # English note.
+
     if kill -0 "$GO_BUILD_PID" 2>/dev/null; then
-        show_progress "$GO_BUILD_PID" "正在构建项目"
+        show_progress "$GO_BUILD_PID" "Building project"
     else
-        # English note.
         sleep 0.2
     fi
-    
-    # English note.
+
     wait "$GO_BUILD_PID" 2>/dev/null || true
-    
+
     GO_BUILD_EXIT_CODE=0
     if [ -f "${GO_BUILD_LOG}.exit" ]; then
         GO_BUILD_EXIT_CODE=$(cat "${GO_BUILD_LOG}.exit" 2>/dev/null || echo "1")
         rm -f "${GO_BUILD_LOG}.exit" 2>/dev/null || true
-    else
-        # English note.
-        if [ -f "$GO_BUILD_LOG" ] && grep -q -i "error\|failed" "$GO_BUILD_LOG" 2>/dev/null; then
-            GO_BUILD_EXIT_CODE=1
-        fi
+    elif [ -f "$GO_BUILD_LOG" ] && grep -q -i "error\|failed" "$GO_BUILD_LOG" 2>/dev/null; then
+        GO_BUILD_EXIT_CODE=1
     fi
-    
-    if [ $GO_BUILD_EXIT_CODE -eq 0 ]; then
-        success "项目构建完成: $BINARY_NAME"
+
+    if [ "$GO_BUILD_EXIT_CODE" -eq 0 ]; then
+        success "Build completed: $BINARY_NAME"
         rm -f "$GO_BUILD_LOG"
     else
-        error "项目构建失败"
-        # English note.
+        error "Build failed."
         echo ""
-        info "构建错误详情："
-        cat "$GO_BUILD_LOG" | sed 's/^/  /'
+        info "Build output:"
+        sed 's/^/  /' "$GO_BUILD_LOG"
         echo ""
         rm -f "$GO_BUILD_LOG"
         exit 1
     fi
 }
 
-# English note.
 need_rebuild() {
     if [ ! -f "$BINARY_NAME" ]; then
         return 0
     fi
-    
-    # English note.
+
     if [ "$BINARY_NAME" -ot cmd/server/main.go ] || \
        [ "$BINARY_NAME" -ot go.mod ] || \
        find internal cmd -name "*.go" -newer "$BINARY_NAME" 2>/dev/null | grep -q .; then
         return 0
     fi
-    
+
     return 1
 }
 
-# English note.
 main() {
-    # English note.
-    info "检查运行环境..."
+    info "Checking runtime environment..."
     check_python
     check_go
+    check_cgo
     echo ""
-    
-    # English note.
-    info "设置 Python 环境..."
+
+    info "Preparing Python environment..."
     setup_python_env
     echo ""
-    
-    # English note.
+
     if need_rebuild; then
-        info "准备构建项目..."
+        info "Preparing build..."
         build_go_project
     else
-        success "可执行文件已是最新，跳过构建"
+        success "Binary is up to date. Skipping build."
     fi
     echo ""
-    
-    # English note.
-    success "所有准备工作完成！"
+
+    success "Preparation complete."
     echo ""
-    info "启动 CyberStrikeAI 服务器..."
+    info "Starting CyberStrikeAI server..."
     echo "=========================================="
     echo ""
-    
-    # English note.
+
     exec "./$BINARY_NAME"
 }
 
-# English note.
 main
