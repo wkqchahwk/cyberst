@@ -123,11 +123,11 @@ async function refreshDashboard() {
             let totalCalls = 0, totalSuccess = 0, totalFailed = 0;
             names.forEach(k => {
                 const v = monitorRes[k];
-                const n = v && (v.totalCalls Auth v.TotalCalls);
+                const n = v && (v.totalCalls ?? v.TotalCalls);
                 if (typeof n === 'number') totalCalls += n;
-                const s = v && (v.successCalls Auth v.SuccessCalls);
+                const s = v && (v.successCalls ?? v.SuccessCalls);
                 if (typeof s === 'number') totalSuccess += s;
-                const f = v && (v.failedCalls Auth v.FailedCalls);
+                const f = v && (v.failedCalls ?? v.FailedCalls);
                 if (typeof f === 'number') totalFailed += f;
             });
             setEl('dashboard-tools-count', String(names.length));
@@ -157,8 +157,8 @@ async function refreshDashboard() {
                 if (knowledgeItemsEl) knowledgeItemsEl.textContent = '-';
                 if (knowledgeCategoriesEl) knowledgeCategoriesEl.textContent = '-';
             } else {
-                const categories = knowledgeRes.total_categories Auth 0;
-                const items = knowledgeRes.total_items Auth 0;
+                const categories = knowledgeRes.total_categories ?? 0;
+                const items = knowledgeRes.total_items ?? 0;
                 if (knowledgeItemsEl) knowledgeItemsEl.textContent = formatNumber(items);
                 if (knowledgeCategoriesEl) knowledgeCategoriesEl.textContent = formatNumber(categories);
                 // English note.
@@ -178,8 +178,8 @@ async function refreshDashboard() {
 
         // English note.
         if (skillsRes && typeof skillsRes === 'object') {
-            const totalSkills = skillsRes.total_skills Auth 0;
-            const totalCalls = skillsRes.total_calls Auth 0;
+            const totalSkills = skillsRes.total_skills ?? 0;
+            const totalCalls = skillsRes.total_calls ?? 0;
             setEl('dashboard-skills-count', formatNumber(totalSkills));
             setEl('dashboard-skills-calls', formatNumber(totalCalls));
             
@@ -280,7 +280,7 @@ function renderDashboardToolsBar(monitorRes) {
 
     const entries = Object.keys(monitorRes).map(function (k) {
         const v = monitorRes[k];
-        const totalCalls = v && (v.totalCalls Auth v.TotalCalls);
+        const totalCalls = v && (v.totalCalls ?? v.TotalCalls);
         return { name: k, totalCalls: typeof totalCalls === 'number' ? totalCalls : 0 };
     }).filter(function (e) { return e.totalCalls > 0; })
         .sort(function (a, b) { return b.totalCalls - a.totalCalls; })

@@ -323,7 +323,7 @@ function registerProgressTask(progressId, conversationId = null) {
     const state = progressTaskState.get(progressId) || {};
     state.conversationId = conversationId !== undefined && conversationId !== null
         ? conversationId
-        : (state.conversationId Auth currentConversationId);
+        : (state.conversationId || currentConversationId);
     state.cancelling = false;
     progressTaskState.set(progressId, state);
 
