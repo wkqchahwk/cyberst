@@ -11,8 +11,12 @@ const OPENAI_PROVIDER_DEFAULTS = {
     anthropic: 'https://api.anthropic.com',
     openrouter: 'https://openrouter.ai/api/v1',
     ollama: 'http://localhost:11434/v1',
-    ollama_cloud: 'https://ollama.com/v1',
+    ollama_cloud: 'https://ollama.com/api',
     custom: ''
+};
+
+const OPENAI_PROVIDER_DEFAULT_MODELS = {
+    ollama_cloud: 'gpt-oss:120b'
 };
 
 function normalizeOpenAIProvider(provider) {
@@ -55,6 +59,7 @@ function syncOpenAIProviderInputs(forceDefault = false) {
     const providerEl = document.getElementById('openai-provider');
     const baseUrlEl = document.getElementById('openai-base-url');
     const apiKeyEl = document.getElementById('openai-api-key');
+    const modelEl = document.getElementById('openai-model');
     if (!providerEl || !baseUrlEl) {
         return;
     }
@@ -65,6 +70,7 @@ function syncOpenAIProviderInputs(forceDefault = false) {
     const currentBaseUrl = baseUrlEl.value.trim();
     const defaultBaseUrl = getOpenAIProviderDefaultBaseUrl(normalizedProvider);
     const knownDefaults = Object.values(OPENAI_PROVIDER_DEFAULTS).filter(Boolean);
+    knownDefaults.push('https://ollama.com/v1');
 
     if (forceDefault || !currentBaseUrl || knownDefaults.includes(currentBaseUrl)) {
         baseUrlEl.value = defaultBaseUrl;
@@ -72,6 +78,14 @@ function syncOpenAIProviderInputs(forceDefault = false) {
 
     if (apiKeyEl) {
         apiKeyEl.required = openAIProviderRequiresApiKey(normalizedProvider);
+    }
+
+    if (modelEl && OPENAI_PROVIDER_DEFAULT_MODELS[normalizedProvider]) {
+        const currentModel = modelEl.value.trim();
+        const knownModelDefaults = ['gpt-4', 'qwen3-max', 'claude-3-5-sonnet'];
+        if (forceDefault || !currentModel || knownModelDefaults.includes(currentModel)) {
+            modelEl.value = OPENAI_PROVIDER_DEFAULT_MODELS[normalizedProvider];
+        }
     }
 }
 

@@ -46,7 +46,7 @@ func DefaultBaseURLForProvider(provider string) string {
 	case ProviderOllama:
 		return "http://localhost:11434/v1"
 	case ProviderOllamaCloud:
-		return "https://ollama.com/v1"
+		return "https://ollama.com/api"
 	case ProviderCustom:
 		return ""
 	default:

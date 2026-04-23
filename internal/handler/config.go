@@ -606,6 +606,8 @@ func (h *ConfigHandler) UpdateConfig(c *gin.Context) {
 		h.config.OpenAI.Provider = openai.NormalizeProvider(h.config.OpenAI.Provider)
 		if strings.TrimSpace(h.config.OpenAI.BaseURL) == "" {
 			h.config.OpenAI.BaseURL = openai.DefaultBaseURLForProvider(h.config.OpenAI.Provider)
+		} else if h.config.OpenAI.Provider == openai.ProviderOllamaCloud && strings.TrimSuffix(strings.TrimSpace(h.config.OpenAI.BaseURL), "/") == "https://ollama.com/v1" {
+			h.config.OpenAI.BaseURL = openai.DefaultBaseURLForProvider(h.config.OpenAI.Provider)
 		}
 		h.logger.Info("OpenAI",
 			zap.String("base_url", h.config.OpenAI.BaseURL),

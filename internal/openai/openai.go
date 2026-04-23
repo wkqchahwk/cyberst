@@ -18,9 +18,10 @@ import (
 
 // English note.
 type Client struct {
-	httpClient *http.Client
-	config     *config.OpenAIConfig
-	logger     *zap.Logger
+	httpClient     *http.Client
+	baseHTTPClient *http.Client
+	config         *config.OpenAIConfig
+	logger         *zap.Logger
 }
 
 // English note.
@@ -41,16 +42,23 @@ func NewClient(cfg *config.OpenAIConfig, httpClient *http.Client, logger *zap.Lo
 	if logger == nil {
 		logger = zap.NewNop()
 	}
+	baseHTTPClient := httpClient
+	httpClient = NewEinoHTTPClient(cfg, baseHTTPClient)
 	return &Client{
-		httpClient: httpClient,
-		config:     cfg,
-		logger:     logger,
+		httpClient:     httpClient,
+		baseHTTPClient: baseHTTPClient,
+		config:         cfg,
+		logger:         logger,
 	}
 }
 
 // English note.
 func (c *Client) UpdateConfig(cfg *config.OpenAIConfig) {
 	c.config = cfg
+	if c.baseHTTPClient == nil {
+		c.baseHTTPClient = http.DefaultClient
+	}
+	c.httpClient = NewEinoHTTPClient(cfg, c.baseHTTPClient)
 }
 
 // English note.

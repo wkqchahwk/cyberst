@@ -1623,6 +1623,9 @@ func (a *Agent) UpdateConfig(cfg *config.OpenAIConfig) {
 	a.mu.Lock()
 	defer a.mu.Unlock()
 	a.config = cfg
+	if a.openAIClient != nil {
+		a.openAIClient.UpdateConfig(cfg)
+	}
 
 	// English note.
 	if a.memoryCompressor != nil {

@@ -751,6 +751,18 @@ func NewEinoHTTPClient(cfg *config.OpenAIConfig, base *http.Client) *http.Client
 	if base == nil {
 		base = http.DefaultClient
 	}
+	if isOllamaCloudProvider(cfg) {
+		cloned := *base
+		transport := base.Transport
+		if transport == nil {
+			transport = http.DefaultTransport
+		}
+		cloned.Transport = &ollamaCloudRoundTripper{
+			base:   transport,
+			config: cfg,
+		}
+		return &cloned
+	}
 	if !isClaudeProvider(cfg) {
 		return base
 	}
