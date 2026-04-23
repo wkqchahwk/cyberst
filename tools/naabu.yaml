@@ -1,0 +1,37 @@
+name: naabu
+command: naabu
+enabled: true
+requires_action_enabled: true
+short_description: Discover open ports with ProjectDiscovery naabu.
+description: 'CyberStrikeAI wrapper for ProjectDiscovery `naabu`. Command: `naabu`. Use only against explicitly authorized targets.'
+parameters:
+- name: target
+  type: string
+  description: Target host, domain, CIDR, or input file path.
+  required: true
+  flag: -host
+  format: flag
+- name: ports
+  type: string
+  description: Ports or port ranges to scan. Maps to `-p`.
+  required: false
+  flag: -p
+  format: flag
+- name: rate
+  type: int
+  description: Packet rate limit. Maps to `-rate`.
+  required: false
+  default: 100
+  flag: -rate
+  format: flag
+- name: top_ports
+  type: string
+  description: Top ports profile. Maps to `-top-ports`.
+  required: false
+  flag: -top-ports
+  format: flag
+- name: additional_args
+  type: string
+  description: Additional reviewed arguments.
+  required: false
+  format: positional

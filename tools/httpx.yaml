@@ -1,0 +1,46 @@
+name: httpx
+command: httpx
+enabled: true
+requires_action_enabled: true
+short_description: Probe HTTP and HTTPS endpoints with ProjectDiscovery httpx.
+description: 'CyberStrikeAI wrapper for ProjectDiscovery `httpx`. Command: `httpx`. Use only against explicitly authorized targets.'
+parameters:
+- name: target
+  type: string
+  description: Target URL, host, domain, or input file path.
+  required: true
+  flag: -u
+  format: flag
+- name: status_code
+  type: bool
+  description: Include response status code. Maps to `-status-code`.
+  required: false
+  default: true
+  flag: -status-code
+  format: flag
+- name: title
+  type: bool
+  description: Include page title. Maps to `-title`.
+  required: false
+  default: true
+  flag: -title
+  format: flag
+- name: tech_detect
+  type: bool
+  description: Include technology detection. Maps to `-tech-detect`.
+  required: false
+  default: true
+  flag: -tech-detect
+  format: flag
+- name: follow_redirects
+  type: bool
+  description: Follow redirects. Maps to `-follow-redirects`.
+  required: false
+  default: false
+  flag: -follow-redirects
+  format: flag
+- name: additional_args
+  type: string
+  description: Additional reviewed arguments.
+  required: false
+  format: positional

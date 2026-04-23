@@ -1,0 +1,35 @@
+name: gowitness
+command: gowitness
+args:
+- scan
+- single
+enabled: true
+requires_action_enabled: true
+short_description: Capture web screenshots for authorized targets.
+description: 'CyberStrikeAI wrapper for `gowitness`. Command: `gowitness`. Use only against explicitly authorized targets.'
+parameters:
+- name: url
+  type: string
+  description: Target URL to screenshot.
+  required: true
+  flag: -u
+  format: flag
+- name: timeout
+  type: int
+  description: Browser timeout in seconds. Maps to `--timeout`.
+  required: false
+  default: 10
+  flag: -T
+  format: flag
+- name: output_dir
+  type: string
+  description: Output directory for screenshots. Maps to `--screenshot-path`.
+  required: false
+  default: screenshots
+  flag: -s
+  format: flag
+- name: additional_args
+  type: string
+  description: Additional reviewed arguments.
+  required: false
+  format: positional

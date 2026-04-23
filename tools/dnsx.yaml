@@ -1,0 +1,80 @@
+name: dnsx
+command: dnsx
+enabled: true
+requires_action_enabled: true
+short_description: Resolve and validate DNS records with ProjectDiscovery dnsx.
+description: 'CyberStrikeAI wrapper for ProjectDiscovery `dnsx`. Command: `dnsx`. Use only against explicitly authorized targets.'
+parameters:
+- name: domain
+  type: string
+  description: Domain or hostname to resolve.
+  required: true
+  flag: -d
+  format: flag
+- name: a
+  type: bool
+  description: Query A records. Maps to `-a`.
+  required: false
+  default: true
+  flag: -a
+  format: flag
+- name: aaaa
+  type: bool
+  description: Query AAAA records. Maps to `-aaaa`.
+  required: false
+  default: false
+  flag: -aaaa
+  format: flag
+- name: cname
+  type: bool
+  description: Query CNAME records. Maps to `-cname`.
+  required: false
+  default: false
+  flag: -cname
+  format: flag
+- name: mx
+  type: bool
+  description: Query MX records. Maps to `-mx`.
+  required: false
+  default: false
+  flag: -mx
+  format: flag
+- name: ns
+  type: bool
+  description: Query NS records. Maps to `-ns`.
+  required: false
+  default: false
+  flag: -ns
+  format: flag
+- name: txt
+  type: bool
+  description: Query TXT records. Maps to `-txt`.
+  required: false
+  default: false
+  flag: -txt
+  format: flag
+- name: response
+  type: bool
+  description: Print DNS responses. Maps to `-resp`.
+  required: false
+  default: false
+  flag: -resp
+  format: flag
+- name: resolver
+  type: string
+  description: Custom resolver. Maps to `-r`.
+  required: false
+  flag: -r
+  format: flag
+- name: silent
+  type: bool
+  description: Print only resolved values. Maps to `-silent`.
+  required: false
+  default: true
+  flag: -silent
+  format: flag
+- name: additional_args
+  type: string
+  description: Additional reviewed arguments.
+  required: false
+  format: positional
